@@ -17,6 +17,10 @@
 
     // Initialize Chatbot Widget on DOM Ready
     function initChatbot() {
+        if (!document.body) {
+            document.addEventListener('DOMContentLoaded', initChatbot);
+            return;
+        }
         if (document.getElementById('piaChatbotWindow')) return; // Avoid duplicate
 
         // Append CSS link
@@ -223,6 +227,44 @@
         });
     }
 
+    /**
+     * Fallback heurístico client-side (espejo del generateFallbackResponse del backend).
+     * Se usa cuando /api/chatbot/chat no está disponible (hosting estático, Gemini caído, etc.).
+     * No expone claves ni depende de autenticación.
+     */
+    function generateClientFallbackResponse(query) {
+        const q = (query || '').toLowerCase();
+
+        if (q.includes('denunci') || q.includes('soborno') || q.includes('corrupc') || q.includes('anónim') || q.includes('anonim')) {
+            return `Para presentar una denuncia por irregularidades o actos de corrupción, accede a la sección **Canales por la Integridad**. Puedes hacerlo de forma 100% confidencial o anónima.\n\n👉 [Ir al formulario de denuncias](/canales-por-la-integridad/)`;
+        }
+        if (q.includes('directorio') || q.includes('ministr') || q.includes('funcionario') || q.includes('autoridad') || q.includes('probidad')) {
+            return `Puedes consultar el directorio de autoridades y encargados de probidad en nuestro módulo oficial.\n\n👉 [Consultar Directorio Ejecutivo](/directorio/)`;
+        }
+        if (q.includes('vehicul') || q.includes('carro') || q.includes('placa') || q.includes('automóvil') || q.includes('automovil')) {
+            return `En **Transparencia Vehicular** puedes buscar cualquier vehículo oficial del Estado por placa para verificar su asignación e informar uso indebido.\n\n👉 [Ingresar a Transparencia Vehicular](/vehiculos/)`;
+        }
+        if (q.includes('estadist') || q.includes('numero') || q.includes('números') || q.includes('cifra') || q.includes('gobierno en números')) {
+            return `En **Tu Gobierno en Números** encontrarás datos actualizados sobre oficinas de probidad, canales de denuncia y denuncias penales planteadas.\n\n👉 [Ver Gobierno en Números](/gobierno_en_numeros/)`;
+        }
+        if (q.includes('riesgo') || q.includes('gestión de riesgo') || q.includes('gestion de riesgo')) {
+            return `En el módulo de **Gestión de Riesgos** puedes consultar información sobre identificación y mitigación de riesgos de integridad.\n\n👉 [Ir a Gestión de Riesgos](/riesgo/)`;
+        }
+        if (q.includes('hola') || q.includes('buenos') || q.includes('buenas') || q.includes('saludos')) {
+            return `¡Hola! Soy **Lupita**, la Asistente Virtual del Portal de Integridad Activa (PIA). Puedo orientarte sobre denuncias, directorio de funcionarios, transparencia vehicular y estadísticas del Gobierno de Guatemala.\n\n¿En qué puedo ayudarte?`;
+        }
+
+        return `Gracias por tu consulta al Portal de Integridad Activa (PIA). Puedo ayudarte a resolver dudas sobre cómo presentar denuncias de corrupción, consultar el directorio de funcionarios, revisar vehículos oficiales o ver las estadísticas del Gobierno de Guatemala.\n\n¿Deseas orientación sobre alguna de estas secciones?`;
+    }
+
+    function applyFallbackResponse(userText) {
+        const fallbackText = generateClientFallbackResponse(userText);
+        const messageId = 'local_' + Date.now();
+        appendMessage('bot', fallbackText, messageId, null);
+        conversationHistory.push({ role: 'model', text: fallbackText });
+        saveLocalHistory();
+    }
+
     async function handleUserSendMessage() {
         if (isWaitingResponse) return;
         const text = textareaInput.value.trim();
@@ -265,14 +307,16 @@
                     renderSuggestionChips(data.suggestedFollowUps);
                 }
             } else {
-                const errData = await response.json().catch(() => ({}));
-                appendMessage('bot', `⚠️ ${errData.error || 'Ocurrió un inconveniente al procesar su consulta. Por favor intente de nuevo.'}`);
+                // API respondió con error (rate-limit, Gemini caído, etc.) → fallback local
+                console.warn('API chatbot no disponible o error HTTP, activando fallback client-side');
+                applyFallbackResponse(text);
             }
         } catch (err) {
+            // Sin servidor (Firebase estático, red caída, etc.) → fallback local
             removeTypingIndicator();
             isWaitingResponse = false;
-            console.error('Error in chatbot fetch:', err);
-            appendMessage('bot', '⚠️ No se pudo conectar con el servidor del Asistente Virtual. Verifique su conexión de red.');
+            console.warn('Error de red o API no alcanzable, activando fallback client-side:', err.message || err);
+            applyFallbackResponse(text);
         }
     }
 
@@ -485,7 +529,9 @@
     window.PIA_CHATBOT = {
         rateMessage,
         copyMessageText,
-        deleteKbItem: deleteWidgetKbItem
+        toggleChatbot,
+        openChatbot,
+        closeChatbot
     };
 
     // Auto init on DOM Ready

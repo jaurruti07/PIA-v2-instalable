@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAuthorizedOperator() {
+      return isAuthenticated() && 
+        (request.auth.token.email == 'deteccionydenuncia@cnc.gob.gt' || 
+         request.auth.token.email == 'apoyogi@cnc.gob.gt');
+    }
+
+    match /admin_audit_logs/{logId} {
+      allow read, write: if isAuthorizedOperator();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

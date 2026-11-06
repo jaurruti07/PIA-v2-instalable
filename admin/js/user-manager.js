@@ -39,36 +39,35 @@ function getFallbackStatus() {
       {
         slot: 1,
         configured: false,
-        displayName: 'Apoyo GI (CNC)',
-        upn: 'apoyogi@cnc.gob.gt',
-        oidMasked: 'Pendiente de asignación de OID por TI',
-        source: 'Variable de Entorno (PIA_OPERATOR_1_OID)',
+        displayName: 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI',
+        upn: 'deteccionydenuncia@cnc.gob.gt',
+        uidMasked: 'Pendiente de primer ingreso por el operador',
+        source: 'authorized_operators.json / Firebase Auth',
         role: 'data_operator',
-        status: 'pending'
+        status: 'pending_first_login'
       },
       {
         slot: 2,
         configured: false,
-        displayName: 'Detección y Denuncia (CNC)',
-        upn: 'deteccionydenuncia@cnc.gob.gt',
-        oidMasked: 'Pendiente de asignación de OID por TI',
-        source: 'Variable de Entorno (PIA_OPERATOR_2_OID)',
+        displayName: 'Apoyo GI (CNC)',
+        upn: 'apoyogi@cnc.gob.gt',
+        uidMasked: 'Pendiente de primer ingreso por el operador',
+        source: 'authorized_operators.json / Firebase Auth',
         role: 'data_operator',
-        status: 'pending'
+        status: 'pending_first_login'
       }
     ],
     security: {
-      authProvider: 'Microsoft Entra ID (MSAL Browser + Backend JWKS Verification)',
-      tenantId: 'Pendiente de TI',
-      clientId: 'Pendiente de TI',
+      authProvider: 'Firebase Authentication (Email/Contraseña + Backend JWKS Verification)',
+      projectId: 'pia-portal-integridad',
       concurrencyControl: 'SHA-256 ETag Optimistic Concurrency Activo',
       atomicWrites: 'Activo (.tmp + rename atómico)',
-      automatedBackups: 'Activo (rotación de 30 versiones en C:\\PIA_Data\\backups)',
-      immutableOidAudit: 'Activo (registro individualizado en audit_logs.json)',
+      automatedBackups: 'Activo (rotación de versiones en /data/backups)',
+      immutableUidAudit: 'Activo (registro individualizado en audit_logs.json y Firestore)',
       browserUserCreationDisabled: true,
       geminiLupita: {
-        model: 'gemini-2.5-flash',
-        configured: false,
+        model: 'gemini-3.6-flash',
+        configured: true,
         proxyActive: true,
         rateLimit: '15 peticiones / minuto por IP',
         heuristicFallback: 'Activo'
@@ -160,7 +159,7 @@ function renderOperatorsTab(slots) {
           Modelo de Acceso Cerrado a Dos Identidades Operativas
         </h3>
         <p style="font-size: 0.88rem; color: #5E7A8E; line-height: 1.45; margin: 0;">
-          Para garantizar la máxima seguridad y simplicidad operativa, el módulo administrativo está restringido exclusivamente a dos personas autorizadas mediante su <strong>identificador inmutable de objeto (OID)</strong> y arrendatario de Microsoft Entra ID. No existen cuentas creadas en el navegador ni credenciales compartidas.
+          Para garantizar la máxima seguridad y simplicidad operativa, el módulo administrativo está restringido exclusivamente a dos personas autorizadas mediante su <strong>identificador inmutable (UID)</strong> emitido por Firebase Authentication. No existen cuentas creadas en el navegador ni credenciales compartidas.
         </p>
       </div>
     </div>
@@ -173,24 +172,24 @@ function renderOperatorsTab(slots) {
     <!-- GUÍA DE ADMINISTRACIÓN DE IDENTIDADES PARA TI -->
     <div style="background: #fff; border-radius: 16px; border: 1px solid var(--border); padding: 1.75rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
       <h3 style="color: var(--navy); font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
-        <i class="fas fa-server" style="color: var(--cyan);"></i> Administración Segura de Operadores por TI (Windows Server)
+        <i class="fas fa-server" style="color: var(--cyan);"></i> Administración Segura de Operadores (Firebase Auth)
       </h3>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; font-size: 0.9rem; color: #5E7A8E;">
         <div style="background: var(--surface); padding: 1.25rem; border-radius: 12px; border-left: 4px solid var(--cyan);">
-          <strong style="color: var(--navy); display: block; margin-bottom: 0.5rem;"><i class="fas fa-key"></i> 1. Asignación mediante Variables de Entorno</strong>
-          Las identidades se configuran en el servidor mediante:
+          <strong style="color: var(--navy); display: block; margin-bottom: 0.5rem;"><i class="fas fa-key"></i> 1. Cuentas Oficiales Restringidas</strong>
+          El acceso está limitado estrictamente a:
           <code style="display: block; background: #0C1F30; color: #00C2E0; padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.82rem;">
-            PIA_OPERATOR_1_OID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx<br>
-            PIA_OPERATOR_2_OID=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
+            deteccionydenuncia@cnc.gob.gt<br>
+            apoyogi@cnc.gob.gt
           </code>
         </div>
         <div style="background: var(--surface); padding: 1.25rem; border-radius: 12px; border-left: 4px solid #22C55E;">
-          <strong style="color: var(--navy); display: block; margin-bottom: 0.5rem;"><i class="fas fa-id-badge"></i> 2. Identificador Inmutable (OID)</strong>
-          La autorización se valida contra el OID criptográfico emitido por Microsoft Entra ID. El correo electrónico o UPN es meramente informativo y no se utiliza como clave de acceso.
+          <strong style="color: var(--navy); display: block; margin-bottom: 0.5rem;"><i class="fas fa-id-badge"></i> 2. Identificador Inmutable (UID)</strong>
+          La autorización se valida criptográficamente contra el UID emitido por Firebase Authentication mediante claves públicas JWKS de Google en el backend de Node.js.
         </div>
         <div style="background: var(--surface); padding: 1.25rem; border-radius: 12px; border-left: 4px solid #F59E0B;">
-          <strong style="color: var(--navy); display: block; margin-bottom: 0.5rem;"><i class="fas fa-ban"></i> 3. Cero Administración en Navegador</strong>
-          Ningún usuario o atacante puede registrarse, crear cuentas, cambiar permisos o saltar la verificación desde la interfaz web.
+          <strong style="color: var(--navy); display: block; margin-bottom: 0.5rem;"><i class="fas fa-ban"></i> 3. Cero Registro en Navegador</strong>
+          El registro público está totalmente deshabilitado. Ningún usuario externo puede crear cuentas, alterar roles ni modificar permisos desde el cliente.
         </div>
       </div>
     </div>
@@ -198,10 +197,10 @@ function renderOperatorsTab(slots) {
 }
 
 function renderOperatorCard(op) {
-  const isConfigured = op.configured;
+  const isConfigured = op.configured && (op.status === 'active' || op.status === 'configured');
   const statusBadge = isConfigured
     ? `<span style="display: inline-flex; align-items: center; gap: 6px; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(34,197,94,0.15); color: #16A34A; font-weight: 700; font-size: 0.78rem;"><i class="fas fa-check-circle"></i> Configurado Activo</span>`
-    : `<span style="display: inline-flex; align-items: center; gap: 6px; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(245,158,11,0.15); color: #D97706; font-weight: 700; font-size: 0.78rem;"><i class="fas fa-clock"></i> Pendiente de TI</span>`;
+    : `<span style="display: inline-flex; align-items: center; gap: 6px; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(245,158,11,0.15); color: #D97706; font-weight: 700; font-size: 0.78rem;"><i class="fas fa-clock"></i> Pendiente Primer Ingreso</span>`;
 
   return `
     <div style="background: #fff; border-radius: 18px; border: 2px solid ${isConfigured ? 'rgba(34,197,94,0.3)' : 'var(--border)'}; padding: 1.75rem; box-shadow: 0 6px 20px rgba(0,0,0,0.04); position: relative; overflow: hidden;">
@@ -227,18 +226,18 @@ function renderOperatorCard(op) {
       <div style="background: var(--surface); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.25rem;">
         <div style="margin-bottom: 0.65rem;">
           <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; color: #5E7A8E; display: block; margin-bottom: 2px;">
-            Identificador Inmutable (OID Microsoft Entra ID)
+            Identificador Inmutable (UID Firebase Auth)
           </span>
           <code style="font-size: 0.88rem; color: var(--navy); font-weight: 700; word-break: break-all;">
-            ${op.oidMasked || '00000000-0000-0000-0000-000000000000'}
+            ${op.uidMasked || op.oidMasked || 'Pendiente de primer ingreso por el operador'}
           </code>
         </div>
         <div style="margin-bottom: 0.65rem;">
           <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em; color: #5E7A8E; display: block; margin-bottom: 2px;">
-            Correo / UPN (Informativo)
+            Correo Institucional Autorizado
           </span>
           <span style="font-size: 0.88rem; color: var(--navy);">
-            <i class="fas fa-envelope" style="color: var(--cyan); margin-right: 6px;"></i> ${op.upn}
+            <i class="fas fa-envelope" style="color: var(--cyan); margin-right: 6px;"></i> ${op.email || op.upn}
           </span>
         </div>
         <div>
@@ -249,6 +248,10 @@ function renderOperatorCard(op) {
             <i class="fas fa-sliders-h" style="margin-right: 6px;"></i> ${op.source}
           </span>
         </div>
+        ${op.notes ? `
+        <div style="margin-top: 0.65rem; padding: 0.45rem 0.65rem; background: rgba(245,158,11,0.08); border-left: 3px solid #F59E0B; border-radius: 6px; font-size: 0.78rem; color: #92400E; line-height: 1.4;">
+          <i class="fas fa-info-circle" style="margin-right: 4px;"></i> <strong>Nota:</strong> ${op.notes}
+        </div>` : ''}
       </div>
 
       <div>
@@ -272,23 +275,23 @@ function renderOperatorCard(op) {
 function renderSecurityTab(sec) {
   return `
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
-      <!-- TARJETA 1: ENTRA ID -->
+      <!-- TARJETA 1: FIREBASE AUTH -->
       <div style="background: #fff; border-radius: 16px; border: 1px solid var(--border); padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
-          <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(43,130,201,0.15); color: #2B82C9; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-            <i class="fab fa-microsoft"></i>
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(0,194,224,0.15); color: var(--cyan); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+            <i class="fas fa-shield-alt"></i>
           </div>
           <div>
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--navy); margin: 0;">Autenticación Microsoft Entra ID</h3>
-            <span style="font-size: 0.8rem; color: #22C55E; font-weight: 700;"><i class="fas fa-check-circle"></i> MSAL Browser + JWKS Backend</span>
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--navy); margin: 0;">Autenticación Firebase Auth</h3>
+            <span style="font-size: 0.8rem; color: #22C55E; font-weight: 700;"><i class="fas fa-check-circle"></i> Email/Password + JWKS Backend</span>
           </div>
         </div>
         <p style="font-size: 0.88rem; color: #5E7A8E; line-height: 1.45; margin-bottom: 1rem;">
-          Validación criptográfica RS256 en backend con llaves públicas remotas. Se verifica de forma estricta: firma digital, expiración, emisor, audiencia y concordancia con el Tenant institucional.
+          Validación criptográfica RS256 en backend con llaves públicas oficiales de Google (JWKS). Se verifica de forma estricta: firma digital, expiración, emisor, audiencia y UID inmutable del operador.
         </p>
         <div style="font-size: 0.82rem; background: var(--surface); padding: 0.75rem 1rem; border-radius: 8px;">
-          <div><strong>Tenant ID:</strong> <code>${sec.tenantId || 'Pendiente de TI'}</code></div>
-          <div><strong>Client ID:</strong> <code>${sec.clientId || 'Pendiente de TI'}</code></div>
+          <div><strong>Proyecto Firebase:</strong> <code>${sec.projectId || 'pia-portal-integridad'}</code></div>
+          <div><strong>Proveedor:</strong> <code>Email / Contraseña institucional</code></div>
         </div>
       </div>
 
@@ -331,12 +334,12 @@ function renderSecurityTab(sec) {
             <i class="fas fa-fingerprint"></i>
           </div>
           <div>
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--navy); margin: 0;">Trazabilidad por OID Inmutable</h3>
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--navy); margin: 0;">Trazabilidad por UID Inmutable</h3>
             <span style="font-size: 0.8rem; color: #22C55E; font-weight: 700;"><i class="fas fa-check-circle"></i> Bitácora Individualizada</span>
           </div>
         </div>
         <p style="font-size: 0.88rem; color: #5E7A8E; line-height: 1.45;">
-          Cada operación (creación, edición, eliminación, conocimiento de Lupita o respaldo) queda registrada con el <code>userOid</code> exacto, timestamp UTC, IP origen y archivo modificado, garantizando responsabilidad individual no repudiable.
+          Cada operación (creación, edición, eliminación, conocimiento de Lupita o respaldo) queda registrada con el <code>userUid</code> exacto de Firebase, timestamp UTC, IP origen y archivo modificado, garantizando responsabilidad individual no repudiable.
         </p>
       </div>
 

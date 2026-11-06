@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/pia-chatbot.css">
 
     <style>
     /* ============================================================
@@ -754,9 +755,9 @@
         opacity: 1;
     }
     .filter-group select {
-        width: 100%; padding: 0.7rem 2.5rem 0.7rem 1.1rem;
+        width: 100%; padding: 0.75rem 2.5rem 0.75rem 1.15rem;
         border: 1.5px solid var(--border);
-        border-radius: 50px;
+        border-radius: 14px;
         font-family: var(--font-body); font-size: 0.88rem; font-weight: 500;
         color: var(--text-main); background-color: var(--surface);
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230C2033' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -766,14 +767,28 @@
         appearance: none;
         -webkit-appearance: none;
         cursor: pointer;
+        box-shadow: 0 2px 8px rgba(12, 32, 51, 0.04);
         transition: all 0.2s ease;
     }
+    .filter-group select option {
+        padding: 10px 14px;
+        font-size: 0.88rem;
+        font-family: var(--font-body);
+        background-color: #ffffff;
+        color: var(--navy);
+        border-radius: 8px;
+    }
+    #directorio.theme-dark .filter-group select option {
+        background-color: #0c1f30;
+        color: #ffffff;
+    }
     .filter-group input[type="text"] {
-        width: 100%; padding: 0.7rem 2.2rem 0.7rem 1.1rem;
+        width: 100%; padding: 0.75rem 2.2rem 0.75rem 1.15rem;
         border: 1.5px solid var(--border);
-        border-radius: 50px;
+        border-radius: 14px;
         font-family: var(--font-body); font-size: 0.88rem;
         color: var(--text-main); background: var(--surface);
+        box-shadow: 0 2px 8px rgba(12, 32, 51, 0.04);
         transition: all 0.2s ease;
     }
     .filter-group select:hover,
@@ -1060,17 +1075,17 @@
     .dir-list-container {
         display: flex;
         flex-direction: column;
-        gap: 0.85rem;
+        gap: 1rem;
     }
     .dir-list-item {
         background: #fff;
         border: 1px solid var(--border);
         border-radius: 18px;
-        padding: 1.25rem 1.6rem;
+        padding: 1.35rem 1.75rem;
         display: grid;
-        grid-template-columns: 2.2fr 1.8fr 1.5fr 1fr;
-        gap: 1.25rem;
-        align-items: center;
+        grid-template-columns: 1.6fr 2.6fr 1.3fr auto;
+        gap: 1.5rem;
+        align-items: flex-start;
         box-shadow: var(--shadow-sm);
         transition: all 0.25s;
     }
@@ -1082,11 +1097,11 @@
     .dir-list-col-main {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.5rem;
     }
     .dir-list-title {
         font-family: var(--font-head);
-        font-size: 0.98rem;
+        font-size: 1rem;
         font-weight: 700;
         color: var(--text-main);
         line-height: 1.35;
@@ -1110,26 +1125,62 @@
     .dir-list-contact {
         display: flex;
         flex-direction: column;
-        gap: 0.3rem;
+        gap: 0.45rem;
         font-size: 0.82rem;
         color: var(--text-muted);
+        min-width: 0;
     }
-    .dir-list-contact div {
+    .dir-list-contact-header {
+        font-family: var(--font-head);
+        font-size: 0.74rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--blue-bright);
+        margin-bottom: 0.25rem;
         display: flex;
         align-items: center;
+        gap: 6px;
+    }
+    .dir-channel-row {
+        display: flex;
+        align-items: flex-start;
         gap: 8px;
+        line-height: 1.38;
         word-break: break-word;
     }
-    .dir-list-contact i {
-        color: var(--blue-bright);
+    .dir-channel-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        color: var(--text-main);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .dir-channel-label i {
         width: 14px;
         text-align: center;
     }
-    .dir-list-contact a {
-        color: var(--blue-bright);
+    .dir-channel-val {
+        color: var(--text-muted);
     }
-    .dir-list-contact a:hover {
+    .dir-channel-val a {
+        color: var(--blue-bright);
+        font-weight: 500;
+        text-decoration: none;
+    }
+    .dir-channel-val a:hover {
         text-decoration: underline;
+    }
+    .dir-channel-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(0, 194, 224, 0.08);
+        padding: 1px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 194, 224, 0.25);
     }
     .dir-list-avail {
         display: flex;
@@ -1138,9 +1189,10 @@
     }
     .dir-list-actions {
         display: flex;
+        flex-direction: column;
         gap: 0.5rem;
-        justify-content: flex-end;
-        align-items: center;
+        justify-content: flex-start;
+        align-items: stretch;
     }
     .btn-list-action {
         display: inline-flex;
@@ -1208,7 +1260,7 @@
         border-color: rgba(245, 166, 35, 0.4);
     }
 
-    /* Paginación de Lista (20 en 20) */
+    /* Paginación de Lista (10 en 10) */
     .dir-list-pagination {
         display: flex;
         justify-content: space-between;
@@ -1299,6 +1351,22 @@
     #directorio.theme-dark .dir-list-contact {
         color: rgba(255,255,255,0.65);
     }
+    #directorio.theme-dark .dir-list-contact-header {
+        color: var(--cyan);
+    }
+    #directorio.theme-dark .dir-channel-label {
+        color: #E2E8F0;
+    }
+    #directorio.theme-dark .dir-channel-val {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    #directorio.theme-dark .dir-channel-val a {
+        color: var(--cyan);
+    }
+    #directorio.theme-dark .dir-channel-link {
+        background: rgba(0, 194, 224, 0.15);
+        border-color: rgba(0, 194, 224, 0.35);
+    }
     #directorio.theme-dark .dir-list-sector {
         background: rgba(0,194,224,0.12);
         color: var(--cyan);
@@ -1308,18 +1376,27 @@
         color: var(--navy);
     }
 
-    @media (max-width: 992px) {
+    @media (max-width: 1024px) {
         .dir-list-item {
             grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+        .dir-list-actions {
+            flex-direction: row;
         }
     }
     @media (max-width: 640px) {
         .dir-list-item {
             grid-template-columns: 1fr;
             gap: 1rem;
-            padding: 1.1rem;
+            padding: 1.15rem;
+        }
+        .dir-channel-row {
+            flex-direction: column;
+            gap: 2px;
         }
         .dir-list-actions {
+            flex-direction: row;
             justify-content: flex-start;
         }
     }
@@ -3088,7 +3165,7 @@
                 </a>
             </div>
             <div class="hero-actions-secondary">
-                <a href="#guiaMultilingue" class="btn-hero-sub" id="heroGuiaCTA">
+                <a href="#guiaMultilingue" class="btn-hero-sub" id="heroGuiaCTA" role="button" aria-expanded="false" title="Mostrar u ocultar Guía Multilingüe de Denuncia Segura">
                     <i class="fas fa-shield-alt" style="color:var(--cyan);"></i> Guía de Denuncia Segura
                 </a>
                 <a href="#sobre" class="btn-hero-sub">
@@ -3097,7 +3174,7 @@
             </div>
             <div class="hero-security-notice" role="status">
                 <i class="fas fa-lock"></i>
-                <span><strong>Tratamiento seguro y confidencial:</strong> Se garantiza la protección de tu identidad y la gestión reservada de cada reporte.</span>
+                <span><strong>Tratamiento seguro y confidencial:</strong> Se garantiza la protección de tu identidad y la gestión reservada de cada reporte de denuncia.</span>
             </div>
         </div>
     </div>
@@ -3149,6 +3226,119 @@
         </div>
     </section>
 
+    <!-- ============================================================
+         ACCESIBILIDAD INCLUSIVA Y MULTILINGÜE MAYA
+    ============================================================ -->
+    <section class="section" id="guiaMultilingue" style="display: none;" aria-hidden="true">
+        <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+            <div>
+                <div class="section-tag"><i class="fas fa-language"></i> Accesibilidad e Inclusión</div>
+                <h2 class="section-title">Guía Multilingüe de Denuncia Segura</h2>
+                <p class="section-sub">Información accesible en idiomas mayas e inglés para conocer cómo presentar denuncias sobre irregularidades de forma confidencial, segura y guiada por voz.</p>
+            </div>
+            <button type="button" class="btn-hide-guia" id="btnHideGuia" title="Ocultar Guía de Denuncia Segura" aria-label="Ocultar Guía" style="background:rgba(14,165,233,0.1); border:1px solid rgba(14,165,233,0.3); color:var(--blue-bright); padding:0.5rem 1rem; border-radius:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.5rem; transition:all 0.2s ease;">
+                <i class="fas fa-eye-slash"></i> Ocultar guía
+            </button>
+        </div>
+
+        <div class="maya-guide-container">
+            <!-- Barra de Selección de Idioma -->
+            <div class="lang-selector-bar" id="mayaLangBar">
+                <button class="lang-pill-btn active" data-lang="es">
+                    <i class="fas fa-globe"></i> Español <span class="lang-badge">Nacional</span>
+                </button>
+                <button class="lang-pill-btn" data-lang="en">
+                    <i class="fas fa-globe-americas"></i> English <span class="lang-badge">International</span>
+                </button>
+                <button class="lang-pill-btn" data-lang="kiche">
+                    <i class="fas fa-comments"></i> K’iche’ <span class="lang-badge">Quiché / Totonicapán</span>
+                </button>
+                <button class="lang-pill-btn" data-lang="qeqchi">
+                    <i class="fas fa-comments"></i> Q’eqchi’ <span class="lang-badge">Alta Verapaz / Izabal</span>
+                </button>
+                <button class="lang-pill-btn" data-lang="kaqchikel">
+                    <i class="fas fa-comments"></i> Kaqchikel <span class="lang-badge">Chimaltenango / Sololá</span>
+                </button>
+                <button class="lang-pill-btn" data-lang="mam">
+                    <i class="fas fa-comments"></i> Mam <span class="lang-badge">Huehuetenango / San Marcos</span>
+                </button>
+            </div>
+
+            <!-- Reproductor de Audio Asistido (Síntesis por Voz) -->
+            <div class="audio-player-banner">
+                <div class="audio-info-box">
+                    <div class="audio-icon-wrap" id="audioStatusIcon">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--blue-bright); letter-spacing:0.05em; display:flex; align-items:center; gap:0.4rem;">
+                            <i class="fas fa-microphone"></i> Lectura Asistida por Voz (Web Speech)
+                            <div class="audio-wave-anim" id="audioWaveAnim" style="display:none;">
+                                <div class="audio-wave-bar"></div>
+                                <div class="audio-wave-bar"></div>
+                                <div class="audio-wave-bar"></div>
+                                <div class="audio-wave-bar"></div>
+                            </div>
+                        </div>
+                        <h4 style="margin:0.2rem 0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy);" id="mayaAudioTitle">
+                            Escuchar resumen informativo en Español
+                        </h4>
+                        <p style="margin:0; font-size:0.84rem; color:var(--text-muted);" id="mayaAudioSub">
+                            Presiona para reproducir la locución oficial sintetizada sobre los canales de denuncia.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:0.6rem; align-items:center;">
+                    <button type="button" class="btn-play-maya" id="btnPlayMayaSpeech">
+                        <i class="fas fa-play" id="iconPlayBtn"></i> <span id="labelPlayBtn">Escuchar en Español</span>
+                    </button>
+                    <button type="button" class="btn-stop-maya" id="btnStopMayaSpeech" style="display:none;">
+                        <i class="fas fa-stop"></i> Detener
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pasos de Denuncia Segura en el Idioma Seleccionado -->
+            <h3 id="mayaStepsHeading" style="font-family:var(--font-head); font-size:1.25rem; margin:0 0 1.25rem; color:var(--navy); display:flex; align-items:center; gap:0.5rem;">
+                <i class="fas fa-list-ol" style="color:var(--blue-bright);"></i> <span id="mayaStepsHeadingText">Procedimiento de Denuncia Segura en 4 Pasos</span>
+            </h3>
+
+            <div class="maya-steps-grid" id="mayaStepsContainer">
+                <!-- Pasos inyectados dinámicamente -->
+            </div>
+
+            <!-- Garantías de Protección al Denunciante (CNC) -->
+            <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:20px; padding:1.5rem; margin-top:2rem;">
+                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem;">
+                    <i class="fas fa-user-shield" style="color:var(--blue-bright); font-size:1.4rem;"></i>
+                    <h4 style="margin:0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy);" id="mayaGuaranteesTitle">
+                        Garantías de Confidencialidad y Protección CNC
+                    </h4>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:1rem;" id="mayaGuaranteesGrid">
+                    <!-- Garantías inyectadas dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Glosario Multilingüe de Términos de Integridad -->
+            <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+                    <h4 style="margin:0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy); display:flex; align-items:center; gap:0.5rem;">
+                        <i class="fas fa-book" style="color:var(--blue-bright);"></i> Glosario de Términos en Lenguas Mayas
+                    </h4>
+                    <span style="font-size:0.78rem; color:var(--text-muted);">Haz clic en el altavoz para escuchar la traducción</span>
+                </div>
+
+                <div class="glossary-maya-grid" id="mayaGlossaryGrid">
+                    <!-- Glosario inyectado dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
     <!-- DEFINICIONES (carrusel) -->
     <section class="section">
         <div class="section-header center">
@@ -3461,113 +3651,6 @@
         </div>
     </section>
 
-    <!-- ============================================================
-         ACCESIBILIDAD INCLUSIVA Y MULTILINGÜE MAYA
-    ============================================================ -->
-    <section class="section" id="guiaMultilingue">
-        <div class="section-header">
-            <div class="section-tag"><i class="fas fa-language"></i> Accesibilidad e Inclusión</div>
-            <h2 class="section-title">Guía Multilingüe de Denuncia Segura</h2>
-            <p class="section-sub">Información accesible en idiomas mayas e inglés para conocer cómo presentar denuncias sobre irregularidades de forma confidencial, segura y guiada por voz.</p>
-        </div>
-
-        <div class="maya-guide-container">
-            <!-- Barra de Selección de Idioma -->
-            <div class="lang-selector-bar" id="mayaLangBar">
-                <button class="lang-pill-btn active" data-lang="es">
-                    <i class="fas fa-globe"></i> Español <span class="lang-badge">Nacional</span>
-                </button>
-                <button class="lang-pill-btn" data-lang="en">
-                    <i class="fas fa-globe-americas"></i> English <span class="lang-badge">International</span>
-                </button>
-                <button class="lang-pill-btn" data-lang="kiche">
-                    <i class="fas fa-comments"></i> K’iche’ <span class="lang-badge">Quiché / Totonicapán</span>
-                </button>
-                <button class="lang-pill-btn" data-lang="qeqchi">
-                    <i class="fas fa-comments"></i> Q’eqchi’ <span class="lang-badge">Alta Verapaz / Izabal</span>
-                </button>
-                <button class="lang-pill-btn" data-lang="kaqchikel">
-                    <i class="fas fa-comments"></i> Kaqchikel <span class="lang-badge">Chimaltenango / Sololá</span>
-                </button>
-                <button class="lang-pill-btn" data-lang="mam">
-                    <i class="fas fa-comments"></i> Mam <span class="lang-badge">Huehuetenango / San Marcos</span>
-                </button>
-            </div>
-
-            <!-- Reproductor de Audio Asistido (Síntesis por Voz) -->
-            <div class="audio-player-banner">
-                <div class="audio-info-box">
-                    <div class="audio-icon-wrap" id="audioStatusIcon">
-                        <i class="fas fa-volume-up"></i>
-                    </div>
-                    <div>
-                        <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--blue-bright); letter-spacing:0.05em; display:flex; align-items:center; gap:0.4rem;">
-                            <i class="fas fa-microphone"></i> Lectura Asistida por Voz (Web Speech)
-                            <div class="audio-wave-anim" id="audioWaveAnim" style="display:none;">
-                                <div class="audio-wave-bar"></div>
-                                <div class="audio-wave-bar"></div>
-                                <div class="audio-wave-bar"></div>
-                                <div class="audio-wave-bar"></div>
-                            </div>
-                        </div>
-                        <h4 style="margin:0.2rem 0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy);" id="mayaAudioTitle">
-                            Escuchar resumen informativo en Español
-                        </h4>
-                        <p style="margin:0; font-size:0.84rem; color:var(--text-muted);" id="mayaAudioSub">
-                            Presiona para reproducir la locución oficial sintetizada sobre los canales de denuncia.
-                        </p>
-                    </div>
-                </div>
-
-                <div style="display:flex; gap:0.6rem; align-items:center;">
-                    <button type="button" class="btn-play-maya" id="btnPlayMayaSpeech">
-                        <i class="fas fa-play" id="iconPlayBtn"></i> <span id="labelPlayBtn">Escuchar en Español</span>
-                    </button>
-                    <button type="button" class="btn-stop-maya" id="btnStopMayaSpeech" style="display:none;">
-                        <i class="fas fa-stop"></i> Detener
-                    </button>
-                </div>
-            </div>
-
-            <!-- Pasos de Denuncia Segura en el Idioma Seleccionado -->
-            <h3 id="mayaStepsHeading" style="font-family:var(--font-head); font-size:1.25rem; margin:0 0 1.25rem; color:var(--navy); display:flex; align-items:center; gap:0.5rem;">
-                <i class="fas fa-list-ol" style="color:var(--blue-bright);"></i> <span id="mayaStepsHeadingText">Procedimiento de Denuncia Segura en 4 Pasos</span>
-            </h3>
-
-            <div class="maya-steps-grid" id="mayaStepsContainer">
-                <!-- Pasos inyectados dinámicamente -->
-            </div>
-
-            <!-- Garantías de Protección al Denunciante (CNC) -->
-            <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:20px; padding:1.5rem; margin-top:2rem;">
-                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem;">
-                    <i class="fas fa-user-shield" style="color:var(--blue-bright); font-size:1.4rem;"></i>
-                    <h4 style="margin:0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy);" id="mayaGuaranteesTitle">
-                        Garantías de Confidencialidad y Protección CNC
-                    </h4>
-                </div>
-
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:1rem;" id="mayaGuaranteesGrid">
-                    <!-- Garantías inyectadas dinámicamente -->
-                </div>
-            </div>
-
-            <!-- Glosario Multilingüe de Términos de Integridad -->
-            <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border);">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
-                    <h4 style="margin:0; font-family:var(--font-head); font-size:1.1rem; color:var(--navy); display:flex; align-items:center; gap:0.5rem;">
-                        <i class="fas fa-book" style="color:var(--blue-bright);"></i> Glosario de Términos en Lenguas Mayas
-                    </h4>
-                    <span style="font-size:0.78rem; color:var(--text-muted);">Haz clic en el altavoz para escuchar la traducción</span>
-                </div>
-
-                <div class="glossary-maya-grid" id="mayaGlossaryGrid">
-                    <!-- Glosario inyectado dinámicamente -->
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- VIGILANDO LA INTEGRIDAD — banner section  -->
     <section style="padding:0 0 1rem;">
         <div class="vigilando-section">
@@ -3595,8 +3678,8 @@
     <!-- FAQ -->
     <section class="section" style="padding-top:0;">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">FAQ</div>
-            <h2 class="section-title">Preguntas frecuentes</h2>
+            <div class="section-tag" style="justify-content:center;">Preguntas frecuentes</div>
+            <h2 class="section-title">Resolvemos tus dudas</h2>
             <p class="section-sub">Respuestas a las consultas más comunes sobre la plataforma.</p>
         </div>
         <div class="faq-wrap">
@@ -4130,10 +4213,10 @@ document.querySelectorAll('.modal-tabs').forEach(container => {
 });
 
 /* ============================================================
-   RENDER VISTA DE LISTA CON PAGINACIÓN (20 en 20)
+   RENDER VISTA DE LISTA CON PAGINACIÓN (10 en 10)
 ============================================================ */
 let listCurrentPage = 1;
-const listPageSize = 20;
+const listPageSize = 10;
 
 function renderList(list, page = 1) {
     const $list = document.getElementById('listContainer');
@@ -4164,6 +4247,76 @@ function renderList(list, page = 1) {
         const safe  = inst.institucion.replace(/'/g,"\\'");
         const tieneProtocolo = inst['Protocolo de actuación'] === true;
 
+        // Construir listado completo de todos los canales disponibles
+        let channelsListHtml = '';
+
+        if (inst.telefono && inst.telefono.trim()) {
+            channelsListHtml += `
+                <div class="dir-channel-row">
+                    <span class="dir-channel-label"><i class="fas fa-phone-alt" style="color:var(--blue-bright);"></i> Teléfono:</span>
+                    <span class="dir-channel-val"><a href="tel:${phone}">${inst.telefono}</a></span>
+                </div>
+            `;
+        }
+
+        if (inst.correo && inst.correo.trim()) {
+            channelsListHtml += `
+                <div class="dir-channel-row">
+                    <span class="dir-channel-label"><i class="fas fa-envelope" style="color:var(--blue-bright);"></i> Correo:</span>
+                    <span class="dir-channel-val"><a href="mailto:${inst.correo}">${inst.correo}</a></span>
+                </div>
+            `;
+        }
+
+        if (inst.formulario && inst.formulario.trim()) {
+            channelsListHtml += `
+                <div class="dir-channel-row">
+                    <span class="dir-channel-label"><i class="fas fa-globe" style="color:var(--cyan);"></i> Formulario web:</span>
+                    <span class="dir-channel-val"><a href="${inst.formulario}" target="_blank" rel="noopener" class="dir-channel-link">Abrir formulario oficial <i class="fas fa-external-link-alt" style="font-size:0.7rem;"></i></a></span>
+                </div>
+            `;
+        }
+
+        if (inst.tipocom && inst.tipocom.trim()) {
+            channelsListHtml += `
+                <div class="dir-channel-row">
+                    <span class="dir-channel-label"><i class="fas fa-building" style="color:#0ea5e9;"></i> Presencial:</span>
+                    <span class="dir-channel-val">${inst.tipocom}</span>
+                </div>
+            `;
+        }
+
+        if (inst.direccion && inst.direccion.trim()) {
+            channelsListHtml += `
+                <div class="dir-channel-row">
+                    <span class="dir-channel-label"><i class="fas fa-map-marker-alt" style="color:#e11d48;"></i> Dirección:</span>
+                    <span class="dir-channel-val">${inst.direccion}</span>
+                </div>
+            `;
+        }
+
+        if (inst.otro && inst.otro.trim()) {
+            channelsListHtml += `
+                <div class="dir-channel-row">
+                    <span class="dir-channel-label"><i class="fas fa-comment-dots" style="color:#8b5cf6;"></i> Otro canal:</span>
+                    <span class="dir-channel-val">${inst.otro}</span>
+                </div>
+            `;
+        }
+
+        if (inst.horario && inst.horario.trim()) {
+            channelsListHtml += `
+                <div class="dir-channel-row">
+                    <span class="dir-channel-label"><i class="fas fa-clock" style="color:var(--amber);"></i> Horario:</span>
+                    <span class="dir-channel-val">${inst.horario}</span>
+                </div>
+            `;
+        }
+
+        if (!channelsListHtml) {
+            channelsListHtml = `<div class="dir-channel-row"><span style="color:var(--text-light); font-style:italic;">Canales en proceso de actualización</span></div>`;
+        }
+
         const row = document.createElement('div');
         row.className = 'dir-list-item';
         row.innerHTML = `
@@ -4175,9 +4328,10 @@ function renderList(list, page = 1) {
                 </div>
             </div>
             <div class="dir-list-contact">
-                <div><i class="fas fa-envelope"></i> ${inst.correo ? `<a href="mailto:${inst.correo}">${inst.correo}</a>` : '<span style="color:var(--text-light)">Sin correo</span>'}</div>
-                <div><i class="fas fa-phone-alt"></i> ${inst.telefono ? `<a href="tel:${phone}">${inst.telefono}</a>` : '<span style="color:var(--text-light)">Sin teléfono</span>'}</div>
-                <div><i class="fas fa-clock"></i> <span style="font-size:0.78rem;">${inst.horario || 'Horario no especificado'}</span></div>
+                <div class="dir-list-contact-header">
+                    <i class="fas fa-bullhorn" style="color:var(--cyan);"></i> Canales disponibles
+                </div>
+                ${channelsListHtml}
             </div>
             <div class="dir-list-avail">
                 <span class="protocolo-badge-list ${tieneProtocolo ? 'emitido' : 'en-proceso'}">
@@ -4199,7 +4353,7 @@ function renderList(list, page = 1) {
             <div class="dir-list-pagination">
                 <div class="dir-list-page-info">
                     Mostrando <strong>${startIdx + 1}</strong> - <strong>${endIdx}</strong> de <strong>${totalRecords}</strong> instituciones
-                    <span style="margin-left:8px; opacity:0.8;">(Página ${page} de ${totalPages})</span>
+                    <span style="margin-left:8px; opacity:0.8;">(10 registros por página · Página ${page} de ${totalPages})</span>
                 </div>
                 <div class="dir-list-page-controls">
                     <button class="dir-page-btn" onclick="window._goToDirListPage(${page - 1})" ${page <= 1 ? 'disabled' : ''} title="Página anterior" aria-label="Página anterior">
@@ -4618,10 +4772,59 @@ window.addEventListener('scroll', () => {
     document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 40);
 });
 document.getElementById('heroCTA').addEventListener('click', e => { e.preventDefault(); document.getElementById('directorio').scrollIntoView({ behavior:'smooth' }); });
+// Control de visualización: Accesibilidad e Inclusión - Guía Multilingüe de Denuncia Segura
+function toggleGuiaMultilingue(forceOpen) {
+    const guiaEl = document.getElementById('guiaMultilingue');
+    const heroBtn = document.getElementById('heroGuiaCTA');
+    if (!guiaEl) return;
+
+    const isHidden = guiaEl.style.display === 'none' || getComputedStyle(guiaEl).display === 'none';
+    const shouldOpen = forceOpen !== undefined && forceOpen !== null ? forceOpen : isHidden;
+
+    if (shouldOpen) {
+        guiaEl.style.display = 'block';
+        guiaEl.setAttribute('aria-hidden', 'false');
+        if (heroBtn) {
+            heroBtn.setAttribute('aria-expanded', 'true');
+            heroBtn.classList.add('active');
+        }
+        setTimeout(() => {
+            guiaEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+    } else {
+        guiaEl.style.display = 'none';
+        guiaEl.setAttribute('aria-hidden', 'true');
+        if (heroBtn) {
+            heroBtn.setAttribute('aria-expanded', 'false');
+            heroBtn.classList.remove('active');
+        }
+    }
+}
+
 const heroGuiaBtnEl = document.getElementById('heroGuiaCTA');
 if (heroGuiaBtnEl) {
-    heroGuiaBtnEl.addEventListener('click', e => { e.preventDefault(); document.getElementById('guiaMultilingue').scrollIntoView({ behavior:'smooth' }); });
+    heroGuiaBtnEl.addEventListener('click', e => {
+        e.preventDefault();
+        toggleGuiaMultilingue();
+    });
 }
+
+const btnHideGuiaEl = document.getElementById('btnHideGuia');
+if (btnHideGuiaEl) {
+    btnHideGuiaEl.addEventListener('click', () => {
+        toggleGuiaMultilingue(false);
+    });
+}
+
+// Visualizar automáticamente si se navega directamente con hash #guiaMultilingue
+if (window.location.hash === '#guiaMultilingue') {
+    toggleGuiaMultilingue(true);
+}
+window.addEventListener('hashchange', () => {
+    if (window.location.hash === '#guiaMultilingue') {
+        toggleGuiaMultilingue(true);
+    }
+});
 document.querySelectorAll('.accordion-q').forEach(btn => {
     btn.addEventListener('click', () => btn.closest('.accordion-item').classList.toggle('open'));
 });
@@ -5666,5 +5869,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
 });
 </script>
+<script src="/js/pia-chatbot.js" defer></script>
 </body>
 </html>

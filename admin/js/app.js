@@ -4,6 +4,7 @@ import { initUserManager } from './user-manager.js';
 import { initChatbotManager } from './chatbot-manager.js';
 import { initTechnicalGuide } from './technical-guide.js';
 import { validateModuleRecord } from './schema-validator.js';
+import { loginWithFirebase, sendFirebasePasswordReset, verifyToken, logout as authLogout } from './auth.js';
 
 // Session Inactivity Timer Configuration (30 minutos)
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
@@ -38,29 +39,135 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Verificar estado de configuración institucional de Microsoft Entra ID
-    if (window.getEntraConfig) {
-        try {
-            const config = await window.getEntraConfig();
-            const warningEl = document.getElementById('entraConfigWarning');
-            const tenantInfoEl = document.getElementById('entraTenantInfo');
-            const btnEntra = document.getElementById('btnEntraLogin');
-            if (config && config.configured) {
-                if (tenantInfoEl) tenantInfoEl.style.display = 'block';
-                if (warningEl) warningEl.style.display = 'none';
-            } else {
-                if (warningEl) warningEl.style.display = 'block';
-                if (tenantInfoEl) tenantInfoEl.style.display = 'none';
-                if (btnEntra) {
-                    btnEntra.disabled = true;
-                    btnEntra.style.opacity = '0.6';
-                    btnEntra.style.cursor = 'not-allowed';
-                    btnEntra.title = 'Requiere configurar ENTRA_TENANT_ID y ENTRA_CLIENT_ID en el servidor.';
+    // Toggle para visualizar u ocultar contraseña
+    const btnTogglePassword = document.getElementById('btnTogglePassword');
+    const loginPasswordInput = document.getElementById('loginPassword');
+    const iconTogglePassword = document.getElementById('iconTogglePassword');
+    if (btnTogglePassword && loginPasswordInput && iconTogglePassword) {
+        btnTogglePassword.addEventListener('click', () => {
+            const isPassword = loginPasswordInput.type === 'password';
+            loginPasswordInput.type = isPassword ? 'text' : 'password';
+            iconTogglePassword.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        });
+    }
+
+    // Toggle para panel de recuperación de contraseña
+    const btnToggleForgotView = document.getElementById('btnToggleForgotView');
+    const forgotPasswordPanel = document.getElementById('forgotPasswordPanel');
+    const btnCloseForgotPanel = document.getElementById('btnCloseForgotPanel');
+    if (btnToggleForgotView && forgotPasswordPanel) {
+        btnToggleForgotView.addEventListener('click', () => {
+            const isHidden = forgotPasswordPanel.style.display === 'none' || !forgotPasswordPanel.style.display;
+            forgotPasswordPanel.style.display = isHidden ? 'block' : 'none';
+            if (isHidden) {
+                const emailVal = document.getElementById('loginEmail')?.value;
+                if (emailVal && document.getElementById('resetEmail')) {
+                    document.getElementById('resetEmail').value = emailVal;
                 }
             }
-        } catch (e) {
-            console.error('Error verificando configuración Entra ID:', e);
+        });
+    }
+    if (btnCloseForgotPanel && forgotPasswordPanel) {
+        btnCloseForgotPanel.addEventListener('click', () => {
+            forgotPasswordPanel.style.display = 'none';
+        });
+    }
+
+    // Envío de restablecimiento de contraseña vía Firebase
+    const btnSendPasswordReset = document.getElementById('btnSendPasswordReset');
+    const resetFeedback = document.getElementById('resetFeedback');
+    if (btnSendPasswordReset) {
+        btnSendPasswordReset.addEventListener('click', async () => {
+            const resetEmail = (document.getElementById('resetEmail')?.value || '').trim();
+            if (!resetEmail) {
+                if (resetFeedback) {
+                    resetFeedback.style.display = 'block';
+                    resetFeedback.style.background = 'rgba(239, 68, 68, 0.2)';
+                    resetFeedback.style.color = '#fca5a5';
+                    resetFeedback.textContent = 'Ingrese el correo institucional registrado.';
+                }
+                return;
+            }
+            btnSendPasswordReset.disabled = true;
+            btnSendPasswordReset.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando enlace...';
+            try {
+                const res = await sendFirebasePasswordReset(resetEmail);
+                if (resetFeedback) {
+                    resetFeedback.style.display = 'block';
+                    resetFeedback.style.background = 'rgba(34, 197, 94, 0.2)';
+                    resetFeedback.style.color = '#86efac';
+                    resetFeedback.textContent = res.message || 'Se ha enviado el enlace de restablecimiento a su correo.';
+                }
+            } catch (err) {
+                if (resetFeedback) {
+                    resetFeedback.style.display = 'block';
+                    resetFeedback.style.background = 'rgba(239, 68, 68, 0.2)';
+                    resetFeedback.style.color = '#fca5a5';
+                    resetFeedback.textContent = err.message || 'Error al enviar enlace de restablecimiento.';
+                }
+            } finally {
+                btnSendPasswordReset.disabled = false;
+                btnSendPasswordReset.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Enlace de Restablecimiento';
+            }
+        });
+    }
+
+    // Inicio de Sesión Oficial con Firebase Auth
+    const loginForm = document.getElementById('firebaseLoginForm');
+    const btnLoginSubmit = document.getElementById('btnLoginSubmit');
+    const errorDiv = document.getElementById('loginError');
+
+    async function handleLoginSubmit(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
         }
+
+        const emailInput = document.getElementById('loginEmail');
+        const passInput = document.getElementById('loginPassword');
+        const email = (emailInput?.value || '').trim();
+        const password = (passInput?.value || '').trim();
+
+        if (!email || !password) {
+            if (errorDiv) {
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i> Ingrese su correo institucional y su contraseña.';
+                errorDiv.style.display = 'block';
+            }
+            return;
+        }
+
+        const originalBtnHtml = btnLoginSubmit ? btnLoginSubmit.innerHTML : '';
+        if (btnLoginSubmit) {
+            btnLoginSubmit.disabled = true;
+            btnLoginSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Autenticando...';
+        }
+
+        try {
+            const { user } = await loginWithFirebase(email, password);
+            showToast(`¡Bienvenido! Sesión iniciada como ${user.displayName || user.upn}`, 'success');
+            showDashboard(user);
+            resetInactivityTimer();
+        } catch (err) {
+            console.error('Login error:', err);
+            if (errorDiv) {
+                errorDiv.innerHTML = `<i class="fas fa-shield-alt" style="margin-right:6px;"></i> ${err.message || 'Error de autenticación'}`;
+                errorDiv.style.display = 'block';
+            }
+            showToast(err.message || 'Acceso institucional denegado', 'error');
+        } finally {
+            if (btnLoginSubmit) {
+                btnLoginSubmit.disabled = false;
+                btnLoginSubmit.innerHTML = originalBtnHtml;
+            }
+        }
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLoginSubmit);
+    }
+    if (btnLoginSubmit) {
+        btnLoginSubmit.addEventListener('click', handleLoginSubmit);
     }
 
     // Verificar token guardado
@@ -76,38 +183,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } else {
         showLogin();
-    }
-
-    // Botón de Inicio de Sesión con Microsoft 365 / Entra ID
-    const btnEntraLogin = document.getElementById('btnEntraLogin');
-    if (btnEntraLogin) {
-        btnEntraLogin.addEventListener('click', async () => {
-            const errorDiv = document.getElementById('loginError');
-            if (errorDiv) {
-                errorDiv.style.display = 'none';
-                errorDiv.textContent = '';
-            }
-
-            const originalHtml = btnEntraLogin.innerHTML;
-            btnEntraLogin.disabled = true;
-            btnEntraLogin.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando con Microsoft 365...';
-
-            try {
-                const { token, user } = await window.loginWithEntra();
-                showToast(`¡Bienvenido! Sesión iniciada como ${user.displayName || user.upn}`, 'success');
-                showDashboard(user);
-                resetInactivityTimer();
-            } catch (err) {
-                if (errorDiv) {
-                    errorDiv.innerHTML = `<i class="fas fa-shield-alt" style="margin-right: 6px;"></i> ${err.message || 'Error de autenticación'}`;
-                    errorDiv.style.display = 'block';
-                }
-                showToast(err.message || 'Acceso institucional denegado', 'error');
-            } finally {
-                btnEntraLogin.disabled = false;
-                btnEntraLogin.innerHTML = originalHtml;
-            }
-        });
     }
 
     // Sidebar toggles & overlay for mobile
@@ -224,11 +299,8 @@ function showDashboard(user) {
     navigateTo('dashboard');
 }
 
-window.logout = function() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    showLogin();
-    showToast('Sesión cerrada', 'info');
+window.logout = async function(reason) {
+    await authLogout(reason);
 };
 
 window.navigateTo = async function(module) {
@@ -287,6 +359,12 @@ window.navigateTo = async function(module) {
         return;
     }
 
+    if (module === 'visits') {
+        renderVisitsView();
+        await loadVisitsData();
+        return;
+    }
+
     // Dynamic CRUD Module (canales, directorio, tableros, riesgo, vehiculos, portal)
     renderCrudView(module);
     await fetchAndRenderTable(module);
@@ -301,9 +379,9 @@ function renderDashboardView() {
     contentArea.innerHTML = `
         <div class="page-header">
             <h1>Dashboard de Control</h1>
-            <p>Métricas en tiempo real sincronizadas directamente con la base de datos JSON del portal</p>
+            <p>Métricas en tiempo real sincronizadas directamente con la base de datos JSON y accesos reales del portal</p>
         </div>
-        <div id="statsGrid" class="indicators-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div id="statsGrid" class="indicators-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
             <div class="indicator-card" style="background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
                 <div style="font-size: 0.85rem; color: #5E7A8E; margin-bottom: 0.5rem;"><i class="fas fa-cubes"></i> Total Registros</div>
                 <div style="font-size: 2rem; font-weight: 800; color: #0C1F30;" id="dashTotalRegs">...</div>
@@ -316,32 +394,49 @@ function renderDashboardView() {
                 <div style="font-size: 0.85rem; color: #5E7A8E; margin-bottom: 0.5rem;"><i class="fas fa-chart-bar"></i> Tableros de Gobierno</div>
                 <div style="font-size: 2rem; font-weight: 800; color: #22C55E;" id="dashTotalTableros">...</div>
             </div>
+            <div class="indicator-card" style="background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); cursor: pointer; border-left: 4px solid #2B82C9;" onclick="navigateTo('visits')" title="Clic para ver desglose detallado de visitas">
+                <div style="font-size: 0.85rem; color: #2B82C9; margin-bottom: 0.5rem; font-weight: 700;"><i class="fas fa-chart-line"></i> Visitas Totales Reales</div>
+                <div style="font-size: 2rem; font-weight: 800; color: #05111F;" id="dashTotalVisits">...</div>
+                <div style="font-size: 0.72rem; color: #5E7A8E; margin-top: 2px;">Clic para ver analítica &rarr;</div>
+            </div>
             <div class="indicator-card" style="background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
                 <div style="font-size: 0.85rem; color: #5E7A8E; margin-bottom: 0.5rem;"><i class="fas fa-user-shield"></i> Modelo de Acceso</div>
                 <div style="font-size: 1.4rem; font-weight: 800; color: #00C2E0;">2 Operadores</div>
             </div>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-top: 2rem;">
+
+        <!-- Fila de Visitas Reales y Gestión Rápida -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.75rem; margin-bottom: 2rem;">
             <div style="background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
-                <h3 style="margin-bottom: 1rem; color: #05111F;"><i class="fas fa-tasks"></i> Gestión Rápida de Módulos Autorizados</h3>
-                <p style="font-size: 0.9rem; color: #5E7A8E; margin-bottom: 1.5rem;">Selecciona cualquiera de los módulos activos para editar o consultar los datos oficiales en tiempo real.</p>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
-                    <button onclick="navigateTo('canales')" style="padding: 0.6rem 1rem; background: #00C2E0; color: #05111F; font-weight: 700; border-radius: 8px;"><i class="fas fa-comments"></i> Canales</button>
-                    <button onclick="navigateTo('directorio')" style="padding: 0.6rem 1rem; background: #1A5C8F; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-address-book"></i> Directorio</button>
-                    <button onclick="navigateTo('tableros')" style="padding: 0.6rem 1rem; background: #22C55E; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-chart-bar"></i> Tableros</button>
-                    <button onclick="navigateTo('riesgo')" style="padding: 0.6rem 1rem; background: #F97316; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-bullseye"></i> Riesgos</button>
-                    <button onclick="navigateTo('chatbot')" style="padding: 0.6rem 1rem; background: #8B5CF6; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-robot"></i> Asistente Lupita</button>
-                    <button onclick="navigateTo('security')" style="padding: 0.6rem 1rem; background: #05111F; color: #00C2E0; border: 1px solid rgba(0,194,224,0.3); font-weight: 700; border-radius: 8px;"><i class="fas fa-user-shield"></i> Identidades y Seguridad</button>
-                    <button onclick="navigateTo('audit')" style="padding: 0.6rem 1rem; background: #163250; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-shield-alt"></i> Bitácora de Auditoría</button>
-                    <button onclick="navigateTo('guide')" style="padding: 0.6rem 1rem; background: #05111F; color: #fff; border: 1px solid var(--border); font-weight: 700; border-radius: 8px;"><i class="fas fa-book-open"></i> Guía Técnica</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 style="color: #05111F; font-size: 1.15rem;"><i class="fas fa-chart-line" style="color:#2B82C9; margin-right:6px;"></i> Visitas Reales por Página</h3>
+                    <button onclick="navigateTo('visits')" style="font-size:0.8rem; background:none; border:none; color:#2B82C9; font-weight:700; cursor:pointer;">Ver Analítica &rarr;</button>
                 </div>
+                <div id="dashVisitsMiniList" style="font-size: 0.9rem; color: #5E7A8E;">Cargando contador de visitas...</div>
             </div>
             <div style="background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                    <h3 style="color: #05111F;"><i class="fas fa-history"></i> Bitácora de Actividad Reciente</h3>
+                    <h3 style="color: #05111F; font-size: 1.15rem;"><i class="fas fa-history" style="color:#00C2E0; margin-right:6px;"></i> Bitácora de Actividad Reciente</h3>
                     <button onclick="navigateTo('audit')" style="font-size:0.8rem; background:none; border:none; color:#00C2E0; font-weight:700; cursor:pointer;">Ver Todo &rarr;</button>
                 </div>
                 <div id="activityList" style="font-size: 0.9rem; color: #5E7A8E;">Cargando actividad...</div>
+            </div>
+        </div>
+
+        <!-- Módulos de Gestión Rápida -->
+        <div style="background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
+            <h3 style="margin-bottom: 0.5rem; color: #05111F;"><i class="fas fa-tasks"></i> Gestión Rápida de Módulos Autorizados</h3>
+            <p style="font-size: 0.9rem; color: #5E7A8E; margin-bottom: 1.25rem;">Selecciona cualquiera de los módulos activos para editar o consultar los datos oficiales en tiempo real.</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                <button onclick="navigateTo('canales')" style="padding: 0.6rem 1rem; background: #00C2E0; color: #05111F; font-weight: 700; border-radius: 8px;"><i class="fas fa-comments"></i> Canales</button>
+                <button onclick="navigateTo('directorio')" style="padding: 0.6rem 1rem; background: #1A5C8F; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-address-book"></i> Directorio</button>
+                <button onclick="navigateTo('tableros')" style="padding: 0.6rem 1rem; background: #22C55E; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-chart-bar"></i> Tableros</button>
+                <button onclick="navigateTo('riesgo')" style="padding: 0.6rem 1rem; background: #F97316; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-bullseye"></i> Riesgos</button>
+                <button onclick="navigateTo('visits')" style="padding: 0.6rem 1rem; background: #2B82C9; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-chart-line"></i> Contador de Visitas</button>
+                <button onclick="navigateTo('chatbot')" style="padding: 0.6rem 1rem; background: #8B5CF6; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-robot"></i> Asistente Lupita</button>
+                <button onclick="navigateTo('security')" style="padding: 0.6rem 1rem; background: #05111F; color: #00C2E0; border: 1px solid rgba(0,194,224,0.3); font-weight: 700; border-radius: 8px;"><i class="fas fa-user-shield"></i> Identidades y Seguridad</button>
+                <button onclick="navigateTo('audit')" style="padding: 0.6rem 1rem; background: #163250; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-shield-alt"></i> Bitácora de Auditoría</button>
+                <button onclick="navigateTo('guide')" style="padding: 0.6rem 1rem; background: #05111F; color: #fff; border: 1px solid var(--border); font-weight: 700; border-radius: 8px;"><i class="fas fa-book-open"></i> Guía Técnica</button>
             </div>
         </div>
     `;
@@ -356,11 +451,49 @@ async function loadDashboardData() {
         const dashInst = document.getElementById('dashTotalInst');
         const dashTableros = document.getElementById('dashTotalTableros');
         const dashVehiculos = document.getElementById('dashTotalVehiculos');
+        const dashVisits = document.getElementById('dashTotalVisits');
 
         if (dashRegs) dashRegs.textContent = stats.registros || 0;
         if (dashInst) dashInst.textContent = stats.instituciones || 0;
         if (dashTableros) dashTableros.textContent = stats.tableros || 0;
         if (dashVehiculos) dashVehiculos.textContent = stats.vehiculos || 0;
+        if (dashVisits && stats.visitasTotales !== undefined) {
+            dashVisits.textContent = Number(stats.visitasTotales).toLocaleString();
+        }
+
+        // Cargar desglose de visitas en el dashboard
+        try {
+            const vRes = await fetch('/api/admin/visits', { headers: getHeaders() });
+            if (vRes.ok) {
+                const vData = await vRes.json();
+                if (dashVisits) dashVisits.textContent = (Number(vData.totalVisits) || 0).toLocaleString();
+                const miniList = document.getElementById('dashVisitsMiniList');
+                if (miniList && vData.pages) {
+                    const pagesArr = Object.entries(vData.pages)
+                        .sort((a, b) => (b[1].visits || 0) - (a[1].visits || 0))
+                        .slice(0, 5);
+                    const total = Number(vData.totalVisits) || 1;
+                    miniList.innerHTML = pagesArr.map(([pathUrl, info]) => {
+                        const count = Number(info.visits) || 0;
+                        const pct = Math.round((count / total) * 100);
+                        return `
+                            <div style="padding: 0.55rem 0; border-bottom: 1px solid #E8EEF7; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <strong style="color: #05111F; font-size: 0.88rem;">${info.name}</strong>
+                                    <code style="font-size:0.75rem; color:#5E7A8E; background:#F0F5FB; padding:1px 5px; border-radius:4px;">${pathUrl}</code>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-weight:700; color:#1A5C8F;">${count.toLocaleString()}</span>
+                                    <span style="font-size:0.75rem; color:#5E7A8E; background:#F0F5FB; padding:2px 6px; border-radius:10px;">${pct}%</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        } catch (e) {
+            console.error('Error cargando mini visitas:', e);
+        }
 
         const auditRes = await fetch('/api/dashboard/audit', { headers: getHeaders() });
         const audit = await auditRes.json();
@@ -384,6 +517,270 @@ async function loadDashboardData() {
     } catch (err) {
         console.error('Error loading dashboard stats:', err);
     }
+}
+
+// ============================
+// CONTADOR REAL DE VISITAS
+// ============================
+
+let visitsDataCache = null;
+
+function renderVisitsView() {
+    const contentArea = document.getElementById('contentArea');
+    contentArea.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: #05111F;">
+                    <i class="fas fa-chart-line" style="color: #00C2E0; margin-right: 0.5rem;"></i>Contador y Analítica Real de Visitas
+                </h1>
+                <p style="color: #5E7A8E; font-size: 0.95rem;">Monitoreo en tiempo real de accesos ciudadanos a las páginas públicas del Portal de Integridad Activa (PIA).</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button id="btnRefreshVisits" style="padding: 0.75rem 1.25rem; background: #00C2E0; color: #05111F; font-weight: 700; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s;">
+                    <i class="fas fa-sync-alt"></i> Actualizar Métricas
+                </button>
+                <button id="btnExportVisitsJson" style="padding: 0.75rem 1.25rem; background: #05111F; color: #fff; font-weight: 600; border-radius: 12px; border: none; cursor: pointer;">
+                    <i class="fas fa-file-download"></i> Exportar JSON
+                </button>
+                <button id="btnExportVisitsCsv" style="padding: 0.75rem 1.25rem; background: #1A5C8F; color: #fff; font-weight: 600; border-radius: 12px; border: none; cursor: pointer;">
+                    <i class="fas fa-file-csv"></i> Exportar CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- Indicadores Principales de Visitas -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+            <div style="background: #fff; padding: 1.3rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-left: 4px solid #00C2E0;">
+                <div style="font-size: 0.8rem; color: #5E7A8E; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;"><i class="fas fa-eye"></i> Visitas Totales Reales</div>
+                <div id="statTotalVisits" style="font-size: 2.2rem; font-weight: 800; color: #05111F; margin-top: 0.3rem;">...</div>
+                <div style="font-size: 0.75rem; color: #5E7A8E; margin-top: 0.25rem;">Accesos acumulados verificados</div>
+            </div>
+            <div style="background: #fff; padding: 1.3rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-left: 4px solid #22C55E;">
+                <div style="font-size: 0.8rem; color: #22C55E; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;"><i class="fas fa-calendar-day"></i> Visitas Hoy</div>
+                <div id="statTodayVisits" style="font-size: 2.2rem; font-weight: 800; color: #22C55E; margin-top: 0.3rem;">...</div>
+                <div style="font-size: 0.75rem; color: #5E7A8E; margin-top: 0.25rem;">Tráfico de la fecha actual</div>
+            </div>
+            <div style="background: #fff; padding: 1.3rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-left: 4px solid #2B82C9;">
+                <div style="font-size: 0.8rem; color: #2B82C9; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;"><i class="fas fa-crown"></i> Página Más Consultada</div>
+                <div id="statTopPageName" style="font-size: 1.15rem; font-weight: 800; color: #0C1F30; margin-top: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">...</div>
+                <div id="statTopPageVisits" style="font-size: 0.8rem; color: #5E7A8E; margin-top: 0.25rem;">...</div>
+            </div>
+            <div style="background: #fff; padding: 1.3rem; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-left: 4px solid #F97316;">
+                <div style="font-size: 0.8rem; color: #F97316; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;"><i class="fas fa-clock"></i> Último Acceso</div>
+                <div id="statLastVisitTime" style="font-size: 1.05rem; font-weight: 700; color: #0C1F30; margin-top: 0.5rem;">...</div>
+                <div id="statLastVisitPage" style="font-size: 0.75rem; color: #5E7A8E; margin-top: 0.25rem;">...</div>
+            </div>
+        </div>
+
+        <!-- Desglose por Página Pública -->
+        <div style="background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(5,17,31,0.06); margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <h3 style="color: #05111F; font-size: 1.15rem; font-weight: 700;"><i class="fas fa-table" style="color: #00C2E0; margin-right: 6px;"></i> Desglose Detallado por Página Pública</h3>
+                    <p style="font-size: 0.85rem; color: #5E7A8E; margin-top: 2px;">Recuento exacto de solicitudes atendidas por cada módulo del portal</p>
+                </div>
+                <span style="font-size: 0.78rem; background: rgba(0,194,224,0.1); color: #00889c; padding: 4px 12px; border-radius: 20px; font-weight: 700;">
+                    <i class="fas fa-check-circle"></i> Datos Reales Verificados
+                </span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: #F0F5FB; text-align: left; color: #0C1F30; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;">
+                            <th style="padding: 0.85rem 1rem; border-radius: 10px 0 0 10px;">Página / Módulo</th>
+                            <th style="padding: 0.85rem 1rem;">Ruta Oficial</th>
+                            <th style="padding: 0.85rem 1rem; text-align: center;">Visitas Reales</th>
+                            <th style="padding: 0.85rem 1rem;">% Tráfico del Portal</th>
+                            <th style="padding: 0.85rem 1rem;">Último Registro</th>
+                            <th style="padding: 0.85rem 1rem; text-align: center; border-radius: 0 10px 10px 0;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitsPagesTableBody">
+                        <tr><td colspan="6" style="padding: 1.5rem; text-align: center; color: #5E7A8E;">Cargando métricas de páginas...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Registro Cronológico de Accesos Recientes -->
+        <div style="background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(5,17,31,0.06);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <h3 style="color: #05111F; font-size: 1.15rem; font-weight: 700;"><i class="fas fa-history" style="color: #1A5C8F; margin-right: 6px;"></i> Registro Cronológico de Accesos Recientes</h3>
+                    <p style="font-size: 0.85rem; color: #5E7A8E; margin-top: 2px;">Trazabilidad con anonimización de IP conforme a directrices de privacidad</p>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: #F0F5FB; text-align: left; color: #0C1F30; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;">
+                            <th style="padding: 0.75rem 1rem; border-radius: 8px 0 0 8px;">Fecha y Hora</th>
+                            <th style="padding: 0.75rem 1rem;">Página Solicitada</th>
+                            <th style="padding: 0.75rem 1rem;">Ruta</th>
+                            <th style="padding: 0.75rem 1rem;">IP Anonimizada</th>
+                            <th style="padding: 0.75rem 1rem; border-radius: 0 8px 8px 0;">Cliente / Agente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitsLogTableBody">
+                        <tr><td colspan="5" style="padding: 1.5rem; text-align: center; color: #5E7A8E;">Cargando historial de accesos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('btnRefreshVisits')?.addEventListener('click', async () => {
+        const btn = document.getElementById('btnRefreshVisits');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+        btn.disabled = true;
+        await loadVisitsData();
+        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Actualizar Métricas';
+        btn.disabled = false;
+    });
+
+    document.getElementById('btnExportVisitsJson')?.addEventListener('click', exportVisitsJson);
+    document.getElementById('btnExportVisitsCsv')?.addEventListener('click', exportVisitsCsv);
+}
+
+async function loadVisitsData() {
+    try {
+        const res = await fetch('/api/admin/visits', { headers: getHeaders() });
+        if (!res.ok) throw new Error('Error al consultar contador de visitas');
+        const data = await res.json();
+        visitsDataCache = data;
+
+        const totalVisits = Number(data.totalVisits) || 0;
+        const statTotal = document.getElementById('statTotalVisits');
+        const statToday = document.getElementById('statTodayVisits');
+        const statTopName = document.getElementById('statTopPageName');
+        const statTopVisits = document.getElementById('statTopPageVisits');
+        const statLastTime = document.getElementById('statLastVisitTime');
+        const statLastPage = document.getElementById('statLastVisitPage');
+
+        if (statTotal) statTotal.textContent = totalVisits.toLocaleString();
+        if (statToday) statToday.textContent = (data.todayVisits || 0).toLocaleString();
+        if (statTopName) statTopName.textContent = data.topPage?.name || 'Portal Principal';
+        if (statTopVisits) statTopVisits.textContent = `${(data.topPage?.visits || 0).toLocaleString()} visitas`;
+
+        const recent = data.recentVisits || [];
+        if (recent.length > 0) {
+            if (statLastTime) statLastTime.textContent = formatDate(recent[0].timestamp);
+            if (statLastPage) statLastPage.textContent = `${recent[0].pageName || recent[0].path}`;
+        } else {
+            if (statLastTime) statLastTime.textContent = 'Sin registros recientes';
+            if (statLastPage) statLastPage.textContent = '--';
+        }
+
+        // Renderizar tabla de páginas
+        const tbodyPages = document.getElementById('visitsPagesTableBody');
+        if (tbodyPages) {
+            const pagesEntries = Object.entries(data.pages || {});
+            if (pagesEntries.length === 0) {
+                tbodyPages.innerHTML = '<tr><td colspan="6" style="padding: 1.5rem; text-align: center; color: #5E7A8E;">Aún no hay visitas registradas.</td></tr>';
+            } else {
+                tbodyPages.innerHTML = pagesEntries
+                    .sort((a, b) => (b[1].visits || 0) - (a[1].visits || 0))
+                    .map(([pathUrl, info]) => {
+                        const visits = Number(info.visits) || 0;
+                        const pct = totalVisits > 0 ? Math.round((visits / totalVisits) * 100) : 0;
+                        const lastTime = info.lastVisit ? formatDate(info.lastVisit) : 'Sin visitas aún';
+                        return `
+                            <tr style="border-bottom: 1px solid #E8EEF7;">
+                                <td style="padding: 0.9rem 1rem;">
+                                    <strong style="color: #05111F; font-size: 0.95rem;">${info.name || pathUrl}</strong>
+                                </td>
+                                <td style="padding: 0.9rem 1rem;">
+                                    <code style="background: #F0F5FB; padding: 2px 8px; border-radius: 6px; color: #1A5C8F; font-size: 0.82rem;">${pathUrl}</code>
+                                </td>
+                                <td style="padding: 0.9rem 1rem; text-align: center;">
+                                    <span style="font-weight: 800; font-size: 1.1rem; color: #0C1F30;">${visits.toLocaleString()}</span>
+                                </td>
+                                <td style="padding: 0.9rem 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="flex: 1; height: 8px; background: #E8EEF7; border-radius: 4px; overflow: hidden;">
+                                            <div style="width: ${pct}%; height: 100%; background: linear-gradient(90deg, #00C2E0, #1A5C8F); border-radius: 4px;"></div>
+                                        </div>
+                                        <span style="font-size: 0.8rem; font-weight: 700; color: #1A5C8F; min-width: 36px; text-align: right;">${pct}%</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 0.9rem 1rem; font-size: 0.82rem; color: #5E7A8E;">
+                                    ${lastTime}
+                                </td>
+                                <td style="padding: 0.9rem 1rem; text-align: center;">
+                                    <a href="${pathUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: rgba(0,194,224,0.12); color: #00889c; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 700; transition: all 0.2s;">
+                                        <i class="fas fa-external-link-alt"></i> Ver Página
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+            }
+        }
+
+        // Renderizar registro cronológico
+        const tbodyLog = document.getElementById('visitsLogTableBody');
+        if (tbodyLog) {
+            if (recent.length === 0) {
+                tbodyLog.innerHTML = '<tr><td colspan="5" style="padding: 1.5rem; text-align: center; color: #5E7A8E;">No hay accesos recientes registrados.</td></tr>';
+            } else {
+                tbodyLog.innerHTML = recent.map(item => `
+                    <tr style="border-bottom: 1px solid #E8EEF7;">
+                        <td style="padding: 0.75rem 1rem; color: #05111F; font-weight: 600; white-space: nowrap;">
+                            ${formatDate(item.timestamp)}
+                        </td>
+                        <td style="padding: 0.75rem 1rem;">
+                            <span style="font-weight: 700; color: #1A5C8F;">${item.pageName || item.path}</span>
+                        </td>
+                        <td style="padding: 0.75rem 1rem;">
+                            <code style="background: #F0F5FB; padding: 2px 6px; border-radius: 4px; color: #5E7A8E; font-size: 0.8rem;">${item.path}</code>
+                        </td>
+                        <td style="padding: 0.75rem 1rem; color: #5E7A8E; font-family: monospace; font-size: 0.82rem;">
+                            ${item.maskedIp || '***.***'}
+                        </td>
+                        <td style="padding: 0.75rem 1rem; color: #5E7A8E; font-size: 0.8rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.userAgent}">
+                            ${item.userAgent || 'Navegador Web'}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+    } catch (err) {
+        console.error('Error al cargar datos de visitas:', err);
+    }
+}
+
+function exportVisitsJson() {
+    if (!visitsDataCache) return;
+    const blob = new Blob([JSON.stringify(visitsDataCache, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pia_contador_visitas_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportVisitsCsv() {
+    if (!visitsDataCache || !visitsDataCache.pages) return;
+    const rows = [
+        ['Página', 'Ruta', 'Visitas', 'Última Visita']
+    ];
+    for (const [pathUrl, info] of Object.entries(visitsDataCache.pages)) {
+        rows.push([
+            `"${info.name || pathUrl}"`,
+            `"${pathUrl}"`,
+            info.visits || 0,
+            `"${info.lastVisit || ''}"`
+        ]);
+    }
+    const csvContent = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pia_contador_visitas_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
 }
 
 // ============================

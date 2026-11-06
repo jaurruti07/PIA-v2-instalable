@@ -1,1 +1,22 @@
-[]
+[  
+  {
+    "operatorIndex": 1,
+    "uid": "",
+    "displayName": "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
+    "email": "deteccionydenuncia@cnc.gob.gt",
+    "upn": "deteccionydenuncia@cnc.gob.gt",
+    "role": "data_operator",
+    "status": "pending_first_login",
+    "notes": "Operador 1 autorizado para administración del Portal PIA mediante Firebase Auth."
+  },
+  {
+    "operatorIndex": 2,
+    "uid": "",
+    "displayName": "Apoyo GI (CNC)",
+    "email": "apoyogi@cnc.gob.gt",
+    "upn": "apoyogi@cnc.gob.gt",
+    "role": "data_operator",
+    "status": "pending_first_login",
+    "notes": "Operador 2 autorizado para administración del Portal PIA mediante Firebase Auth."
+  }
+]

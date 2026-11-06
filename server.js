@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.DEFAULT_APP_PORT) || 3000;
 
 // Body Parsers con límites institucionales controlados
 app.use(express.json({ limit: '20mb' }));
@@ -31,6 +31,7 @@ if (!fs.existsSync(BACKUPS_DIR)) fs.mkdirSync(BACKUPS_DIR, { recursive: true });
 
 const OPERATORS_FILE = path.join(DATA_DIR, 'authorized_operators.json');
 const AUDIT_FILE = path.join(DATA_DIR, 'audit_logs.json');
+const VISITS_FILE = path.join(DATA_DIR, 'page_visits.json');
 
 // Lista blanca estricta de archivos autorizados (Protección contra Path Traversal)
 const WHITELIST_JSON_MAP = {
@@ -50,7 +51,9 @@ const WHITELIST_JSON_MAP = {
   'portal': path.join(__dirname, 'data_portal.json'),
   'data_portal.json': path.join(__dirname, 'data_portal.json'),
   'chatbot_settings.json': path.join(__dirname, 'chatbot_settings.json'),
-  'chatbot_knowledge.json': path.join(__dirname, 'chatbot_knowledge.json')
+  'chatbot_knowledge.json': path.join(__dirname, 'chatbot_knowledge.json'),
+  'visits': VISITS_FILE,
+  'page_visits.json': VISITS_FILE
 };
 
 // Cálculo de hash SHA-256 para control de concurrencia (ETag)
@@ -134,6 +137,103 @@ function readJsonFile(filePath) {
 }
 
 // ========================================================
+// 1.1 CONTADOR REAL DE VISITAS Y MÉTRICAS DEL PORTAL
+// ========================================================
+
+const INITIAL_PAGES_META = {
+  '/': { name: 'Portal Principal / Inicio', section: 'Principal' },
+  '/directorio': { name: 'Directorio Acceso al Ejecutivo', section: 'Directorio' },
+  '/canales-por-la-integridad': { name: 'Canales por la Integridad', section: 'Denuncias' },
+  '/gobierno_en_numeros': { name: 'Tu Gobierno en Números', section: 'Tableros' },
+  '/riesgo': { name: 'Riesgo en la Mira', section: 'Riesgo' }
+};
+
+function getVisitsData() {
+  try {
+    if (!fs.existsSync(VISITS_FILE)) {
+      const init = {
+        totalVisits: 0,
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        pages: {
+          '/': { name: 'Portal Principal / Inicio', visits: 0, lastVisit: null },
+          '/directorio': { name: 'Directorio Acceso al Ejecutivo', visits: 0, lastVisit: null },
+          '/canales-por-la-integridad': { name: 'Canales por la Integridad', visits: 0, lastVisit: null },
+          '/gobierno_en_numeros': { name: 'Tu Gobierno en Números', visits: 0, lastVisit: null },
+          '/riesgo': { name: 'Riesgo en la Mira', visits: 0, lastVisit: null }
+        },
+        recentVisits: []
+      };
+      fs.writeFileSync(VISITS_FILE, JSON.stringify(init, null, 2), 'utf8');
+      return init;
+    }
+    const data = JSON.parse(fs.readFileSync(VISITS_FILE, 'utf8'));
+    if (!data.pages) data.pages = {};
+    for (const [k, v] of Object.entries(INITIAL_PAGES_META)) {
+      if (!data.pages[k]) {
+        data.pages[k] = { name: v.name, visits: 0, lastVisit: null };
+      }
+    }
+    return data;
+  } catch (e) {
+    console.error('Error leyendo page_visits.json:', e);
+    return { totalVisits: 0, pages: {}, recentVisits: [] };
+  }
+}
+
+function recordPageVisit(pagePath = '/', req = {}) {
+  try {
+    let norm = String(pagePath || '/').trim();
+    if (norm.length > 1 && norm.endsWith('/')) {
+      norm = norm.slice(0, -1);
+    }
+    if (!norm) norm = '/';
+
+    if (norm.startsWith('/api') || norm.startsWith('/admin') || norm.includes('.')) {
+      return;
+    }
+
+    const data = getVisitsData();
+    data.totalVisits = (Number(data.totalVisits) || 0) + 1;
+    data.lastUpdated = new Date().toISOString();
+
+    if (!data.pages[norm]) {
+      const meta = INITIAL_PAGES_META[norm] || { name: norm, section: 'Sección' };
+      data.pages[norm] = { name: meta.name, visits: 0, lastVisit: null };
+    }
+
+    data.pages[norm].visits = (Number(data.pages[norm].visits) || 0) + 1;
+    data.pages[norm].lastVisit = new Date().toISOString();
+
+    const headers = req.headers || {};
+    const rawIp = (headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1').split(',')[0].trim();
+    const ipParts = rawIp.split('.');
+    const maskedIp = ipParts.length === 4 ? `${ipParts[0]}.${ipParts[1]}.***.***` : '127.0.***';
+    const userAgent = String(headers['user-agent'] || 'Navegador Web').slice(0, 90);
+
+    if (!Array.isArray(data.recentVisits)) data.recentVisits = [];
+    data.recentVisits.unshift({
+      id: crypto.randomBytes(4).toString('hex'),
+      path: norm,
+      pageName: data.pages[norm].name,
+      timestamp: new Date().toISOString(),
+      maskedIp,
+      userAgent
+    });
+
+    if (data.recentVisits.length > 60) {
+      data.recentVisits = data.recentVisits.slice(0, 60);
+    }
+
+    const tempFile = path.join(DATA_DIR, `.tmp_visits_${Date.now()}`);
+    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tempFile, VISITS_FILE);
+  } catch (err) {
+    console.error('Error registrando visita:', err);
+  }
+}
+
+// ========================================================
 // 2. AUDITORÍA INSTITUCIONAL CON IDENTIFICACIÓN INDIVIDUAL
 // ========================================================
 
@@ -189,75 +289,89 @@ function logAudit({
 }
 
 // ========================================================
-// 3. MODELO DE ACCESO CERRADO PARA EXACTAMENTE DOS OPERADORES
+// 3. MODELO DE ACCESO CERRADO CON FIREBASE AUTHENTICATION (DOS OPERADORES)
 // ========================================================
 
-const ENTRA_TENANT_ID = process.env.ENTRA_TENANT_ID || '';
-const ENTRA_CLIENT_ID = process.env.ENTRA_CLIENT_ID || '';
-const ENTRA_REDIRECT_URI = process.env.ENTRA_REDIRECT_URI || 'http://localhost:3000/admin/';
+const FIREBASE_CONFIG_FILE = path.join(__dirname, 'firebase-applet-config.json');
+let firebaseConfig = {
+  projectId: 'pia-portal-integridad',
+  apiKey: '',
+  authDomain: 'pia-portal-integridad.firebaseapp.com',
+  appId: ''
+};
 
-let jwksRemote = null;
-function getRemoteJWKS() {
-  if (!jwksRemote && ENTRA_TENANT_ID) {
-    const jwksUrl = new URL(`https://login.microsoftonline.com/${ENTRA_TENANT_ID}/discovery/v2.0/keys`);
-    jwksRemote = createRemoteJWKSet(jwksUrl, {
+try {
+  if (fs.existsSync(FIREBASE_CONFIG_FILE)) {
+    const raw = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_FILE, 'utf8'));
+    firebaseConfig = { ...firebaseConfig, ...raw };
+  }
+} catch (e) {
+  console.error('Error leyendo firebase-applet-config.json:', e);
+}
+
+const FIREBASE_PROJECT_ID = (process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || 'pia-portal-integridad').trim();
+
+// Claves públicas JWKS oficiales de Google para verificación criptográfica de tokens de Firebase Auth
+const FIREBASE_JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
+let firebaseJwks = null;
+
+function getFirebaseJWKS() {
+  if (!firebaseJwks) {
+    const jwksUrl = new URL(FIREBASE_JWKS_URL);
+    firebaseJwks = createRemoteJWKSet(jwksUrl, {
       cacheMaxAge: 600000,
       cooldownDuration: 30000
     });
   }
-  return jwksRemote;
+  return firebaseJwks;
 }
 
-// Carga las dos identidades autorizadas de la CNC (vía variables de entorno o archivo de configuración privado)
+// Cuentas restringidas oficialmente autorizadas para administrar el Portal PIA
+const ALLOWED_OPERATOR_EMAILS = [
+  'deteccionydenuncia@cnc.gob.gt',
+  'apoyogi@cnc.gob.gt'
+];
+
+// Carga las dos identidades operativas de la CNC (vía variables de entorno o archivo de configuración privado)
 function getAuthorizedOperators() {
-  const operators = [];
-
-  // 1. Operador 1: apoyogi@cnc.gob.gt
-  const op1Oid = (process.env.PIA_OPERATOR_1_OID || '').trim().toLowerCase();
-  if (op1Oid && op1Oid !== '00000000-0000-0000-0000-000000000000') {
-    operators.push({
+  const operators = [
+    {
       operatorIndex: 1,
-      oid: op1Oid,
-      tid: ENTRA_TENANT_ID,
-      displayName: process.env.PIA_OPERATOR_1_NAME || 'Apoyo GI (CNC)',
-      upn: process.env.PIA_OPERATOR_1_UPN || 'apoyogi@cnc.gob.gt',
+      uid: (process.env.PIA_OPERATOR_1_UID || '').trim(),
+      email: 'deteccionydenuncia@cnc.gob.gt',
+      upn: 'deteccionydenuncia@cnc.gob.gt',
+      displayName: process.env.PIA_OPERATOR_1_NAME || 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI',
       role: 'data_operator',
-      status: 'active'
-    });
-  }
-
-  // 2. Operador 2: deteccionydenuncia@cnc.gob.gt
-  const op2Oid = (process.env.PIA_OPERATOR_2_OID || '').trim().toLowerCase();
-  if (op2Oid && op2Oid !== '00000000-0000-0000-0000-000000000000') {
-    operators.push({
+      status: process.env.PIA_OPERATOR_1_UID ? 'active' : 'pending_first_login',
+      notes: 'Operador 1 de la CNC autorizado para administración del Portal PIA mediante Firebase Auth.'
+    },
+    {
       operatorIndex: 2,
-      oid: op2Oid,
-      tid: ENTRA_TENANT_ID,
-      displayName: process.env.PIA_OPERATOR_2_NAME || 'Detección y Denuncia (CNC)',
-      upn: process.env.PIA_OPERATOR_2_UPN || 'deteccionydenuncia@cnc.gob.gt',
+      uid: (process.env.PIA_OPERATOR_2_UID || '').trim(),
+      email: 'apoyogi@cnc.gob.gt',
+      upn: 'apoyogi@cnc.gob.gt',
+      displayName: process.env.PIA_OPERATOR_2_NAME || 'Apoyo GI (CNC)',
       role: 'data_operator',
-      status: 'active'
-    });
-  }
+      status: process.env.PIA_OPERATOR_2_UID ? 'active' : 'pending_first_login',
+      notes: 'Operador 2 de la CNC autorizado para administración del Portal PIA mediante Firebase Auth.'
+    }
+  ];
 
-  // 3. Complemento desde archivo protegido si no se configuraron variables de entorno
-  if (operators.length === 0 && fs.existsSync(OPERATORS_FILE)) {
+  // Complemento y persistencia de UIDs desde archivo protegido si existe
+  if (fs.existsSync(OPERATORS_FILE)) {
     try {
       const fileOps = JSON.parse(fs.readFileSync(OPERATORS_FILE, 'utf8'));
       if (Array.isArray(fileOps)) {
-        for (const op of fileOps) {
-          const rawOid = (op.oid || '').trim().toLowerCase();
-          if (rawOid && rawOid !== '00000000-0000-0000-0000-000000000000' && !operators.some(o => o.oid === rawOid)) {
-            const idx = operators.length + 1;
-            operators.push({
-              operatorIndex: idx,
-              oid: rawOid,
-              tid: op.tid || ENTRA_TENANT_ID,
-              displayName: op.displayName || (idx === 1 ? 'Apoyo GI (CNC)' : 'Detección y Denuncia (CNC)'),
-              upn: op.upn || (idx === 1 ? 'apoyogi@cnc.gob.gt' : 'deteccionydenuncia@cnc.gob.gt'),
-              role: 'data_operator',
-              status: op.status || 'active'
-            });
+        for (const op of fileOps.slice(0, 2)) {
+          const target = operators.find(o => o.email.toLowerCase() === (op.email || op.upn || '').toLowerCase());
+          if (target) {
+            const rawUid = (op.uid || '').trim();
+            if (rawUid && rawUid !== '00000000-0000-0000-0000-000000000000') {
+              target.uid = rawUid;
+              target.status = 'active';
+            }
+            if (op.displayName) target.displayName = op.displayName;
+            if (op.notes) target.notes = op.notes;
           }
         }
       }
@@ -266,94 +380,146 @@ function getAuthorizedOperators() {
     }
   }
 
-  // Exactamente hasta 2 operadores permitidos
   return operators.slice(0, 2);
 }
 
-// Validación criptográfica estricta con Microsoft Entra ID
-async function verifyEntraToken(token) {
+// Guarda actualización de operadores en authorized_operators.json con escritura atómica
+function saveAuthorizedOperators(operators) {
+  try {
+    const tempFile = path.join(DATA_DIR, `.tmp_operators_${Date.now()}`);
+    fs.writeFileSync(tempFile, JSON.stringify(operators, null, 2), 'utf8');
+    fs.renameSync(tempFile, OPERATORS_FILE);
+  } catch (e) {
+    console.error('Error guardando authorized_operators.json:', e);
+  }
+}
+
+// Validación criptográfica estricta de token de Firebase Authentication en el servidor
+async function verifyFirebaseToken(token) {
   if (!token || typeof token !== 'string') {
     throw new Error('Token de autorización no proporcionado.');
   }
 
-  // Si no está configurado en el servidor, no permitir acceso administrativo
-  if (!ENTRA_TENANT_ID || !ENTRA_CLIENT_ID) {
-    const err = new Error('Microsoft Entra ID no está configurado en el servidor (ENTRA_TENANT_ID / ENTRA_CLIENT_ID pendientes).');
-    err.code = 'CONFIG_PENDING';
-    throw err;
-  }
-
-  const JWKS = getRemoteJWKS();
-  if (!JWKS) {
-    throw new Error('No fue posible inicializar el conjunto de llaves JWKS de Microsoft Entra ID.');
-  }
-
-  const expectedIssuers = [
-    `https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0`,
-    `https://sts.windows.net/${ENTRA_TENANT_ID}/`
-  ];
+  const JWKS = getFirebaseJWKS();
+  const expectedIssuer = `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`;
 
   const { payload } = await jwtVerify(token, JWKS, {
-    audience: ENTRA_CLIENT_ID,
-    issuer: expectedIssuers,
+    audience: FIREBASE_PROJECT_ID,
+    issuer: expectedIssuer,
+    algorithms: ['RS256'],
     clockTolerance: 60
   });
 
-  if (!payload.oid) {
-    throw new Error('El token institucional no contiene un identificador inmutable de objeto (oid).');
+  const uid = payload.sub || payload.user_id;
+  if (!uid || typeof uid !== 'string' || !uid.trim()) {
+    throw new Error('El token de Firebase no contiene un identificador único de usuario (UID).');
   }
 
-  if (payload.tid && payload.tid !== ENTRA_TENANT_ID) {
-    throw new Error('Token emitido por un arrendatario (tenant) no autorizado para el Portal PIA.');
+  const email = (payload.email || '').trim().toLowerCase();
+  if (!email) {
+    throw new Error('El token de Firebase no contiene una dirección de correo institucional asociada.');
   }
 
-  return payload;
+  return {
+    uid: uid.trim(),
+    email,
+    name: payload.name || email.split('@')[0],
+    email_verified: !!payload.email_verified,
+    payload
+  };
 }
 
-// Middleware de autenticación y autorización para dos operadores
+// Middleware de autenticación y autorización para dos operadores mediante Firebase Auth
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.replace(/^Bearer\s+/i, '').trim();
 
   if (!token) {
     return res.status(401).json({
-      error: 'Acceso no autorizado. Debe identificarse con una cuenta institucional de Microsoft 365 autorizada.'
+      error: 'Acceso no autorizado. Debe autenticarse con una cuenta autorizada de la CNC mediante Firebase Auth.'
     });
   }
 
   try {
-    const payload = await verifyEntraToken(token);
-    const userOid = String(payload.oid).trim().toLowerCase();
-    const userUpn = payload.preferred_username || payload.upn || payload.email || 'desconocido@entidad.gob.gt';
-    const userDisplayName = payload.name || userUpn;
+    const verified = await verifyFirebaseToken(token);
+    const userUid = verified.uid;
+    const userEmail = verified.email;
 
-    // Verificar si el usuario autenticado corresponde a uno de los dos operadores autorizados
-    const operators = getAuthorizedOperators();
-    const matchedOperator = operators.find(op => op.oid === userOid && op.status === 'active');
-
-    if (!matchedOperator) {
+    // Verificar si el correo pertenece estrictamente a las 2 cuentas autorizadas
+    if (!ALLOWED_OPERATOR_EMAILS.includes(userEmail)) {
       logAudit({
-        user: userUpn,
-        userOid,
+        user: userEmail,
+        userUid,
+        userOid: userUid,
         userRole: 'no_autorizado',
-        action: 'ACCESO DENEGADO (NO ES OPERADOR AUTORIZADO)',
+        action: 'ACCESO DENEGADO (CORREO NO AUTORIZADO)',
         module: 'auth',
         target: 'admin',
-        details: `Usuario institucional autenticado en Entra ID pero no forma parte de los dos operadores autorizados (OID: ${userOid})`,
+        details: `Intento de acceso denegado: ${userEmail} (UID: ${userUid}) no figura entre las 2 cuentas autorizadas de la CNC.`,
         ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
       });
 
       return res.status(403).json({
-        error: 'Su cuenta institucional de Microsoft 365 está autenticada, pero no figura entre las dos identidades operativas autorizadas para administrar el Portal PIA.',
-        oid: userOid,
-        upn: userUpn
+        error: 'Su cuenta está autenticada en Firebase, pero no figura entre las dos identidades operativas autorizadas para administrar el Portal PIA.',
+        email: userEmail
+      });
+    }
+
+    // Validación del UID inmutable en el servidor
+    const operators = getAuthorizedOperators();
+    const matchedOperator = operators.find(op => op.email.toLowerCase() === userEmail.toLowerCase());
+
+    if (!matchedOperator) {
+      return res.status(403).json({
+        error: 'Operador no configurado en el servidor.',
+        email: userEmail
+      });
+    }
+
+    // Si el operador ya tiene un UID fijado en el servidor, debe coincidir estrictamente
+    if (matchedOperator.uid && matchedOperator.uid !== userUid) {
+      logAudit({
+        user: userEmail,
+        userUid,
+        userOid: userUid,
+        userRole: 'no_autorizado',
+        action: 'ACCESO DENEGADO (DISCREPANCIA DE UID)',
+        module: 'auth',
+        target: 'admin',
+        details: `Discrepancia de UID en servidor: Recibido ${userUid}, registrado ${matchedOperator.uid}`,
+        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      });
+
+      return res.status(403).json({
+        error: 'Discrepancia de seguridad: El UID de Firebase no coincide con el identificador registrado para este operador institucional.',
+        email: userEmail
+      });
+    }
+
+    // Si es el primer ingreso exitoso y no tenía UID fijado, enlazarlo de forma inmutable
+    if (!matchedOperator.uid) {
+      matchedOperator.uid = userUid;
+      matchedOperator.status = 'active';
+      saveAuthorizedOperators(operators);
+      logAudit({
+        user: userEmail,
+        userUid,
+        userOid: userUid,
+        userRole: 'data_operator',
+        action: 'ENLACE INMUTABLE DE UID OPERADOR',
+        module: 'auth',
+        target: 'admin',
+        details: `UID de Firebase Auth registrado exitosamente para operador ${matchedOperator.displayName}: ${userUid}`,
+        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
       });
     }
 
     req.user = {
-      oid: userOid,
-      upn: userUpn,
-      displayName: matchedOperator.displayName || userDisplayName,
+      uid: userUid,
+      oid: userUid, // compatibilidad
+      email: userEmail,
+      upn: userEmail, // compatibilidad
+      displayName: matchedOperator.displayName || verified.name,
       operatorIndex: matchedOperator.operatorIndex,
       role: 'data_operator',
       modules: ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'chatbot']
@@ -361,14 +527,8 @@ async function requireAuth(req, res, next) {
 
     next();
   } catch (err) {
-    if (err.code === 'CONFIG_PENDING') {
-      return res.status(401).json({
-        error: 'El módulo administrativo está temporalmente cerrado: Configuración de Microsoft Entra ID pendiente de completar por el equipo de TI.',
-        configPending: true
-      });
-    }
     return res.status(401).json({
-      error: 'Token institucional inválido, expirado o de tenant no autorizado.',
+      error: 'Token de Firebase inválido, expirado o no autorizado.',
       details: err.message
     });
   }
@@ -398,16 +558,28 @@ app.use((req, res, next) => {
 });
 
 // ========================================================
-// 4. ENDPOINTS DE AUTENTICACIÓN INSTITUCIONAL
+// 4. ENDPOINTS DE AUTENTICACIÓN INSTITUCIONAL FIREBASE AUTH
 // ========================================================
 
+// Configuración pública de Firebase para el cliente (sin secretos ni claves privadas)
+app.get('/api/auth/firebase-config', (req, res) => {
+  res.json({
+    configured: true,
+    projectId: FIREBASE_PROJECT_ID,
+    apiKey: firebaseConfig.apiKey || '',
+    authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
+    appId: firebaseConfig.appId || '',
+    storageBucket: firebaseConfig.storageBucket || `${FIREBASE_PROJECT_ID}.firebasestorage.app`,
+    authorizedEmails: ALLOWED_OPERATOR_EMAILS
+  });
+});
+
+// Endpoint de compatibilidad (indica reemplazo oficial de Entra ID por Firebase Auth)
 app.get('/api/auth/entra-config', (req, res) => {
   res.json({
-    configured: !!(ENTRA_TENANT_ID && ENTRA_CLIENT_ID),
-    clientId: ENTRA_CLIENT_ID,
-    tenantId: ENTRA_TENANT_ID,
-    authority: ENTRA_TENANT_ID ? `https://login.microsoftonline.com/${ENTRA_TENANT_ID}` : '',
-    redirectUri: ENTRA_REDIRECT_URI,
+    configured: false,
+    replacedBy: 'firebase',
+    authProvider: 'Firebase Authentication (Email/Contraseña)',
     operatorsConfigured: getAuthorizedOperators().length
   });
 });
@@ -415,8 +587,10 @@ app.get('/api/auth/entra-config', (req, res) => {
 app.get('/api/auth/verify', requireAuth, (req, res) => {
   res.json({
     user: {
-      oid: req.user.oid,
-      upn: req.user.upn,
+      uid: req.user.uid,
+      oid: req.user.uid,
+      email: req.user.email,
+      upn: req.user.email,
       displayName: req.user.displayName,
       operatorIndex: req.user.operatorIndex,
       role: 'data_operator',
@@ -438,33 +612,37 @@ app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) 
     slots: [
       {
         slot: 1,
-        configured: !!op1,
-        displayName: op1?.displayName || 'Apoyo GI (CNC)',
-        upn: op1?.upn || 'apoyogi@cnc.gob.gt',
-        oidMasked: op1?.oid ? `${op1.oid.substring(0, 8)}...${op1.oid.slice(-4)}` : 'Pendiente de asignación de OID por TI (apoyogi@cnc.gob.gt)',
-        source: process.env.PIA_OPERATOR_1_OID ? 'Variable de Entorno (PIA_OPERATOR_1_OID)' : (op1 ? 'authorized_operators.json' : 'Pendiente en servidor'),
+        configured: !!(op1 && op1.uid),
+        displayName: op1?.displayName || 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI',
+        email: 'deteccionydenuncia@cnc.gob.gt',
+        upn: 'deteccionydenuncia@cnc.gob.gt',
+        uidMasked: op1?.uid ? `${op1.uid.substring(0, 8)}...${op1.uid.slice(-4)}` : 'Pendiente de primer ingreso (deteccionydenuncia@cnc.gob.gt)',
+        source: process.env.PIA_OPERATOR_1_UID ? 'Variable de Entorno (PIA_OPERATOR_1_UID)' : (op1?.uid ? 'authorized_operators.json (Enlazado)' : 'Pendiente primer login'),
         role: 'data_operator',
-        status: op1 ? 'active' : 'pending'
+        status: op1?.status || 'pending_first_login',
+        notes: op1?.notes || ''
       },
       {
         slot: 2,
-        configured: !!op2,
-        displayName: op2?.displayName || 'Detección y Denuncia (CNC)',
-        upn: op2?.upn || 'deteccionydenuncia@cnc.gob.gt',
-        oidMasked: op2?.oid ? `${op2.oid.substring(0, 8)}...${op2.oid.slice(-4)}` : 'Pendiente de asignación de OID por TI (deteccionydenuncia@cnc.gob.gt)',
-        source: process.env.PIA_OPERATOR_2_OID ? 'Variable de Entorno (PIA_OPERATOR_2_OID)' : (op2 ? 'authorized_operators.json' : 'Pendiente en servidor'),
+        configured: !!(op2 && op2.uid),
+        displayName: op2?.displayName || 'Apoyo GI (CNC)',
+        email: 'apoyogi@cnc.gob.gt',
+        upn: 'apoyogi@cnc.gob.gt',
+        uidMasked: op2?.uid ? `${op2.uid.substring(0, 8)}...${op2.uid.slice(-4)}` : 'Pendiente de primer ingreso (apoyogi@cnc.gob.gt)',
+        source: process.env.PIA_OPERATOR_2_UID ? 'Variable de Entorno (PIA_OPERATOR_2_UID)' : (op2?.uid ? 'authorized_operators.json (Enlazado)' : 'Pendiente primer login'),
         role: 'data_operator',
-        status: op2 ? 'active' : 'pending'
+        status: op2?.status || 'pending_first_login',
+        notes: op2?.notes || ''
       }
     ],
     security: {
-      authProvider: 'Microsoft Entra ID (MSAL Browser + Backend JWKS Verification)',
-      tenantId: ENTRA_TENANT_ID ? `${ENTRA_TENANT_ID.substring(0, 8)}...` : 'Pendiente',
-      clientId: ENTRA_CLIENT_ID ? `${ENTRA_CLIENT_ID.substring(0, 8)}...` : 'Pendiente',
+      authProvider: 'Firebase Authentication (Email/Contraseña + Verificación JWKS Google)',
+      projectId: FIREBASE_PROJECT_ID,
+      authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
       concurrencyControl: 'SHA-256 ETag Optimistic Concurrency Activo',
       atomicWrites: 'Activo (.tmp + rename atómico)',
-      automatedBackups: 'Activo (rotación de 30 versiones en C:\\PIA_Data\\backups)',
-      immutableOidAudit: 'Activo (registro individualizado en audit_logs.json)',
+      automatedBackups: 'Activo (rotación de 30 versiones en data/backups)',
+      immutableUidAudit: 'Activo (registro individualizado en audit_logs.json con UID)',
       browserUserCreationDisabled: true,
       geminiLupita: {
         model: 'gemini-2.5-flash',
@@ -478,7 +656,7 @@ app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) 
 });
 
 // Bloqueo explícito de gestión de usuarios en el navegador
-app.all(['/api/users', '/api/users/*'], (req, res) => {
+app.all(['/api/users', '/api/users/*'], requireAuth, requireOperator, (req, res) => {
   if (req.method === 'GET') {
     const ops = getAuthorizedOperators();
     return res.json({
@@ -790,6 +968,7 @@ app.get('/api/dashboard/stats', requireAuth, requireOperator, (req, res) => {
       instituciones: 68,
       tableros: tableros.length,
       vehiculos: vehiculos.length,
+      visitasTotales: getVisitsData().totalVisits || 0,
       creados: auditLog.filter(a => a.action === 'CREACIÓN').length,
       actualizados: auditLog.filter(a => a.action === 'ACTUALIZACIÓN').length,
       eliminados: auditLog.filter(a => a.action === 'ELIMINACIÓN').length
@@ -801,6 +980,40 @@ app.get('/api/dashboard/stats', requireAuth, requireOperator, (req, res) => {
 
 app.get('/api/dashboard/audit', requireAuth, requireOperator, (req, res) => {
   res.json(getAuditLogs().slice(0, 20));
+});
+
+// Endpoint administrativo para consultar contador y estadísticas reales de visitas
+app.get('/api/admin/visits', requireAuth, requireOperator, (req, res) => {
+  try {
+    const data = getVisitsData();
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayVisits = (data.recentVisits || []).filter(v => v.timestamp && v.timestamp.startsWith(todayStr)).length;
+
+    let topPage = { path: '/', name: 'Portal Principal / Inicio', visits: 0 };
+    for (const [p, info] of Object.entries(data.pages || {})) {
+      if ((info.visits || 0) >= topPage.visits) {
+        topPage = { path: p, name: info.name, visits: info.visits };
+      }
+    }
+
+    res.json({
+      totalVisits: data.totalVisits || 0,
+      todayVisits,
+      topPage,
+      lastUpdated: data.lastUpdated,
+      pages: data.pages || {},
+      recentVisits: (data.recentVisits || []).slice(0, 40)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint para registro de visitas desde el cliente (analítica real)
+app.post('/api/analytics/visit', (req, res) => {
+  const pagePath = (req.body && req.body.path) || '/';
+  recordPageVisit(pagePath, req);
+  res.json({ success: true, recorded: true });
 });
 
 // ========================================================
@@ -1087,7 +1300,7 @@ app.post('/api/files/upload', requireAuth, requireOperator, (req, res) => {
 });
 
 // Raw-JSON endpoints: Deshabilitados para el frontend cotidiano de operadores
-app.all(['/api/raw-json', '/api/raw-json/*'], (req, res) => {
+app.all(['/api/raw-json', '/api/raw-json/*'], requireAuth, requireOperator, (req, res) => {
   res.status(403).json({
     error: 'La edición directa de JSON crudo está deshabilitada en la interfaz ordinaria. Las actualizaciones se realizan exclusivamente mediante los formularios validados de cada módulo.'
   });
@@ -1113,19 +1326,28 @@ app.get(['/vehiculos', '/vehiculos/'], (req, res) => {
 });
 
 app.get(['/directorio', '/directorio/'], (req, res) => {
+  recordPageVisit('/directorio', req);
   sendFreshHtml(path.join(__dirname, 'directorio', 'index.html'), res);
 });
 
 app.get(['/canales-por-la-integridad', '/canales-por-la-integridad/'], (req, res) => {
+  recordPageVisit('/canales-por-la-integridad', req);
   sendFreshHtml(path.join(__dirname, 'canales-por-la-integridad', 'index.html'), res);
 });
 
 app.get(['/gobierno_en_numeros', '/gobierno_en_numeros/'], (req, res) => {
+  recordPageVisit('/gobierno_en_numeros', req);
   sendFreshHtml(path.join(__dirname, 'gobierno_en_numeros', 'index.html'), res);
 });
 
 app.get(['/riesgo', '/riesgo/'], (req, res) => {
+  recordPageVisit('/riesgo', req);
   sendFreshHtml(path.join(__dirname, 'riesgo', 'index.html'), res);
+});
+
+app.get('/', (req, res) => {
+  recordPageVisit('/', req);
+  sendFreshHtml(path.join(__dirname, 'index.html'), res);
 });
 
 app.use(express.static(__dirname, {
@@ -1137,10 +1359,6 @@ app.use(express.static(__dirname, {
     }
   }
 }));
-
-app.get('/', (req, res) => {
-  sendFreshHtml(path.join(__dirname, 'index.html'), res);
-});
 
 app.get('/admin*', (req, res) => {
   sendFreshHtml(path.join(__dirname, 'admin', 'index.html'), res);
@@ -1154,5 +1372,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[PIA Institutional Backend] Servidor ejecutándose en http://0.0.0.0:${PORT}`);
-  console.log(`[Seguridad] Modelo para DOS Operadores Activo. Arrendatario Entra ID: ${ENTRA_TENANT_ID || 'PENDIENTE DE TI'}`);
+  console.log(`[Seguridad] Modelo para DOS Operadores Activo con Firebase Auth (Proyecto: ${FIREBASE_PROJECT_ID})`);
 });

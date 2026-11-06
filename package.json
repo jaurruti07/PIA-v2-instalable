@@ -5,11 +5,14 @@
   "scripts": {
     "dev": "node server.js",
     "build": "echo 'Build complete'",
+    "lint": "node --check server.js && node --check test_security_suite.js",
+    "test": "node test_security_suite.js",
     "start": "node server.js"
   },
   "dependencies": {
     "@google/genai": "^2.14.0",
     "express": "^4.19.2",
+    "firebase": "^13.0.0",
     "jose": "^6.2.12"
   }
 }

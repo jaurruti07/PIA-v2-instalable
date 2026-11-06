@@ -11,6 +11,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="/css/pia-chatbot.css" />
     <style>
         /* ========== ESTILOS BASE Y VARIABLES ========== */
         :root {
@@ -277,10 +278,10 @@
         .modal-riesgo-meta span { background:var(--surface); padding:0.2rem 0.6rem; border-radius:20px; }
 
         /* Filtros y tabla */
-        .filter-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.2rem; display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; margin-bottom:1.5rem; }
-        .filter-bar input, .filter-bar select { padding:0.6rem 1rem; border-radius:50px; border:1.5px solid var(--border); background:#fff; font-size:0.85rem; color:var(--text-main); }
+        .filter-bar input, .filter-bar select { padding:0.6rem 1rem; border-radius:14px; border:1.5px solid var(--border); background:#fff; font-size:0.85rem; color:var(--text-main); box-shadow: 0 2px 6px rgba(12,32,51,0.04); }
+        .filter-bar select option, .graph-filters select option { padding: 8px 12px; font-size: 0.85rem; background-color: #ffffff; color: var(--navy); border-radius: 6px; }
         .filter-bar input { flex:1; min-width:180px; }
-        .filter-bar input:focus, .filter-bar select:focus { outline:none; border-color:var(--blue-bright); box-shadow:0 0 0 3px rgba(43,130,201,0.1); }
+        .filter-bar input:focus, .filter-bar select:focus { outline:none; border-color:var(--blue-bright); box-shadow:0 0 0 3px rgba(43,130,201,0.12); }
         .btn-clear { display:inline-flex; align-items:center; gap:6px; background:var(--navy); color:#fff; font-family:var(--font-head); font-size:0.78rem; font-weight:700; padding:0.6rem 1.2rem; border-radius:50px; border:none; transition:all 0.2s; }
         .btn-clear:hover { background:var(--navy-light); }
         .btn-excel { background: #1e6f5c; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 700; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; font-family: var(--font-head); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -371,7 +372,7 @@
         /* Visualización y Comparación */
         .comparator-panel { display: flex; flex-direction: column; gap: 1rem; background: var(--surface); border-radius: var(--radius-xl); padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
         .graph-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; flex: 1; }
-        .graph-filters input, .graph-filters select { padding: 0.5rem 0.8rem; border-radius: 40px; border: 1.5px solid var(--border); background: white; font-size: 0.85rem; flex: 1 1 140px; min-width: 120px; }
+        .graph-filters input, .graph-filters select { padding: 0.55rem 0.85rem; border-radius: 14px; border: 1.5px solid var(--border); background: white; font-size: 0.85rem; flex: 1 1 140px; min-width: 120px; box-shadow: 0 2px 6px rgba(12,32,51,0.04); }
         .chart-type-selector { display: flex; align-items: center; gap: 0.4rem; background: white; padding: 0.2rem 0.8rem; border-radius: 40px; border: 1.5px solid var(--border); flex: 0 1 auto; }
         .chart-type-selector label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
         .chart-type-selector select { border: none; background: transparent; font-weight: 600; color: var(--blue-bright); cursor: pointer; outline: none; font-family: var(--font-head); font-size: 0.8rem; padding: 0.2rem 0; }
@@ -912,7 +913,8 @@
             <div class="filter-bar">
                 <select id="catalogoYearSelect" class="filter-select" style="margin-right:0.5rem;"></select>
                 <input type="text" id="catSearch" placeholder="🔎 Buscar por nombre o siglas..." />
-                <select id="catSector"><option value="all">📌 Todos los sectores</option></select>
+                <select id="catSector" aria-label="Filtrar por tipo dependencia"><option value="all">📌 Tipo dependencia: Todos</option></select>
+                <select id="catInstitucion" aria-label="Filtrar por institución"><option value="all">🏢 Todas las instituciones</option></select>
                 <select id="catStatus"><option value="all">🎯 Todos los estados</option><option value="cumple">🟢 Cumple</option><option value="parcial">🟡 Parcial</option><option value="no_cumple">🔴 En proceso</option></select>
                 <select id="catFav"><option value="all">⭐ Favoritas: Todas</option><option value="fav">⭐ Solo Favoritas</option></select>
                 <button id="clearCatFiltersBtn" class="btn-clear"><i class="fas fa-eraser"></i> Limpiar</button>
@@ -953,7 +955,8 @@
             <div class="comparator-panel">
                 <div class="graph-filters">
                     <input type="text" id="graphSearch" placeholder="🔎 Institución o siglas..." />
-                    <select id="graphSector"><option value="all">Todos los sectores</option></select>
+                    <select id="graphSector" aria-label="Filtrar por tipo dependencia"><option value="all">Tipo dependencia: Todos</option></select>
+                    <select id="graphInstitucion" aria-label="Filtrar por institución"><option value="all">Todas las instituciones</option></select>
                     <select id="graphStatus">
                         <option value="all">Todos los estados</option>
                         <option value="cumple">🟢 Cumple</option>
@@ -1179,7 +1182,7 @@ let comparacionChart = null;
 // Variables para catálogo independiente
 let catalogoData = [];
 let currentCatalogPage = 1, itemsPerPage = 10;
-let catFilters = { sector: 'all', status: 'all', search: '' };
+let catFilters = { sector: 'all', institucion: 'all', status: 'all', search: '' };
 let currentCatalogYear = "2026";
 
 // Variables para gráfica
@@ -1188,7 +1191,7 @@ let allRawLabels = [];
 let filteredLabels = [];
 let allInstitutionsMetadata = new Map();
 let selectedYearsForGraph = [];
-let graphFilters = { search: '', sector: 'all', status: 'all' };
+let graphFilters = { search: '', sector: 'all', institucion: 'all', status: 'all' };
 let currentChartType = 'horizontalBar';
 
 function getGraphItemsPerPage() {
@@ -1357,16 +1360,23 @@ async function cargarDatos() {
         
         const graphSearch = document.getElementById('graphSearch');
         const graphSector = document.getElementById('graphSector');
+        const graphInstitucion = document.getElementById('graphInstitucion');
         const graphStatus = document.getElementById('graphStatus');
         const applyGraphFilters = () => {
             graphFilters.search = graphSearch.value.toLowerCase().trim();
             graphFilters.sector = graphSector.value;
+            graphFilters.institucion = graphInstitucion ? graphInstitucion.value : 'all';
             graphFilters.status = graphStatus.value;
             currentGraphPage = 1;
             actualizarGraficaComparativa();
         };
         graphSearch.addEventListener('input', applyGraphFilters);
-        graphSector.addEventListener('change', applyGraphFilters);
+        graphSector.addEventListener('change', () => {
+            populateGraphInstitucionFilter(graphSector.value);
+            if (graphInstitucion) graphInstitucion.value = 'all';
+            applyGraphFilters();
+        });
+        if (graphInstitucion) graphInstitucion.addEventListener('change', applyGraphFilters);
         graphStatus.addEventListener('change', applyGraphFilters);
         
         document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
@@ -1421,13 +1431,15 @@ function cargarAnioBanner(year) {
 async function cargarCatalogoPorAnio(year) {
     if (!globalData || !globalData.years[year]) return;
     catalogoData = globalData.years[year].instituciones;
-    catFilters = { sector: 'all', status: 'all', fav: 'all', search: '' };
+    catFilters = { sector: 'all', institucion: 'all', status: 'all', fav: 'all', search: '' };
     document.getElementById('catSearch').value = '';
     document.getElementById('catSector').value = 'all';
+    if (document.getElementById('catInstitucion')) document.getElementById('catInstitucion').value = 'all';
     document.getElementById('catStatus').value = 'all';
     if (document.getElementById('catFav')) document.getElementById('catFav').value = 'all';
     currentCatalogPage = 1;
     populateCatalogSectorFilter();
+    populateCatalogInstitucionFilter('all');
     renderCatalogoTabla();
 }
 
@@ -1435,13 +1447,29 @@ function populateCatalogSectorFilter() {
     if (!catalogoData.length) return;
     const sectors = [...new Set(catalogoData.map(i => i.sector))].sort();
     const sel = document.getElementById('catSector');
-    sel.innerHTML = '<option value="all">📌 Todos los sectores</option>';
+    sel.innerHTML = '<option value="all">📌 Tipo dependencia: Todos</option>';
     sectors.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+}
+
+function populateCatalogInstitucionFilter(selectedSector = 'all') {
+    const sel = document.getElementById('catInstitucion');
+    if (!sel) return;
+    sel.innerHTML = '<option value="all">🏢 Todas las instituciones</option>';
+    if (!catalogoData || !catalogoData.length) return;
+    let list = catalogoData;
+    if (selectedSector && selectedSector !== 'all') {
+        list = list.filter(i => i.sector === selectedSector);
+    }
+    const instNames = [...new Set(list.map(i => i.nombre))].sort((a, b) => a.localeCompare(b));
+    instNames.forEach(name => {
+        sel.innerHTML += `<option value="${name}">${name}</option>`;
+    });
 }
 
 function filterCatalogInstitutions() {
     return catalogoData.filter(inst => {
         if (catFilters.sector !== 'all' && inst.sector !== catFilters.sector) return false;
+        if (catFilters.institucion !== 'all' && inst.nombre !== catFilters.institucion) return false;
         if (catFilters.status !== 'all' && inst.estado !== catFilters.status) return false;
         if (catFilters.fav === 'fav' && !isInstFollowed(inst.id)) return false;
         if (catFilters.search) {
@@ -1499,6 +1527,7 @@ function renderCatalogoTabla() {
 function updateCatalogFilters() {
     catFilters.search = document.getElementById('catSearch').value;
     catFilters.sector = document.getElementById('catSector').value;
+    catFilters.institucion = document.getElementById('catInstitucion') ? document.getElementById('catInstitucion').value : 'all';
     catFilters.status = document.getElementById('catStatus').value;
     catFilters.fav = document.getElementById('catFav') ? document.getElementById('catFav').value : 'all';
     currentCatalogPage = 1;
@@ -1508,9 +1537,11 @@ function updateCatalogFilters() {
 function clearCatalogFilters() {
     document.getElementById('catSearch').value = '';
     document.getElementById('catSector').value = 'all';
+    populateCatalogInstitucionFilter('all');
+    if (document.getElementById('catInstitucion')) document.getElementById('catInstitucion').value = 'all';
     document.getElementById('catStatus').value = 'all';
     if (document.getElementById('catFav')) document.getElementById('catFav').value = 'all';
-    catFilters = { sector:'all', status:'all', fav:'all', search:'' };
+    catFilters = { sector:'all', institucion:'all', status:'all', fav:'all', search:'' };
     currentCatalogPage = 1;
     renderCatalogoTabla();
 }
@@ -2067,8 +2098,27 @@ function populateGraphFilters() {
     const allYears = Object.keys(globalData.years).filter(y => globalData.years[y] !== null);
     allYears.forEach(y => globalData.years[y].instituciones.forEach(inst => allSectors.add(inst.sector)));
     const sectorSelect = document.getElementById('graphSector');
-    sectorSelect.innerHTML = '<option value="all">Todos los sectores</option>';
+    sectorSelect.innerHTML = '<option value="all">Tipo dependencia: Todos</option>';
     Array.from(allSectors).sort().forEach(s => sectorSelect.innerHTML += `<option value="${s}">${s}</option>`);
+    populateGraphInstitucionFilter('all');
+}
+
+function populateGraphInstitucionFilter(selectedSector = 'all') {
+    const instSelect = document.getElementById('graphInstitucion');
+    if (!instSelect) return;
+    instSelect.innerHTML = '<option value="all">Todas las instituciones</option>';
+    const instSet = new Set();
+    const allYears = Object.keys(globalData.years).filter(y => globalData.years[y] !== null);
+    allYears.forEach(y => {
+        globalData.years[y].instituciones.forEach(inst => {
+            if (selectedSector === 'all' || inst.sector === selectedSector) {
+                instSet.add(inst.nombre);
+            }
+        });
+    });
+    Array.from(instSet).sort((a,b) => a.localeCompare(b)).forEach(n => {
+        instSelect.innerHTML += `<option value="${n}">${n}</option>`;
+    });
 }
 
 function syncYearComparisonButtons() {
@@ -2105,6 +2155,7 @@ function actualizarGraficaComparativa() {
         let filteredInst = yearData.instituciones.filter(inst => {
             if (graphFilters.search && !`${inst.nombre} ${inst.siglas}`.toLowerCase().includes(graphFilters.search)) return false;
             if (graphFilters.sector !== 'all' && inst.sector !== graphFilters.sector) return false;
+            if (graphFilters.institucion !== 'all' && inst.nombre !== graphFilters.institucion) return false;
             if (graphFilters.status !== 'all' && inst.estado !== graphFilters.status) return false;
             return true;
         });
@@ -2150,6 +2201,7 @@ function actualizarGraficaComparativa() {
             for (let inst of yearData.instituciones) {
                 if (graphFilters.search && !`${inst.nombre} ${inst.siglas}`.toLowerCase().includes(graphFilters.search)) continue;
                 if (graphFilters.sector !== 'all' && inst.sector !== graphFilters.sector) continue;
+                if (graphFilters.institucion !== 'all' && inst.nombre !== graphFilters.institucion) continue;
                 if (graphFilters.status !== 'all' && inst.estado !== graphFilters.status) continue;
                 institutionsSet.add(inst.nombre);
                 if (!metadata.has(inst.nombre)) metadata.set(inst.nombre, {});
@@ -2729,7 +2781,13 @@ function setupEventosGlobales() {
 
     // Catálogo
     document.getElementById('catSearch').addEventListener('input', updateCatalogFilters);
-    document.getElementById('catSector').addEventListener('change', updateCatalogFilters);
+    document.getElementById('catSector').addEventListener('change', () => {
+        const sectorVal = document.getElementById('catSector').value;
+        populateCatalogInstitucionFilter(sectorVal);
+        if (document.getElementById('catInstitucion')) document.getElementById('catInstitucion').value = 'all';
+        updateCatalogFilters();
+    });
+    document.getElementById('catInstitucion')?.addEventListener('change', updateCatalogFilters);
     document.getElementById('catStatus').addEventListener('change', updateCatalogFilters);
     document.getElementById('catFav')?.addEventListener('change', updateCatalogFilters);
     document.getElementById('clearCatFiltersBtn').addEventListener('click', clearCatalogFilters);

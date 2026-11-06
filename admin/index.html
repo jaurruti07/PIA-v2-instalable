@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/database-manager.css">
     <style>
@@ -269,34 +268,55 @@
             
             <div id="loginError" class="login-error" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 0.85rem 1rem; border-radius: 10px; font-size: 0.88rem; margin-bottom: 1.25rem; text-align: left; line-height: 1.4;"></div>
             
-            <!-- CONTENEDOR DE AUTENTICACIÓN INSTITUCIONAL -->
-            <div id="entraAuthBox">
-                <div id="entraConfigWarning" style="display: none; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 1.25rem; font-size: 0.84rem; color: #fed7aa; text-align: left;">
-                    <div style="font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 0.25rem; color: var(--orange);">
-                        <i class="fas fa-exclamation-triangle"></i> Arrendatario Entra ID Pendiente
+            <!-- CONTENEDOR DE AUTENTICACIÓN INSTITUCIONAL FIREBASE AUTH -->
+            <div id="firebaseAuthBox">
+                <form id="firebaseLoginForm" onsubmit="return false;" novalidate>
+                    <div class="login-form-group">
+                        <label for="loginEmail"><i class="fas fa-envelope" style="color:var(--cyan); margin-right:4px;"></i> Correo Institucional</label>
+                        <input type="email" id="loginEmail" placeholder="cuenta@cnc.gob.gt" autocomplete="email" required>
                     </div>
-                    Por política de seguridad institucional, el módulo administrativo permanece cerrado hasta que el equipo de TI configure las variables <code>ENTRA_TENANT_ID</code> y <code>ENTRA_CLIENT_ID</code> en el servidor.
-                </div>
 
-                <div id="entraTenantInfo" style="display: none; background: rgba(0, 194, 224, 0.08); border: 1px solid rgba(0, 194, 224, 0.25); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.82rem; color: rgba(255, 255, 255, 0.85);">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span><i class="fab fa-microsoft" style="color: var(--cyan); margin-right: 6px;"></i> Arrendatario Institucional:</span>
-                        <span id="tenantStatusBadge" style="background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 2px 8px; border-radius: 50px; font-weight: 700; font-size: 0.75rem;">Conectado</span>
+                    <div class="login-form-group">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                            <label for="loginPassword" style="margin-bottom:0;"><i class="fas fa-key" style="color:var(--cyan); margin-right:4px;"></i> Contraseña de Acceso</label>
+                            <button type="button" id="btnToggleForgotView" style="background:none; border:none; color:var(--cyan); font-size:0.78rem; cursor:pointer; text-decoration:underline;">
+                                ¿Olvidaste tu contraseña?
+                            </button>
+                        </div>
+                        <div style="position: relative;">
+                            <input type="password" id="loginPassword" placeholder="••••••••••••" autocomplete="current-password" required style="padding-right: 2.8rem;">
+                            <button type="button" id="btnTogglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 4px;" title="Mostrar u ocultar contraseña">
+                                <i class="fas fa-eye" id="iconTogglePassword"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <button type="button" id="btnEntraLogin" style="width: 100%; padding: 0.95rem 1.2rem; background: #ffffff; color: #1e293b; font-family: var(--font-head); font-weight: 700; border: 1px solid rgba(255,255,255,0.4); border-radius: 12px; font-size: 0.98rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
-                    <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 0H0V10H10V0Z" fill="#F25022"/>
-                        <path d="M21 0H11V10H21V0Z" fill="#7FBA00"/>
-                        <path d="M10 11H0V21H10V11Z" fill="#00A4EF"/>
-                        <path d="M21 11H11V21H21V11Z" fill="#FFB900"/>
-                    </svg>
-                    <span>Iniciar Sesión con Microsoft 365</span>
-                </button>
-                <p style="font-size: 0.78rem; color: rgba(255, 255, 255, 0.55); margin-top: 0.8rem; text-align: center;">
-                    Autenticación federada mediante cuenta corporativa o institucional autorizada.
-                </p>
+                    <button type="submit" id="btnLoginSubmit" class="btn-login" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión en PIA
+                    </button>
+                </form>
+
+                <!-- PANEL NATIVO DE RECUPERACIÓN DE CONTRASEÑA -->
+                <div id="forgotPasswordPanel" style="display: none; background: rgba(8, 22, 36, 0.95); border: 1px solid rgba(0, 194, 224, 0.35); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                        <span style="font-weight:700; font-size:0.9rem; color:#fff; display:flex; align-items:center; gap:6px;">
+                            <i class="fas fa-unlock-alt" style="color:var(--cyan);"></i> Recuperar Contraseña Oficial
+                        </span>
+                        <button type="button" id="btnCloseForgotPanel" style="background:none; border:none; color:rgba(255,255,255,0.6); cursor:pointer;" title="Volver al inicio de sesión">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <p style="font-size:0.8rem; color:rgba(255,255,255,0.75); margin-bottom:0.75rem; line-height:1.45;">
+                        Ingresa tu cuenta institucional registrada. Se enviará directamente a tu buzón oficial el enlace seguro de restablecimiento de contraseña.
+                    </p>
+                    <div class="login-form-group" style="margin-bottom:0.75rem;">
+                        <input type="email" id="resetEmail" placeholder="cuenta@cnc.gob.gt" autocomplete="email">
+                    </div>
+                    <button type="button" id="btnSendPasswordReset" style="width:100%; padding:0.8rem; background:linear-gradient(135deg, var(--blue-bright), var(--cyan)); color:var(--navy); font-weight:700; border-radius:var(--radius-sm); font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="fas fa-paper-plane"></i> Enviar Enlace de Restablecimiento
+                    </button>
+                    <div id="resetFeedback" style="display:none; font-size:0.82rem; margin-top:0.75rem; padding:0.75rem; border-radius:8px; line-height:1.4;"></div>
+                </div>
             </div>
 
             <!-- OPCIÓN PARA VISITANTES PÚBLICOS -->
@@ -380,6 +400,11 @@
                         <i class="fas fa-globe"></i> Métricas Portal
                     </button>
                 </li>
+                <li>
+                    <button data-module="visits">
+                        <i class="fas fa-chart-line"></i> Contador de Visitas
+                    </button>
+                </li>
             </ul>
 
             <div class="nav-section-title">Administración y Seguridad</div>
@@ -445,7 +470,7 @@
 
     <!-- SCRIPTS -->
     <script src="js/utils.js"></script>
-    <script src="js/auth.js"></script>
+    <script type="module" src="js/auth.js"></script>
     <script src="js/form-builder.js"></script>
     <script type="module" src="js/app.js"></script>
 <script src="/js/pia-chatbot.js" defer></script>

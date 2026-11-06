@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/css/pia-chatbot.css">
     <style>
         /* ============================================================
            DESIGN TOKENS
@@ -652,9 +653,9 @@
             display: flex; align-items: center; gap: 6px;
         }
         .filter-group select {
-            width: 100%; padding: 0.7rem 2.5rem 0.7rem 1.1rem;
+            width: 100%; padding: 0.75rem 2.5rem 0.75rem 1.15rem;
             border: 1.5px solid var(--border);
-            border-radius: 50px;
+            border-radius: 14px;
             font-family: var(--font-body); font-size: 0.88rem; font-weight: 500;
             color: var(--text-main); background-color: var(--surface);
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230C2033' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -664,14 +665,28 @@
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
+            box-shadow: 0 2px 8px rgba(12, 32, 51, 0.04);
             transition: all 0.2s ease;
         }
+        .filter-group select option {
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            font-family: var(--font-body);
+            background-color: #ffffff;
+            color: var(--navy);
+            border-radius: 8px;
+        }
+        #directorio.theme-dark .filter-group select option {
+            background-color: #0c1f30;
+            color: #ffffff;
+        }
         .filter-group input[type="text"] {
-            width: 100%; padding: 0.7rem 2.2rem 0.7rem 1.1rem;
+            width: 100%; padding: 0.75rem 2.2rem 0.75rem 1.15rem;
             border: 1.5px solid var(--border);
-            border-radius: 50px;
+            border-radius: 14px;
             font-family: var(--font-body); font-size: 0.88rem;
             color: var(--text-main); background: var(--surface);
+            box-shadow: 0 2px 8px rgba(12, 32, 51, 0.04);
             transition: all 0.2s ease;
         }
         .filter-group select:hover,
@@ -2294,7 +2309,6 @@
         <div class="section-header center">
             <div class="section-tag" style="justify-content:center;">Conceptos clave</div>
             <h2 class="section-title">Glosario de Transparencia y Rendición de Cuentas</h2>
-            <p class="section-sub">Conoce los términos fundamentales para entender la gestión pública y el acceso a la información.</p>
         </div>
         <div class="glosario-tabs">
             <div class="glosario-tab-nav" id="glosarioTabNav">
@@ -2349,8 +2363,8 @@
                     <select id="tipoFilter" aria-label="Filtrar por tipo de dependencia"><option value="">Todos los tipos</option></select>
                 </div>
                 <div class="filter-group">
-                    <span class="filter-label"><i class="fas fa-building"></i> Institución</span>
-                    <select id="institucionFilter" aria-label="Filtrar por institución"><option value="">Todas las instituciones</option></select>
+                    <span class="filter-label"><i class="fas fa-building"></i> Nombre</span>
+                    <select id="institucionFilter" aria-label="Filtrar por nombre"><option value="">Todas las instituciones</option></select>
                 </div>
                 <div class="filter-group">
                     <span class="filter-label"><i class="fas fa-circle"></i> Estado</span>
@@ -2430,109 +2444,7 @@
             <button id="exportXlsBtn" class="btn-export excel"><i class="fas fa-file-excel"></i> Exportar Excel</button>
         </div>
 
-        <!-- GRÁFICO Y BENCHMARK DE RENDICIÓN DE CUENTAS -->
-        <div class="benchmark-chart-card" style="margin-top:2.5rem;">
-            <div class="chart-header">
-                <div class="chart-title-group">
-                    <h3><i class="fas fa-chart-bar" style="color:var(--cyan);"></i> Benchmark de Rendición de Cuentas</h3>
-                    <p>Monitoreo en tiempo real del cumplimiento y publicación de tableros institucionales</p>
-                </div>
-                <div class="chart-controls-row">
-                    <button class="chart-mode-btn active" id="btnModeTipo" onclick="window.setChartMode('tipo')">
-                        <i class="fas fa-layer-group"></i> Por Tipo
-                    </button>
-                    <button class="chart-mode-btn" id="btnModeSector" onclick="window.setChartMode('sector')">
-                        <i class="fas fa-sitemap"></i> Por Sector
-                    </button>
-                    <button class="chart-mode-btn" id="btnModeBenchmark" onclick="window.setChartMode('benchmark')">
-                        <i class="fas fa-award"></i> Benchmark Global
-                    </button>
-                    <button class="chart-mode-btn" id="btnToggleOrientation" onclick="window.toggleChartOrientation()" title="Cambiar orientación">
-                        <i class="fas fa-sync-alt"></i> Orientación
-                    </button>
-                </div>
-            </div>
-            <div class="chart-grid-layout">
-                <div class="chart-canvas-wrapper">
-                    <canvas id="benchmarksChartCanvas"></canvas>
-                </div>
-                <div class="kpi-mini-grid">
-                    <div class="kpi-mini-card">
-                        <div class="kpi-mini-icon"><i class="fas fa-building" style="color:var(--cyan);"></i></div>
-                        <div class="kpi-mini-info">
-                            <span class="kpi-mini-val" id="kpiBenchTotalInst">0</span>
-                            <span class="kpi-mini-lbl">Cantidad de instituciones</span>
-                        </div>
-                    </div>
-                    <div class="kpi-mini-card">
-                        <div class="kpi-mini-icon"><i class="fas fa-table" style="color:#22C55E;"></i></div>
-                        <div class="kpi-mini-info">
-                            <span class="kpi-mini-val" id="kpiBenchTablerosAvail">0</span>
-                            <span class="kpi-mini-lbl">Cantidad de tableros disponibles</span>
-                        </div>
-                    </div>
-                    <div class="kpi-mini-card">
-                        <div class="kpi-mini-icon"><i class="fas fa-clock" style="color:#F5A623;"></i></div>
-                        <div class="kpi-mini-info">
-                            <span class="kpi-mini-val" id="kpiBenchInstPendientes">0</span>
-                            <span class="kpi-mini-lbl">Instituciones pendientes (de 67 OE)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </section>
-
-<!-- ============================================================
-     BANNER INFORMATIVO — VERSIÓN RESPONSIVE
-============================================================ -->
-<section style="padding:0 0 1rem;">
-    <div class="banner-transparencia">
-        <!-- Columna izquierda: texto + botón + imagen -->
-        <div class="banner-texto">
-            <div class="banner-etiqueta">
-                <i class="fas fa-circle"></i> Transparencia activa
-            </div>
-            <h2>
-                Accede a los tableros de <em>rendición de cuentas</em>
-            </h2>
-            <p>
-                Consulta información oficial sobre recursos, resultados e indicadores de gestión de las instituciones del Organismo Ejecutivo.
-            </p>
-            <div class="banner-acciones">
-                <a href="#directorio" class="btn-primary">
-                    <i class="fas fa-chart-simple"></i> Explorar tableros
-                </a>
-                <img src="/img/gobierno_en_numerosV2.png" alt="Tu Gobierno en Números" class="banner-logo">
-            </div>
-        </div>
-
-        <!-- Columna derecha: tres tarjetas de información -->
-        <div class="banner-tarjetas">
-            <div class="banner-tarjeta">
-                <div class="banner-tarjeta-icono"><i class="fas fa-chart-pie"></i></div>
-                <div>
-                    <h4>Indicadores de gestión</h4>
-                    <p>Resultados y metas institucionales.</p>
-                </div>
-            </div>
-            <div class="banner-tarjeta">
-                <div class="banner-tarjeta-icono"><i class="fas fa-coins"></i></div>
-                <div>
-                    <h4>Ejecución de recursos</h4>
-                    <p>Información financiera y presupuestaria.</p>
-                </div>
-            </div>
-            <div class="banner-tarjeta">
-                <div class="banner-tarjeta-icono"><i class="fas fa-flag"></i></div>
-                <div>
-                    <h4>Acciones de gobierno</h4>
-                    <p>Políticas públicas y programas.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
     <!-- ============================================================
          FAQ
@@ -2544,8 +2456,7 @@
             <p class="section-sub">Respuestas a las consultas más comunes sobre la plataforma y los tableros de rendición de cuentas.</p>
         </div>
         <div class="faq-wrap">
-            <div class="faq-item"><button class="faq-q">¿Qué es Tu Gobierno en Números? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Es una herramienta digital que centraliza y facilita el acceso a los tableros de rendición de cuentas publicados por las instituciones del Organismo Ejecutivo, promoviendo la transparencia y el control ciudadano.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Qué información puedo consultar? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Puede consultar indicadores de gestión, ejecución presupuestaria, metas, resultados de programas, acciones de gobierno y otra información pública que las instituciones publican en sus tableros de rendición de cuentas.</div></div>
+            <div class="faq-item"><button class="faq-q">¿Qué información puedo consultar? <i class="fas fa-chevron-down"></i></button><div class="faq-a">En algunos tableros podrás consultar las autoridades de cada institución, el presupuesto vigente, el presupuesto ejecutado, información de pago de salarios, avance en proyectos prioritarios, resultados o logros, espacios para sugerencias y mucho más.</div></div>
             <div class="faq-item"><button class="faq-q">¿Quién actualiza los tableros? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Cada institución es responsable de la actualización y calidad de la información publicada en su tablero. La plataforma solo enlaza a las fuentes oficiales.</div></div>
             <div class="faq-item"><button class="faq-q">¿Puedo descargar información? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Sí, puede exportar los resultados filtrados en formato PDF o Excel utilizando los botones de exportación disponibles en la sección del directorio.</div></div>
             <div class="faq-item"><button class="faq-q">¿Cómo comparto un tablero? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Cada tarjeta tiene un botón de compartir que genera un mensaje con el nombre de la institución y el enlace al tablero, listo para enviar por WhatsApp o copiar al portapapeles.</div></div>
@@ -2915,6 +2826,9 @@ window.toggleChartOrientation = function() {
 };
 
 function renderBenchmarksChart() {
+    const canvas = document.getElementById('benchmarksChartCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
     const filteredList = filtrar();
 
     // Actualizar KPI Mini Badges
@@ -2924,16 +2838,12 @@ function renderBenchmarksChart() {
 
     const totalInstCount = filteredList.length;
     const availCount = filteredList.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
-    // La diferencia entre las 67 dependencias del Organismo Ejecutivo y las instituciones registradas
     const totalRegistradasGbl = instituciones.length;
     const pendientesCount = Math.max(0, 67 - totalRegistradasGbl);
 
     if (kpiTotalInstEl) kpiTotalInstEl.textContent = totalInstCount;
     if (kpiTablerosAvailEl) kpiTablerosAvailEl.textContent = availCount;
     if (kpiPendientesEl) kpiPendientesEl.textContent = pendientesCount;
-
-    const canvas = document.getElementById('benchmarksChartCanvas');
-    if (!canvas || typeof Chart === 'undefined') return;
 
     const isDark = currentTheme === 'dark';
     const textColor = isDark ? '#A8BFCC' : '#5E7A8E';
@@ -3925,9 +3835,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
-
 <script src="/js/pia-chatbot.js" defer></script>
-
-</script>
 </body>
 </html>

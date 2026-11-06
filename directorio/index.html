@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="/css/pia-chatbot.css">
 
     <style>
         /* ============================================================
@@ -659,9 +660,9 @@
             display: flex; align-items: center; gap: 6px;
         }
         .filter-group select {
-            width: 100%; padding: 0.7rem 2.5rem 0.7rem 1.1rem;
+            width: 100%; padding: 0.75rem 2.5rem 0.75rem 1.15rem;
             border: 1.5px solid var(--border);
-            border-radius: 50px;
+            border-radius: 14px;
             font-family: var(--font-body); font-size: 0.88rem; font-weight: 500;
             color: var(--text-main); background-color: var(--surface);
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230C2033' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -671,14 +672,24 @@
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
+            box-shadow: 0 2px 8px rgba(12, 32, 51, 0.04);
             transition: all 0.2s ease;
         }
+        .filter-group select option {
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            font-family: var(--font-body);
+            background-color: #ffffff;
+            color: var(--navy);
+            border-radius: 8px;
+        }
         .filter-group input[type="text"] {
-            width: 100%; padding: 0.7rem 2.2rem 0.7rem 1.1rem;
+            width: 100%; padding: 0.75rem 2.2rem 0.75rem 1.15rem;
             border: 1.5px solid var(--border);
-            border-radius: 50px;
+            border-radius: 14px;
             font-family: var(--font-body); font-size: 0.88rem;
             color: var(--text-main); background: var(--surface);
+            box-shadow: 0 2px 8px rgba(12, 32, 51, 0.04);
             transition: all 0.2s ease;
         }
         .filter-group select:hover,
@@ -2107,7 +2118,7 @@
         <div class="info-band">
             <div class="info-band-text">
                 <div class="section-tag on-dark" style="color:var(--cyan);">Sobre la plataforma</div>
-                <p class="lead">El <em>Directorio Acceso al Ejecutivo</em> Es una herramienta que recopila información clave de las dependencias encargadas de información pública en los órganos del Organismo Ejecutivo. Busca mejorar la transparencia, fortalecer la gestión pública y facilitar el acceso a la información.</p>
+                <p class="lead">El <em>Directorio Acceso al Ejecutivo</em> centraliza información clave de las dependencias encargadas de información pública en el Organismo Ejecutivo para fortalecer la transparencia y facilitar el ejercicio del derecho de acceso a la información a ciudadanas, ciudadanos, periodistas, sociedad civil, sector público e investigadores.</p>
                 <div class="accordion">
                     <div class="accordion-item open">
                         <button class="accordion-q">¿Qué es la plataforma? <i class="fas fa-chevron-down acc-icon"></i></button>
@@ -2140,7 +2151,6 @@
         <div class="section-header center">
             <div class="section-tag" style="justify-content:center;">Conceptos clave</div>
             <h2 class="section-title">Glosario de términos</h2>
-            <p class="section-sub">Conoce los conceptos fundamentales sobre el acceso a la información pública.</p>
         </div>
         <div class="glosario-grid">
             <div class="glosario-card">
@@ -2234,9 +2244,9 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <span class="filter-label"><i class="fas fa-building"></i> Institución</span>
-                    <select id="institucionFilter" aria-label="Filtrar por institución">
-                        <option value="">Todas las instituciones</option>
+                    <span class="filter-label"><i class="fas fa-building"></i> Nombre</span>
+                    <select id="institucionFilter" aria-label="Filtrar por nombre">
+                        <option value="">Todos los nombres</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -2316,72 +2326,12 @@
     </section>
 
     <!-- ============================================================
-         BANNER INFORMATIVO (RESPONSIVO)
-    ============================================================ -->
-    <section style="padding:0 0 1rem;">
-        <div class="transparencia-banner">
-            <div class="transparencia-banner-left">
-                <div class="transparencia-tag">
-                    <i class="fas fa-circle" style="font-size:0.45rem; animation:blink 1.8s infinite;"></i> Plataforma oficial de transparencia
-                </div>
-                <h2>
-                    Accede a la información que <em>necesitas</em>
-                </h2>
-                <p>
-                    Utiliza este directorio para conocer los canales oficiales de cada institución y ejercer tu derecho de acceso a la información pública.
-                </p>
-                <div style="display:flex; gap:0.85rem; flex-wrap:wrap;">
-                    <a href="#directorio" class="btn-primary" style="background:var(--cyan); color:var(--navy); box-shadow:0 0 28px rgba(0,194,224,0.35);">
-                        <i class="fas fa-search"></i> Consultar ahora
-                    </a>
-                </div>
-            </div>
-            <div class="transparencia-banner-right">
-                <div class="transparencia-cards-wrapper">
-                    <div style="display:flex; justify-content:flex-end; margin-bottom:0.9rem;">
-                        <span style="display:inline-flex; align-items:center; gap:6px; background:var(--cyan); color:var(--navy); font-family:var(--font-head); font-size:0.68rem; font-weight:800; padding:5px 14px; border-radius:50px; box-shadow:0 4px 16px rgba(0,194,224,0.45); letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap;">
-                            <i class="fas fa-shield-alt"></i> Confiable
-                        </span>
-                    </div>
-                    <div class="transparencia-feature-card">
-                        <div class="feature-card-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div>
-                            <h4>Correo y teléfono</h4>
-                            <p>Contacta directamente a la unidad de acceso.</p>
-                        </div>
-                    </div>
-                    <div class="transparencia-feature-card">
-                        <div class="feature-card-icon">
-                            <i class="fas fa-globe"></i>
-                        </div>
-                        <div>
-                            <h4>Solicitud en línea</h4>
-                            <p>Formularios web para tu petición.</p>
-                        </div>
-                    </div>
-                    <div class="transparencia-feature-card">
-                        <div class="feature-card-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div>
-                            <h4>Información de oficio</h4>
-                            <p>Publicación proactiva de datos.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
          FAQ (actualizado con nuevas preguntas)
     ============================================================ -->
     <section class="section" id="faq" style="padding-top:0;">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">FAQ</div>
-            <h2 class="section-title">Preguntas frecuentes</h2>
+            <div class="section-tag" style="justify-content:center;">Preguntas frecuentes</div>
+            <h2 class="section-title">Resolvemos tus dudas</h2>
             <p class="section-sub">Respuestas a las consultas más comunes sobre el directorio y el acceso a la información pública.</p>
         </div>
         <div class="faq-wrap">
@@ -3821,9 +3771,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
-
 <script src="/js/pia-chatbot.js" defer></script>
-
-</script>
 </body>
 </html>

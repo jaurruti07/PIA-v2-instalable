@@ -1,0 +1,98 @@
+{
+  "totalVisits": 8,
+  "createdAt": "2026-11-06T13:35:18.000Z",
+  "lastUpdated": "2026-11-06T13:46:16.640Z",
+  "pages": {
+    "/": {
+      "name": "Portal Principal / Inicio",
+      "visits": 2,
+      "lastVisit": "2026-11-06T13:45:10.425Z"
+    },
+    "/directorio": {
+      "name": "Directorio Acceso al Ejecutivo",
+      "visits": 1,
+      "lastVisit": "2026-11-06T13:35:18.000Z"
+    },
+    "/canales-por-la-integridad": {
+      "name": "Canales por la Integridad",
+      "visits": 1,
+      "lastVisit": "2026-11-06T13:35:18.017Z"
+    },
+    "/gobierno_en_numeros": {
+      "name": "Tu Gobierno en Números",
+      "visits": 3,
+      "lastVisit": "2026-11-06T13:46:16.640Z"
+    },
+    "/riesgo": {
+      "name": "Riesgo en la Mira",
+      "visits": 1,
+      "lastVisit": "2026-11-06T13:35:18.049Z"
+    }
+  },
+  "recentVisits": [
+    {
+      "id": "5c8d30b5",
+      "path": "/gobierno_en_numeros",
+      "pageName": "Tu Gobierno en Números",
+      "timestamp": "2026-11-06T13:46:16.640Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "d1bceeb8",
+      "path": "/gobierno_en_numeros",
+      "pageName": "Tu Gobierno en Números",
+      "timestamp": "2026-11-06T13:46:11.148Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "cea88cba",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-06T13:45:10.426Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    },
+    {
+      "id": "f3739d65",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-06T13:35:39.373Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "20afe7f2",
+      "path": "/riesgo",
+      "pageName": "Riesgo en la Mira",
+      "timestamp": "2026-11-06T13:35:18.049Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "471e69aa",
+      "path": "/gobierno_en_numeros",
+      "pageName": "Tu Gobierno en Números",
+      "timestamp": "2026-11-06T13:35:18.033Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "0ce5018d",
+      "path": "/canales-por-la-integridad",
+      "pageName": "Canales por la Integridad",
+      "timestamp": "2026-11-06T13:35:18.017Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "ed9aa7f6",
+      "path": "/directorio",
+      "pageName": "Directorio Acceso al Ejecutivo",
+      "timestamp": "2026-11-06T13:35:18.001Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    }
+  ]
+}
