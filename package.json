@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node --env-file-if-exists=.env server.js",
     "dev": "node --watch --env-file-if-exists=.env server.js",
-    "check": "node --check server.js && node --check test_security_suite.js",
+    "check": "node --check server.js && node --check test_security_suite.js && node --check admin/js/app.js && node --check admin/js/auth.js && node --check admin/js/chatbot-manager.js && node --check admin/js/crud.js && node --check admin/js/data-service-register.js && node --check admin/js/data-service-worker.js && node --check admin/js/database-config.js && node --check admin/js/database-manager.js && node --check admin/js/file-manager.js && node --check admin/js/form-builder.js && node --check admin/js/schema-validator.js && node --check admin/js/technical-guide.js && node --check admin/js/user-manager.js && node --check admin/js/utils.js && node --check js/pia-chatbot.js && node --check js/pia-i18n.js && node --check js/sw-register.js && node --check data-service-worker.js",
     "test": "npm run check && node test_security_suite.js"
   },
   "dependencies": {
