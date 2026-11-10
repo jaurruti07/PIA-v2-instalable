@@ -2,6 +2,14 @@
    ADMIN CHATBOT MANAGER - JS MODULE
    ============================================================ */
 
+function getAdminHeaders(extra = {}) {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    return {
+        ...extra,
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+}
+
 export async function initChatbotManager() {
     const contentArea = document.getElementById('contentArea');
     if (!contentArea) return;
@@ -94,7 +102,7 @@ async function loadStatsTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/stats');
+        const res = await fetch('/api/admin/chatbot/stats', { headers: getAdminHeaders() });
         const stats = await res.json();
 
         const totalConversations = stats.totalConversations || 0;
@@ -249,7 +257,7 @@ async function loadKnowledgeTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/knowledge');
+        const res = await fetch('/api/admin/chatbot/knowledge', { headers: getAdminHeaders() });
         cachedKnowledge = await res.json();
 
         const badge = document.getElementById('cbKbBadge');
@@ -319,7 +327,7 @@ async function loadLogsTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/conversations');
+        const res = await fetch('/api/admin/chatbot/conversations', { headers: getAdminHeaders() });
         const logs = await res.json();
 
         const rowsHTML = logs.map(log => `
@@ -376,7 +384,7 @@ async function loadSettingsTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/settings');
+        const res = await fetch('/api/admin/chatbot/settings', { headers: getAdminHeaders() });
         const settings = await res.json();
 
         container.innerHTML = `
@@ -443,7 +451,7 @@ async function loadSettingsTab() {
             try {
                 const updateRes = await fetch('/api/admin/chatbot/settings', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({ model, temperature, systemPrompt, maxTokens, enabled })
                 });
 
@@ -534,7 +542,7 @@ function openAddKbModal(prefillQuery = '') {
         try {
             const saveRes = await fetch('/api/admin/chatbot/knowledge', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({ title, category, link, content, keywords })
             });
 
@@ -555,7 +563,7 @@ function openAddKbModal(prefillQuery = '') {
 async function deleteKbItem(id) {
     if (!confirm('¿Está seguro de eliminar este artículo de la base de conocimiento del chatbot?')) return;
     try {
-        const res = await fetch(`/api/admin/chatbot/knowledge/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/api/admin/chatbot/knowledge/${encodeURIComponent(id)}`, { method: 'DELETE', headers: getAdminHeaders() });
         if (res.ok) {
             showToast('Artículo eliminado de la base de conocimiento', 'info');
             await loadKnowledgeTab();
