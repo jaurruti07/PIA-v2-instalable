@@ -297,28 +297,17 @@ function logAudit({
 // 3. MODELO DE ACCESO CERRADO CON FIREBASE AUTHENTICATION (DOS OPERADORES)
 // ========================================================
 
-const FIREBASE_CONFIG_FILE = path.join(__dirname, 'firebase-applet-config.json');
-let firebaseConfig = {
-  projectId: 'pia-portal-integridad',
-  apiKey: '',
-  authDomain: 'pia-portal-integridad.firebaseapp.com',
-  appId: ''
+// Firebase Authentication es opcional. Cada instalación debe aportar su propia
+// configuración mediante variables de entorno; no se hereda una configuración institucional.
+const firebaseConfig = {
+  projectId: (process.env.FIREBASE_PROJECT_ID || '').trim(),
+  apiKey: (process.env.FIREBASE_API_KEY || '').trim(),
+  authDomain: (process.env.FIREBASE_AUTH_DOMAIN || '').trim(),
+  appId: (process.env.FIREBASE_APP_ID || '').trim(),
+  storageBucket: (process.env.FIREBASE_STORAGE_BUCKET || '').trim()
 };
 
-try {
-  if (fs.existsSync(FIREBASE_CONFIG_FILE)) {
-    const raw = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_FILE, 'utf8'));
-    firebaseConfig = { ...firebaseConfig, ...raw };
-  }
-} catch (e) {
-  console.error('Error leyendo firebase-applet-config.json:', e);
-}
-
-firebaseConfig.apiKey = process.env.FIREBASE_API_KEY || firebaseConfig.apiKey;
-firebaseConfig.authDomain = process.env.FIREBASE_AUTH_DOMAIN || firebaseConfig.authDomain;
-firebaseConfig.appId = process.env.FIREBASE_APP_ID || firebaseConfig.appId;
-
-const FIREBASE_PROJECT_ID = (process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || 'pia-portal-integridad').trim();
+const FIREBASE_PROJECT_ID = firebaseConfig.projectId;
 
 // Claves públicas JWKS oficiales de Google para verificación criptográfica de tokens de Firebase Auth
 const FIREBASE_JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
@@ -774,12 +763,12 @@ app.use((req, res, next) => {
 // Configuración pública de Firebase para el cliente (sin secretos ni claves privadas)
 app.get('/api/auth/firebase-config', (req, res) => {
   res.json({
-    configured: true,
+    configured: Boolean(FIREBASE_PROJECT_ID && firebaseConfig.apiKey),
     projectId: FIREBASE_PROJECT_ID,
-    apiKey: firebaseConfig.apiKey || '',
-    authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
-    appId: firebaseConfig.appId || '',
-    storageBucket: firebaseConfig.storageBucket || `${FIREBASE_PROJECT_ID}.firebasestorage.app`,
+    apiKey: firebaseConfig.apiKey,
+    authDomain: firebaseConfig.authDomain,
+    appId: firebaseConfig.appId,
+    storageBucket: firebaseConfig.storageBucket,
     authorizedEmails: ALLOWED_OPERATOR_EMAILS
   });
 });
@@ -953,8 +942,8 @@ app.get('/api/admin/operators-status', requireAuth, requireOperator, requireModu
     ],
     security: {
       authProvider: 'Autenticación Criptográfica (PBKDF2/SHA-512) + Firebase Auth',
-      projectId: FIREBASE_PROJECT_ID,
-      authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
+      projectId: FIREBASE_PROJECT_ID || null,
+      authDomain: firebaseConfig.authDomain || null,
       concurrencyControl: 'SHA-256 ETag Optimistic Concurrency Activo',
       atomicWrites: 'Activo (.tmp + rename atómico)',
       automatedBackups: 'Activo (rotación de 30 versiones en data/backups)',
