@@ -10,7 +10,7 @@
 #>
 
 [CmdletBinding()]
-param([string]$InstallPath = "C:\inetpub\wwwroot\PIA", [string]$DataPath = "C:\PIA_Data", [int]$Port = 3000)
+param([string]$InstallPath = "C:\inetpub\wwwroot\PIA", [string]$DataPath = "C:\PIA_Data", [int]$Port = 3000, [string]$ServiceAccount = "NT AUTHORITY\SYSTEM")
 
 $ErrorActionPreference = "Stop"
 
@@ -64,7 +64,7 @@ $dataAcl = Get-Acl $DataPath
 $dataAcl.SetAccessRuleProtection($true, $false)
 $dataAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")))
 $dataAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")))
-$dataAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\IIS_IUSRS", "Modify", "ContainerInherit,ObjectInherit", "None", "Allow")))
+$dataAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($ServiceAccount, "Modify", "ContainerInherit,ObjectInherit", "None", "Allow")))
 Set-Acl -Path $DataPath -AclObject $dataAcl
 Write-Success "Datos y respaldos preparados en $DataPath."
 
@@ -131,7 +131,7 @@ if (-not (Test-Path $envFile)) {
         "PIA_OPERATOR_2_PASSWORD=$password2",
         "PIA_OPERATOR_1_NAME=Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
         "PIA_OPERATOR_2_NAME=Apoyo a la Gestión de Irregularidades (CNC)",
-        "FIREBASE_PROJECT_ID=pia-portal-integridad",
+        "# Firebase Authentication es opcional; configurar solo si se utiliza.",
         "GEMINI_API_KEY="
     )
     [System.IO.File]::WriteAllLines($envFile, $envLines, [System.Text.UTF8Encoding]::new($false))
@@ -161,9 +161,9 @@ $envAcl = New-Object System.Security.AccessControl.FileSecurity
 $envAcl.SetAccessRuleProtection($true, $false)
 $envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "Allow")))
 $envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "Allow")))
-$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\IIS_IUSRS", "Read", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($ServiceAccount, "Read", "Allow")))
 Set-Acl -Path $envFile -AclObject $envAcl
-Write-Success "Permisos del archivo .env restringidos."
+Write-Success "Permisos del archivo .env restringidos a administradores y la cuenta de servicio ($ServiceAccount)."
 
 # Sincronizar el puerto del proxy IIS con el puerto del backend.
 $webConfigPath = Join-Path $currentDir "web.config"
@@ -190,6 +190,8 @@ Write-Step "Configuración del proceso Node permanente..."
 Write-Host "Configure un servicio con NSSM o PM2 conforme a la política de TI."
 Write-Host "Ejemplo NSSM: nssm install PIA_Service node.exe"
 Write-Host "Directorio de trabajo: $currentDir"
+Write-Host "Identidad de servicio prevista: $ServiceAccount"
+Write-Host "Después del primer inicio correcto, elimine PIA_OPERATOR_1_PASSWORD y PIA_OPERATOR_2_PASSWORD del archivo .env."
 
 # 8. Health check
 Write-Step "Comprobando el endpoint de salud..."
