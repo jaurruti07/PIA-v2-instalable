@@ -62,40 +62,16 @@ async function fetchUsersAndStatus() {
 
 function getFallbackStatus() {
   return {
-    model: 'two_operators_exclusive',
+    model: 'server_unavailable',
     maxAllowed: 2,
-    configuredCount: 2,
-    slots: [
-      {
-        slot: 1,
-        configured: true,
-        displayName: 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI',
-        email: 'deteccionydenuncia@cnc.gob.gt',
-        upn: 'deteccionydenuncia@cnc.gob.gt',
-        source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
-        role: 'admin',
-        modules: AVAILABLE_MODULES.map(m => m.id),
-        status: 'active'
-      },
-      {
-        slot: 2,
-        configured: true,
-        displayName: 'Apoyo a la Gestión de Irregularidades (CNC)',
-        email: 'apoyogi@cnc.gob.gt',
-        upn: 'apoyogi@cnc.gob.gt',
-        source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
-        role: 'admin',
-        modules: AVAILABLE_MODULES.map(m => m.id),
-        status: 'active'
-      }
-    ],
+    configuredCount: 0,
+    slots: [],
     security: {
-      authProvider: 'Autenticación Criptográfica (PBKDF2/SHA-512) + Firebase Auth',
-      projectId: 'pia-portal-integridad',
-      concurrencyControl: 'SHA-256 ETag Optimistic Concurrency Activo',
-      atomicWrites: 'Activo (.tmp + rename atómico)',
-      automatedBackups: 'Activo (rotación de versiones en /data/backups)',
-      immutableUidAudit: 'Activo (registro individualizado en audit_logs.json)'
+      authProvider: 'No disponible: el servidor no confirmó el estado de autenticación.',
+      concurrencyControl: 'Estado no verificado',
+      atomicWrites: 'Estado no verificado',
+      automatedBackups: 'Estado no verificado',
+      immutableUidAudit: 'Estado no verificado'
     }
   };
 }
