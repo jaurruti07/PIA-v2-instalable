@@ -1,3 +1,36 @@
+# Dependencias y artefactos
 node_modules/
-.DS_Store
+npm-debug.log*
 *.log
+.DS_Store
+
+# Configuración y secretos locales
+.env
+.env.*
+!.env.example
+
+# Datos operativos, credenciales, bitácoras y respaldos
+data/
+uploads/*
+!uploads/.gitkeep
+*.bak
+
+# Herramientas y resultados de pruebas
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# Archivos operativos y de identidad: nunca versionar
+/audit_logs.json
+/chatbot_conversations.json
+/page_visits.json
+/authorized_operators.json
+/users_roles.json
+/chatbot_settings.json
+/security_policies.json
+/.firebaserc
+/firebase.json
+/firebase-blueprint.json
+/firestore.rules
+/metadata.json

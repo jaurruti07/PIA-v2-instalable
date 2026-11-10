@@ -42,7 +42,16 @@ const AVAILABLE_JSON_FILES = [
 
 let currentDbId = null;
 let currentJsonPath = null;
+let currentJsonEtag = null;
 let currentTab = 'databases';
+
+function getDatabaseAdminHeaders(extra = {}) {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  return {
+    ...extra,
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+}
 
 // Inicializar el módulo
 export async function initDatabaseManager() {
@@ -293,7 +302,7 @@ async function renderMockFiles() {
   const filePromises = AVAILABLE_JSON_FILES.map(async f => {
     let preview = 'Sin datos';
     try {
-      const res = await fetch(`/api/raw-json?path=${encodeURIComponent(f.path)}`);
+      const res = await fetch(`/api/raw-json?path=${encodeURIComponent(f.path)}`, { headers: getDatabaseAdminHeaders() });
       if (res.ok) {
         const data = await res.json();
         preview = JSON.stringify(data).substring(0, 110) + '...';
@@ -556,9 +565,13 @@ async function openJsonEditor(path) {
   
   let currentData = {};
   try {
-    const res = await fetch(`/api/raw-json?path=${encodeURIComponent(path)}`);
+    const res = await fetch(`/api/raw-json?path=${encodeURIComponent(path)}`, { headers: getDatabaseAdminHeaders() });
     if (res.ok) {
       currentData = await res.json();
+      currentJsonEtag = res.headers.get('ETag');
+    } else {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.error || 'No fue posible cargar el archivo desde el servidor.');
     }
   } catch (err) {
     console.error('Error al cargar JSON:', err);
@@ -707,9 +720,11 @@ async function saveJsonEditor() {
   }
 
   try {
+    const requestHeaders = getDatabaseAdminHeaders({ 'Content-Type': 'application/json' });
+    if (currentJsonEtag) requestHeaders['If-Match'] = currentJsonEtag;
     const res = await fetch('/api/raw-json', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: requestHeaders,
       body: JSON.stringify({
         path: currentJsonPath,
         data: syntaxResult.data
@@ -721,6 +736,7 @@ async function saveJsonEditor() {
       throw new Error(err.error || 'Error al guardar el archivo');
     }
 
+    currentJsonEtag = res.headers.get('ETag') || currentJsonEtag;
     showToast('Fichero JSON validado y actualizado correctamente en el servidor', 'success');
     closeJsonModal();
     await renderMockFiles();
@@ -733,6 +749,7 @@ function closeJsonModal() {
   const modal = document.getElementById('jsonEditorModal');
   if (modal) modal.style.display = 'none';
   currentJsonPath = null;
+  currentJsonEtag = null;
 }
 
 function showToast(message, type = 'info') {

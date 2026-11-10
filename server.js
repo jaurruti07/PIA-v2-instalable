@@ -10,7 +10,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = Number(process.env.DEFAULT_APP_PORT) || 3000;
+app.disable('x-powered-by');
+const PORT = Number(process.env.PORT || process.env.DEFAULT_APP_PORT) || 3000;
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'pia', timestamp: new Date().toISOString() });
+});
 
 // Body Parsers con límites institucionales controlados
 app.use(express.json({ limit: '20mb' }));
@@ -22,7 +27,7 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 const DATA_DIR = process.env.PIA_DATA_DIR
   ? path.resolve(process.env.PIA_DATA_DIR)
-  : path.join(__dirname, 'data');
+  : path.resolve(__dirname, '..', 'pia-data');
 
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 
@@ -207,7 +212,7 @@ function recordPageVisit(pagePath = '/', req = {}) {
     data.pages[norm].lastVisit = new Date().toISOString();
 
     const headers = req.headers || {};
-    const rawIp = (headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1').split(',')[0].trim();
+    const rawIp = (req.socket?.remoteAddress || '127.0.0.1').split(',')[0].trim();
     const ipParts = rawIp.split('.');
     const maskedIp = ipParts.length === 4 ? `${ipParts[0]}.${ipParts[1]}.***.***` : '127.0.***';
     const userAgent = String(headers['user-agent'] || 'Navegador Web').slice(0, 90);
@@ -293,24 +298,17 @@ function logAudit({
 // 3. MODELO DE ACCESO CERRADO CON FIREBASE AUTHENTICATION (DOS OPERADORES)
 // ========================================================
 
-const FIREBASE_CONFIG_FILE = path.join(__dirname, 'firebase-applet-config.json');
-let firebaseConfig = {
-  projectId: 'pia-portal-integridad',
-  apiKey: '',
-  authDomain: 'pia-portal-integridad.firebaseapp.com',
-  appId: ''
+// Firebase Authentication es opcional. Cada instalación debe aportar su propia
+// configuración mediante variables de entorno; no se hereda una configuración institucional.
+const firebaseConfig = {
+  projectId: (process.env.FIREBASE_PROJECT_ID || '').trim(),
+  apiKey: (process.env.FIREBASE_API_KEY || '').trim(),
+  authDomain: (process.env.FIREBASE_AUTH_DOMAIN || '').trim(),
+  appId: (process.env.FIREBASE_APP_ID || '').trim(),
+  storageBucket: (process.env.FIREBASE_STORAGE_BUCKET || '').trim()
 };
 
-try {
-  if (fs.existsSync(FIREBASE_CONFIG_FILE)) {
-    const raw = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_FILE, 'utf8'));
-    firebaseConfig = { ...firebaseConfig, ...raw };
-  }
-} catch (e) {
-  console.error('Error leyendo firebase-applet-config.json:', e);
-}
-
-const FIREBASE_PROJECT_ID = (process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || 'pia-portal-integridad').trim();
+const FIREBASE_PROJECT_ID = firebaseConfig.projectId;
 
 // Claves públicas JWKS oficiales de Google para verificación criptográfica de tokens de Firebase Auth
 const FIREBASE_JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
@@ -390,8 +388,10 @@ function saveAuthorizedOperators(operators) {
     const tempFile = path.join(DATA_DIR, `.tmp_operators_${Date.now()}`);
     fs.writeFileSync(tempFile, JSON.stringify(operators, null, 2), 'utf8');
     fs.renameSync(tempFile, OPERATORS_FILE);
+    return true;
   } catch (e) {
     console.error('Error guardando authorized_operators.json:', e);
+    return false;
   }
 }
 
@@ -399,58 +399,74 @@ function saveAuthorizedOperators(operators) {
 // 3.B GESTIÓN DE ROLES, PERMISOS Y CONTRASEÑAS ENCRIPTADAS
 // ========================================================
 
-const DEFAULT_AUTHORIZED_USERS = [
-  {
-    id: "usr_cnc_01",
-    email: "deteccionydenuncia@cnc.gob.gt",
-    displayName: "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
-    role: "admin",
-    // Contraseña inicial 12345 encriptada con PBKDF2/SHA-512 y sal criptográfica
-    passwordHash: "f929ebd07fd2c63da7eb3004213bd3d2:9d5f0b3dc9c5e3160bcd726cfd0104c4b310ba6369d64914435c4de8c1ad5d6fb3723aa263cdcaf84f57ef6160b3634442819a3e43f657c0eeb088fbd317ef59",
-    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
-    status: "active",
-    operatorIndex: 1,
-    lastPasswordChange: "2026-03-30T10:00:00.000Z",
-    updatedAt: "2026-03-30T10:00:00.000Z"
-  },
-  {
-    id: "usr_cnc_02",
-    email: "apoyogi@cnc.gob.gt",
-    displayName: "Apoyo a la Gestión de Irregularidades (CNC)",
-    role: "admin",
-    // Contraseña inicial 12345 encriptada con PBKDF2/SHA-512 y sal criptográfica
-    passwordHash: "29af97fbdcade6df44a7d6fb84022548:b3e638225077f1c21b848b5bc32b9cf95d4b7f083dd3eb246d389a042475d86dd8002e0bb7fa0e47234b7a8164304e5a784af86ba8575357e361c93a5a33137e",
-    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
-    status: "active",
-    operatorIndex: 2,
-    lastPasswordChange: "2026-03-30T10:00:00.000Z",
-    updatedAt: "2026-03-30T10:00:00.000Z"
+function createInitialAuthorizedUsers() {
+  const password1 = (process.env.PIA_OPERATOR_1_PASSWORD || '').trim();
+  const password2 = (process.env.PIA_OPERATOR_2_PASSWORD || '').trim();
+  if (!password1 || !password2 || password1.length < 14 || password2.length < 14 || password1 === password2) {
+    return [];
   }
-];
 
+  const now = new Date().toISOString();
+  const modules = ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"];
+  return [
+    {
+      id: "usr_cnc_01",
+      email: "deteccionydenuncia@cnc.gob.gt",
+      displayName: process.env.PIA_OPERATOR_1_NAME || "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
+      role: "admin",
+      passwordHash: hashPassword(password1),
+      modules,
+      status: "active",
+      operatorIndex: 1,
+      lastPasswordChange: null,
+      updatedAt: now
+    },
+    {
+      id: "usr_cnc_02",
+      email: "apoyogi@cnc.gob.gt",
+      displayName: process.env.PIA_OPERATOR_2_NAME || "Apoyo a la Gestión de Irregularidades (CNC)",
+      role: "admin",
+      passwordHash: hashPassword(password2),
+      modules,
+      status: "active",
+      operatorIndex: 2,
+      lastPasswordChange: null,
+      updatedAt: now
+    }
+  ];
+}
 function hashPassword(password, salt = null) {
   if (!salt) {
     salt = crypto.randomBytes(16).toString('hex');
   }
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-  return `${salt}:${hash}`;
+  const iterations = 310000;
+  const hash = crypto.pbkdf2Sync(password, salt, iterations, 64, 'sha512').toString('hex');
+  return `${salt}:${iterations}:${hash}`;
 }
 
 function verifyPassword(password, storedCombined) {
   if (!storedCombined || typeof storedCombined !== 'string' || !storedCombined.includes(':')) {
     return false;
   }
-  const [salt, expectedHash] = storedCombined.split(':');
-  if (!salt || !expectedHash) return false;
+  const parts = storedCombined.split(':');
+  const salt = parts[0];
+  const iterations = parts.length === 3 ? Number(parts[1]) : 10000;
+  const expectedHash = parts.length === 3 ? parts[2] : parts[1];
+  if (!salt || !expectedHash || !Number.isSafeInteger(iterations) || iterations < 10000 || iterations > 1000000) return false;
   try {
-    const actualHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-    return crypto.timingSafeEqual(Buffer.from(actualHash, 'hex'), Buffer.from(expectedHash, 'hex'));
+    const actualHash = crypto.pbkdf2Sync(password, salt, iterations, 64, 'sha512').toString('hex');
+    const expectedBuffer = Buffer.from(expectedHash, 'hex');
+    const actualBuffer = Buffer.from(actualHash, 'hex');
+    return expectedBuffer.length === actualBuffer.length && crypto.timingSafeEqual(actualBuffer, expectedBuffer);
   } catch (e) {
     return false;
   }
 }
 
-const SESSION_HMAC_SECRET = process.env.PIA_SESSION_SECRET || crypto.createHash('sha256').update('PIA_CNC_GUATEMALA_SECRET_KEY_2026').digest('hex');
+const SESSION_HMAC_SECRET = (process.env.PIA_SESSION_SECRET || '').trim();
+if (SESSION_HMAC_SECRET.length < 64) {
+  throw new Error('Configuración insegura: PIA_SESSION_SECRET es obligatorio y debe contener al menos 64 caracteres aleatorios.');
+}
 
 function createLocalSessionToken(user) {
   const payload = {
@@ -495,8 +511,13 @@ function getUsersRoles() {
       console.error('Error leyendo users_roles.json:', e);
     }
   }
-  saveUsersRoles(DEFAULT_AUTHORIZED_USERS);
-  return DEFAULT_AUTHORIZED_USERS;
+  const initialUsers = createInitialAuthorizedUsers();
+  if (initialUsers.length !== 2) {
+    console.error('PIA: no existen usuarios iniciales. Configure PIA_OPERATOR_1_PASSWORD y PIA_OPERATOR_2_PASSWORD (mínimo 14 caracteres) y reinicie.');
+    return [];
+  }
+  if (!saveUsersRoles(initialUsers)) return [];
+  return initialUsers;
 }
 
 function saveUsersRoles(users) {
@@ -511,8 +532,16 @@ function saveUsersRoles(users) {
   }
 }
 
+// Inicializar las dos identidades en el almacenamiento privado durante el primer arranque.
+if (process.env.PIA_OPERATOR_1_PASSWORD && process.env.PIA_OPERATOR_2_PASSWORD) {
+  getUsersRoles();
+}
+
 // Validación criptográfica estricta de token de Firebase Authentication en el servidor
 async function verifyFirebaseToken(token) {
+  if (!FIREBASE_PROJECT_ID) {
+    throw new Error('Firebase Authentication no está configurado para esta instalación.');
+  }
   if (!token || typeof token !== 'string') {
     throw new Error('Token de autorización no proporcionado.');
   }
@@ -568,17 +597,20 @@ async function requireAuth(req, res, next) {
       return res.status(403).json({ error: 'Usuario no autorizado en el portal.' });
     }
     const allUsers = getUsersRoles();
-    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail);
+    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail && u.status === 'active');
+    if (!dbUser) {
+      return res.status(403).json({ error: 'La cuenta no está inicializada o se encuentra deshabilitada en el servidor.' });
+    }
 
     req.user = {
-      uid: localSession.uid || dbUser?.id || 'usr_cnc_01',
-      oid: localSession.uid || dbUser?.id || 'usr_cnc_01',
+      uid: dbUser.id,
+      oid: dbUser.id,
       email: userEmail,
       upn: userEmail,
-      displayName: dbUser?.displayName || localSession.displayName,
-      operatorIndex: dbUser?.operatorIndex || localSession.operatorIndex || 1,
-      role: dbUser?.role || 'admin',
-      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide']
+      displayName: dbUser.displayName,
+      operatorIndex: dbUser.operatorIndex,
+      role: dbUser.role,
+      modules: Array.isArray(dbUser.modules) ? dbUser.modules : []
     };
     return next();
   }
@@ -588,6 +620,10 @@ async function requireAuth(req, res, next) {
     const verified = await verifyFirebaseToken(token);
     const userUid = verified.uid;
     const userEmail = verified.email;
+
+    if (!verified.email_verified) {
+      return res.status(403).json({ error: 'La cuenta institucional debe tener el correo verificado en Firebase.' });
+    }
 
     // Verificar si el correo pertenece estrictamente a las 2 cuentas autorizadas
     if (!ALLOWED_OPERATOR_EMAILS.includes(userEmail)) {
@@ -600,7 +636,7 @@ async function requireAuth(req, res, next) {
         module: 'auth',
         target: 'admin',
         details: `Intento de acceso denegado: ${userEmail} (UID: ${userUid}) no figura entre las 2 cuentas autorizadas de la CNC.`,
-        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+        ip: req.socket.remoteAddress || '127.0.0.1'
       });
 
       return res.status(403).json({
@@ -630,7 +666,7 @@ async function requireAuth(req, res, next) {
         module: 'auth',
         target: 'admin',
         details: `Discrepancia de UID en servidor: Recibido ${userUid}, registrado ${matchedOperator.uid}`,
-        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+        ip: req.socket.remoteAddress || '127.0.0.1'
       });
 
       return res.status(403).json({
@@ -642,7 +678,9 @@ async function requireAuth(req, res, next) {
     if (!matchedOperator.uid) {
       matchedOperator.uid = userUid;
       matchedOperator.status = 'active';
-      saveAuthorizedOperators(operators);
+      if (!saveAuthorizedOperators(operators)) {
+        return res.status(500).json({ error: 'No fue posible registrar la identidad del operador en el servidor.' });
+      }
       logAudit({
         user: userEmail,
         userUid,
@@ -652,31 +690,54 @@ async function requireAuth(req, res, next) {
         module: 'auth',
         target: 'admin',
         details: `UID de Firebase Auth registrado exitosamente para operador ${matchedOperator.displayName}: ${userUid}`,
-        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+        ip: req.socket.remoteAddress || '127.0.0.1'
       });
     }
 
     const allUsers = getUsersRoles();
-    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail);
+    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail && u.status === 'active');
+    if (!dbUser) {
+      return res.status(403).json({ error: 'La cuenta institucional no está inicializada o se encuentra deshabilitada en el servidor.' });
+    }
 
     req.user = {
       uid: userUid,
       oid: userUid,
       email: userEmail,
       upn: userEmail,
-      displayName: dbUser?.displayName || matchedOperator.displayName || verified.name,
-      operatorIndex: matchedOperator.operatorIndex,
-      role: dbUser?.role || 'admin',
-      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide']
+      displayName: dbUser.displayName || matchedOperator.displayName || verified.name,
+      operatorIndex: dbUser.operatorIndex || matchedOperator.operatorIndex,
+      role: dbUser.role,
+      modules: Array.isArray(dbUser.modules) ? dbUser.modules : []
     };
 
     next();
   } catch (err) {
     return res.status(401).json({
-      error: 'Token de autorización inválido, expirado o no autorizado.',
-      details: err.message
+      error: 'Token de autorización inválido, expirado o no autorizado.'
     });
   }
+}
+
+// Autorización por módulo: la visibilidad del menú no sustituye el control del servidor.
+function requireModule(moduleId) {
+  return (req, res, next) => {
+    const assigned = Array.isArray(req.user?.modules) ? req.user.modules : [];
+    if (!assigned.includes(moduleId)) {
+      return res.status(403).json({ error: `No tiene permiso para acceder al módulo "${moduleId}".` });
+    }
+    next();
+  };
+}
+
+function requireModuleFromParam(req, res, next) {
+  const aliases = {
+    'canales-por-la-integridad': 'canales',
+    'gobierno_en_numeros': 'tableros',
+    'vehiculos_instituciones': 'vehiculos'
+  };
+  const moduleId = aliases[req.params.module] || req.params.module;
+  return requireModule(moduleId)(req, res, next);
 }
 
 // Middleware de verificación de rol de operador o administrador
@@ -709,12 +770,12 @@ app.use((req, res, next) => {
 // Configuración pública de Firebase para el cliente (sin secretos ni claves privadas)
 app.get('/api/auth/firebase-config', (req, res) => {
   res.json({
-    configured: true,
+    configured: Boolean(FIREBASE_PROJECT_ID && firebaseConfig.apiKey),
     projectId: FIREBASE_PROJECT_ID,
-    apiKey: firebaseConfig.apiKey || '',
-    authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
-    appId: firebaseConfig.appId || '',
-    storageBucket: firebaseConfig.storageBucket || `${FIREBASE_PROJECT_ID}.firebasestorage.app`,
+    apiKey: firebaseConfig.apiKey,
+    authDomain: firebaseConfig.authDomain,
+    appId: firebaseConfig.appId,
+    storageBucket: firebaseConfig.storageBucket,
     authorizedEmails: ALLOWED_OPERATOR_EMAILS
   });
 });
@@ -729,8 +790,30 @@ app.get('/api/auth/entra-config', (req, res) => {
   });
 });
 
+const LOGIN_RATE_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_RATE_MAX_ATTEMPTS = 8;
+const loginAttempts = new Map();
+
+function loginRateLimit(req, res, next) {
+  const key = req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  let entry = loginAttempts.get(key);
+  if (!entry || now - entry.windowStartedAt >= LOGIN_RATE_WINDOW_MS) {
+    entry = { windowStartedAt: now, count: 0 };
+  }
+  entry.count += 1;
+  loginAttempts.set(key, entry);
+
+  if (entry.count > LOGIN_RATE_MAX_ATTEMPTS) {
+    const retryAfter = Math.max(1, Math.ceil((LOGIN_RATE_WINDOW_MS - (now - entry.windowStartedAt)) / 1000));
+    res.setHeader('Retry-After', String(retryAfter));
+    return res.status(429).json({ error: 'Demasiados intentos de inicio de sesión. Espere antes de volver a intentar.' });
+  }
+  next();
+}
+
 // Inicio de sesión directo con correo y contraseña encriptada (con sal PBKDF2/SHA-512)
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', loginRateLimit, (req, res) => {
   const { email, username, password } = req.body || {};
   const userIdentifier = (email || username || '').trim().toLowerCase();
   const rawPassword = password || '';
@@ -747,7 +830,7 @@ app.post('/api/auth/login', (req, res) => {
       module: 'auth',
       target: 'admin',
       details: `Intento de acceso rechazado para cuenta no autorizada: ${userIdentifier}`,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
     return res.status(401).json({ error: 'Credenciales incorrectas o usuario no autorizado.' });
   }
@@ -767,9 +850,18 @@ app.post('/api/auth/login', (req, res) => {
       module: 'auth',
       target: 'admin',
       details: `Contraseña inválida ingresada para el usuario ${userIdentifier}`,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
     return res.status(401).json({ error: 'Credenciales incorrectas o usuario no autorizado.' });
+  }
+
+  // Migrar hashes heredados PBKDF2/SHA-512 de 10,000 iteraciones al nuevo factor de 310,000.
+  if (user.passwordHash.split(':').length === 2) {
+    user.passwordHash = hashPassword(rawPassword);
+    user.passwordHashUpdatedAt = new Date().toISOString();
+    if (!saveUsersRoles(users)) {
+      return res.status(500).json({ error: 'No fue posible guardar la actualización de seguridad de la cuenta.' });
+    }
   }
 
   const token = createLocalSessionToken(user);
@@ -782,7 +874,7 @@ app.post('/api/auth/login', (req, res) => {
     module: 'auth',
     target: 'admin',
     details: `Inicio de sesión exitoso como ${user.displayName} (${user.email}) con permisos en: ${(user.modules || []).join(', ')}`,
-    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    ip: req.socket.remoteAddress || '127.0.0.1'
   });
 
   res.json({
@@ -818,7 +910,7 @@ app.get('/api/auth/verify', requireAuth, (req, res) => {
 });
 
 // Estado de configuración institucional de los dos operadores y políticas de seguridad
-app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/operators-status', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const users = getUsersRoles();
   const op1 = users.find(o => o.operatorIndex === 1) || users[0];
   const op2 = users.find(o => o.operatorIndex === 2) || users[1];
@@ -857,8 +949,8 @@ app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) 
     ],
     security: {
       authProvider: 'Autenticación Criptográfica (PBKDF2/SHA-512) + Firebase Auth',
-      projectId: FIREBASE_PROJECT_ID,
-      authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
+      projectId: FIREBASE_PROJECT_ID || null,
+      authDomain: firebaseConfig.authDomain || null,
       concurrencyControl: 'SHA-256 ETag Optimistic Concurrency Activo',
       atomicWrites: 'Activo (.tmp + rename atómico)',
       automatedBackups: 'Activo (rotación de 30 versiones en data/backups)',
@@ -876,7 +968,7 @@ app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) 
 });
 
 // Obtener lista autorizada de usuarios (sanitizada sin hashes de contraseña)
-app.get('/api/users', requireAuth, requireOperator, (req, res) => {
+app.get('/api/users', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const users = getUsersRoles();
   const sanitized = users.map(u => ({
     id: u.id,
@@ -899,7 +991,7 @@ app.get('/api/users', requireAuth, requireOperator, (req, res) => {
 });
 
 // Actualizar módulos permitidos para un usuario desde el panel admin
-app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (req, res) => {
+app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { modules } = req.body || {};
 
@@ -922,7 +1014,9 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (re
 
   user.modules = sanitizedModules;
   user.updatedAt = new Date().toISOString();
-  saveUsersRoles(users);
+  if (!saveUsersRoles(users)) {
+    return res.status(500).json({ error: 'No fue posible guardar los permisos del usuario.' });
+  }
 
   logAudit({
     user: req.user.email,
@@ -931,7 +1025,7 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (re
     module: 'users',
     target: targetEmail,
     details: `Módulos asignados a ${targetEmail}: ${sanitizedModules.join(', ')}`,
-    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    ip: req.socket.remoteAddress || '127.0.0.1'
   });
 
   res.json({
@@ -949,7 +1043,7 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (re
 });
 
 // Cambiar y encriptar contraseña para un usuario desde el panel admin
-app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, res) => {
+app.put('/api/admin/users/:email/password', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { newPassword } = req.body || {};
 
@@ -957,8 +1051,8 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, 
     return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
   }
 
-  if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 4) {
-    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 4 caracteres.' });
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 14 || newPassword.trim().length > 256) {
+    return res.status(400).json({ error: 'La nueva contraseña debe tener entre 14 y 256 caracteres.' });
   }
 
   const users = getUsersRoles();
@@ -972,7 +1066,9 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, 
   user.passwordHash = newHash;
   user.lastPasswordChange = new Date().toISOString();
   user.updatedAt = new Date().toISOString();
-  saveUsersRoles(users);
+  if (!saveUsersRoles(users)) {
+    return res.status(500).json({ error: 'No fue posible guardar la nueva contraseña.' });
+  }
 
   logAudit({
     user: req.user.email,
@@ -981,7 +1077,7 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, 
     module: 'users',
     target: targetEmail,
     details: `Contraseña actualizada y encriptada con sal PBKDF2/SHA-512 para el usuario ${targetEmail}`,
-    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    ip: req.socket.remoteAddress || '127.0.0.1'
   });
 
   res.json({
@@ -991,7 +1087,7 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, 
 });
 
 // Actualizar rol de usuario (admin o data_operator)
-app.put('/api/admin/users/:email/role', requireAuth, requireOperator, (req, res) => {
+app.put('/api/admin/users/:email/role', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { role } = req.body || {};
 
@@ -1012,7 +1108,9 @@ app.put('/api/admin/users/:email/role', requireAuth, requireOperator, (req, res)
 
   user.role = role;
   user.updatedAt = new Date().toISOString();
-  saveUsersRoles(users);
+  if (!saveUsersRoles(users)) {
+    return res.status(500).json({ error: 'No fue posible guardar el rol del usuario.' });
+  }
 
   logAudit({
     user: req.user.email,
@@ -1021,7 +1119,7 @@ app.put('/api/admin/users/:email/role', requireAuth, requireOperator, (req, res)
     module: 'users',
     target: targetEmail,
     details: `Rol asignado a ${targetEmail}: ${role}`,
-    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    ip: req.socket.remoteAddress || '127.0.0.1'
   });
 
   res.json({
@@ -1147,7 +1245,77 @@ function saveModuleRecords(module, records, user = 'sistema', expectedHash = nul
   return atomicWriteJson(filePath, records, expectedHash, user);
 }
 
-const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin'];
+const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin', 'visits', 'page_visits.json', 'chatbot_settings.json', 'chatbot_knowledge.json'];
+
+// Rutas de JSON permitidas para la herramienta de mantenimiento administrativo.
+// Nunca se acepta una ruta de archivo arbitraria proporcionada por el navegador.
+const RAW_JSON_ALLOWED_FILES = new Map([
+  ['/data_portal.json', WHITELIST_JSON_MAP.portal],
+  ['/canales-por-la-integridad/data_directorio.json', WHITELIST_JSON_MAP.canales],
+  ['/directorio/data_acceso.json', WHITELIST_JSON_MAP.directorio],
+  ['/gobierno_en_numeros/data_tableros.json', WHITELIST_JSON_MAP.tableros],
+  ['/riesgo/datos.json', WHITELIST_JSON_MAP.riesgo],
+  ['/vehiculos/vehiculos.json', WHITELIST_JSON_MAP.vehiculos]
+]);
+
+function resolveRawJsonFile(requestedPath) {
+  if (typeof requestedPath !== 'string' || requestedPath.length > 200) return null;
+  return RAW_JSON_ALLOWED_FILES.get(requestedPath) || null;
+}
+
+app.get('/api/raw-json', requireAuth, requireOperator, requireModule('database'), (req, res) => {
+  const filePath = resolveRawJsonFile(req.query.path);
+  if (!filePath) return res.status(400).json({ error: 'Ruta JSON no autorizada.' });
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'El archivo solicitado no existe.' });
+
+  const hash = computeFileHash(filePath);
+  if (hash) res.setHeader('ETag', `"${hash}"`);
+  const data = readJsonFile(filePath);
+  if (data === null) return res.status(500).json({ error: 'No fue posible leer el archivo JSON.' });
+  res.json(data);
+});
+
+app.post('/api/raw-json', requireAuth, requireOperator, requireModule('database'), (req, res) => {
+  const filePath = resolveRawJsonFile(req.body?.path);
+  const data = req.body?.data;
+  if (!filePath) return res.status(400).json({ error: 'Ruta JSON no autorizada.' });
+  if (data === null || typeof data !== 'object') {
+    return res.status(400).json({ error: 'El contenido debe ser un objeto o arreglo JSON válido.' });
+  }
+
+  const requestedPath = req.body.path;
+  const mustBeArray = [
+    '/canales-por-la-integridad/data_directorio.json',
+    '/directorio/data_acceso.json',
+    '/gobierno_en_numeros/data_tableros.json'
+  ].includes(requestedPath);
+  if (mustBeArray !== Array.isArray(data)) {
+    return res.status(400).json({ error: mustBeArray ? 'Este módulo requiere un arreglo JSON.' : 'Este módulo requiere un objeto JSON.' });
+  }
+
+  const ifMatch = req.headers['if-match'] ? req.headers['if-match'].replace(/"/g, '').trim() : null;
+  try {
+    const result = atomicWriteJson(filePath, data, ifMatch, req.user.email);
+    logAudit({
+      user: req.user.email,
+      userUid: req.user.uid,
+      action: 'ACTUALIZACIÓN JSON ADMINISTRATIVA',
+      module: 'database',
+      target: requestedPath,
+      details: `Archivo JSON actualizado desde el módulo de mantenimiento: ${requestedPath}`,
+      backupCreated: result.backupCreated,
+      ip: req.socket.remoteAddress || '127.0.0.1'
+    });
+    if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
+    res.json({ success: true, message: 'Archivo JSON actualizado y respaldado correctamente.' });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: err.code });
+    }
+    console.error('Error guardando JSON administrativo:', err);
+    res.status(500).json({ error: 'No fue posible guardar el archivo JSON.' });
+  }
+});
 
 app.get('/api/modules', (req, res) => {
   res.json(['canales', 'directorio', 'tableros', 'riesgo', 'portal']);
@@ -1189,7 +1357,7 @@ app.get('/api/:module/:id', (req, res, next) => {
 });
 
 // POST: Creación de registros (Exclusivo para los dos operadores autorizados)
-app.post('/api/:module', requireAuth, requireOperator, (req, res, next) => {
+app.post('/api/:module', requireAuth, requireOperator, requireModuleFromParam, (req, res, next) => {
   const { module } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
@@ -1215,7 +1383,7 @@ app.post('/api/:module', requireAuth, requireOperator, (req, res, next) => {
       recordId: newId,
       details: `Registro ID ${newId} creado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
@@ -1229,7 +1397,7 @@ app.post('/api/:module', requireAuth, requireOperator, (req, res, next) => {
 });
 
 // PUT: Modificación de registros (Exclusivo para los dos operadores autorizados)
-app.put('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
+app.put('/api/:module/:id', requireAuth, requireOperator, requireModuleFromParam, (req, res, next) => {
   const { module, id } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
@@ -1255,7 +1423,7 @@ app.put('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
       recordId: id,
       details: `Registro ID ${id} actualizado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
@@ -1269,7 +1437,7 @@ app.put('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
 });
 
 // DELETE: Eliminación de registros (Exclusivo para los dos operadores autorizados)
-app.delete('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
+app.delete('/api/:module/:id', requireAuth, requireOperator, requireModuleFromParam, (req, res, next) => {
   const { module, id } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
@@ -1294,7 +1462,7 @@ app.delete('/api/:module/:id', requireAuth, requireOperator, (req, res, next) =>
       recordId: id,
       details: `Registro ID ${id} eliminado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
@@ -1311,11 +1479,11 @@ app.delete('/api/:module/:id', requireAuth, requireOperator, (req, res, next) =>
 // 6. AUDITORÍA Y DASHBOARD DE ADMINISTRACIÓN
 // ========================================================
 
-app.get('/api/audit', requireAuth, requireOperator, (req, res) => {
+app.get('/api/audit', requireAuth, requireOperator, requireModule('audit'), (req, res) => {
   res.json(getAuditLogs());
 });
 
-app.get('/api/dashboard/stats', requireAuth, requireOperator, (req, res) => {
+app.get('/api/dashboard/stats', requireAuth, requireOperator, requireModule('portal'), (req, res) => {
   try {
     const canales = getModuleRecords('canales');
     const directorio = getModuleRecords('directorio');
@@ -1343,12 +1511,12 @@ app.get('/api/dashboard/stats', requireAuth, requireOperator, (req, res) => {
   }
 });
 
-app.get('/api/dashboard/audit', requireAuth, requireOperator, (req, res) => {
+app.get('/api/dashboard/audit', requireAuth, requireOperator, requireModule('audit'), (req, res) => {
   res.json(getAuditLogs().slice(0, 20));
 });
 
 // Endpoint administrativo para consultar contador y estadísticas reales de visitas
-app.get('/api/admin/visits', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/visits', requireAuth, requireOperator, requireModule('visits'), (req, res) => {
   try {
     const data = getVisitsData();
     const todayStr = new Date().toISOString().split('T')[0];
@@ -1385,8 +1553,24 @@ app.post('/api/analytics/visit', (req, res) => {
 // 7. ASISTENTE VIRTUAL LUPITA (GEMINI BACKEND PROXY SEGURO)
 // ========================================================
 
-const CHATBOT_SETTINGS_FILE = path.join(__dirname, 'chatbot_settings.json');
-const CHATBOT_KNOWLEDGE_FILE = path.join(__dirname, 'chatbot_knowledge.json');
+const CHATBOT_SETTINGS_FILE = path.join(DATA_DIR, 'chatbot_settings.json');
+const CHATBOT_KNOWLEDGE_FILE = path.join(DATA_DIR, 'chatbot_knowledge.json');
+const CHATBOT_CONVERSATIONS_FILE = path.join(DATA_DIR, 'chatbot_conversations.json');
+const LEGACY_CHATBOT_FILES = [
+  [path.join(__dirname, 'chatbot_settings.json'), CHATBOT_SETTINGS_FILE],
+  [path.join(__dirname, 'chatbot_knowledge.json'), CHATBOT_KNOWLEDGE_FILE]
+];
+
+// Migración no destructiva de configuración heredada al almacenamiento privado.
+for (const [legacyPath, privatePath] of LEGACY_CHATBOT_FILES) {
+  try {
+    if (fs.existsSync(legacyPath) && !fs.existsSync(privatePath)) {
+      fs.copyFileSync(legacyPath, privatePath, fs.constants.COPYFILE_EXCL);
+    }
+  } catch (err) {
+    console.error('No fue posible migrar un archivo heredado del chatbot:', err.message);
+  }
+}
 
 let genAIInstance = null;
 function getGenAI() {
@@ -1404,7 +1588,7 @@ function getChatbotSettings() {
     model: 'gemini-2.5-flash',
     temperature: 0.2,
     maxTokens: 1024,
-    systemPrompt: 'Te llamas Lupita. Eres la Asistente Virtual Oficial Inteligente del Portal de Integridad Activa (PIA) del Gobierno de Guatemala.',
+    systemPrompt: 'Te llamas Lupita. Eres la Asistente Virtual del Portal de Integridad Activa (PIA). Orienta a la ciudadanía sobre transparencia, canales de denuncia, oficinas de probidad, directorio institucional, estadísticas y riesgos de integridad pública. Responde en español con tono profesional, claro y empático. Utiliza únicamente la base de conocimiento disponible y los datos confirmados del portal. No inventes cifras, requisitos ni procedimientos. No solicites ni reproduzcas datos personales sensibles. Si desconoces una respuesta, indícalo y orienta al usuario hacia los canales oficiales de información.',
     enabled: true
   };
 }
@@ -1468,7 +1652,7 @@ app.get('/api/chatbot/knowledge', (req, res) => {
 });
 
 // Adición y modificación de conocimiento: Requiere ser uno de los dos operadores autorizados
-app.post('/api/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
+app.post('/api/chatbot/knowledge', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   const { title, category, content, keywords, link } = req.body || {};
   if (!title || !content) return res.status(400).json({ error: 'Título y contenido son obligatorios' });
 
@@ -1498,7 +1682,7 @@ app.post('/api/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
   res.status(201).json(newItem);
 });
 
-app.delete('/api/chatbot/knowledge/:id', requireAuth, requireOperator, (req, res) => {
+app.delete('/api/chatbot/knowledge/:id', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   const { id } = req.params;
   let knowledge = getChatbotKnowledge();
   const item = knowledge.find(k => k.id === id);
@@ -1546,7 +1730,7 @@ function generateFallbackResponse(query, knowledgeItems) {
 
 // Endpoint de consulta pública a Lupita
 app.post('/api/chatbot/chat', async (req, res) => {
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  const clientIp = req.socket.remoteAddress || '127.0.0.1';
 
   if (!checkChatbotRateLimit(clientIp)) {
     return res.status(429).json({
@@ -1622,6 +1806,26 @@ app.post('/api/chatbot/chat', async (req, res) => {
   const responseTimeMs = Date.now() - startTime;
   const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
+  // El registro de conversaciones es opcional y queda desactivado por defecto
+  // para evitar conservar consultas que puedan contener datos personales.
+  if (process.env.PIA_CHATBOT_LOG_CONVERSATIONS === 'true') {
+    try {
+      const conversations = readJsonFile(CHATBOT_CONVERSATIONS_FILE) || [];
+      conversations.unshift({
+        id: messageId,
+        sessionId: String(req.body?.sessionId || messageId).slice(0, 100),
+        timestamp: new Date().toISOString(),
+        userMessage: cleanMessage,
+        botResponse: responseText,
+        responseTimeMs,
+        rating: null
+      });
+      atomicWriteJson(CHATBOT_CONVERSATIONS_FILE, conversations.slice(0, 200), null, 'chatbot');
+    } catch (err) {
+      console.error('No fue posible registrar la conversación de Lupita:', err.message);
+    }
+  }
+
   res.json({
     messageId,
     text: responseText,
@@ -1631,44 +1835,146 @@ app.post('/api/chatbot/chat', async (req, res) => {
 });
 
 app.post('/api/chatbot/rate', (req, res) => {
-  res.json({ success: true, message: 'Gracias por su retroalimentación.' });
+  if (process.env.PIA_CHATBOT_LOG_CONVERSATIONS !== 'true') {
+    return res.json({ success: true, recorded: false, message: 'Gracias por su retroalimentación. Las valoraciones no se conservan en esta instalación.' });
+  }
+
+  const { messageId, rating } = req.body || {};
+  if (typeof messageId !== 'string' || !['like', 'dislike'].includes(rating)) {
+    return res.status(400).json({ error: 'Valoración inválida.' });
+  }
+
+  const conversations = readJsonFile(CHATBOT_CONVERSATIONS_FILE) || [];
+  const conversation = conversations.find(item => item.id === messageId);
+  if (!conversation) return res.status(404).json({ error: 'La conversación no existe o ya no está disponible.' });
+  conversation.rating = rating;
+  conversation.ratedAt = new Date().toISOString();
+
+  try {
+    atomicWriteJson(CHATBOT_CONVERSATIONS_FILE, conversations.slice(0, 200), null, 'chatbot');
+    res.json({ success: true, recorded: true, message: 'Gracias por su retroalimentación.' });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible guardar la valoración.' });
+  }
 });
 
-// Admin stats
-app.get('/api/admin/chatbot/stats', requireAuth, requireOperator, (req, res) => {
+// Estadísticas calculadas únicamente a partir de registros conservados.
+// No se muestran métricas simuladas cuando el historial está desactivado.
+app.get('/api/admin/chatbot/stats', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   const settings = getChatbotSettings();
   const knowledge = getChatbotKnowledge();
+  const conversations = process.env.PIA_CHATBOT_LOG_CONVERSATIONS === 'true'
+    ? (readJsonFile(CHATBOT_CONVERSATIONS_FILE) || [])
+    : [];
+  const rated = conversations.filter(item => item.rating === 'like' || item.rating === 'dislike');
+  const positive = rated.filter(item => item.rating === 'like').length;
+  const average = conversations.length
+    ? Math.round(conversations.reduce((sum, item) => sum + (Number(item.responseTimeMs) || 0), 0) / conversations.length)
+    : 0;
+
+  const dailyCounts = new Map();
+  const queryCounts = new Map();
+  for (const item of conversations) {
+    const date = String(item.timestamp || '').slice(0, 10);
+    if (date) dailyCounts.set(date, (dailyCounts.get(date) || 0) + 1);
+    const query = String(item.userMessage || '').trim();
+    if (query) queryCounts.set(query, (queryCounts.get(query) || 0) + 1);
+  }
+
+  const dailyStats = [...dailyCounts.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-14)
+    .map(([date, count]) => ({ date, count }));
+  const frequentQueries = [...queryCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([query, count]) => ({ query, count }));
+
   res.json({
-    totalConversations: 168,
-    avgResponseTimeMs: 980,
-    satisfactionRate: 96,
+    totalConversations: conversations.length,
+    avgResponseTimeMs: average,
+    satisfactionRate: rated.length ? Math.round((positive / rated.length) * 100) : null,
     knowledgeCount: knowledge.length,
     model: settings.model,
-    enabled: settings.enabled
+    enabled: settings.enabled,
+    dailyStats,
+    frequentQueries,
+    unansweredQueries: []
   });
 });
 
-app.get('/api/admin/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/chatbot/knowledge', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   res.json(getChatbotKnowledge());
 });
 
-app.get('/api/admin/chatbot/settings', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/chatbot/settings', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   res.json(getChatbotSettings());
+});
+
+app.put('/api/admin/chatbot/settings', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
+  const body = req.body || {};
+  const model = typeof body.model === 'string' ? body.model.trim() : '';
+  const systemPrompt = typeof body.systemPrompt === 'string' ? body.systemPrompt.trim() : '';
+  const temperature = Number(body.temperature);
+  const maxTokens = Number(body.maxTokens);
+
+  if (!model || model.length > 100) {
+    return res.status(400).json({ error: 'Debe indicar un modelo válido.' });
+  }
+  if (!systemPrompt || systemPrompt.length > 12000) {
+    return res.status(400).json({ error: 'La instrucción del sistema debe contener entre 1 y 12,000 caracteres.' });
+  }
+  if (!Number.isFinite(temperature) || temperature < 0 || temperature > 1) {
+    return res.status(400).json({ error: 'La temperatura debe estar entre 0 y 1.' });
+  }
+  if (!Number.isInteger(maxTokens) || maxTokens < 256 || maxTokens > 2048) {
+    return res.status(400).json({ error: 'Los tokens máximos deben estar entre 256 y 2,048.' });
+  }
+  if (typeof body.enabled !== 'boolean') {
+    return res.status(400).json({ error: 'El estado del asistente debe ser verdadero o falso.' });
+  }
+
+  const updated = { ...getChatbotSettings(), model, systemPrompt, temperature, maxTokens, enabled: body.enabled };
+  try {
+    const result = atomicWriteJson(CHATBOT_SETTINGS_FILE, updated, null, req.user.email);
+    logAudit({
+      user: req.user.email,
+      userUid: req.user.uid,
+      action: 'ACTUALIZACIÓN DE CONFIGURACIÓN DEL CHATBOT',
+      module: 'chatbot',
+      target: 'settings',
+      details: `Parámetros del asistente actualizados; modelo: ${model}; activo: ${body.enabled}`,
+      backupCreated: result.backupCreated,
+      ip: req.socket.remoteAddress || '127.0.0.1'
+    });
+    res.json({ success: true, settings: updated });
+  } catch (err) {
+    console.error('Error guardando configuración del chatbot:', err);
+    res.status(500).json({ error: 'No fue posible guardar la configuración del asistente.' });
+  }
+});
+
+app.get('/api/admin/chatbot/conversations', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
+  if (process.env.PIA_CHATBOT_LOG_CONVERSATIONS !== 'true') {
+    return res.json([]);
+  }
+  const conversations = readJsonFile(CHATBOT_CONVERSATIONS_FILE);
+  res.json(Array.isArray(conversations) ? conversations.slice(0, 200) : []);
 });
 
 // Archivo upload endpoint para operadores
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
-app.post('/api/files/upload', requireAuth, requireOperator, (req, res) => {
-  res.json({ url: '/uploads/sample.png', filename: 'sample.png' });
+app.post('/api/files/upload', requireAuth, requireOperator, requireModule('database'), (req, res) => {
+  res.status(501).json({
+    error: 'La carga de archivos no está habilitada en esta versión. No se devolverá una ruta de archivo ficticia.'
+  });
 });
 
-// Raw-JSON endpoints: Deshabilitados para el frontend cotidiano de operadores
-app.all(['/api/raw-json', '/api/raw-json/*'], requireAuth, requireOperator, (req, res) => {
-  res.status(403).json({
-    error: 'La edición directa de JSON crudo está deshabilitada en la interfaz ordinaria. Las actualizaciones se realizan exclusivamente mediante los formularios validados de cada módulo.'
-  });
+// Bloquear subrutas no contempladas del mantenimiento JSON.
+app.all(['/api/raw-json/*'], requireAuth, requireOperator, requireModule('database'), (req, res) => {
+  res.status(404).json({ error: 'Ruta de mantenimiento JSON no reconocida.' });
 });
 
 // ========================================================
@@ -1713,6 +2019,60 @@ app.get(['/riesgo', '/riesgo/'], (req, res) => {
 app.get('/', (req, res) => {
   recordPageVisit('/', req);
   sendFreshHtml(path.join(__dirname, 'index.html'), res);
+});
+
+// Denegar explícitamente archivos internos, de configuración y datos operativos.
+// El directorio raíz contiene código del servidor y scripts de despliegue: no debe
+// exponerse íntegramente mediante express.static.
+const PRIVATE_STATIC_FILES = new Set([
+  '/audit_logs.json',
+  '/chatbot_conversations.json',
+  '/page_visits.json',
+  '/authorized_operators.json',
+  '/users_roles.json',
+  '/server.js',
+  '/package.json',
+  '/package-lock.json',
+  '/npm-shrinkwrap.json',
+  '/dockerfile',
+  '/docker-compose.yml',
+  '/readme.md',
+  '/deploy-iis.ps1',
+  '/web.config',
+  '/test_security_suite.js',
+  '/firebase-applet-config.json',
+  '/chatbot_settings.json',
+  '/chatbot_knowledge.json',
+  '/security_policies.json',
+  '/firebase.json',
+  '/firebase-blueprint.json',
+  '/firestore.rules',
+  '/metadata.json',
+  '/requirements.txt',
+  '/app.py',
+  '/bun.lockb',
+  '/bun.lock'
+]);
+const PRIVATE_STATIC_SEGMENTS = new Set([
+  '.git', '.github', 'node_modules', 'data', 'uploads-private'
+]);
+app.use((req, res, next) => {
+  let requestedPath;
+  try {
+    requestedPath = decodeURIComponent(req.path).toLowerCase();
+  } catch (_) {
+    return res.sendStatus(400);
+  }
+
+  const segments = requestedPath.split('/').filter(Boolean);
+  const containsPrivateSegment = segments.some(segment => PRIVATE_STATIC_SEGMENTS.has(segment));
+  const isPrivateFile = PRIVATE_STATIC_FILES.has(requestedPath);
+  const isSensitiveExtension = /\\.(?:env|bak|tmp|sql|pem|key|crt|p12|pfx)$/i.test(requestedPath);
+
+  if (containsPrivateSegment || isPrivateFile || isSensitiveExtension) {
+    return res.sendStatus(404);
+  }
+  next();
 });
 
 app.use(express.static(__dirname, {

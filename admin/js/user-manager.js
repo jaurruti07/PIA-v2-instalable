@@ -62,40 +62,16 @@ async function fetchUsersAndStatus() {
 
 function getFallbackStatus() {
   return {
-    model: 'two_operators_exclusive',
+    model: 'server_unavailable',
     maxAllowed: 2,
-    configuredCount: 2,
-    slots: [
-      {
-        slot: 1,
-        configured: true,
-        displayName: 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI',
-        email: 'deteccionydenuncia@cnc.gob.gt',
-        upn: 'deteccionydenuncia@cnc.gob.gt',
-        source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
-        role: 'admin',
-        modules: AVAILABLE_MODULES.map(m => m.id),
-        status: 'active'
-      },
-      {
-        slot: 2,
-        configured: true,
-        displayName: 'Apoyo a la Gestión de Irregularidades (CNC)',
-        email: 'apoyogi@cnc.gob.gt',
-        upn: 'apoyogi@cnc.gob.gt',
-        source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
-        role: 'admin',
-        modules: AVAILABLE_MODULES.map(m => m.id),
-        status: 'active'
-      }
-    ],
+    configuredCount: 0,
+    slots: [],
     security: {
-      authProvider: 'Autenticación Criptográfica (PBKDF2/SHA-512) + Firebase Auth',
-      projectId: 'pia-portal-integridad',
-      concurrencyControl: 'SHA-256 ETag Optimistic Concurrency Activo',
-      atomicWrites: 'Activo (.tmp + rename atómico)',
-      automatedBackups: 'Activo (rotación de versiones en /data/backups)',
-      immutableUidAudit: 'Activo (registro individualizado en audit_logs.json)'
+      authProvider: 'No disponible: el servidor no confirmó el estado de autenticación.',
+      concurrencyControl: 'Estado no verificado',
+      atomicWrites: 'Estado no verificado',
+      automatedBackups: 'Estado no verificado',
+      immutableUidAudit: 'Estado no verificado'
     }
   };
 }
@@ -168,7 +144,7 @@ export function renderUserManagerView() {
             <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
               Nueva Contraseña:
             </label>
-            <input type="password" id="inputNewPassword" placeholder="Ingrese nueva contraseña segura" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.95rem; box-sizing:border-box;">
+            <input type="password" id="inputNewPassword" placeholder="Nueva contraseña (mínimo 14 caracteres)" minlength="14" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.95rem; box-sizing:border-box;">
           </div>
           <div style="margin-bottom:1.5rem;">
             <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
@@ -455,9 +431,9 @@ function setupModalPasswordEvents() {
       const p1 = (inputNew?.value || '').trim();
       const p2 = (inputConfirm?.value || '').trim();
 
-      if (!p1 || p1.length < 4) {
+      if (!p1 || p1.length < 14) {
         if (errDiv) {
-          errDiv.textContent = 'La contraseña debe contener al menos 4 caracteres.';
+          errDiv.textContent = 'La contraseña debe contener al menos 14 caracteres.';
           errDiv.style.display = 'block';
         }
         return;
@@ -529,10 +505,10 @@ function renderSecurityTab(sec) {
           </div>
         </div>
         <p style="font-size: 0.88rem; color: #5E7A8E; line-height: 1.45; margin-bottom: 1rem;">
-          Contraseñas cifradas mediante sal aleatoria única por usuario y 10,000 iteraciones PBKDF2 con SHA-512, complementadas con tokens de sesión HMAC-SHA256 con expiración automática.
+          Contraseñas cifradas mediante sal aleatoria única por usuario y 310,000 iteraciones PBKDF2 con SHA-512, complementadas con tokens de sesión HMAC-SHA256 con expiración automática.
         </p>
         <div style="font-size: 0.82rem; background: var(--surface); padding: 0.75rem 1rem; border-radius: 8px;">
-          <div><strong>Algoritmo Cifrado:</strong> <code>PBKDF2-HMAC-SHA512 (10,000 iteraciones)</code></div>
+          <div><strong>Algoritmo Cifrado:</strong> <code>PBKDF2-HMAC-SHA512 (310,000 iteraciones)</code></div>
           <div><strong>Cuentas Autorizadas:</strong> <code>2 operadores de la CNC</code></div>
         </div>
       </div>

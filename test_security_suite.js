@@ -23,6 +23,56 @@ function recordTest(name, passed, details = '') {
 }
 
 async function runTests() {
+  // Test 10: Health check y exposición accidental de archivos privados.
+  try {
+    const health = await fetch(`${BASE_URL}/api/health`);
+    recordTest('10.1 Health check del backend Express (200)', health.status === 200);
+
+    const privateData = await fetch(`${BASE_URL}/data/users_roles.json`);
+    recordTest('10.2 Archivos operativos de /data no son públicos (404)', privateData.status === 404);
+
+    const privateAudit = await fetch(`${BASE_URL}/audit_logs.json`);
+    recordTest('10.3 Bitácora heredada no es pública (404)', privateAudit.status === 404);
+
+    const privateVisitsApi = await fetch(`${BASE_URL}/api/visits`);
+    recordTest('10.3a Métricas de visitas no se exponen por API pública (404)', privateVisitsApi.status === 404);
+
+    const privateVisitsFile = await fetch(`${BASE_URL}/api/page_visits.json`);
+    recordTest('10.3b Archivo de visitas no se expone por API pública (404)', privateVisitsFile.status === 404);
+
+    const internalPaths = [
+      '/server.js',
+      '/package.json',
+      '/deploy-iis.ps1',
+      '/web.config',
+      '/test_security_suite.js',
+      '/firebase-applet-config.json',
+      '/chatbot_settings.json',
+      '/chatbot_conversations.json',
+      '/security_policies.json',
+      '/firebase.json',
+      '/firebase-blueprint.json',
+      '/firestore.rules',
+      '/metadata.json',
+      '/.firebaserc',
+      '/.env.example',
+      '/data/users_roles.json',
+      '/.git/config'
+    ];
+    const internalResults = await Promise.all(internalPaths.map(async (route) => {
+      const response = await fetch(`${BASE_URL}${route}`);
+      return { route, status: response.status };
+    }));
+    const exposed = internalResults.filter(item => item.status !== 404 && item.status !== 403);
+    recordTest(
+      '10.4 Código fuente, configuración y archivos privados no son públicos',
+      exposed.length === 0,
+      exposed.length ? JSON.stringify(exposed) : ''
+    );
+  } catch (err) {
+    recordTest('10. Seguridad de archivos estáticos', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(' INICIANDO BATERÍA DE PRUEBAS DE SEGURIDAD Y REGRESIÓN PIA');
   console.log('=============================================================\n');
@@ -158,11 +208,12 @@ async function runTests() {
 
   // Test 7: Verificación de persistencia, copias de respaldo y escrituras atómicas
   try {
-    const backupsDir = path.join(process.cwd(), 'data', 'backups');
+    const privateDataDir = process.env.PIA_DATA_DIR || path.resolve(process.cwd(), '..', 'pia-data');
+    const backupsDir = path.join(privateDataDir, 'backups');
     const backupsExist = fs.existsSync(backupsDir);
     recordTest('7.1 Carpeta de respaldos automáticos /data/backups/ inicializada', backupsExist);
 
-    const usersRolesFile = path.join(process.cwd(), 'data', 'users_roles.json');
+    const usersRolesFile = path.join(privateDataDir, 'users_roles.json');
     const rolesFileExist = fs.existsSync(usersRolesFile);
     recordTest('7.2 Archivo protegido /data/users_roles.json inicializado fuera de wwwroot', rolesFileExist);
   } catch (err) {
@@ -202,6 +253,56 @@ async function runTests() {
     recordTest('9.1 Ningún secreto o clave privada expuesta en endpoint /api/auth/entra-config', noSecretExposed);
   } catch (err) {
     recordTest('9. Protección de secretos', false, err.message);
+  }
+
+  // Test 11: Flujos administrativos con credenciales de entorno de prueba.
+  try {
+    const testPassword = process.env.PIA_OPERATOR_1_PASSWORD;
+    if (!testPassword) {
+      recordTest('11. Flujos administrativos autenticados', true, 'Omitidos: no se configuró PIA_OPERATOR_1_PASSWORD.');
+    } else {
+      const loginRes = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'deteccionydenuncia@cnc.gob.gt',
+          password: testPassword
+        })
+      });
+      const loginData = await loginRes.json();
+      const token = loginData.token;
+      recordTest('11.1 Inicio de sesión de operador autorizado', loginRes.status === 200 && !!token);
+
+      if (token) {
+        const headers = { Authorization: `Bearer ${token}` };
+        const usersRes = await fetch(`${BASE_URL}/api/users`, { headers });
+        const usersData = await usersRes.json();
+        const usersSafe = usersRes.status === 200 &&
+          Array.isArray(usersData.users) &&
+          usersData.users.every(user => !Object.hasOwn(user, 'passwordHash'));
+        recordTest('11.2 Gestión de usuarios devuelve datos sin hashes', usersSafe);
+
+        const rawAllowed = await fetch(`${BASE_URL}/api/raw-json?path=${encodeURIComponent('/data_portal.json')}`, { headers });
+        recordTest('11.3 Mantenimiento JSON permite solo ruta incluida en lista blanca', rawAllowed.status === 200);
+
+        const rawTraversal = await fetch(`${BASE_URL}/api/raw-json?path=${encodeURIComponent('../../etc/passwd')}`, { headers });
+        recordTest('11.4 Mantenimiento JSON rechaza path traversal autenticado (400)', rawTraversal.status === 400);
+
+        const chatbotSettings = await fetch(`${BASE_URL}/api/admin/chatbot/settings`, { headers });
+        recordTest('11.5 Configuración de Lupita disponible para operador autorizado', chatbotSettings.status === 200);
+
+        const chatbotLogs = await fetch(`${BASE_URL}/api/admin/chatbot/conversations`, { headers });
+        recordTest('11.6 Historial de Lupita responde sin exponerlo públicamente', chatbotLogs.status === 200);
+
+        const fakeUpload = await fetch(`${BASE_URL}/api/files/upload`, {
+          method: 'POST',
+          headers,
+        });
+        recordTest('11.7 La carga de archivos no simula una subida exitosa', fakeUpload.status === 501);
+      }
+    }
+  } catch (err) {
+    recordTest('11. Flujos administrativos autenticados', false, err.message);
   }
 
   console.log('\n=============================================================');

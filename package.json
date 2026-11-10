@@ -1,18 +1,22 @@
 {
   "name": "pia-portal-integridad-activa",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "private": true,
   "type": "module",
+  "description": "Portal de Integridad Activa (PIA) - CNC Guatemala",
+  "engines": {
+    "node": ">=22.9.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
-    "dev": "node server.js",
-    "build": "echo 'Build complete'",
-    "lint": "node --check server.js && node --check test_security_suite.js",
-    "test": "node test_security_suite.js",
-    "start": "node server.js"
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --watch --env-file-if-exists=.env server.js",
+    "check": "node --check server.js && node --check test_security_suite.js && node --check admin/js/app.js && node --check admin/js/auth.js && node --check admin/js/chatbot-manager.js && node --check admin/js/crud.js && node --check admin/js/data-service-register.js && node --check admin/js/data-service-worker.js && node --check admin/js/database-config.js && node --check admin/js/database-manager.js && node --check admin/js/file-manager.js && node --check admin/js/form-builder.js && node --check admin/js/schema-validator.js && node --check admin/js/technical-guide.js && node --check admin/js/user-manager.js && node --check admin/js/utils.js && node --check js/pia-chatbot.js && node --check js/pia-i18n.js && node --check js/sw-register.js && node --check data-service-worker.js",
+    "test": "npm run check && node test_security_suite.js"
   },
   "dependencies": {
     "@google/genai": "^2.14.0",
     "express": "^4.19.2",
-    "firebase": "^13.0.0",
     "jose": "^6.2.12"
   }
 }

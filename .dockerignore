@@ -1,0 +1,26 @@
+.git
+.github
+node_modules
+.env
+.env.*
+!.env.example
+data
+uploads
+*.log
+coverage
+test-results
+README.md
+requirements.txt
+app.py
+gunicorn.conf.py
+__pycache__
+
+# Registros operativos que nunca deben entrar en la imagen
+/audit_logs.json
+/page_visits.json
+/authorized_operators.json
+/users_roles.json
+/chatbot_conversations.json
+/chatbot_settings.json
+/chatbot_conversations.json
+/security_policies.json

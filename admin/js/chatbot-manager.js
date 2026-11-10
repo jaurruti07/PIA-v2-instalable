@@ -2,6 +2,14 @@
    ADMIN CHATBOT MANAGER - JS MODULE
    ============================================================ */
 
+function getAdminHeaders(extra = {}) {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    return {
+        ...extra,
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+}
+
 export async function initChatbotManager() {
     const contentArea = document.getElementById('contentArea');
     if (!contentArea) return;
@@ -94,12 +102,12 @@ async function loadStatsTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/stats');
+        const res = await fetch('/api/admin/chatbot/stats', { headers: getAdminHeaders() });
         const stats = await res.json();
 
         const totalConversations = stats.totalConversations || 0;
         const avgTime = stats.avgResponseTimeMs || 0;
-        const satRate = stats.satisfactionRate || 95;
+        const satRate = Number.isFinite(stats.satisfactionRate) ? stats.satisfactionRate : null;
         const unansweredCount = (stats.unansweredQueries || []).length;
 
         let dailyBarsHTML = '';
@@ -148,7 +156,7 @@ async function loadStatsTab() {
                         <i class="fas fa-comments" style="color: var(--cyan); font-size: 1.3rem;"></i>
                     </div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-top: 8px;">${totalConversations}</div>
-                    <span style="font-size: 0.75rem; color: var(--green);"><i class="fas fa-arrow-up"></i> Consultas atendidas en vivo</span>
+                    <span style="font-size: 0.75rem; color: var(--green);"><i class="fas fa-arrow-up"></i> Registros conservados según la política de historial</span>
                 </div>
 
                 <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--blue);">
@@ -165,7 +173,7 @@ async function loadStatsTab() {
                         <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Índice de Satisfacción</span>
                         <i class="fas fa-smile" style="color: #10B981; font-size: 1.3rem;"></i>
                     </div>
-                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-top: 8px;">${satRate}%</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-top: 8px;">${satRate === null ? 'Sin datos' : satRate + '%'} </div>
                     <span style="font-size: 0.75rem; color: var(--text-muted);"><i class="fas fa-thumbs-up"></i> Basado en valoraciones de usuarios</span>
                 </div>
 
@@ -249,7 +257,7 @@ async function loadKnowledgeTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/knowledge');
+        const res = await fetch('/api/admin/chatbot/knowledge', { headers: getAdminHeaders() });
         cachedKnowledge = await res.json();
 
         const badge = document.getElementById('cbKbBadge');
@@ -319,7 +327,7 @@ async function loadLogsTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/conversations');
+        const res = await fetch('/api/admin/chatbot/conversations', { headers: getAdminHeaders() });
         const logs = await res.json();
 
         const rowsHTML = logs.map(log => `
@@ -376,7 +384,7 @@ async function loadSettingsTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/settings');
+        const res = await fetch('/api/admin/chatbot/settings', { headers: getAdminHeaders() });
         const settings = await res.json();
 
         container.innerHTML = `
@@ -390,6 +398,7 @@ async function loadSettingsTab() {
                         <div>
                             <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Modelo de Lenguaje</label>
                             <select id="cbSettingModel" class="form-control">
+                                <option value="gemini-2.5-flash" ${settings.model === 'gemini-2.5-flash' ? 'selected' : ''}>gemini-2.5-flash (Modelo predeterminado)</option>
                                 <option value="gemini-3.6-flash" ${settings.model === 'gemini-3.6-flash' ? 'selected' : ''}>gemini-3.6-flash (Recomendado - Ultra Rápido)</option>
                                 <option value="gemini-3.1-pro-preview" ${settings.model === 'gemini-3.1-pro-preview' ? 'selected' : ''}>gemini-3.1-pro-preview (Razonamiento Complejo)</option>
                                 <option value="gemini-3.1-flash-lite" ${settings.model === 'gemini-3.1-flash-lite' ? 'selected' : ''}>gemini-3.1-flash-lite (Respuesta Ligera)</option>
@@ -443,7 +452,7 @@ async function loadSettingsTab() {
             try {
                 const updateRes = await fetch('/api/admin/chatbot/settings', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({ model, temperature, systemPrompt, maxTokens, enabled })
                 });
 
@@ -534,7 +543,7 @@ function openAddKbModal(prefillQuery = '') {
         try {
             const saveRes = await fetch('/api/admin/chatbot/knowledge', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({ title, category, link, content, keywords })
             });
 
@@ -555,7 +564,7 @@ function openAddKbModal(prefillQuery = '') {
 async function deleteKbItem(id) {
     if (!confirm('¿Está seguro de eliminar este artículo de la base de conocimiento del chatbot?')) return;
     try {
-        const res = await fetch(`/api/admin/chatbot/knowledge/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/api/admin/chatbot/knowledge/${encodeURIComponent(id)}`, { method: 'DELETE', headers: getAdminHeaders() });
         if (res.ok) {
             showToast('Artículo eliminado de la base de conocimiento', 'info');
             await loadKnowledgeTab();

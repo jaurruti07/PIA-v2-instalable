@@ -1,5 +1,5 @@
 // auth.js - Autenticación Institucional del Portal de Integridad Activa (PIA)
-// Soporte Dual: Backend Criptográfico Local (Node.js/Flask) + Firebase Authentication
+// Autenticación institucional: backend Node.js + Firebase Authentication verificada por servidor.
 
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -22,14 +22,15 @@ export const ALLOWED_ADMIN_EMAILS = [
     'apoyogi@cnc.gob.gt'
 ];
 
-// Configuración canónica completa de Firebase (evita el error auth/invalid-api-key al descargar el proyecto)
+// Firebase es opcional y debe configurarse por instalación desde el servidor.
+// No se distribuyen claves ni identificadores de un proyecto institucional.
 const CANONICAL_FIREBASE_CONFIG = {
-    configured: true,
-    projectId: 'pia-portal-integridad',
-    apiKey: 'AIzaSyCWE4pPbpQKEgmR67F2b-x1yWYXee_34Sk',
-    authDomain: 'pia-portal-integridad.firebaseapp.com',
-    appId: '1:785917550733:web:2835a06188ec46bea0c2c4',
-    storageBucket: 'pia-portal-integridad.firebasestorage.app',
+    configured: false,
+    projectId: '',
+    apiKey: '',
+    authDomain: '',
+    appId: '',
+    storageBucket: '',
     authorizedEmails: ALLOWED_ADMIN_EMAILS
 };
 
@@ -53,7 +54,12 @@ export async function initFirebaseAuth() {
     if (firebaseAuthInstance) return firebaseAuthInstance;
 
     const config = await getFirebaseConfig();
-    const apiKey = config.apiKey || CANONICAL_FIREBASE_CONFIG.apiKey;
+    const apiKey = config.apiKey || '';
+
+    if (!apiKey || !config.projectId || !config.authDomain || !config.appId) {
+        console.info('Firebase Authentication no está configurado para esta instalación; se utilizará la autenticación local del servidor.');
+        return null;
+    }
 
     try {
         if (!firebaseAppInstance) {
@@ -61,11 +67,11 @@ export async function initFirebaseAuth() {
                 firebaseAppInstance = getApp();
             } else {
                 firebaseAppInstance = initializeApp({
-                    projectId: config.projectId || CANONICAL_FIREBASE_CONFIG.projectId,
-                    apiKey: apiKey,
-                    authDomain: config.authDomain || CANONICAL_FIREBASE_CONFIG.authDomain,
-                    appId: config.appId || CANONICAL_FIREBASE_CONFIG.appId,
-                    storageBucket: config.storageBucket || CANONICAL_FIREBASE_CONFIG.storageBucket
+                    projectId: config.projectId,
+                    apiKey,
+                    authDomain: config.authDomain,
+                    appId: config.appId,
+                    storageBucket: config.storageBucket
                 });
             }
         }
@@ -81,7 +87,7 @@ export async function initFirebaseAuth() {
     }
 }
 
-// Iniciar sesión institucional usando Email y Contraseña (Servidor PIA + Respaldo Offline/Firebase)
+// Inicio de sesión institucional; no se aceptan sesiones locales offline.
 export async function loginWithFirebase(email, password) {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPassword = password || '';
@@ -95,7 +101,7 @@ export async function loginWithFirebase(email, password) {
         throw new Error(`Acceso denegado: El correo "${cleanEmail}" no figura entre las 2 cuentas oficiales autorizadas para la administración del Portal PIA.`);
     }
 
-    // Intento 1: Autenticación institucional directa con el backend PIA (Node.js o Python Flask)
+    // Intento 1: autenticación directa contra el backend Express.
     try {
         const localLoginRes = await fetch(`${API_BASE}/auth/login`, {
             method: 'POST',
@@ -124,36 +130,13 @@ export async function loginWithFirebase(email, password) {
         console.warn('Backend API no disponible directamente en la red local. Evaluando autenticación directa...');
     }
 
-    // Intento 2: Autenticación en modo descargado / standalone sin backend activo
-    // Verifica las contraseñas oficiales autorizadas (12345 o cambiada desde el admin)
-    const customStoredPwd = localStorage.getItem('pia_pwd_' + cleanEmail);
-    const isLocalPasswordValid = (cleanPassword === '12345' || (customStoredPwd && cleanPassword === customStoredPwd));
+    // No existe autenticación offline: toda sesión debe ser validada por el servidor.
 
-    if (isLocalPasswordValid) {
-        const isDagi = cleanEmail === 'deteccionydenuncia@cnc.gob.gt';
-        const offlineUser = {
-            id: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-            uid: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-            oid: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-            email: cleanEmail,
-            upn: cleanEmail,
-            displayName: isDagi ? 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI' : 'Apoyo a la Gestión de Irregularidades (CNC)',
-            role: 'admin',
-            modules: ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
-            operatorIndex: isDagi ? 1 : 2
-        };
-        const offlineToken = 'pia_sess_offline_' + btoa(JSON.stringify(offlineUser));
-        localStorage.setItem('token', offlineToken);
-        sessionStorage.setItem('token', offlineToken);
-        localStorage.setItem('user', JSON.stringify(offlineUser));
-        return { token: offlineToken, user: offlineUser };
-    }
-
-    // Intento 3: Firebase Authentication si está disponible y la contraseña no coincidió con 12345
+    // Alternativa: Firebase Authentication; el token resultante también se verifica en el backend.
     try {
         const auth = await initFirebaseAuth();
         if (!auth) {
-            throw new Error('Contraseña incorrecta. Verifique sus credenciales institucionales (12345).');
+            throw new Error('El servicio de autenticación no está disponible. Verifique la conexión con el servidor PIA.');
         }
 
         const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, cleanPassword);
@@ -174,7 +157,7 @@ export async function loginWithFirebase(email, password) {
         }
         if (fbErr.code === 'auth/invalid-api-key') {
             // Protección contra errores crudos de Firebase en entornos descargados
-            throw new Error('Contraseña incorrecta. Ingrese con la clave inicial autorizada (12345).');
+            throw new Error('La configuración de Firebase Authentication no es válida. Contacte al administrador del sistema.');
         }
         throw new Error(fbErr.message || 'Error de autenticación.');
     }
@@ -217,47 +200,20 @@ export async function sendFirebasePasswordReset(email) {
 
 // Verificar validez del token y UID en el servidor PIA
 export async function verifyToken(token) {
-    if (!token) {
-        throw new Error('Token no proporcionado.');
+    if (!token) throw new Error('Token no proporcionado.');
+
+    const res = await fetch(`${API_BASE}/auth/verify`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Token inválido o expirado.');
     }
 
-    // Modo offline / standalone
-    if (token.startsWith('pia_sess_offline_')) {
-        const stored = localStorage.getItem('user') || sessionStorage.getItem('user');
-        if (stored) {
-            try {
-                return { user: JSON.parse(stored) };
-            } catch (_) {}
-        }
-    }
-
-    try {
-        const res = await fetch(`${API_BASE}/auth/verify`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            throw new Error(err.error || 'Token inválido o expirado.');
-        }
-
-        const data = await res.json();
-        if (data.user) {
-            localStorage.setItem('user', JSON.stringify(data.user));
-        }
-        return data;
-    } catch (e) {
-        // Respaldo en caso de caída temporal de red si el token es local
-        if (token.startsWith('pia_sess_')) {
-            const stored = localStorage.getItem('user') || sessionStorage.getItem('user');
-            if (stored) {
-                try {
-                    return { user: JSON.parse(stored) };
-                } catch (_) {}
-            }
-        }
-        throw e;
-    }
+    const data = await res.json();
+    if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+    return data;
 }
 
 // Cierre de sesión y limpieza de estado local
