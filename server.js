@@ -1234,6 +1234,76 @@ function saveModuleRecords(module, records, user = 'sistema', expectedHash = nul
 
 const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin'];
 
+// Rutas de JSON permitidas para la herramienta de mantenimiento administrativo.
+// Nunca se acepta una ruta de archivo arbitraria proporcionada por el navegador.
+const RAW_JSON_ALLOWED_FILES = new Map([
+  ['/data_portal.json', WHITELIST_JSON_MAP.portal],
+  ['/canales-por-la-integridad/data_directorio.json', WHITELIST_JSON_MAP.canales],
+  ['/directorio/data_acceso.json', WHITELIST_JSON_MAP.directorio],
+  ['/gobierno_en_numeros/data_tableros.json', WHITELIST_JSON_MAP.tableros],
+  ['/riesgo/datos.json', WHITELIST_JSON_MAP.riesgo],
+  ['/vehiculos/vehiculos.json', WHITELIST_JSON_MAP.vehiculos]
+]);
+
+function resolveRawJsonFile(requestedPath) {
+  if (typeof requestedPath !== 'string' || requestedPath.length > 200) return null;
+  return RAW_JSON_ALLOWED_FILES.get(requestedPath) || null;
+}
+
+app.get('/api/raw-json', requireAuth, requireOperator, requireModule('database'), (req, res) => {
+  const filePath = resolveRawJsonFile(req.query.path);
+  if (!filePath) return res.status(400).json({ error: 'Ruta JSON no autorizada.' });
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'El archivo solicitado no existe.' });
+
+  const hash = computeFileHash(filePath);
+  if (hash) res.setHeader('ETag', `"${hash}"`);
+  const data = readJsonFile(filePath);
+  if (data === null) return res.status(500).json({ error: 'No fue posible leer el archivo JSON.' });
+  res.json(data);
+});
+
+app.post('/api/raw-json', requireAuth, requireOperator, requireModule('database'), (req, res) => {
+  const filePath = resolveRawJsonFile(req.body?.path);
+  const data = req.body?.data;
+  if (!filePath) return res.status(400).json({ error: 'Ruta JSON no autorizada.' });
+  if (data === null || typeof data !== 'object') {
+    return res.status(400).json({ error: 'El contenido debe ser un objeto o arreglo JSON válido.' });
+  }
+
+  const requestedPath = req.body.path;
+  const mustBeArray = [
+    '/canales-por-la-integridad/data_directorio.json',
+    '/directorio/data_acceso.json',
+    '/gobierno_en_numeros/data_tableros.json'
+  ].includes(requestedPath);
+  if (mustBeArray !== Array.isArray(data)) {
+    return res.status(400).json({ error: mustBeArray ? 'Este módulo requiere un arreglo JSON.' : 'Este módulo requiere un objeto JSON.' });
+  }
+
+  const ifMatch = req.headers['if-match'] ? req.headers['if-match'].replace(/"/g, '').trim() : null;
+  try {
+    const result = atomicWriteJson(filePath, data, ifMatch, req.user.email);
+    logAudit({
+      user: req.user.email,
+      userUid: req.user.uid,
+      action: 'ACTUALIZACIÓN JSON ADMINISTRATIVA',
+      module: 'database',
+      target: requestedPath,
+      details: `Archivo JSON actualizado desde el módulo de mantenimiento: ${requestedPath}`,
+      backupCreated: result.backupCreated,
+      ip: req.socket.remoteAddress || '127.0.0.1'
+    });
+    if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
+    res.json({ success: true, message: 'Archivo JSON actualizado y respaldado correctamente.' });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: err.code });
+    }
+    console.error('Error guardando JSON administrativo:', err);
+    res.status(500).json({ error: 'No fue posible guardar el archivo JSON.' });
+  }
+});
+
 app.get('/api/modules', (req, res) => {
   res.json(['canales', 'directorio', 'tableros', 'riesgo', 'portal']);
 });
@@ -1887,11 +1957,9 @@ app.post('/api/files/upload', requireAuth, requireOperator, requireModule('datab
   res.json({ url: '/uploads/sample.png', filename: 'sample.png' });
 });
 
-// Raw-JSON endpoints: Deshabilitados para el frontend cotidiano de operadores
-app.all(['/api/raw-json', '/api/raw-json/*'], requireAuth, requireOperator, (req, res) => {
-  res.status(403).json({
-    error: 'La edición directa de JSON crudo está deshabilitada en la interfaz ordinaria. Las actualizaciones se realizan exclusivamente mediante los formularios validados de cada módulo.'
-  });
+// Bloquear subrutas no contempladas del mantenimiento JSON.
+app.all(['/api/raw-json/*'], requireAuth, requireOperator, requireModule('database'), (req, res) => {
+  res.status(404).json({ error: 'Ruta de mantenimiento JSON no reconocida.' });
 });
 
 // ========================================================
