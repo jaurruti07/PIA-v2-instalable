@@ -104,7 +104,8 @@ Los datos operativos se conservan en el volumen Docker `pia_data`, independiente
 | `PIA_OPERATOR_1_PASSWORD` | Para primer arranque | Contraseña inicial del operador DAGI (mínimo 14 caracteres) |
 | `PIA_OPERATOR_2_PASSWORD` | Para primer arranque | Contraseña inicial de Apoyo GI (mínimo 14 caracteres, distinta de la primera) |
 | `GEMINI_API_KEY` | No | Clave para habilitar respuestas con Gemini |
-| `FIREBASE_PROJECT_ID` | No | Proyecto de Firebase cuando se habilite autenticación federada |
+| `FIREBASE_PROJECT_ID`, `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_APP_ID` | No | Configuración de un proyecto Firebase propio cuando se habilite autenticación federada |
+| `PIA_CHATBOT_LOG_CONVERSATIONS` | No | Conservación opcional de hasta 200 conversaciones; desactivada por defecto por privacidad |
 
 Las cuentas administrativas autorizadas son:
 - `deteccionydenuncia@cnc.gob.gt`
@@ -118,9 +119,11 @@ La autorización se valida en el servidor. Los permisos por módulo se comprueba
 - El servidor exige `PIA_SESSION_SECRET`; no existe una clave de firma predeterminada.
 - No hay autenticación administrativa offline ni sesión local aceptada sin validación del servidor.
 - Las cuentas iniciales se generan con contraseñas configuradas en el entorno; no se distribuyen contraseñas maestras.
-- Los archivos operativos no deben incorporarse al repositorio. Esto incluye `audit_logs.json`, `page_visits.json`, `authorized_operators.json` y `users_roles.json`. El repositorio incluye reglas de exclusión y el servidor bloquea la entrega estática de archivos operativos heredados.
+- Los archivos operativos no deben incorporarse al repositorio. Esto incluye `audit_logs.json`, `page_visits.json`, `authorized_operators.json`, `users_roles.json`, configuración del chatbot y respaldos. El servidor bloquea la entrega estática de estos archivos y de archivos internos de ejecución/despliegue.
 - Publicar el portal detrás de HTTPS y un proxy inverso institucional. No exponer el puerto de administración a Internet sin controles de red, monitoreo y revisión de seguridad.
-- La clave API de Firebase usada por aplicaciones web no equivale a una clave privada de servicio; debe restringirse desde Google/Firebase y las reglas del proyecto deben revisarse.
+- Firebase Authentication es opcional. La distribución no incluye una clave API ni queda vinculada al proyecto Firebase de desarrollo; si se habilita, configure las variables del proyecto institucional y restrinja la clave desde Google/Firebase.
+- Las conversaciones ciudadanas no se almacenan por defecto. Para habilitar el historial administrativo, configure `PIA_CHATBOT_LOG_CONVERSATIONS=true` después de contar con autorización institucional y una política de conservación de datos. Se mantienen como máximo 200 registros en el directorio privado.
+- En Windows Server, todas las solicitudes deben pasar por el proxy inverso IIS hacia Express. No habilite reglas de IIS que sirvan archivos estáticos directamente desde la carpeta de instalación, pues evitarían los controles de privacidad aplicados por el backend.
 
 ## Migración desde una instalación anterior
 
