@@ -8,8 +8,11 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      PORT: 3000
+      PIA_DATA_DIR: /var/lib/pia/data
     ports:
-      - "${PORT:-3000}:3000"
+      - "${HOST_PORT:-3000}:3000"
     volumes:
       - pia_data:/var/lib/pia/data
     healthcheck:
