@@ -1,5 +1,5 @@
 {
-  "minPasswordLength": 8,
+  "minPasswordLength": 14,
   "requireNumbers": true,
   "requireUppercase": true,
   "requireSpecialChars": true,
