@@ -858,6 +858,13 @@ app.post('/api/auth/login', loginRateLimit, (req, res) => {
     return res.status(401).json({ error: 'Credenciales incorrectas o usuario no autorizado.' });
   }
 
+  // Migrar hashes heredados PBKDF2/SHA-512 de 10,000 iteraciones al nuevo factor de 310,000.
+  if (user.passwordHash.split(':').length === 2) {
+    user.passwordHash = hashPassword(rawPassword);
+    user.passwordHashUpdatedAt = new Date().toISOString();
+    saveUsersRoles(users);
+  }
+
   const token = createLocalSessionToken(user);
 
   logAudit({
