@@ -16,7 +16,16 @@
       "chatbot_conversations.json",
       "chatbot_settings.json",
       "chatbot_knowledge.json",
-      "README.md"
+      "README.md",
+      "data/**",
+      "app.py",
+      "requirements.txt",
+      "gunicorn.conf.py",
+      "Dockerfile",
+      "docker-compose.yml",
+      "deploy-iis.ps1",
+      "test_security_suite.js",
+      "uploads/**"
     ],
     "cleanUrls": true,
     "trailingSlash": false,
