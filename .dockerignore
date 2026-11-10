@@ -21,3 +21,6 @@ __pycache__
 /authorized_operators.json
 /users_roles.json
 /chatbot_conversations.json
+/chatbot_settings.json
+/chatbot_conversations.json
+/security_policies.json
