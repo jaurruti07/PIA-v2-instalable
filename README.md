@@ -1,7 +1,7 @@
 # Portal de Integridad Activa (PIA)
 ### Comisión Nacional contra la Corrupción (CNC) — Guatemala
 
-Versión de distribución basada en **Node.js + Express**. El servidor Express es el único backend de ejecución previsto para esta entrega. Los archivos históricos de Flask se conservan temporalmente para revisión y no forman parte del arranque oficial.
+Versión de distribución basada en **Node.js + Express**. El backend Flask y las configuraciones de despliegue estático/Firebase anteriores fueron retirados de esta rama; Express es el único backend de ejecución.
 
 ## Requisitos
 
