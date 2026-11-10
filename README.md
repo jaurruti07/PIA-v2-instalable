@@ -99,7 +99,7 @@ La autorización se valida en el servidor. Los permisos por módulo se comprueba
 - El servidor exige `PIA_SESSION_SECRET`; no existe una clave de firma predeterminada.
 - No hay autenticación administrativa offline ni sesión local aceptada sin validación del servidor.
 - Las cuentas iniciales se generan con contraseñas configuradas en el entorno; no se distribuyen contraseñas maestras.
-- Los archivos operativos no deben incorporarse al repositorio. El repositorio incluye reglas de exclusión y el servidor bloquea la entrega estática de archivos operativos heredados.
+- Los archivos operativos no deben incorporarse al repositorio. Esto incluye `audit_logs.json`, `page_visits.json`, `authorized_operators.json` y `users_roles.json`. El repositorio incluye reglas de exclusión y el servidor bloquea la entrega estática de archivos operativos heredados.
 - Publicar el portal detrás de HTTPS y un proxy inverso institucional. No exponer el puerto de administración a Internet sin controles de red, monitoreo y revisión de seguridad.
 - La clave API de Firebase usada por aplicaciones web no equivale a una clave privada de servicio; debe restringirse desde Google/Firebase y las reglas del proyecto deben revisarse.
 
@@ -127,7 +127,8 @@ Respuesta esperada: JSON con `status: "ok"`.
 - `server.js`: backend Express, API, autenticación y autorización.
 - `admin/`: panel administrativo.
 - `canales-por-la-integridad/`, `directorio/`, `gobierno_en_numeros/`, `riesgo/`, `vehiculos/`: módulos del portal y sus recursos.
-- `data/`, `css/`, `js/`, `img/`: recursos estáticos y datos públicos que forman parte del portal.
+- `css/`, `js/`, `img/`: recursos estáticos del portal.
+- `data/`: únicamente plantillas de ejemplo no operativas; Express bloquea su acceso HTTP. No guardar ahí datos reales ni credenciales.
 - `PIA_DATA_DIR`: datos operativos privados, fuera del repositorio y del directorio web.
 - `Dockerfile` y `docker-compose.yml`: despliegue contenerizado.
 - `app.py`, `requirements.txt` y `gunicorn.conf.py`: componentes heredados de Flask, pendientes de retirar después de comprobar que no existen dependencias externas.
