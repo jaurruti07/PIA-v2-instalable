@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -16,7 +17,7 @@ jobs:
     env:
       NODE_ENV: test
       PORT: 3000
-      PIA_DATA_DIR: ${{ runner.temp }}/pia-test-data
+      PIA_DATA_DIR: /tmp/pia-test-data
       PIA_SESSION_SECRET: ci-only-secret-key-do-not-use-in-production-0123456789-abcdefghijklmnopqrstuvwxyz
       PIA_OPERATOR_1_PASSWORD: CI-only-operator-password-one-2026!
       PIA_OPERATOR_2_PASSWORD: CI-only-operator-password-two-2026!
