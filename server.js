@@ -309,13 +309,14 @@ try {
   if (fs.existsSync(FIREBASE_CONFIG_FILE)) {
     const raw = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_FILE, 'utf8'));
     firebaseConfig = { ...firebaseConfig, ...raw };
-    firebaseConfig.apiKey = process.env.FIREBASE_API_KEY || firebaseConfig.apiKey;
-    firebaseConfig.authDomain = process.env.FIREBASE_AUTH_DOMAIN || firebaseConfig.authDomain;
-    firebaseConfig.appId = process.env.FIREBASE_APP_ID || firebaseConfig.appId;
   }
 } catch (e) {
   console.error('Error leyendo firebase-applet-config.json:', e);
 }
+
+firebaseConfig.apiKey = process.env.FIREBASE_API_KEY || firebaseConfig.apiKey;
+firebaseConfig.authDomain = process.env.FIREBASE_AUTH_DOMAIN || firebaseConfig.authDomain;
+firebaseConfig.appId = process.env.FIREBASE_APP_ID || firebaseConfig.appId;
 
 const FIREBASE_PROJECT_ID = (process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || 'pia-portal-integridad').trim();
 
