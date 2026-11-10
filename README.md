@@ -35,7 +35,7 @@ Versión de distribución basada en **Node.js + Express**. El servidor Express e
 4. Editar `.env` y configurar obligatoriamente:
    - `PIA_SESSION_SECRET`: secreto aleatorio de al menos 64 caracteres.
    - `PIA_OPERATOR_1_PASSWORD` y `PIA_OPERATOR_2_PASSWORD`: contraseñas diferentes de al menos 14 caracteres.
-   - `PIA_DATA_DIR`: directorio persistente fuera del proyecto. En Windows se recomienda `C:/PIA_Data`; en Linux, `/var/lib/pia/data`.
+   - `PIA_DATA_DIR`: directorio persistente fuera del proyecto. En Windows se recomienda `C:/PIA_Data`; en Linux, `/var/lib/pia/data`. El script `deploy-iis.ps1` prepara la carpeta de instalación, el directorio privado y las variables iniciales; la ejecución permanente del proceso Node y la configuración de ARR/IIS deben completarse según la política de TI.
 
    Para generar un secreto aleatorio con Node.js:
 
