@@ -14,8 +14,6 @@ param(
     [string]$InstallPath = "C:\inetpub\wwwroot\PIA",
     [string]$DataPath = "C:\PIA_Data",
     [int]$Port = 3000,
-    [string]$SiteName = "PortalIntegridadActiva",
-    [switch]$SkipServiceCreation
 )
 
 $ErrorActionPreference = "Stop"
@@ -192,12 +190,10 @@ if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
 Write-Success "Application Pool $appPoolName preparado. Asocie manualmente el sitio IIS a $currentDir."
 
 # 7. Proceso Node permanente
-if (-not $SkipServiceCreation) {
-    Write-Step "Configuración del proceso Node permanente..."
-    Write-Host "Configure un servicio con NSSM o PM2 conforme a la política de TI."
-    Write-Host "Ejemplo NSSM: nssm install PIA_Service node.exe"
-    Write-Host "Directorio de trabajo: $currentDir"
-}
+Write-Step "Configuración del proceso Node permanente..."
+Write-Host "Configure un servicio con NSSM o PM2 conforme a la política de TI."
+Write-Host "Ejemplo NSSM: nssm install PIA_Service node.exe"
+Write-Host "Directorio de trabajo: $currentDir"
 
 # 8. Health check
 Write-Step "Comprobando el endpoint de salud..."
