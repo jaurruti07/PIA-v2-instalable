@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 const DATA_DIR = process.env.PIA_DATA_DIR
   ? path.resolve(process.env.PIA_DATA_DIR)
-  : path.join(__dirname, 'data');
+  : path.resolve(__dirname, '..', 'pia-data');
 
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 
@@ -406,7 +406,7 @@ function saveAuthorizedOperators(operators) {
 function createInitialAuthorizedUsers() {
   const password1 = (process.env.PIA_OPERATOR_1_PASSWORD || '').trim();
   const password2 = (process.env.PIA_OPERATOR_2_PASSWORD || '').trim();
-  if (!password1 || !password2 || password1.length < 14 || password2.length < 14) {
+  if (!password1 || !password2 || password1.length < 14 || password2.length < 14 || password1 === password2) {
     return [];
   }
 
