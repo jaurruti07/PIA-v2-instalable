@@ -1805,7 +1805,15 @@ const PRIVATE_STATIC_FILES = new Set([
   '/users_roles.json'
 ]);
 app.use((req, res, next) => {
-  if (PRIVATE_STATIC_FILES.has(req.path.toLowerCase())) return res.sendStatus(404);
+  let requestedPath;
+  try {
+    requestedPath = decodeURIComponent(req.path).toLowerCase();
+  } catch (_) {
+    return res.sendStatus(400);
+  }
+  if (requestedPath === '/data' || requestedPath.startsWith('/data/') || PRIVATE_STATIC_FILES.has(requestedPath)) {
+    return res.sendStatus(404);
+  }
   next();
 });
 
