@@ -22,14 +22,15 @@ export const ALLOWED_ADMIN_EMAILS = [
     'apoyogi@cnc.gob.gt'
 ];
 
-// Configuración canónica completa de Firebase (evita el error auth/invalid-api-key al descargar el proyecto)
+// Firebase es opcional y debe configurarse por instalación desde el servidor.
+// No se distribuyen claves ni identificadores de un proyecto institucional.
 const CANONICAL_FIREBASE_CONFIG = {
-    configured: true,
-    projectId: 'pia-portal-integridad',
-    apiKey: 'AIzaSyCWE4pPbpQKEgmR67F2b-x1yWYXee_34Sk',
-    authDomain: 'pia-portal-integridad.firebaseapp.com',
-    appId: '1:785917550733:web:2835a06188ec46bea0c2c4',
-    storageBucket: 'pia-portal-integridad.firebasestorage.app',
+    configured: false,
+    projectId: '',
+    apiKey: '',
+    authDomain: '',
+    appId: '',
+    storageBucket: '',
     authorizedEmails: ALLOWED_ADMIN_EMAILS
 };
 
@@ -53,7 +54,12 @@ export async function initFirebaseAuth() {
     if (firebaseAuthInstance) return firebaseAuthInstance;
 
     const config = await getFirebaseConfig();
-    const apiKey = config.apiKey || CANONICAL_FIREBASE_CONFIG.apiKey;
+    const apiKey = config.apiKey || '';
+
+    if (!apiKey || !config.projectId || !config.authDomain || !config.appId) {
+        console.info('Firebase Authentication no está configurado para esta instalación; se utilizará la autenticación local del servidor.');
+        return null;
+    }
 
     try {
         if (!firebaseAppInstance) {
@@ -61,11 +67,11 @@ export async function initFirebaseAuth() {
                 firebaseAppInstance = getApp();
             } else {
                 firebaseAppInstance = initializeApp({
-                    projectId: config.projectId || CANONICAL_FIREBASE_CONFIG.projectId,
-                    apiKey: apiKey,
-                    authDomain: config.authDomain || CANONICAL_FIREBASE_CONFIG.authDomain,
-                    appId: config.appId || CANONICAL_FIREBASE_CONFIG.appId,
-                    storageBucket: config.storageBucket || CANONICAL_FIREBASE_CONFIG.storageBucket
+                    projectId: config.projectId,
+                    apiKey,
+                    authDomain: config.authDomain,
+                    appId: config.appId,
+                    storageBucket: config.storageBucket
                 });
             }
         }
