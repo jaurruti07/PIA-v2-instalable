@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+.env
+.env.*
+!.env.example
+data
+uploads
+*.log
+coverage
+test-results
+README.md
+requirements.txt
+app.py
+gunicorn.conf.py
+__pycache__
