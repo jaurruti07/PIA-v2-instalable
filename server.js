@@ -708,6 +708,27 @@ async function requireAuth(req, res, next) {
   }
 }
 
+// Autorización por módulo: la visibilidad del menú no sustituye el control del servidor.
+function requireModule(moduleId) {
+  return (req, res, next) => {
+    const assigned = Array.isArray(req.user?.modules) ? req.user.modules : [];
+    if (!assigned.includes(moduleId)) {
+      return res.status(403).json({ error: `No tiene permiso para acceder al módulo "${moduleId}".` });
+    }
+    next();
+  };
+}
+
+function requireModuleFromParam(req, res, next) {
+  const aliases = {
+    'canales-por-la-integridad': 'canales',
+    'gobierno_en_numeros': 'tableros',
+    'vehiculos_instituciones': 'vehiculos'
+  };
+  const moduleId = aliases[req.params.module] || req.params.module;
+  return requireModule(moduleId)(req, res, next);
+}
+
 // Middleware de verificación de rol de operador o administrador
 function requireOperator(req, res, next) {
   if (!req.user || (req.user.role !== 'data_operator' && req.user.role !== 'admin')) {
@@ -847,7 +868,7 @@ app.get('/api/auth/verify', requireAuth, (req, res) => {
 });
 
 // Estado de configuración institucional de los dos operadores y políticas de seguridad
-app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/operators-status', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const users = getUsersRoles();
   const op1 = users.find(o => o.operatorIndex === 1) || users[0];
   const op2 = users.find(o => o.operatorIndex === 2) || users[1];
@@ -905,7 +926,7 @@ app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) 
 });
 
 // Obtener lista autorizada de usuarios (sanitizada sin hashes de contraseña)
-app.get('/api/users', requireAuth, requireOperator, (req, res) => {
+app.get('/api/users', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const users = getUsersRoles();
   const sanitized = users.map(u => ({
     id: u.id,
@@ -928,7 +949,7 @@ app.get('/api/users', requireAuth, requireOperator, (req, res) => {
 });
 
 // Actualizar módulos permitidos para un usuario desde el panel admin
-app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (req, res) => {
+app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { modules } = req.body || {};
 
@@ -978,7 +999,7 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (re
 });
 
 // Cambiar y encriptar contraseña para un usuario desde el panel admin
-app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, res) => {
+app.put('/api/admin/users/:email/password', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { newPassword } = req.body || {};
 
@@ -1020,7 +1041,7 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, 
 });
 
 // Actualizar rol de usuario (admin o data_operator)
-app.put('/api/admin/users/:email/role', requireAuth, requireOperator, (req, res) => {
+app.put('/api/admin/users/:email/role', requireAuth, requireOperator, requireModule('users'), (req, res) => {
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { role } = req.body || {};
 
@@ -1218,7 +1239,7 @@ app.get('/api/:module/:id', (req, res, next) => {
 });
 
 // POST: Creación de registros (Exclusivo para los dos operadores autorizados)
-app.post('/api/:module', requireAuth, requireOperator, (req, res, next) => {
+app.post('/api/:module', requireAuth, requireOperator, requireModuleFromParam, (req, res, next) => {
   const { module } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
@@ -1258,7 +1279,7 @@ app.post('/api/:module', requireAuth, requireOperator, (req, res, next) => {
 });
 
 // PUT: Modificación de registros (Exclusivo para los dos operadores autorizados)
-app.put('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
+app.put('/api/:module/:id', requireAuth, requireOperator, requireModuleFromParam, (req, res, next) => {
   const { module, id } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
@@ -1298,7 +1319,7 @@ app.put('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
 });
 
 // DELETE: Eliminación de registros (Exclusivo para los dos operadores autorizados)
-app.delete('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
+app.delete('/api/:module/:id', requireAuth, requireOperator, requireModuleFromParam, (req, res, next) => {
   const { module, id } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
@@ -1340,11 +1361,11 @@ app.delete('/api/:module/:id', requireAuth, requireOperator, (req, res, next) =>
 // 6. AUDITORÍA Y DASHBOARD DE ADMINISTRACIÓN
 // ========================================================
 
-app.get('/api/audit', requireAuth, requireOperator, (req, res) => {
+app.get('/api/audit', requireAuth, requireOperator, requireModule('audit'), (req, res) => {
   res.json(getAuditLogs());
 });
 
-app.get('/api/dashboard/stats', requireAuth, requireOperator, (req, res) => {
+app.get('/api/dashboard/stats', requireAuth, requireOperator, requireModule('portal'), (req, res) => {
   try {
     const canales = getModuleRecords('canales');
     const directorio = getModuleRecords('directorio');
@@ -1372,12 +1393,12 @@ app.get('/api/dashboard/stats', requireAuth, requireOperator, (req, res) => {
   }
 });
 
-app.get('/api/dashboard/audit', requireAuth, requireOperator, (req, res) => {
+app.get('/api/dashboard/audit', requireAuth, requireOperator, requireModule('audit'), (req, res) => {
   res.json(getAuditLogs().slice(0, 20));
 });
 
 // Endpoint administrativo para consultar contador y estadísticas reales de visitas
-app.get('/api/admin/visits', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/visits', requireAuth, requireOperator, requireModule('visits'), (req, res) => {
   try {
     const data = getVisitsData();
     const todayStr = new Date().toISOString().split('T')[0];
@@ -1497,7 +1518,7 @@ app.get('/api/chatbot/knowledge', (req, res) => {
 });
 
 // Adición y modificación de conocimiento: Requiere ser uno de los dos operadores autorizados
-app.post('/api/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
+app.post('/api/chatbot/knowledge', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   const { title, category, content, keywords, link } = req.body || {};
   if (!title || !content) return res.status(400).json({ error: 'Título y contenido son obligatorios' });
 
@@ -1527,7 +1548,7 @@ app.post('/api/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
   res.status(201).json(newItem);
 });
 
-app.delete('/api/chatbot/knowledge/:id', requireAuth, requireOperator, (req, res) => {
+app.delete('/api/chatbot/knowledge/:id', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   const { id } = req.params;
   let knowledge = getChatbotKnowledge();
   const item = knowledge.find(k => k.id === id);
@@ -1664,7 +1685,7 @@ app.post('/api/chatbot/rate', (req, res) => {
 });
 
 // Admin stats
-app.get('/api/admin/chatbot/stats', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/chatbot/stats', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   const settings = getChatbotSettings();
   const knowledge = getChatbotKnowledge();
   res.json({
@@ -1677,11 +1698,11 @@ app.get('/api/admin/chatbot/stats', requireAuth, requireOperator, (req, res) => 
   });
 });
 
-app.get('/api/admin/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/chatbot/knowledge', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   res.json(getChatbotKnowledge());
 });
 
-app.get('/api/admin/chatbot/settings', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/chatbot/settings', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   res.json(getChatbotSettings());
 });
 
@@ -1689,7 +1710,7 @@ app.get('/api/admin/chatbot/settings', requireAuth, requireOperator, (req, res) 
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
-app.post('/api/files/upload', requireAuth, requireOperator, (req, res) => {
+app.post('/api/files/upload', requireAuth, requireOperator, requireModule('database'), (req, res) => {
   res.json({ url: '/uploads/sample.png', filename: 'sample.png' });
 });
 
