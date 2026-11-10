@@ -29,3 +29,8 @@ test-results/
 /users_roles.json
 /chatbot_settings.json
 /security_policies.json
+/.firebaserc
+/firebase.json
+/firebase-blueprint.json
+/firestore.rules
+/metadata.json
