@@ -641,7 +641,7 @@ async function requireAuth(req, res, next) {
         module: 'auth',
         target: 'admin',
         details: `Intento de acceso denegado: ${userEmail} (UID: ${userUid}) no figura entre las 2 cuentas autorizadas de la CNC.`,
-        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+        ip: req.socket.remoteAddress || '127.0.0.1'
       });
 
       return res.status(403).json({
@@ -863,14 +863,9 @@ app.post('/api/auth/login', loginRateLimit, (req, res) => {
   if (user.passwordHash.split(':').length === 2) {
     user.passwordHash = hashPassword(rawPassword);
     user.passwordHashUpdatedAt = new Date().toISOString();
-    saveUsersRoles(users);
-  }
-
-  // Migrar hashes heredados al factor PBKDF2 actual tras una autenticación válida.
-  if (user.passwordHash.split(':').length === 2) {
-    user.passwordHash = hashPassword(rawPassword);
-    user.passwordHashUpdatedAt = new Date().toISOString();
-    saveUsersRoles(users);
+    if (!saveUsersRoles(users)) {
+      return res.status(500).json({ error: 'No fue posible guardar la actualización de seguridad de la cuenta.' });
+    }
   }
 
   const token = createLocalSessionToken(user);
@@ -1647,7 +1642,7 @@ function generateFallbackResponse(query, knowledgeItems) {
 
 // Endpoint de consulta pública a Lupita
 app.post('/api/chatbot/chat', async (req, res) => {
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  const clientIp = req.socket.remoteAddress || '127.0.0.1';
 
   if (!checkChatbotRateLimit(clientIp)) {
     return res.status(429).json({
@@ -1816,13 +1811,33 @@ app.get('/', (req, res) => {
   sendFreshHtml(path.join(__dirname, 'index.html'), res);
 });
 
-// Evitar que archivos de operación/identidad heredados puedan servirse como contenido público.
+// Denegar explícitamente archivos internos, de configuración y datos operativos.
+// El directorio raíz contiene código del servidor y scripts de despliegue: no debe
+// exponerse íntegramente mediante express.static.
 const PRIVATE_STATIC_FILES = new Set([
   '/audit_logs.json',
   '/chatbot_conversations.json',
   '/page_visits.json',
   '/authorized_operators.json',
-  '/users_roles.json'
+  '/users_roles.json',
+  '/server.js',
+  '/package.json',
+  '/package-lock.json',
+  '/npm-shrinkwrap.json',
+  '/dockerfile',
+  '/docker-compose.yml',
+  '/readme.md',
+  '/deploy-iis.ps1',
+  '/web.config',
+  '/test_security_suite.js',
+  '/firebase-applet-config.json',
+  '/requirements.txt',
+  '/app.py',
+  '/bun.lockb',
+  '/bun.lock'
+]);
+const PRIVATE_STATIC_SEGMENTS = new Set([
+  '.git', '.github', 'node_modules', 'data', 'uploads-private'
 ]);
 app.use((req, res, next) => {
   let requestedPath;
@@ -1831,7 +1846,13 @@ app.use((req, res, next) => {
   } catch (_) {
     return res.sendStatus(400);
   }
-  if (requestedPath === '/data' || requestedPath.startsWith('/data/') || PRIVATE_STATIC_FILES.has(requestedPath)) {
+
+  const segments = requestedPath.split('/').filter(Boolean);
+  const containsPrivateSegment = segments.some(segment => PRIVATE_STATIC_SEGMENTS.has(segment));
+  const isPrivateFile = PRIVATE_STATIC_FILES.has(requestedPath);
+  const isSensitiveExtension = /\\.(?:env|bak|tmp|sql|pem|key|crt|p12|pfx)$/i.test(requestedPath);
+
+  if (containsPrivateSegment || isPrivateFile || isSensitiveExtension) {
     return res.sendStatus(404);
   }
   next();
