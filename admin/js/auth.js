@@ -124,30 +124,7 @@ export async function loginWithFirebase(email, password) {
         console.warn('Backend API no disponible directamente en la red local. Evaluando autenticación directa...');
     }
 
-    // Intento 2: Autenticación en modo descargado / standalone sin backend activo
-    // Verifica las contraseñas oficiales autorizadas (12345 o cambiada desde el admin)
-    const customStoredPwd = localStorage.getItem('pia_pwd_' + cleanEmail);
-    const isLocalPasswordValid = (cleanPassword === '12345' || (customStoredPwd && cleanPassword === customStoredPwd));
-
-    if (isLocalPasswordValid) {
-        const isDagi = cleanEmail === 'deteccionydenuncia@cnc.gob.gt';
-        const offlineUser = {
-            id: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-            uid: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-            oid: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-            email: cleanEmail,
-            upn: cleanEmail,
-            displayName: isDagi ? 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI' : 'Apoyo a la Gestión de Irregularidades (CNC)',
-            role: 'admin',
-            modules: ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
-            operatorIndex: isDagi ? 1 : 2
-        };
-        const offlineToken = 'pia_sess_offline_' + btoa(JSON.stringify(offlineUser));
-        localStorage.setItem('token', offlineToken);
-        sessionStorage.setItem('token', offlineToken);
-        localStorage.setItem('user', JSON.stringify(offlineUser));
-        return { token: offlineToken, user: offlineUser };
-    }
+    // No existe autenticación offline: toda sesión debe ser validada por el servidor.
 
     // Intento 3: Firebase Authentication si está disponible y la contraseña no coincidió con 12345
     try {
@@ -247,17 +224,7 @@ export async function verifyToken(token) {
         }
         return data;
     } catch (e) {
-        // Respaldo en caso de caída temporal de red si el token es local
-        if (token.startsWith('pia_sess_')) {
-            const stored = localStorage.getItem('user') || sessionStorage.getItem('user');
-            if (stored) {
-                try {
-                    return { user: JSON.parse(stored) };
-                } catch (_) {}
-            }
-        }
         throw e;
-    }
 }
 
 // Cierre de sesión y limpieza de estado local
