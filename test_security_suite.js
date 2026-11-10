@@ -34,6 +34,12 @@ async function runTests() {
     const privateAudit = await fetch(`${BASE_URL}/audit_logs.json`);
     recordTest('10.3 Bitácora heredada no es pública (404)', privateAudit.status === 404);
 
+    const privateVisitsApi = await fetch(`${BASE_URL}/api/visits`);
+    recordTest('10.3a Métricas de visitas no se exponen por API pública (404)', privateVisitsApi.status === 404);
+
+    const privateVisitsFile = await fetch(`${BASE_URL}/api/page_visits.json`);
+    recordTest('10.3b Archivo de visitas no se expone por API pública (404)', privateVisitsFile.status === 404);
+
     const internalPaths = [
       '/server.js',
       '/package.json',
