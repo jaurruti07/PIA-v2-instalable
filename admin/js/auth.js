@@ -1,5 +1,5 @@
 // auth.js - Autenticación Institucional del Portal de Integridad Activa (PIA)
-// Soporte Dual: Backend Criptográfico Local (Node.js/Flask) + Firebase Authentication
+// Autenticación institucional: backend Node.js + Firebase Authentication verificada por servidor.
 
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -81,7 +81,7 @@ export async function initFirebaseAuth() {
     }
 }
 
-// Iniciar sesión institucional usando Email y Contraseña (Servidor PIA + Respaldo Offline/Firebase)
+// Inicio de sesión institucional; no se aceptan sesiones locales offline.
 export async function loginWithFirebase(email, password) {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPassword = password || '';
@@ -95,7 +95,7 @@ export async function loginWithFirebase(email, password) {
         throw new Error(`Acceso denegado: El correo "${cleanEmail}" no figura entre las 2 cuentas oficiales autorizadas para la administración del Portal PIA.`);
     }
 
-    // Intento 1: Autenticación institucional directa con el backend PIA (Node.js o Python Flask)
+    // Intento 1: autenticación directa contra el backend Express.
     try {
         const localLoginRes = await fetch(`${API_BASE}/auth/login`, {
             method: 'POST',
@@ -126,11 +126,11 @@ export async function loginWithFirebase(email, password) {
 
     // No existe autenticación offline: toda sesión debe ser validada por el servidor.
 
-    // Intento 3: Firebase Authentication si está disponible y la contraseña no coincidió con 12345
+    // Alternativa: Firebase Authentication; el token resultante también se verifica en el backend.
     try {
         const auth = await initFirebaseAuth();
         if (!auth) {
-            throw new Error('Contraseña incorrecta. Verifique sus credenciales institucionales (12345).');
+            throw new Error('El servicio de autenticación no está disponible. Verifique la conexión con el servidor PIA.');
         }
 
         const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, cleanPassword);
@@ -151,7 +151,7 @@ export async function loginWithFirebase(email, password) {
         }
         if (fbErr.code === 'auth/invalid-api-key') {
             // Protección contra errores crudos de Firebase en entornos descargados
-            throw new Error('Contraseña incorrecta. Ingrese con la clave inicial autorizada (12345).');
+            throw new Error('La configuración de Firebase Authentication no es válida. Contacte al administrador del sistema.');
         }
         throw new Error(fbErr.message || 'Error de autenticación.');
     }
