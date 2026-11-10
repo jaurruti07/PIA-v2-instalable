@@ -1481,8 +1481,24 @@ app.post('/api/analytics/visit', (req, res) => {
 // 7. ASISTENTE VIRTUAL LUPITA (GEMINI BACKEND PROXY SEGURO)
 // ========================================================
 
-const CHATBOT_SETTINGS_FILE = path.join(__dirname, 'chatbot_settings.json');
-const CHATBOT_KNOWLEDGE_FILE = path.join(__dirname, 'chatbot_knowledge.json');
+const CHATBOT_SETTINGS_FILE = path.join(DATA_DIR, 'chatbot_settings.json');
+const CHATBOT_KNOWLEDGE_FILE = path.join(DATA_DIR, 'chatbot_knowledge.json');
+const CHATBOT_CONVERSATIONS_FILE = path.join(DATA_DIR, 'chatbot_conversations.json');
+const LEGACY_CHATBOT_FILES = [
+  [path.join(__dirname, 'chatbot_settings.json'), CHATBOT_SETTINGS_FILE],
+  [path.join(__dirname, 'chatbot_knowledge.json'), CHATBOT_KNOWLEDGE_FILE]
+];
+
+// Migración no destructiva de configuración heredada al almacenamiento privado.
+for (const [legacyPath, privatePath] of LEGACY_CHATBOT_FILES) {
+  try {
+    if (fs.existsSync(legacyPath) && !fs.existsSync(privatePath)) {
+      fs.copyFileSync(legacyPath, privatePath, fs.constants.COPYFILE_EXCL);
+    }
+  } catch (err) {
+    console.error('No fue posible migrar un archivo heredado del chatbot:', err.message);
+  }
+}
 
 let genAIInstance = null;
 function getGenAI() {
@@ -1718,6 +1734,26 @@ app.post('/api/chatbot/chat', async (req, res) => {
   const responseTimeMs = Date.now() - startTime;
   const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
+  // El registro de conversaciones es opcional y queda desactivado por defecto
+  // para evitar conservar consultas que puedan contener datos personales.
+  if (process.env.PIA_CHATBOT_LOG_CONVERSATIONS === 'true') {
+    try {
+      const conversations = readJsonFile(CHATBOT_CONVERSATIONS_FILE) || [];
+      conversations.unshift({
+        id: messageId,
+        sessionId: String(req.body?.sessionId || messageId).slice(0, 100),
+        timestamp: new Date().toISOString(),
+        userMessage: cleanMessage,
+        botResponse: responseText,
+        responseTimeMs,
+        rating: null
+      });
+      atomicWriteJson(CHATBOT_CONVERSATIONS_FILE, conversations.slice(0, 200), null, 'chatbot');
+    } catch (err) {
+      console.error('No fue posible registrar la conversación de Lupita:', err.message);
+    }
+  }
+
   res.json({
     messageId,
     text: responseText,
@@ -1750,6 +1786,57 @@ app.get('/api/admin/chatbot/knowledge', requireAuth, requireOperator, requireMod
 
 app.get('/api/admin/chatbot/settings', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   res.json(getChatbotSettings());
+});
+
+app.put('/api/admin/chatbot/settings', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
+  const body = req.body || {};
+  const model = typeof body.model === 'string' ? body.model.trim() : '';
+  const systemPrompt = typeof body.systemPrompt === 'string' ? body.systemPrompt.trim() : '';
+  const temperature = Number(body.temperature);
+  const maxTokens = Number(body.maxTokens);
+
+  if (!model || model.length > 100) {
+    return res.status(400).json({ error: 'Debe indicar un modelo válido.' });
+  }
+  if (!systemPrompt || systemPrompt.length > 12000) {
+    return res.status(400).json({ error: 'La instrucción del sistema debe contener entre 1 y 12,000 caracteres.' });
+  }
+  if (!Number.isFinite(temperature) || temperature < 0 || temperature > 1) {
+    return res.status(400).json({ error: 'La temperatura debe estar entre 0 y 1.' });
+  }
+  if (!Number.isInteger(maxTokens) || maxTokens < 256 || maxTokens > 2048) {
+    return res.status(400).json({ error: 'Los tokens máximos deben estar entre 256 y 2,048.' });
+  }
+  if (typeof body.enabled !== 'boolean') {
+    return res.status(400).json({ error: 'El estado del asistente debe ser verdadero o falso.' });
+  }
+
+  const updated = { ...getChatbotSettings(), model, systemPrompt, temperature, maxTokens, enabled: body.enabled };
+  try {
+    const result = atomicWriteJson(CHATBOT_SETTINGS_FILE, updated, null, req.user.email);
+    logAudit({
+      user: req.user.email,
+      userUid: req.user.uid,
+      action: 'ACTUALIZACIÓN DE CONFIGURACIÓN DEL CHATBOT',
+      module: 'chatbot',
+      target: 'settings',
+      details: `Parámetros del asistente actualizados; modelo: ${model}; activo: ${body.enabled}`,
+      backupCreated: result.backupCreated,
+      ip: req.socket.remoteAddress || '127.0.0.1'
+    });
+    res.json({ success: true, settings: updated });
+  } catch (err) {
+    console.error('Error guardando configuración del chatbot:', err);
+    res.status(500).json({ error: 'No fue posible guardar la configuración del asistente.' });
+  }
+});
+
+app.get('/api/admin/chatbot/conversations', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
+  if (process.env.PIA_CHATBOT_LOG_CONVERSATIONS !== 'true') {
+    return res.json([]);
+  }
+  const conversations = readJsonFile(CHATBOT_CONVERSATIONS_FILE);
+  res.json(Array.isArray(conversations) ? conversations.slice(0, 200) : []);
 });
 
 // Archivo upload endpoint para operadores
@@ -1831,6 +1918,8 @@ const PRIVATE_STATIC_FILES = new Set([
   '/web.config',
   '/test_security_suite.js',
   '/firebase-applet-config.json',
+  '/chatbot_settings.json',
+  '/chatbot_knowledge.json',
   '/requirements.txt',
   '/app.py',
   '/bun.lockb',
