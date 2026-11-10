@@ -10,6 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.disable('x-powered-by');
 const PORT = Number(process.env.PORT || process.env.DEFAULT_APP_PORT) || 3000;
 
 app.get('/api/health', (req, res) => {
@@ -706,8 +707,7 @@ async function requireAuth(req, res, next) {
     next();
   } catch (err) {
     return res.status(401).json({
-      error: 'Token de autorización inválido, expirado o no autorizado.',
-      details: err.message
+      error: 'Token de autorización inválido, expirado o no autorizado.'
     });
   }
 }
