@@ -1,0 +1,67 @@
+name: PIA validation
+
+on:
+  push:
+    branches:
+      - main
+      - 'refactor/**'
+      - 'release/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  node-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Start isolated test server and run security suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          export NODE_ENV=test
+          export PORT=3000
+          export PIA_DATA_DIR="$RUNNER_TEMP/pia-test-data"
+          export PIA_SESSION_SECRET="$(node -e "process.stdout.write(require('crypto').randomBytes(48).toString('base64url'))")"
+          export PIA_OPERATOR_1_PASSWORD='CI-Only-Operator-One-Password-2026!'
+          export PIA_OPERATOR_2_PASSWORD='CI-Only-Operator-Two-Password-2026!'
+          mkdir -p "$PIA_DATA_DIR"
+          node server.js > "$RUNNER_TEMP/pia-server.log" 2>&1 &
+          server_pid=$!
+          cleanup() {
+            kill "$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          ready=0
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:3000/api/health >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+
+          if [ "$ready" -ne 1 ]; then
+            cat "$RUNNER_TEMP/pia-server.log"
+            echo "PIA server did not become healthy."
+            exit 1
+          fi
+
+          npm test
