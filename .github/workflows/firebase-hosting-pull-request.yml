@@ -1,6 +1,6 @@
 name: Deploy to Firebase Hosting on PR
 'on':
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   build_and_preview:
