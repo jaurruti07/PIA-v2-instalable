@@ -1954,7 +1954,9 @@ const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 app.post('/api/files/upload', requireAuth, requireOperator, requireModule('database'), (req, res) => {
-  res.json({ url: '/uploads/sample.png', filename: 'sample.png' });
+  res.status(501).json({
+    error: 'La carga de archivos no está habilitada en esta versión. No se devolverá una ruta de archivo ficticia.'
+  });
 });
 
 // Bloquear subrutas no contempladas del mantenimiento JSON.
