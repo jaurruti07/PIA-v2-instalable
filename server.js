@@ -1544,7 +1544,6 @@ const CHATBOT_SETTINGS_FILE = path.join(DATA_DIR, 'chatbot_settings.json');
 const CHATBOT_KNOWLEDGE_FILE = path.join(DATA_DIR, 'chatbot_knowledge.json');
 const CHATBOT_CONVERSATIONS_FILE = path.join(DATA_DIR, 'chatbot_conversations.json');
 const LEGACY_CHATBOT_FILES = [
-  [path.join(__dirname, 'chatbot_settings.json'), CHATBOT_SETTINGS_FILE],
   [path.join(__dirname, 'chatbot_knowledge.json'), CHATBOT_KNOWLEDGE_FILE]
 ];
 
@@ -1575,7 +1574,7 @@ function getChatbotSettings() {
     model: 'gemini-2.5-flash',
     temperature: 0.2,
     maxTokens: 1024,
-    systemPrompt: 'Te llamas Lupita. Eres la Asistente Virtual Oficial Inteligente del Portal de Integridad Activa (PIA) del Gobierno de Guatemala.',
+    systemPrompt: 'Te llamas Lupita. Eres la Asistente Virtual del Portal de Integridad Activa (PIA). Orienta a la ciudadanía sobre transparencia, canales de denuncia, oficinas de probidad, directorio institucional, estadísticas y riesgos de integridad pública. Responde en español con tono profesional, claro y empático. Utiliza únicamente la base de conocimiento disponible y los datos confirmados del portal. No inventes cifras, requisitos ni procedimientos. No solicites ni reproduzcas datos personales sensibles. Si desconoces una respuesta, indícalo y orienta al usuario hacia los canales oficiales de información.',
     enabled: true
   };
 }
