@@ -41,6 +41,11 @@ async function runTests() {
       '/web.config',
       '/test_security_suite.js',
       '/firebase-applet-config.json',
+      '/chatbot_settings.json',
+      '/chatbot_conversations.json',
+      '/security_policies.json',
+      '/firebase.json',
+      '/.firebaserc',
       '/.env.example',
       '/data/users_roles.json',
       '/.git/config'
@@ -239,6 +244,56 @@ async function runTests() {
     recordTest('9.1 Ningún secreto o clave privada expuesta en endpoint /api/auth/entra-config', noSecretExposed);
   } catch (err) {
     recordTest('9. Protección de secretos', false, err.message);
+  }
+
+  // Test 11: Flujos administrativos con credenciales de entorno de prueba.
+  try {
+    const testPassword = process.env.PIA_OPERATOR_1_PASSWORD;
+    if (!testPassword) {
+      recordTest('11. Flujos administrativos autenticados', true, 'Omitidos: no se configuró PIA_OPERATOR_1_PASSWORD.');
+    } else {
+      const loginRes = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'deteccionydenuncia@cnc.gob.gt',
+          password: testPassword
+        })
+      });
+      const loginData = await loginRes.json();
+      const token = loginData.token;
+      recordTest('11.1 Inicio de sesión de operador autorizado', loginRes.status === 200 && !!token);
+
+      if (token) {
+        const headers = { Authorization: `Bearer ${token}` };
+        const usersRes = await fetch(`${BASE_URL}/api/users`, { headers });
+        const usersData = await usersRes.json();
+        const usersSafe = usersRes.status === 200 &&
+          Array.isArray(usersData.users) &&
+          usersData.users.every(user => !Object.hasOwn(user, 'passwordHash'));
+        recordTest('11.2 Gestión de usuarios devuelve datos sin hashes', usersSafe);
+
+        const rawAllowed = await fetch(`${BASE_URL}/api/raw-json?path=${encodeURIComponent('/data_portal.json')}`, { headers });
+        recordTest('11.3 Mantenimiento JSON permite solo ruta incluida en lista blanca', rawAllowed.status === 200);
+
+        const rawTraversal = await fetch(`${BASE_URL}/api/raw-json?path=${encodeURIComponent('../../etc/passwd')}`, { headers });
+        recordTest('11.4 Mantenimiento JSON rechaza path traversal autenticado (400)', rawTraversal.status === 400);
+
+        const chatbotSettings = await fetch(`${BASE_URL}/api/admin/chatbot/settings`, { headers });
+        recordTest('11.5 Configuración de Lupita disponible para operador autorizado', chatbotSettings.status === 200);
+
+        const chatbotLogs = await fetch(`${BASE_URL}/api/admin/chatbot/conversations`, { headers });
+        recordTest('11.6 Historial de Lupita responde sin exponerlo públicamente', chatbotLogs.status === 200);
+
+        const fakeUpload = await fetch(`${BASE_URL}/api/files/upload`, {
+          method: 'POST',
+          headers,
+        });
+        recordTest('11.7 La carga de archivos no simula una subida exitosa', fakeUpload.status === 501);
+      }
+    }
+  } catch (err) {
+    recordTest('11. Flujos administrativos autenticados', false, err.message);
   }
 
   console.log('\n=============================================================');
