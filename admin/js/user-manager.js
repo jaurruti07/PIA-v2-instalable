@@ -144,7 +144,7 @@ export function renderUserManagerView() {
             <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
               Nueva Contraseña:
             </label>
-            <input type="password" id="inputNewPassword" placeholder="Ingrese nueva contraseña segura" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.95rem; box-sizing:border-box;">
+            <input type="password" id="inputNewPassword" placeholder="Nueva contraseña (mínimo 14 caracteres)" minlength="14" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.95rem; box-sizing:border-box;">
           </div>
           <div style="margin-bottom:1.5rem;">
             <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
@@ -431,9 +431,9 @@ function setupModalPasswordEvents() {
       const p1 = (inputNew?.value || '').trim();
       const p2 = (inputConfirm?.value || '').trim();
 
-      if (!p1 || p1.length < 4) {
+      if (!p1 || p1.length < 14) {
         if (errDiv) {
-          errDiv.textContent = 'La contraseña debe contener al menos 4 caracteres.';
+          errDiv.textContent = 'La contraseña debe contener al menos 14 caracteres.';
           errDiv.style.display = 'block';
         }
         return;
