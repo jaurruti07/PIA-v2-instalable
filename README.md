@@ -122,6 +122,18 @@ La autorización se valida en el servidor. Los permisos por módulo se comprueba
 - Publicar el portal detrás de HTTPS y un proxy inverso institucional. No exponer el puerto de administración a Internet sin controles de red, monitoreo y revisión de seguridad.
 - La clave API de Firebase usada por aplicaciones web no equivale a una clave privada de servicio; debe restringirse desde Google/Firebase y las reglas del proyecto deben revisarse.
 
+## Migración desde una instalación anterior
+
+Antes de actualizar una instalación existente:
+
+1. Detener el proceso anterior y realizar una copia de seguridad completa del directorio de datos.
+2. Copiar al nuevo `PIA_DATA_DIR`, según corresponda, `users_roles.json`, `authorized_operators.json`, `audit_logs.json`, `page_visits.json` y la carpeta `backups/`.
+3. No copiar estos archivos al repositorio ni al directorio público. Deben permanecer en el almacenamiento privado.
+4. Configurar el nuevo `.env` con un secreto de sesión aleatorio. Si el sistema anterior utilizó el secreto predeterminado incluido en versiones antiguas del código, debe considerarse comprometido y sustituirse.
+5. Iniciar el servidor y validar el acceso administrativo antes de retirar el respaldo.
+
+Los hashes PBKDF2 heredados de 10,000 iteraciones se aceptan temporalmente para permitir la migración y se actualizan a 310,000 iteraciones después de una autenticación correcta.
+
 ## Pruebas
 
 Con el servidor activo en el puerto 3000:
