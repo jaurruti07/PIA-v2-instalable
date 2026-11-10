@@ -865,6 +865,13 @@ app.post('/api/auth/login', loginRateLimit, (req, res) => {
     saveUsersRoles(users);
   }
 
+  // Migrar hashes heredados al factor PBKDF2 actual tras una autenticación válida.
+  if (user.passwordHash.split(':').length === 2) {
+    user.passwordHash = hashPassword(rawPassword);
+    user.passwordHashUpdatedAt = new Date().toISOString();
+    saveUsersRoles(users);
+  }
+
   const token = createLocalSessionToken(user);
 
   logAudit({
