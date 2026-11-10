@@ -1,0 +1,4267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Portal de Integridad Activa | PIA — Gobierno de Guatemala</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link rel="stylesheet" href="/css/pia-chatbot.css">
+    <style>
+        /* ============================================================
+           DESIGN TOKENS (unificados)
+        ============================================================ */
+        :root {
+            --navy:       #05111F;
+            --navy-mid:   #0C2033;
+            --navy-light: #163250;
+            --blue:       #1A5C8F;
+            --blue-bright:#2B82C9;
+            --cyan:       #00C2E0;
+            --amber:      #F5A623;
+            --green:      #22C55E;
+            --teal:       #2A9D8F;
+            --surface:    #F0F5FB;
+            --text-main:  #0C1F30;
+            --text-muted: #5E7A8E;
+            --text-light: #A8BFCC;
+            --border:     rgba(26,92,143,0.14);
+            --radius-xl:  24px;
+            --radius-2xl: 32px;
+            --shadow-sm:  0 2px 8px rgba(5,17,31,0.06);
+            --shadow-md:  0 6px 24px rgba(5,17,31,0.10);
+            --shadow-lg:  0 16px 48px rgba(5,17,31,0.14);
+            --font-head:  'Sora', sans-serif;
+            --font-body:  'DM Sans', sans-serif;
+        }
+
+        /* ============================================================
+           RESET & BASE
+        ============================================================ */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; background-color: #05111F !important; }
+        
+        /* View Transitions API (Navegación Fluida sin Parpadeos) */
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: 220ms cubic-bezier(0.4, 0, 0.2, 1) both pageFadeOut; }
+        ::view-transition-new(root) { animation: 220ms cubic-bezier(0.4, 0, 0.2, 1) both pageFadeIn; }
+        @keyframes pageFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.995); } }
+        @keyframes pageFadeIn { from { opacity: 0; transform: scale(1.005); } to { opacity: 1; transform: scale(1); } }
+        
+        body { font-family: var(--font-body); background: var(--surface); color: var(--text-main); line-height: 1.6; -webkit-font-smoothing: antialiased; transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        body.page-exiting { opacity: 0 !important; }
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; }
+        button { font-family: var(--font-body); cursor: pointer; }
+        ul { list-style: none; }
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 28px; }
+
+        /* ============================================================
+           HEADER UNIFICADO
+        ============================================================ */
+        .site-header {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(5,17,31,0.92);
+            backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid rgba(0,194,224,0.10);
+            transition: box-shadow 0.3s;
+        }
+        .site-header.scrolled { box-shadow: 0 4px 32px rgba(0,0,0,0.3); }
+
+        .navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 0;
+            gap: 1.5rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+        .logo-area a {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .gov-logo {
+            height: 52px;
+            width: auto;
+            max-height: 52px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .pia-wordmark {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .pia-abbr {
+            font-family: var(--font-head);
+            font-size: 1.55rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .pia-name {
+            font-family: var(--font-head);
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.65);
+            letter-spacing: 0.01em;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+            margin-left: auto;
+        }
+        .nav-menu > li {
+            position: relative;
+        }
+        .nav-menu a {
+            display: inline-block;
+            padding: 0.45rem 0.9rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-size: 0.77rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.65);
+            transition: all 0.2s;
+        }
+        .nav-menu > li > a {
+            cursor: default;
+        }
+        .nav-menu > li > a .fa-chevron-down {
+            font-size: 0.6rem;
+            margin-left: 4px;
+            transition: transform 0.2s;
+        }
+        .nav-menu > li:hover > a .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        .nav-menu a:hover, .nav-menu a.active {
+            color: var(--cyan);
+            background: rgba(0,194,224,0.08);
+        }
+        .nav-menu a.nav-cta {
+            background: var(--cyan);
+            color: var(--navy);
+            font-weight: 700;
+        }
+        .nav-menu a.nav-cta:hover { background: #00ddf7; }
+
+        .submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 220px;
+            background: var(--navy-mid);
+            border-radius: 16px;
+            padding: 0.5rem 0;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            border: 1px solid rgba(0,194,224,0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+            list-style: none;
+            z-index: 300;
+        }
+        .nav-menu > li:hover .submenu,
+        .nav-menu > li.open .submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .submenu li a {
+            display: block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 0;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0.02em;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        .submenu li a:hover {
+            background: rgba(0,194,224,0.08);
+            color: var(--cyan);
+            border-left-color: var(--cyan);
+        }
+        .submenu li a i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        /* ============================================================
+           FOOTER UNIFICADO
+        ============================================================ */
+        .footer {
+            background: var(--navy);
+            color: rgba(255,255,255,0.6);
+            padding: 3.5rem 0 1.5rem;
+            margin-top: 3rem;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.5fr 1.2fr 1fr;
+            gap: 2.5rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .footer-brand img {
+            height: 48px;
+            width: auto;
+            max-height: 48px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+            display: block;
+        }
+        .footer-brand .logo-pia {
+            height: 48px;
+            width: auto;
+            max-height: 48px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+            flex-shrink: 0;
+            display: block;
+        }
+        .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
+        .footer-col h4 {
+            font-family: var(--font-head);
+            font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; color: rgba(255,255,255,0.9);
+            margin-bottom: 1rem;
+        }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+        .footer-links a { font-size: 0.85rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--cyan); }
+        .footer-contact { font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .footer-contact a { color: var(--cyan); }
+        .footer-contact a:hover { text-decoration: underline; }
+        .social-row { display: flex; gap: 0.7rem; margin-top: 0.5rem; }
+        .social-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; color: rgba(255,255,255,0.6);
+            transition: all 0.2s;
+        }
+        .social-btn:hover { background: var(--blue-bright); color: #fff; transform: translateY(-2px); }
+
+        .footer-bottom {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 1rem;
+            padding-top: 1.5rem;
+            font-size: 0.75rem; color: rgba(255,255,255,0.3);
+        }
+        .footer-logos { display: flex; gap: 1.5rem; align-items: center; flex-shrink: 0; }
+        .footer-logos img {
+            height: 36px;
+            width: auto;
+            max-height: 36px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            opacity: 0.6;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        /* ============================================================
+           RESPONSIVE HEADER/FOOTER
+        ============================================================ */
+        @media (max-width: 992px) {
+            .menu-toggle { display: flex; }
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%; left: 0; right: 0;
+                background: rgba(5,17,31,0.98);
+                flex-direction: column;
+                padding: 1rem 1.5rem;
+                border-top: 1px solid rgba(0,194,224,0.15);
+                gap: 0.25rem;
+                box-shadow: 0 14px 30px rgba(0,0,0,0.6);
+            }
+            .nav-menu.open { display: flex; }
+            .nav-menu > li { width: 100%; }
+            .nav-menu > li > a {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.7rem 1.2rem;
+                border-radius: 12px;
+                width: 100%;
+                font-size: 0.85rem;
+            }
+            .submenu {
+                position: static;
+                background: rgba(255,255,255,0.04);
+                border-radius: 12px;
+                padding: 0;
+                margin: 0 0 0.5rem 0;
+                box-shadow: none;
+                border: none;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, padding 0.3s ease;
+                padding: 0 0 0 0.5rem;
+            }
+            .nav-menu > li.open .submenu {
+                max-height: 300px;
+                padding: 0.5rem 0 0.5rem 0.5rem;
+            }
+            .submenu li a {
+                padding: 0.5rem 1rem;
+                border-left: none;
+                font-size: 0.8rem;
+            }
+            .submenu li a:hover { border-left: none; }
+            .footer-grid {
+                grid-template-columns: 2fr 1fr 1fr !important;
+                gap: 2rem;
+            }
+        }
+        @media (max-width: 680px) {
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 2rem;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+            .footer-logos { justify-content: center; }
+            .pia-name { display: none; }
+            .gov-logo { height: 44px; max-height: 44px; }
+        }
+
+        /* ============================================================
+           RESTO DE ESTILOS PROPIOS DEL PORTAL (sin cambios relevantes)
+        ============================================================ */
+        .hero {
+            position: relative; overflow: hidden;
+            min-height: 88vh; display: flex; align-items: center;
+            background: var(--navy);
+        }
+        .hero-bg-slider {
+            position: absolute; inset: 0; z-index: 0;
+            overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center 25%;
+            filter: brightness(0.48) contrast(1.1);
+            opacity: 0;
+            transform: scale(1.06);
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), transform 7s ease-out;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .hero-slider-dots {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(5, 17, 31, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            border-radius: 50px;
+        }
+        .hero-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        .hero-dot:hover {
+            background: rgba(0, 194, 224, 0.8);
+        }
+        .hero-dot.active {
+            width: 24px;
+            border-radius: 12px;
+            background: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 194, 224, 0.6);
+        }
+        .hero::before {
+            content: ''; position: absolute; inset: 0; z-index: 1;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(43,130,201,0.45), transparent),
+                radial-gradient(ellipse 55% 55% at 85% 85%, rgba(0,194,224,0.22), transparent),
+                linear-gradient(180deg, rgba(5,17,31,0.60) 0%, rgba(5,17,31,0.90) 100%);
+        }
+        .hero::after {
+            content: ''; position: absolute; inset: 0; z-index: 1;
+            background-image:
+                linear-gradient(rgba(0,194,224,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,194,224,0.04) 1px, transparent 1px);
+            background-size: 48px 48px; pointer-events: none;
+        }
+        .hero-inner { position: relative; z-index: 2; width: 100%; text-align: center; padding: 5rem 1.5rem 6rem; color: white; }
+
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; border-radius: 50px;
+            border: 1px solid rgba(0,194,224,0.35); background: rgba(0,194,224,0.08);
+            font-size: 0.77rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--cyan); margin-bottom: 1.8rem;
+        }
+        .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; }
+        @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+
+        .hero h1 {
+            font-family: var(--font-head); font-size: clamp(2.6rem, 6.5vw, 4.5rem);
+            font-weight: 800; line-height: 1.1; color: #fff; letter-spacing: -0.03em; margin-bottom: 0.5rem;
+        }
+        .hero h1 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-sub { max-width: 640px; margin: 1.4rem auto 0.8rem; font-size: 1.05rem; color: rgba(255,255,255,0.65); line-height: 1.7; }
+        .hero-contact {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; border-radius: 50px;
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+            font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 0.5rem;
+        }
+        .hero-contact i { color: var(--cyan); }
+
+        .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2.5rem; }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--cyan); color: var(--navy);
+            font-family: var(--font-head); font-weight: 700; font-size: 0.9rem;
+            padding: 0.85rem 2rem; border-radius: 50px; border: none; transition: all 0.25s;
+            box-shadow: 0 0 32px rgba(0,194,224,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(0,194,224,0.5); background: #00ddf7; }
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; color: rgba(255,255,255,0.8);
+            font-family: var(--font-head); font-weight: 600; font-size: 0.9rem;
+            padding: 0.85rem 2rem; border-radius: 50px; border: 1px solid rgba(255,255,255,0.2); transition: all 0.25s;
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.4); }
+
+        .stats-ribbon { background: var(--navy-mid); border-top: 1px solid rgba(0,194,224,0.08); border-bottom: 1px solid rgba(0,194,224,0.08); padding: 1.6rem 0; }
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1px; background: rgba(0,194,224,0.08);
+            border: 1px solid rgba(0,194,224,0.08); border-radius: var(--radius-xl); overflow: hidden;
+        }
+        .stat-cell { background: var(--navy-mid); padding: 1.4rem 1rem; text-align: center; transition: background 0.2s; }
+        .stat-cell:hover { background: rgba(0,194,224,0.06); }
+        .stat-cell-icon { font-size: 1.3rem; color: var(--cyan); margin-bottom: 0.5rem; }
+        .stat-num { font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; }
+        .stat-lbl { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.7); margin-top: 0.2rem; }
+        .stat-desc { font-size: 0.68rem; color: var(--text-light); margin-top: 0.15rem; letter-spacing: 0.02em; }
+
+        .section { padding: 4.5rem 0; }
+        .section-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--cyan); margin-bottom: 0.75rem;
+        }
+        .section-tag::before { content:''; width:24px; height:2px; background: var(--cyan); border-radius:2px; }
+        h2.section-title {
+            font-family: var(--font-head); font-size: clamp(1.7rem, 3vw, 2.4rem);
+            font-weight: 800; letter-spacing: -0.025em; color: var(--text-main); line-height: 1.15; margin-bottom: 0.5rem;
+        }
+        h2.section-title.on-dark { color: #fff; }
+        .section-sub { font-size: 0.97rem; color: var(--text-muted); max-width: 620px; line-height: 1.7; }
+        .section-header { margin-bottom: 2.5rem; }
+        .section-header.center { text-align: center; }
+        .section-header.center .section-tag { justify-content: center; }
+        .section-header.center .section-sub { margin: 0 auto; }
+
+        .portal-band {
+            background: linear-gradient(135deg, var(--navy), var(--navy-light));
+            border-radius: var(--radius-2xl); padding: 4rem 3.5rem;
+            position: relative; overflow: hidden;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+        }
+        .portal-band::before {
+            content:''; position: absolute; top:-80px; right:-80px;
+            width: 400px; height: 400px; border-radius: 50%;
+            background: radial-gradient(rgba(0,194,224,0.14), transparent 70%); pointer-events: none;
+        }
+        .portal-band-img { position: relative; z-index: 1; border-radius: 20px; overflow: hidden; }
+        .portal-band-img img { width: 100%; border-radius: 20px; box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
+
+        .portal-band-text { position: relative; z-index: 1; }
+        .portal-band-text .lead {
+            font-family: var(--font-head); font-size: clamp(1.2rem, 2.5vw, 1.55rem); font-weight: 700;
+            color: #fff; line-height: 1.45; margin-bottom: 1.2rem;
+        }
+        .portal-band-text .lead em { font-style: normal; color: var(--cyan); }
+        .portal-band-text p { font-size: 0.92rem; color: rgba(255,255,255,0.6); line-height: 1.8; margin-bottom: 0.8rem; }
+        .portal-cta-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.8rem; }
+        .btn-cyan {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--cyan); color: var(--navy);
+            font-family: var(--font-head); font-weight: 700; font-size: 0.85rem;
+            padding: 0.75rem 1.6rem; border-radius: 50px; transition: all 0.2s;
+        }
+        .btn-cyan:hover { background: #00ddf7; transform: translateY(-2px); }
+        .btn-ghost {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8);
+            font-family: var(--font-head); font-weight: 600; font-size: 0.85rem;
+            padding: 0.75rem 1.6rem; border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.18); transition: all 0.2s;
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.15); }
+
+        .metrics-strip {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1rem; margin-top: 3rem;
+        }
+        .metric-card {
+            background: #fff; border: 1px solid var(--border); border-radius: var(--radius-xl);
+            padding: 1.6rem 1rem; text-align: center; box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+        }
+        .metric-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: rgba(43,130,201,0.3); }
+        .metric-icon { font-size: 1.6rem; color: var(--blue-bright); margin-bottom: 0.6rem; }
+        .metric-num { font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--navy); }
+        .metric-lbl { font-size: 0.85rem; font-weight: 600; color: var(--blue); margin-top: 0.2rem; }
+        .metric-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+        .info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+        .info-card {
+            background: #fff; border: 1px solid var(--border); border-radius: var(--radius-xl);
+            padding: 2rem; box-shadow: var(--shadow-sm); transition: all 0.3s;
+        }
+        .info-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: rgba(43,130,201,0.25); }
+        .info-card-icon {
+            width: 52px; height: 52px; border-radius: 16px;
+            background: linear-gradient(135deg, #EBF5FF, #D2EAFF);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: var(--blue-bright); margin-bottom: 1.2rem;
+        }
+        .info-card h3 { font-family: var(--font-head); font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.8rem; }
+        .info-card ul { display: flex; flex-direction: column; gap: 0.55rem; }
+        .info-card li { display: flex; align-items: baseline; gap: 9px; font-size: 0.86rem; color: var(--text-muted); }
+        .info-card li i { font-size: 0.65rem; color: var(--blue-bright); flex-shrink: 0; }
+        .info-card p { font-size: 0.86rem; color: var(--text-muted); line-height: 1.75; }
+
+        .platforms-section { background: var(--navy); padding: 5rem 0; }
+
+        .platform-hint {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 5px 16px; border-radius: 50px;
+            background: rgba(0,194,224,0.08); border: 1px solid rgba(0,194,224,0.2);
+            font-size: 0.78rem; color: var(--cyan); font-weight: 500; margin-top: 1rem;
+        }
+
+        .plat-swiper { padding: 1rem 0.5rem 3.5rem !important; }
+        .plat-swiper .swiper-slide { height: auto !important; display: flex; }
+
+        .plat-card {
+            border-radius: var(--radius-xl); overflow: hidden; position: relative;
+            width: 100%; display: flex; flex-direction: column;
+            background: #0F1E2D;
+            border: 1px solid rgba(0,194,224,0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transition: all 0.35s; cursor: pointer;
+            min-height: 380px;
+        }
+        .plat-card:hover { transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.4); border-color: rgba(0,194,224,0.4); }
+
+        .plat-card-bg {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            filter: brightness(0.5) contrast(1.1) saturate(1.2); transition: filter 0.4s;
+        }
+        .plat-card:hover .plat-card-bg { filter: brightness(0.7) contrast(1.15) saturate(1.2); }
+
+        .plat-front {
+            position: relative; z-index: 2;
+            padding: 2.2rem 1.8rem 1.8rem; flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center;
+            background: linear-gradient(180deg, rgba(12,32,51,0.65) 0%, rgba(5,17,31,0.92) 100%);
+            min-height: 380px;
+        }
+        .plat-logo-wrap {
+            width: 100%; max-width: 200px; margin-bottom: 1.4rem;
+            display: flex; align-items: center; justify-content: center;
+            flex: 1;
+        }
+        .plat-logo-wrap i {
+            font-size: 4.5rem;
+            color: var(--cyan);
+            filter: drop-shadow(0 4px 16px rgba(0,194,224,0.3));
+            transition: transform 0.35s, filter 0.35s;
+        }
+        .plat-card:hover .plat-logo-wrap i {
+            transform: scale(1.08);
+            filter: drop-shadow(0 6px 24px rgba(0,194,224,0.5));
+        }
+        .plat-front-foot { width: 100%; }
+        .plat-front h3 { font-family: var(--font-head); font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem; line-height: 1.25; }
+        .plat-front p { font-size: 0.8rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
+        .plat-front-line { width: 32px; height: 2px; background: var(--cyan); border-radius: 2px; margin: 0.8rem auto 0; opacity: 0.7; transition: width 0.3s; }
+        .plat-card:hover .plat-front-line { width: 56px; opacity: 1; }
+
+        .plat-back {
+            position: absolute; inset: 0; z-index: 10;
+            padding: 1.5rem 1.6rem 1.6rem;
+            background: linear-gradient(180deg, rgba(12,32,51,0.96) 0%, rgba(26,92,143,0.98) 100%);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(0,194,224,0.3);
+            display: flex; flex-direction: column; justify-content: space-between;
+            transform: translateY(102%);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .plat-card:hover .plat-back { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .plat-back-quote { font-size: 0.82rem; font-style: italic; color: rgba(255,255,255,0.9); margin-bottom: 0.8rem; border-left: 3px solid var(--cyan); padding-left: 0.8rem; line-height: 1.4; }
+        .plat-back-item { margin-bottom: 0.6rem; }
+        .plat-back-item h4 { font-family: var(--font-head); font-size: 0.76rem; font-weight: 700; color: var(--cyan); margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+        .plat-back-item p { font-size: 0.78rem; color: rgba(255,255,255,0.85); line-height: 1.5; }
+        .plat-link {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--cyan); color: var(--navy);
+            font-family: var(--font-head); font-size: 0.82rem; font-weight: 700;
+            padding: 0.6rem 1.3rem; border-radius: 50px; margin-top: 0.6rem;
+            transition: all 0.2s; box-shadow: 0 4px 16px rgba(0,194,224,0.3);
+        }
+        .plat-link:hover { background: #00ddf7; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,194,224,0.5); }
+
+        .plat-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 48px; height: 48px; background: rgba(5,17,31,0.85);
+            border: 1px solid rgba(0,194,224,0.3); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 20; color: var(--cyan); font-size: 1rem; transition: all 0.25s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        .plat-nav-btn:hover { background: var(--cyan); border-color: var(--cyan); color: var(--navy); transform: translateY(-50%) scale(1.1); }
+        .plat-prev { left: -22px; } .plat-next { right: -22px; }
+        @media (max-width: 768px) {
+            .plat-prev { left: 4px; } .plat-next { right: 4px; }
+        }
+
+        .plat-swiper .swiper-pagination-bullet { background: rgba(255,255,255,0.3); opacity: 1; width: 10px; height: 10px; transition: all 0.3s; }
+        .plat-swiper .swiper-pagination-bullet-active { background: var(--cyan) !important; width: 28px; border-radius: 6px; }
+
+        .principles-band {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: var(--radius-2xl); padding: 3.5rem;
+            margin-top: 3rem; box-shadow: var(--shadow-sm);
+        }
+        .principles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
+        .principle-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); padding: 2rem; transition: all 0.3s;
+        }
+        .principle-card:hover { transform: translateY(-5px); border-color: rgba(43,130,201,0.35); box-shadow: var(--shadow-md); }
+        .principle-icon {
+            width: 52px; height: 52px; border-radius: 16px;
+            background: linear-gradient(135deg, #EBF5FF, #D2EAFF);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; color: var(--blue-bright); margin-bottom: 1.2rem;
+        }
+        .principle-card h3 { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.6rem; }
+        .principle-card p { font-size: 0.86rem; color: var(--text-muted); line-height: 1.7; }
+
+        .how-section { background: var(--surface); }
+        .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; margin-top: 3rem; }
+        .timeline::before {
+            content: ''; position: absolute;
+            top: 28px; left: calc(12.5% + 0px); right: calc(12.5% + 0px);
+            height: 2px; background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            z-index: 0;
+        }
+        .timeline-step { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 1rem; position: relative; z-index: 1; }
+        .timeline-dot {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--navy), var(--navy-light));
+            border: 3px solid var(--cyan);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: var(--cyan);
+            margin-bottom: 1.2rem;
+            box-shadow: 0 0 0 6px rgba(0,194,224,0.1);
+            transition: all 0.3s;
+        }
+        .timeline-step:hover .timeline-dot { background: var(--cyan); color: var(--navy); box-shadow: 0 0 0 8px rgba(0,194,224,0.15); }
+        .timeline-step h4 { font-family: var(--font-head); font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem; }
+        .timeline-step p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+        .timeline-num { font-family: var(--font-head); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; color: var(--cyan); margin-bottom: 0.4rem; text-transform: uppercase; }
+
+        .logos-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem; margin-top: 3rem;
+        }
+        .logo-card {
+            background: linear-gradient(145deg, var(--navy-mid), var(--navy-light));
+            border: 1px solid rgba(0,194,224,0.18);
+            border-radius: var(--radius-xl); padding: 2rem 1.5rem;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            box-shadow: var(--shadow-md); transition: all 0.3s; text-decoration: none;
+            position: relative; overflow: hidden;
+        }
+        .logo-card::before {
+            content: ''; position: absolute; top: -40px; right: -40px;
+            width: 120px; height: 120px; border-radius: 50%;
+            background: radial-gradient(rgba(0,194,224,0.1), transparent 70%);
+            pointer-events: none;
+        }
+        .logo-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.2); border-color: rgba(0,194,224,0.4); }
+        .logo-card i { font-size: 3rem; color: var(--cyan); margin-bottom: 1.2rem; transition: transform 0.3s; }
+        .logo-card:hover i { transform: scale(1.08); }
+        .logo-card-name { font-family: var(--font-head); font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+        .logo-card-desc { font-size: 0.75rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+        .logo-card .btn-capsula {
+            display: inline-block;
+            margin-top: 1.1rem;
+            padding: 0.45rem 1.2rem;
+            border-radius: 50px;
+            background: rgba(0,194,224,0.15);
+            border: 1px solid rgba(0,194,224,0.3);
+            color: var(--cyan);
+            font-family: var(--font-head);
+            font-size: 0.78rem;
+            font-weight: 700;
+            transition: all 0.25s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .logo-card .btn-capsula:hover {
+            background: var(--cyan);
+            color: var(--navy);
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,194,224,0.3);
+        }
+
+        /* ============================================================
+           CARRUSEL COVERFLOW MAGNÉTICO 3D (PLATAFORMAS)
+        ============================================================ */
+        .depth-carousel {
+            position: relative;
+            width: 100%;
+            height: 520px;
+            min-height: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            perspective-origin: 50% 50%;
+            touch-action: pan-y;
+            outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: grab;
+            margin: 2rem 0 1rem;
+            overflow: hidden;
+        }
+        .depth-carousel:active { cursor: grabbing; }
+        .depth-carousel:focus-visible {
+            outline: 2px solid rgba(0, 194, 224, 0.6);
+            outline-offset: 4px;
+            border-radius: 16px;
+        }
+        .depth-carousel__stage {
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+        }
+        .depth-carousel__card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 320px;
+            height: 410px;
+            border-radius: 22px;
+            transform-origin: center center;
+            overflow: hidden;
+            background: linear-gradient(150deg, #0d2238 0%, #061527 60%, #030c17 100%);
+            border: 1.5px solid rgba(0, 194, 224, 0.28);
+            box-shadow: 0 14px 32px -6px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
+            will-change: transform, opacity;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            text-decoration: none;
+            color: #ffffff;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* Variedad de tonalidades azul oscuro para cada plataforma */
+        .depth-carousel__card[data-theme="blue-1"] {
+            background: radial-gradient(circle at 85% 15%, rgba(0, 194, 224, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #0c233c 0%, #061527 55%, #030c17 100%);
+            border-color: rgba(0, 194, 224, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-1"] .depth-card-badge {
+            background: rgba(0, 194, 224, 0.15);
+            border-color: rgba(0, 194, 224, 0.4);
+            color: #00c2e0;
+        }
+        .depth-carousel__card[data-theme="blue-1"] .btn-capsula {
+            background: rgba(0, 194, 224, 0.15);
+            border-color: rgba(0, 194, 224, 0.45);
+            color: #38d6f0;
+        }
+
+        .depth-carousel__card[data-theme="blue-2"] {
+            background: radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #10294a 0%, #081a33 55%, #040e1c 100%);
+            border-color: rgba(56, 189, 248, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-2"] .depth-card-badge {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+        }
+        .depth-carousel__card[data-theme="blue-2"] .btn-capsula {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.45);
+            color: #7dd3fc;
+        }
+
+        .depth-carousel__card[data-theme="blue-3"] {
+            background: radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #092c3a 0%, #051b25 55%, #020f16 100%);
+            border-color: rgba(45, 212, 191, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-3"] .depth-card-badge {
+            background: rgba(45, 212, 191, 0.15);
+            border-color: rgba(45, 212, 191, 0.4);
+            color: #2dd4bf;
+        }
+        .depth-carousel__card[data-theme="blue-3"] .btn-capsula {
+            background: rgba(45, 212, 191, 0.15);
+            border-color: rgba(45, 212, 191, 0.45);
+            color: #5eead4;
+        }
+
+        .depth-carousel__card[data-theme="blue-4"] {
+            background: radial-gradient(circle at 85% 15%, rgba(129, 140, 248, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #152248 0%, #0c1530 55%, #050a1b 100%);
+            border-color: rgba(129, 140, 248, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-4"] .depth-card-badge {
+            background: rgba(129, 140, 248, 0.15);
+            border-color: rgba(129, 140, 248, 0.4);
+            color: #818cf8;
+        }
+        .depth-carousel__card[data-theme="blue-4"] .btn-capsula {
+            background: rgba(129, 140, 248, 0.15);
+            border-color: rgba(129, 140, 248, 0.45);
+            color: #a5b4fc;
+        }
+
+        .depth-carousel__card[data-theme="blue-5"] {
+            background: radial-gradient(circle at 85% 15%, rgba(14, 165, 233, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #0e2744 0%, #07172d 55%, #030d1a 100%);
+            border-color: rgba(14, 165, 233, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-5"] .depth-card-badge {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: rgba(14, 165, 233, 0.4);
+            color: #0ea5e9;
+        }
+        .depth-carousel__card[data-theme="blue-5"] .btn-capsula {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: rgba(14, 165, 233, 0.45);
+            color: #7dd3fc;
+        }
+
+        .depth-carousel__card[data-theme="blue-6"] {
+            background: radial-gradient(circle at 85% 15%, rgba(2, 132, 199, 0.24) 0%, transparent 60%),
+                        linear-gradient(150deg, #0b2b45 0%, #061a2c 55%, #030e19 100%);
+            border-color: rgba(2, 132, 199, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-6"] .depth-card-badge {
+            background: rgba(2, 132, 199, 0.15);
+            border-color: rgba(2, 132, 199, 0.4);
+            color: #38bdf8;
+        }
+        .depth-carousel__card[data-theme="blue-6"] .btn-capsula {
+            background: rgba(2, 132, 199, 0.15);
+            border-color: rgba(2, 132, 199, 0.45);
+            color: #7dd3fc;
+        }
+
+        .depth-carousel__card[data-theme="blue-7"] {
+            background: radial-gradient(circle at 85% 15%, rgba(96, 165, 250, 0.22) 0%, transparent 60%),
+                        linear-gradient(150deg, #12264c 0%, #0a1733 55%, #040c1e 100%);
+            border-color: rgba(96, 165, 250, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-7"] .depth-card-badge {
+            background: rgba(96, 165, 250, 0.15);
+            border-color: rgba(96, 165, 250, 0.4);
+            color: #60a5fa;
+        }
+        .depth-carousel__card[data-theme="blue-7"] .btn-capsula {
+            background: rgba(96, 165, 250, 0.15);
+            border-color: rgba(96, 165, 250, 0.45);
+            color: #93c5fd;
+        }
+
+        .depth-carousel__card[data-theme="blue-8"] {
+            background: radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.24) 0%, transparent 60%),
+                        linear-gradient(150deg, #092e3d 0%, #051c27 55%, #020f16 100%);
+            border-color: rgba(6, 182, 212, 0.32);
+        }
+        .depth-carousel__card[data-theme="blue-8"] .depth-card-badge {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.4);
+            color: #06b6d4;
+        }
+        .depth-carousel__card[data-theme="blue-8"] .btn-capsula {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.45);
+            color: #67e8f9;
+        }
+
+        .depth-carousel__card[data-theme="blue-9"] {
+            background: radial-gradient(circle at 85% 15%, rgba(0, 194, 224, 0.25) 0%, transparent 60%),
+                        linear-gradient(150deg, #0d243e 0%, #061628 55%, #020b15 100%);
+            border-color: rgba(0, 194, 224, 0.35);
+        }
+        .depth-carousel__card[data-theme="blue-9"] .depth-card-badge {
+            background: rgba(0, 194, 224, 0.16);
+            border-color: rgba(0, 194, 224, 0.4);
+            color: #00c2e0;
+        }
+        .depth-carousel__card[data-theme="blue-9"] .btn-capsula {
+            background: rgba(0, 194, 224, 0.15);
+            border-color: rgba(0, 194, 224, 0.45);
+            color: #38d6f0;
+        }
+
+        .depth-carousel__card.is-active {
+            border-color: var(--cyan);
+            box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.8), 0 0 0 1.5px rgba(0, 194, 224, 0.6), 0 8px 26px -4px rgba(0, 194, 224, 0.35);
+        }
+        .depth-card-inner {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            padding: 1.85rem 1.6rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        .depth-card-inner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 12%;
+            right: 12%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            pointer-events: none;
+        }
+        .depth-card-badge {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 194, 224, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.65rem;
+            margin-bottom: 1.1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0;
+        }
+        .depth-carousel__card.is-active .depth-card-badge {
+            transform: scale(1.08);
+            box-shadow: 0 0 20px rgba(0, 194, 224, 0.35);
+        }
+        .depth-card-inner .logo-card-name {
+            font-family: var(--font-head);
+            font-size: 1.22rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.6rem;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+        }
+        .depth-card-inner .logo-card-desc {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            font-weight: 450;
+            line-height: 1.55;
+            margin-bottom: 1.3rem;
+            flex: 1;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        }
+        .depth-card-footer {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .depth-card-footer .btn-capsula {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.62rem 1.35rem;
+            border-radius: 30px;
+            border: 1px solid;
+            font-size: 0.86rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .depth-carousel__card.is-active .btn-capsula {
+            background: var(--cyan) !important;
+            color: #04101e !important;
+            border-color: var(--cyan) !important;
+            box-shadow: 0 4px 16px rgba(0, 194, 224, 0.5);
+            transform: translateY(-1px);
+        }
+        .depth-carousel__tint {
+            position: absolute;
+            inset: 0;
+            background: #05060a;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;
+        }
+        .depth-carousel__arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3000;
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(0, 194, 224, 0.35);
+            border-radius: 999px;
+            background: rgba(5, 17, 31, 0.75);
+            backdrop-filter: blur(8px);
+            color: var(--cyan);
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .depth-carousel__arrow:hover {
+            background: rgba(0, 194, 224, 0.25);
+            border-color: var(--cyan);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 194, 224, 0.4);
+        }
+        .depth-carousel__arrow:active {
+            transform: translateY(-50%) scale(0.92);
+        }
+        .depth-carousel__arrow--prev { left: 20px; }
+        .depth-carousel__arrow--next { right: 20px; }
+        .depth-carousel__dots {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            display: flex;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(5, 17, 31, 0.65);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            backdrop-filter: blur(8px);
+        }
+        .depth-carousel__dot {
+            width: 8px;
+            height: 8px;
+            padding: 0;
+            border: none;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            transition: width 0.25s ease, background 0.25s ease;
+        }
+        .depth-carousel__dot.is-active {
+            width: 24px;
+            background: var(--cyan);
+        }
+        @media (max-width: 768px) {
+            .depth-carousel {
+                height: 480px;
+                min-height: 420px;
+                perspective: 950px;
+                margin: 1.25rem 0 0.5rem;
+            }
+            .depth-carousel__card {
+                width: min(290px, 78vw);
+                height: 395px;
+                border-radius: 18px;
+            }
+            .depth-card-inner {
+                padding: 1.4rem 1.2rem !important;
+            }
+            .depth-card-badge {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 1.4rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            .depth-card-inner .logo-card-name {
+                font-size: 1.05rem !important;
+                margin-bottom: 0.4rem !important;
+            }
+            .depth-card-inner .logo-card-desc {
+                font-size: 0.8rem !important;
+                margin-bottom: 0.85rem !important;
+            }
+            .depth-carousel__arrow {
+                width: 40px !important;
+                height: 40px !important;
+            }
+            .depth-carousel__arrow--prev { left: 8px !important; }
+            .depth-carousel__arrow--next { right: 8px !important; }
+            .depth-carousel__dots {
+                bottom: 8px !important;
+                padding: 6px 10px !important;
+                gap: 6px !important;
+            }
+        }
+
+        .cta-band {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--navy), var(--navy-light));
+            border-radius: var(--radius-2xl); padding: 4rem 3rem;
+            text-align: center; margin-top: 3rem; margin-bottom: 4rem;
+        }
+        .cta-band::before {
+            content: ''; position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(0,194,224,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,194,224,0.05) 1px, transparent 1px);
+            background-size: 40px 40px; pointer-events: none;
+        }
+        .cta-band::after {
+            content:''; position: absolute; top:-100px; right:-100px;
+            width: 450px; height: 450px; border-radius: 50%;
+            background: radial-gradient(rgba(0,194,224,0.12), transparent 70%);
+            pointer-events: none;
+        }
+        .cta-band-inner { position: relative; z-index: 1; }
+        .cta-band h2 { font-family: var(--font-head); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; color: #fff; letter-spacing: -0.025em; margin-bottom: 0.8rem; }
+        .cta-band h2 em { font-style: normal; color: var(--cyan); }
+        .cta-band p { font-size: 1rem; color: rgba(255,255,255,0.6); max-width: 560px; margin: 0 auto 2rem; line-height: 1.7; }
+        .cta-band-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+        .fade-up { opacity: 0; transform: translateY(16px); transition: opacity 0.4s ease-out, transform 0.4s ease-out; will-change: opacity, transform; }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 1024px) {
+            .principles-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 900px) {
+            .portal-band { grid-template-columns: 1fr; gap: 2rem; padding: 2.5rem; }
+            .portal-band-img { order: -1; }
+            .metrics-strip { grid-template-columns: repeat(2, 1fr); }
+            .info-cards { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 680px) {
+            .hero-inner { padding: 3.5rem 1rem 4.5rem; }
+            .metrics-strip { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .principles-grid { grid-template-columns: 1fr; }
+            .principles-band { padding: 2rem; }
+            .plat-swiper { padding: 1rem 0 3rem !important; }
+            .timeline { grid-template-columns: 1fr 1fr; gap: 2rem; }
+            .timeline::before { display: none; }
+            .logos-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+            .cta-band { padding: 2rem; }
+        }
+        @media (max-width: 420px) {
+            .metrics-strip { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .logos-grid { grid-template-columns: 1fr; }
+            .timeline { grid-template-columns: 1fr; }
+        }
+
+        /* Mode Alto Contraste */
+        body.high-contrast {
+            background: #000000 !important;
+            color: #ffff00 !important;
+        }
+        body.high-contrast a {
+            color: #00ffff !important;
+            text-decoration: underline !important;
+        }
+        body.high-contrast .site-header,
+        body.high-contrast .logo-card,
+        body.high-contrast .timeline-card,
+        body.high-contrast .principle-card,
+        body.high-contrast .maya-lang-card,
+        body.high-contrast .a11y-maya-section {
+            background: #000000 !important;
+            border: 2px solid #ffff00 !important;
+            color: #ffffff !important;
+        }
+        body.high-contrast button {
+            background: #ffff00 !important;
+            color: #000000 !important;
+            font-weight: bold !important;
+        }
+
+        /* ============================================================
+           BARRA SUPERIOR DE ACCESIBILIDAD Y MULTILINGÜE (OCULTA POR DEFECTO)
+        ============================================================ */
+        .a11y-top-bar {
+            display: none;
+            background: #020b14;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.78rem;
+            padding: 0.55rem 0;
+            border-bottom: 1px solid rgba(0, 194, 224, 0.3);
+            font-family: var(--font-body);
+            position: relative;
+            z-index: 210;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+        }
+        .a11y-top-bar.open {
+            display: block;
+            animation: a11ySlideDown 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes a11ySlideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .a11y-top-bar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .a11y-left-group, .a11y-right-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .a11y-badge-title {
+            color: var(--cyan);
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-right: 0.3rem;
+        }
+        .a11y-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            padding: 0.28rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .a11y-btn:hover {
+            background: var(--cyan);
+            color: var(--navy);
+            border-color: var(--cyan);
+        }
+        .a11y-btn.active {
+            background: var(--amber);
+            color: var(--navy);
+            border-color: var(--amber);
+        }
+        .a11y-lang-select {
+            background: #081a2b;
+            color: #ffffff;
+            border: 1px solid var(--cyan);
+            border-radius: 6px;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            font-family: var(--font-body);
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+        .a11y-close-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.75rem;
+            font-family: var(--font-body);
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-left: 0.4rem;
+        }
+        .a11y-close-btn:hover {
+            color: #ffffff;
+            background: rgba(231, 76, 60, 0.8);
+            border-color: rgba(231, 76, 60, 1);
+        }
+
+        /* Botón Disparador de Accesibilidad en Navbar (Sutil con Tooltip) */
+        .btn-a11y-trigger-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-a11y-trigger {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(0, 194, 224, 0.3);
+            color: var(--cyan);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .btn-a11y-trigger:hover, .btn-a11y-trigger.active {
+            background: var(--cyan);
+            color: var(--navy);
+            border-color: var(--cyan);
+            box-shadow: 0 0 12px rgba(0, 194, 224, 0.4);
+            transform: scale(1.05);
+        }
+        .btn-a11y-trigger-wrapper .a11y-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: 210px;
+            background: #081a2b;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            position: absolute;
+            z-index: 300;
+            top: 125%;
+            right: 0;
+            border: 1px solid rgba(0, 194, 224, 0.4);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            font-size: 0.73rem;
+            font-family: var(--font-body);
+            line-height: 1.35;
+            transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+            transform: translateY(-4px);
+            pointer-events: none;
+        }
+        .btn-a11y-trigger-wrapper .a11y-tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            right: 12px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent #081a2b transparent;
+        }
+        .btn-a11y-trigger-wrapper:hover .a11y-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============================================================
+           SECCIÓN DE ACCESIBILIDAD MULTILINGÜE Y AUDIO-GUÍA PIA
+        ============================================================ */
+        .a11y-maya-section {
+            background: linear-gradient(135deg, #081d31, #04101d);
+            border: 1px solid rgba(0, 194, 224, 0.28);
+            border-radius: var(--radius-2xl);
+            padding: 2.5rem 2rem;
+            color: #fff;
+            margin: 2.5rem 0 3rem;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .a11y-maya-header {
+            text-align: center;
+            max-width: 820px;
+            margin: 0 auto 1.8rem;
+        }
+        .a11y-lang-tabs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+        .a11y-tab-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 30px;
+            padding: 0.55rem 1.25rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .a11y-tab-btn:hover {
+            background: rgba(0, 194, 224, 0.18);
+            color: #ffffff;
+            border-color: rgba(0, 194, 224, 0.4);
+            transform: translateY(-2px);
+        }
+        .a11y-tab-btn.active {
+            background: linear-gradient(135deg, var(--cyan), #00A3C4);
+            color: #05111f;
+            border-color: var(--cyan);
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(0, 194, 224, 0.35);
+        }
+        .a11y-card-single {
+            background: rgba(10, 32, 54, 0.85);
+            border: 1px solid rgba(0, 194, 224, 0.32);
+            border-radius: 20px;
+            padding: 2rem 2.2rem;
+            box-shadow: inset 0 0 20px rgba(0, 194, 224, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        .a11y-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            margin-bottom: 1.2rem;
+        }
+        .a11y-badge-lang {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.85rem;
+            border-radius: 20px;
+            background: rgba(0, 194, 224, 0.15);
+            color: var(--cyan);
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+        .a11y-card-title {
+            font-family: var(--font-head);
+            font-size: 1.28rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+        .a11y-btn-play {
+            background: linear-gradient(135deg, var(--cyan), #00a8c6);
+            color: #05111f;
+            border: none;
+            border-radius: 30px;
+            padding: 0.65rem 1.4rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            box-shadow: 0 4px 14px rgba(0, 194, 224, 0.3);
+        }
+        .a11y-btn-play:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 194, 224, 0.45);
+        }
+        .a11y-card-desc {
+            font-size: 0.98rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.92);
+            margin: 0 0 1.2rem;
+        }
+        .a11y-module-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(0, 194, 224, 0.28);
+            border-radius: 20px;
+            padding: 0.45rem 0.95rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .a11y-module-btn:hover {
+            background: rgba(0, 194, 224, 0.22);
+            color: #ffffff;
+            border-color: var(--cyan);
+            transform: translateY(-1px);
+        }
+        .a11y-module-btn.active {
+            background: var(--cyan);
+            color: #05111f;
+            font-weight: 700;
+            border-color: var(--cyan);
+            box-shadow: 0 2px 10px rgba(0, 194, 224, 0.35);
+        }
+        .a11y-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .a11y-footer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .a11y-player-status {
+            width: 100%;
+            background: rgba(0, 194, 224, 0.12);
+            border: 1px solid rgba(0, 194, 224, 0.3);
+            border-radius: 12px;
+            padding: 0.75rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.84rem;
+            color: #ffffff;
+            margin-bottom: 1.2rem;
+        }
+        .a11y-btn-opt {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            padding: 0.45rem 0.85rem;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .a11y-btn-opt:hover {
+            background: var(--cyan);
+            color: var(--navy);
+            border-color: var(--cyan);
+        }
+
+        /* RESPONSIVE OPTIMIZATIONS FOR INCLUSION / A11Y & COVERFLOW */
+        @media (max-width: 768px) {
+            .a11y-maya-section {
+                padding: 1.5rem 0.5rem;
+            }
+            .a11y-lang-tabs {
+                gap: 0.4rem;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .a11y-tab-btn {
+                padding: 0.45rem 0.9rem;
+                font-size: 0.8rem;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .a11y-card-single {
+                padding: 1.25rem 1rem;
+                border-radius: 16px;
+            }
+            .a11y-card-top {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.85rem;
+            }
+            .a11y-card-title {
+                font-size: 1.1rem;
+            }
+            .a11y-btn-play {
+                width: 100%;
+                justify-content: center;
+                padding: 0.75rem 1.2rem;
+            }
+            .a11y-card-desc {
+                font-size: 0.9rem;
+                line-height: 1.55;
+            }
+            .a11y-module-btn {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.75rem;
+            }
+            .a11y-card-footer {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.85rem;
+            }
+            .a11y-footer-controls {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================
+     BARRA SUPERIOR DE ACCESIBILIDAD Y MULTILINGÜE (OCULTA POR DEFECTO)
+============================================================ -->
+<div class="a11y-top-bar" id="a11yTopBar">
+    <div class="container a11y-top-bar-inner">
+        <div class="a11y-left-group">
+            <span class="a11y-badge-title"><i class="fas fa-universal-access"></i> Accesibilidad Inclusiva</span>
+            <button type="button" class="a11y-btn" id="btnToggleContrastTop" onclick="toggleA11yContrast()" title="Alternar modo de alto contraste para baja visión">
+                <i class="fas fa-circle-half-stroke"></i> Alto Contraste
+            </button>
+            <button type="button" class="a11y-btn" onclick="changeA11yFontSize(1)" title="Aumentar tamaño de texto">
+                <i class="fas fa-font"></i> A+
+            </button>
+            <button type="button" class="a11y-btn" onclick="changeA11yFontSize(-1)" title="Disminuir tamaño de texto">
+                <i class="fas fa-font"></i> A-
+            </button>
+            <button type="button" class="a11y-btn" onclick="resetA11yFontSize()" title="Restablecer tamaño normal">
+                Normal
+            </button>
+            <button type="button" class="a11y-btn" id="btnA11yAudioRead" onclick="speakPiaTopic('full')" title="Escuchar explicación del portal por voz">
+                <i class="fas fa-volume-high" style="color:var(--cyan);"></i> Escuchar Portal
+            </button>
+        </div>
+        <div class="a11y-right-group">
+            <!-- Guía Multilingüe: Inactivada de la interfaz visible por solicitud, preservada en código -->
+            <span id="labelGuiaMultilingueTop" style="display:none; font-size:0.75rem; color:rgba(255,255,255,0.8); font-weight:600;"><i class="fas fa-language" style="color:var(--cyan);"></i> Guía Multilingüe:</span>
+            <select class="a11y-lang-select" id="a11yLangSelectTop" style="display:none;" onchange="handleModuleLangChange(this.value)">
+                <option value="es">Español (Oficial)</option>
+                <option value="en">English (Inglés)</option>
+                <option value="kiche">K'iche' (Maya)</option>
+                <option value="qeqchi">Q'eqchi' (Maya)</option>
+                <option value="kaqchikel">Kaqchikel (Maya)</option>
+                <option value="mam">Mam (Maya)</option>
+            </select>
+            <button type="button" class="a11y-close-btn" onclick="toggleA11yTopBar()" title="Ocultar barra de accesibilidad">
+                <i class="fas fa-xmark"></i> Ocultar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     HEADER UNIFICADO
+============================================================ -->
+<header class="site-header" id="siteHeader">
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo-area">
+                <a href="/" title="Portal Principal">
+                    <img src="/img/L1.png"
+                         alt="Gobierno de Guatemala"
+                         class="gov-logo">
+                </a>
+                <a href="#inicio" class="pia-wordmark">
+                    <span class="pia-abbr">PIA</span>
+                    <span class="pia-name">Portal Integridad Activa</span>
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="mobileMenu" aria-label="Menú">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+
+                <!-- Acceso a la Información -->
+                <li class="menu-group">
+                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
+                        <!-- Transparencia Vehicular no visible temporalmente mientras se completa su validación institucional -->
+                    </ul>
+                 </li>
+                <!-- Explora -->
+                <li class="menu-group">
+                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
+                        <li><a href="gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
+                        <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
+                        <li><a href="riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
+                    </ul>
+                </li>
+               <!-- Aprende -->
+                <li class="menu-group">
+                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
+                    </ul>
+                </li>
+                <!-- Reporta irregularidades -->
+                <li class="menu-group">
+                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
+                        <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="inicio">
+    <div class="hero-bg-slider" id="heroBgSlider">
+        <div class="hero-slide active" style="background-image: url('/img/Banner%20portal%20PIA.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/gobiernoNumerosWall.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/wallpaperportal2.png');"></div>
+        <div class="hero-slide" style="background-image: url('/img/wallpaperportal3.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/numeros.png');"></div>
+    </div>
+    <div class="hero-slider-dots" id="heroSliderDots">
+        <button class="hero-dot active" aria-label="Diapositiva 1"></button>
+        <button class="hero-dot" aria-label="Diapositiva 2"></button>
+        <button class="hero-dot" aria-label="Diapositiva 3"></button>
+        <button class="hero-dot" aria-label="Diapositiva 4"></button>
+        <button class="hero-dot" aria-label="Diapositiva 5"></button>
+    </div>
+    <div class="container hero-inner">
+        <div class="hero-eyebrow">
+            <span></span>
+            Transparencia — Gobierno de Guatemala · Organismo Ejecutivo
+        </div>
+        <h1>Portal de<br><em>Integridad Activa</em></h1>
+        <p class="hero-sub">Accede a información pública, explora datos abiertos, fortalece tus conocimientos sobre integridad y reporta irregularidades administrativas, todo desde un mismo ecosistema digital.</p>
+        <div class="hero-contact"><i class="fas fa-envelope"></i> info@pia.gob.gt</div>
+        <div class="hero-actions">
+            <a href="#plataformas" class="btn-outline"><i class="fas fa-th-large"></i> Explorar plataformas</a>
+            <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="btn-primary"><i class="fas fa-flag-checkered"></i> Presentar denuncia</a>
+            </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     STATS RIBBON
+============================================================ -->
+
+<div class="stats-ribbon">
+    <div class="portal-band-text">            
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-cell">
+                <div class="stat-cell-icon"><i class="fas fa-building"></i></div>
+                <div class="stat-num"><span class="counter" id="oficinasProbidad">0</span>+</div>
+                <div class="stat-lbl">Instancias de Asuntos de Probidad</div>
+                <div class="stat-desc" id="descOficinas">Insituciones especializadas con Oficinas de Asuntos de Probidad</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-cell-icon"><i class="fas fa-envelope-open-text"></i></div>
+                <div class="stat-num"><span class="counter" id="canalesDenuncia">0</span>+</div>
+                <div class="stat-lbl">Canales de denuncia</div>
+                <div class="stat-desc" id="descCanales">Correos, teléfonos, formularios</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-cell-icon"><i class="fas fa-gavel"></i></div>
+                <div class="stat-num"><span class="counter" id="denunciasPenales">0</span>+</div>
+                <div class="stat-lbl">Denuncias penales</div>
+                <div class="stat-desc" id="descDenuncias">En proceso y resueltas</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-cell-icon"><i class="fas fa-layer-group"></i></div>
+                <div class="stat-num"><span class="counter" id="plataformasActivas">0</span></div>
+                <div class="stat-lbl">Plataformas activas</div>
+                <div class="stat-desc" id="descPlataformas">Integradas para la transparencia</div>
+            </div>
+            <div class="section-tag on-dark" style="color:var(--cyan);">El ecosistema en cifras</div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     CONTENIDO PRINCIPAL
+============================================================ -->
+<div class="container">
+    <section class="section" id="portal">
+        <div class="portal-band fade-up">
+            <div class="portal-band-img">
+                <img src="/img/Por%20qu%C3%A9%20existe.png" alt="Gobierno de Guatemala" loading="lazy">
+            </div>
+            <div class="portal-band-text">
+                <div class="section-tag on-dark" style="color:var(--cyan);">¿Por qué existe?</div>
+                <p class="lead">El Portal de Integridad Activa (PIA) nace para reunir en un solo lugar las plataformas, herramientas y servicios digitales de la Comisión Nacional Contra la Corrupción al servicio del Organismo Ejecutivo, para promover la <em>transparencia, el acceso a la información pública, la integridad institucional y la participación ciudadana</em>.</p>
+                <p>Su propósito es facilitar el acceso a la información, fortalecer la cultura de integridad y brindar mecanismos para que cualquier persona pueda <strong style="color:var(--cyan);">consultar</strong>, <strong style="color:var(--cyan);">aprender</strong>, <strong style="color:var(--cyan);">participar</strong> y <strong style="color:var(--cyan);">reportar</strong> de forma sencilla y segura.</p>
+                <div class="portal-cta-row">
+                    <a href="#plataformas" class="btn-cyan"><i class="fas fa-th-large"></i> Explorar plataformas</a>
+                    <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="btn-ghost"><i class="fas fa-flag-checkered"></i> Denunciar</a>
+                    <button type="button" class="btn-ghost" id="btnToggleInclusionModule" onclick="toggleInclusionModule()" style="border-color:rgba(0,194,224,0.4); color:var(--cyan); background:rgba(0,194,224,0.08);">
+                        <i class="fas fa-universal-access"></i> Inclusión Universal y Guiado
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+     MÓDULO DE INCLUSIÓN UNIVERSAL Y GUIADO AUDITIVO (PLEGABLE)
+============================================================ -->
+<div class="container" id="accesibilidad-multilingue" style="display:none; margin-top:2rem; margin-bottom:2.5rem; transition:all 0.35s ease;">
+    <section class="a11y-maya-section fade-up" style="position:relative;">
+        <div style="position:absolute; top:1.25rem; right:1.5rem; z-index:10;">
+            <button type="button" onclick="toggleInclusionModule()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:50px; padding:0.4rem 0.9rem; font-size:0.8rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(231,76,60,0.25)'; this.style.color='#ff8a80'" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#fff'">
+                <i class="fas fa-chevron-up"></i> Ocultar recurso
+            </button>
+        </div>
+        <div class="a11y-maya-header">
+            <div class="section-tag" style="justify-content:center; background:rgba(0,194,224,0.15); color:var(--cyan); border-color:rgba(0,194,224,0.3); margin:0 auto 0.8rem;">
+                <i class="fas fa-universal-access"></i> Inclusión Universal y Guiado Auditivo
+            </div>
+            <h2 class="section-title on-dark">Explicación del Portal en Idiomas Originarios e Inglés</h2>
+            <p class="section-sub" style="color:rgba(255,255,255,0.85); margin:0.5rem auto 0; max-width:800px;">
+                Consulte y escuche la síntesis del Portal de Integridad Activa en Español, Inglés e Idiomas Mayas originarios (K'iche', Q'eqchi', Kaqchikel y Mam).
+            </p>
+        </div>
+
+        <!-- Pestañas Selectoras de Idioma -->
+        <div class="a11y-lang-tabs" id="a11yLangTabs">
+            <button type="button" class="a11y-tab-btn active" data-lang="es" onclick="selectA11yLang('es')">
+                <i class="fas fa-globe-americas" style="color:var(--cyan);"></i> Español
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="en" onclick="selectA11yLang('en')">
+                <i class="fas fa-language" style="color:var(--cyan);"></i> English
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="kiche" onclick="selectA11yLang('kiche')">
+                <i class="fas fa-headset" style="color:var(--amber);"></i> K'iche'
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="qeqchi" onclick="selectA11yLang('qeqchi')">
+                <i class="fas fa-headset" style="color:var(--amber);"></i> Q'eqchi'
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="kaqchikel" onclick="selectA11yLang('kaqchikel')">
+                <i class="fas fa-headset" style="color:var(--amber);"></i> Kaqchikel
+            </button>
+            <button type="button" class="a11y-tab-btn" data-lang="mam" onclick="selectA11yLang('mam')">
+                <i class="fas fa-headset" style="color:var(--amber);"></i> Mam
+            </button>
+        </div>
+
+        <!-- Tarjeta Única Explicativa Limpia y Profesional -->
+        <div class="a11y-card-single">
+            <div class="a11y-card-top">
+                <div>
+                    <span class="a11y-badge-lang" id="a11yCardLangBadge"><i class="fas fa-check-circle"></i> Español (Oficial)</span>
+                    <h3 class="a11y-card-title" id="a11yCardTitle">Resumen del Portal de Integridad Activa (PIA)</h3>
+                </div>
+                <button type="button" class="a11y-btn-play" id="btnPlayA11yAudio" onclick="playCurrentA11yLang()">
+                    <i class="fas fa-volume-high"></i> Escuchar Explicación por Voz
+                </button>
+            </div>
+
+            <div class="a11y-card-body">
+                <p id="a11yCardText" class="a11y-card-desc">
+                    El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial de la Comisión Nacional contra la Corrupción (CNC) que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia del Gobierno de Guatemala. A través del portal, los ciudadanos pueden acceder al Directorio Institucional, consultar Datos Abiertos sobre presupuestos y vehículos oficiales, analizar indicadores de Riesgo en la Mira y presentar denuncias confidenciales las 24 horas.
+                </p>
+
+                <!-- Selección de Módulos para Lectura por Voz -->
+                <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px dashed rgba(0, 194, 224, 0.3);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.7rem; flex-wrap:wrap; gap:0.5rem;">
+                        <span style="font-size:0.85rem; color:var(--cyan); font-weight:700;"><i class="fas fa-layer-group"></i> Seleccionar Módulo Específico a Escuchar:</span>
+                        <div style="display:flex; align-items:center; gap:0.4rem;">
+                            <span style="font-size:0.75rem; color:rgba(255,255,255,0.7);">Velocidad:</span>
+                            <button type="button" class="a11y-btn-opt" onclick="setA11ySpeechRate(0.85)" title="Lento">0.8x</button>
+                            <button type="button" class="a11y-btn-opt" onclick="setA11ySpeechRate(1.0)" title="Normal">1.0x</button>
+                            <button type="button" class="a11y-btn-opt" onclick="setA11ySpeechRate(1.2)" title="Rápido">1.2x</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="a11yModulePills">
+                        <button type="button" class="a11y-module-btn active" data-mod="full" onclick="selectA11yModule('full')">
+                            <i class="fas fa-shield-alt"></i> Resumen General
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="directorio" onclick="selectA11yModule('directorio')">
+                            <i class="fas fa-folder-open"></i> Directorio
+                        </button>
+                        <!-- Transparencia Vehicular no visible temporalmente -->
+                        <button type="button" class="a11y-module-btn" data-mod="gobierno_numeros" onclick="selectA11yModule('gobierno_numeros')">
+                            <i class="fas fa-chart-line"></i> Gobierno en Números
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="canales_denuncias" onclick="selectA11yModule('canales_denuncias')">
+                            <i class="fas fa-bullhorn"></i> Canales de Denuncia
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="riesgo_mira" onclick="selectA11yModule('riesgo_mira')">
+                            <i class="fas fa-binoculars"></i> Riesgo en la Mira
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="acadeti" onclick="selectA11yModule('acadeti')">
+                            <i class="fas fa-graduation-cap"></i> Acadeti
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reproductor de Audio / Estado -->
+            <div class="a11y-player-status" id="piaAudioPlayerStatus" style="display:none;">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <i class="fas fa-waveform" style="color:var(--cyan); font-size:1.1rem; animation: pulse 1.5s infinite;"></i>
+                    <span id="piaAudioStatusText">Reproduciendo guía de audio...</span>
+                </div>
+                <button type="button" class="a11y-btn-opt" onclick="stopPiaSpeech()" style="background:rgba(231,76,60,0.25); border-color:rgba(231,76,60,0.5); color:#ff8a80;">
+                    <i class="fas fa-stop"></i> Detener
+                </button>
+            </div>
+
+            <div class="a11y-card-footer">
+                <div class="a11y-footer-controls">
+                    <span style="font-size:0.8rem; color:rgba(255,255,255,0.7); font-weight:600;"><i class="fas fa-sliders" style="color:var(--cyan);"></i> Herramientas de Accesibilidad:</span>
+                    <button type="button" class="a11y-btn-opt" id="btnToggleContrast" onclick="toggleA11yContrast()" title="Alto Contraste">
+                        <i class="fas fa-circle-half-stroke"></i> Alto Contraste
+                    </button>
+                    <button type="button" class="a11y-btn-opt" onclick="changeA11yFontSize(1)" title="Aumentar texto">
+                        <i class="fas fa-font"></i> A+
+                    </button>
+                    <button type="button" class="a11y-btn-opt" onclick="changeA11yFontSize(-1)" title="Disminuir texto">
+                        <i class="fas fa-font"></i> A-
+                    </button>
+                    <button type="button" class="a11y-btn-opt" onclick="resetA11yFontSize()" title="Tamaño original">
+                        Normal
+                    </button>
+                </div>
+                <div style="display:none !important;">
+                    <a href="canales-por-la-integridad/#guiaMultilingue" style="font-size:0.82rem; color:var(--cyan); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem;">
+                        <i class="fas fa-external-link-alt"></i> Ver Guía de Denuncia en Idiomas Mayas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<!-- ============================================================
+     TODO COMIENZA AQUÍ
+============================================================ -->
+
+<style>
+
+/*==============================================================
+                TODO COMIENZA AQUÍ
+==============================================================*/
+
+.cta-light{
+    background:#fff;
+    border:1px solid #d9e7f6;
+    border-radius:28px;
+    padding:55px 45px;
+    box-shadow:0 10px 30px rgba(15,35,65,.08);
+}
+
+.cta-light .section-header{
+    margin-bottom:40px;
+}
+
+.cta-actions{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+}
+
+.cta-item{
+
+    background:#f5f9fd;
+
+    border:1px solid #d7e6f6;
+
+    border-radius:18px;
+
+    padding:28px 20px;
+
+    text-align:center;
+
+    transition:.3s;
+
+    cursor:default;
+
+}
+
+.cta-item:hover{
+
+    transform:translateY(-6px);
+
+    border-color:var(--cyan);
+
+    background:#ffffff;
+
+    box-shadow:0 15px 35px rgba(0,194,224,.12);
+
+}
+
+.cta-item i{
+
+    width:68px;
+
+    height:68px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    margin:auto auto 18px;
+
+    background:#e8f4ff;
+
+    color:var(--cyan);
+
+    font-size:28px;
+
+    transition:.3s;
+
+}
+
+.cta-item:hover i{
+
+    background:var(--cyan);
+
+    color:#fff;
+
+    transform:scale(1.08);
+
+}
+
+.cta-item h3{
+
+    color:var(--navy);
+
+    margin-bottom:10px;
+
+    font-size:1.05rem;
+
+}
+
+.cta-item p{
+
+    margin:0;
+
+    color:#6b7d90;
+
+    font-size:.92rem;
+
+    line-height:1.6;
+
+}
+
+@media(max-width:992px){
+
+.cta-actions{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+@media(max-width:640px){
+
+.cta-light{
+
+padding:45px 25px;
+
+}
+
+.cta-actions{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+</style>
+
+<div class="container">
+
+<section class="section">
+
+<div class="cta-light fade-up">
+
+<div class="section-header center">
+
+<div class="section-tag" style="justify-content:center;">
+Portal de Integridad Activa
+</div>
+
+<h2 class="section-title">
+Todo comienza aquí
+</h2>
+
+<p class="section-sub" style="max-width:760px;">
+
+Descubre las herramientas del Portal de Integridad Activa para
+<strong style="color:var(--cyan);">acceder</strong>,
+<strong style="color:var(--cyan);">explorar</strong>,
+<strong style="color:var(--cyan);">aprender</strong> y
+<strong style="color:var(--cyan);">participar</strong>,
+fortaleciendo una gestión pública más transparente e íntegra.
+
+</p>
+
+</div>
+
+
+<div class="cta-actions">
+
+<div class="cta-item">
+
+<i class="fas fa-folder-open"></i>
+
+<h3>Accede</h3>
+
+<p>
+
+Consulta información pública y servicios institucionales.
+
+</p>
+
+</div>
+
+
+<div class="cta-item">
+
+<i class="fas fa-chart-line"></i>
+
+<h3>Explora</h3>
+
+<p>
+
+Visualiza datos, indicadores y plataformas de transparencia.
+
+</p>
+
+</div>
+
+
+<div class="cta-item">
+
+<i class="fas fa-graduation-cap"></i>
+
+<h3>Aprende</h3>
+
+<p>
+
+Fortalece tus conocimientos sobre integridad y ética pública.
+
+</p>
+
+</div>
+
+
+<div class="cta-item">
+
+<i class="fas fa-bullhorn"></i>
+
+<h3>Reporta</h3>
+
+<p>
+
+Utiliza los mecanismos oficiales para participar activamente.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+<!-- ============================================================
+    ¿Qué obtienes? 
+============================================================ -->
+<div style="margin-top: 3rem;">
+    <!-- Badge / etiqueta -->
+    <div class="section-tag" style="justify-content:center; color:var(--cyan); margin-bottom: 0.5rem;">
+        Valor y beneficios
+    </div>
+    <!-- Título principal  -->
+    <h2 class="section-title" style="text-align:center; color:var(--text-main);">
+        ¿Qué obtienes?
+    </h2>
+
+    <div class="metrics-strip fade-up">
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-layer-group"></i></div>
+            <div class="metric-num">9</div>
+            <div class="metric-lbl">Plataformas</div>
+            <div class="metric-sub">Integradas para la transparencia</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-clock"></i></div>
+            <div class="metric-num">24/7</div>
+            <div class="metric-lbl">Disponibilidad</div>
+            <div class="metric-sub">Acceso permanente</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="metric-num">100%</div>
+            <div class="metric-lbl">Gestión documentada</div>
+            <div class="metric-sub">Cada caso tiene trazabilidad</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="metric-num">100%</div>
+            <div class="metric-lbl">Segura</div>
+            <div class="metric-sub">Protección del denunciante</div>
+        </div>
+    </div>
+
+    <div class="info-cards fade-up">
+        <div class="info-card">
+            <div class="info-card-icon"><i class="fas fa-chart-line"></i></div>
+            <h3>¿Qué puedes hacer?</h3>
+            <ul>
+                <li><i class="fas fa-circle"></i> Consultar información</li>
+                <li><i class="fas fa-circle"></i> Analizar datos</li>
+                <li><i class="fas fa-circle"></i> Acceder a recursos</li>
+                <li><i class="fas fa-circle"></i> Reportar irregularidades</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="info-card-icon"><i class="fas fa-users"></i></div>
+            <h3>¿Quién puede utilizar PIA?</h3>
+            <ul>
+                <li><i class="fas fa-circle"></i> Población en general</li>
+                <li><i class="fas fa-circle"></i> Sociedad civil organizada</li>
+                <li><i class="fas fa-circle"></i> Periodistas y academia</li>
+                <li><i class="fas fa-circle"></i> Contratistas del Estado</li>
+                <li><i class="fas fa-circle"></i> Sectores fiscalizadores</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <div class="info-card-icon"><i class="fas fa-gavel"></i></div>
+            <h3>¿Qué buscamos lograr?</h3>
+            <p>Fomentar una cultura de denuncia responsable, uso adecuado de canales, identificación de riesgos de corrupción y una ciudadanía vigilante y activa comprometida con la integridad pública.</p>
+        </div>
+    </div>
+</div>
+</section>
+</div>
+
+<!-- ============================================================
+     PLATAFORMAS (carrusel con todos los iconos sin logos)
+============================================================ -->
+<section class="platforms-section" id="plataformas">
+    <div class="container">
+        <div class="section-header center">
+            <div class="section-tag on-dark" style="color:var(--cyan); justify-content:center;">Ecosistema digital</div>
+            <h2 class="section-title on-dark">Nuestras plataformas</h2>
+            <p class="section-sub" style="color:rgba(255,255,255,0.55); margin:0 auto;">Nueve componentes complementarios para denunciar, vigilar, analizar, prevenir, acceder a información y formarse en integridad.</p>
+            <p class="section-sub" style="color:rgba(255,255,255,0.55); margin:0 auto;">
+    Elige cómo quieres comenzar:
+    <strong style="color:var(--cyan);">Accede</strong>,
+    <strong style="color:var(--cyan);">Explora</strong>,
+    <strong style="color:var(--cyan);">Aprende</strong> y
+    <strong style="color:var(--cyan);">Reporta</strong>.
+</p>
+            <div class="platform-hint"><i class="fas fa-hand-pointer"></i> Pasa el cursor o toca cada tarjeta para más información</div>
+        </div>
+
+        <div style="position:relative; margin-top:1rem;">
+            <div class="swiper plat-swiper" id="platSwiper">
+                <div class="swiper-wrapper">
+
+                    <!-- Directorio Acceso al Ejecutivo -->
+                    <div class="swiper-slide">
+                        <div class="plat-card">
+                            <div class="plat-card-bg" style="background-image:url('/img/wallpaper_directorio_acceso_ejecutivo.png');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-folder-open"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Directorio Acceso al Ejecutivo</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"Información pública al alcance de todos"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Consolida los datos de contacto y los mecanismos oficiales para solicitar acceso a la información pública en las instituciones del Organismo Ejecutivo.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Facilita la localización de enlaces institucionales y mecanismos de solicitud.</p></div>
+                                <a href="directorio/" class="plat-link"><i class="fas fa-arrow-right"></i> Visitar</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transparencia CODEDE -->
+                    <div class="swiper-slide">
+                        <div class="plat-card">
+                            <div class="plat-card-bg" style="background-image:url('/img/codede.png');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Transparencia CODEDE</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"Información pública de oficio al alcance"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Portal que consolida la información pública de oficio publicada por las instituciones del Organismo Ejecutivo.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Garantiza el acceso proactivo a la información sin necesidad de solicitud previa.</p></div>
+                                <a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> Consultar</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tu Gobierno en Números -->
+                    <div class="swiper-slide">
+                        <div class="plat-card">
+                            <div class="plat-card-bg" style="background-image:url('/img/gobiernoNumerosWall.jpg');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Tu Gobierno en Números</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"Datos claros, gestión transparente"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Tableros de rendición de cuentas con indicadores de gestión, ejecución presupuestaria y resultados institucionales.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Permite a la ciudadanía consultar y compartir información pública de forma accesible.</p></div>
+                                <a href="gobierno_en_numeros/" class="plat-link"><i class="fas fa-arrow-right"></i> Explorar</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Radiografía de la Corrupción (icono) -->
+                    <div class="swiper-slide">
+                        <div class="plat-card">
+                            <div class="plat-card-bg" style="background-image:url('/img/Radiograf%C3%ADa%20de%20la%20corrupci%C3%B3n.jpg');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Radiografía de la Corrupción</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"Los datos fortalecen el combate a la corrupción"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Plataforma que muestra información actualizada sobre denuncias, tendencias e instituciones.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Convierte datos en transparencia activa y permite la auditoría social.</p></div>
+                                <a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> Explorar</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Riesgo en la Mira (icono, sin badge Nuevo) -->
+                    <div class="swiper-slide">
+                        <div class="plat-card">
+                            <div class="plat-card-bg" style="background-image:url('/img/riesgo.png');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-crosshairs"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Riesgo en la Mira</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"La prevención comienza identificando los riesgos"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Plataforma que muestra el estado de cumplimiento institucional en gestión de riesgos, con semaforización.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Genera presión reputacional positiva y consolida la cultura de integridad preventiva.</p></div>
+                                <a href="riesgo/" class="plat-link"><i class="fas fa-arrow-right"></i> Ver</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transparencia Vehicular (Oculto temporalmente mientras se completa la información y validación)
+                    <div class="swiper-slide">
+                        <div class="plat-card" onclick="window.location.href='vehiculos/'" style="cursor:pointer;">
+                            <div class="plat-card-bg" style="background-image:url('/img/vehiculosOficiales.png');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-car-side"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Transparencia Vehicular</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"Vehículos del Estado: tu derecho a saber, tu herramienta para exigir."</div>
+                                <div class="plat-back-item">
+                                    <h4><i class="fas fa-question-circle"></i> ¿Para qué sirve?</h4>
+                                    <p>
+                                        • Identificar a qué institución pertenece un vehículo oficial y su cumplimiento normativo.<br>
+                                        • Identificar patrones de uso e irregularidades.
+                                    </p>
+                                </div>
+                                <div class="plat-back-item">
+                                    <h4><i class="fas fa-users"></i> ¿Para quién va dirigido?</h4>
+                                    <p>
+                                        • Cualquier persona que observe un vehículo oficial en la vía pública.<br>
+                                        • Interesados en el uso adecuado de los recursos del Estado.
+                                    </p>
+                                </div>
+                                <a href="vehiculos/" class="plat-link" onclick="event.stopPropagation();"><i class="fas fa-search"></i> Consultar</a>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+
+                    <!-- Acadeti -->
+                    <div class="swiper-slide">
+                        <div class="plat-card">
+                            <div class="plat-card-bg" style="background-image:url('/img/academia.jpg');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Acadeti</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"Formación continua para la integridad"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Plataforma educativa con cursos, materiales y recursos para fortalecer competencias en transparencia y ética pública.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Capacita a servidores públicos y ciudadanía en buenas prácticas de integridad.</p></div>
+                                <a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> Entrar</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canales por la Integridad (icono) -->
+                    <div class="swiper-slide">
+                        <div class="plat-card">
+                            <div class="plat-card-bg" style="background-image:url('/img/Canales%20por%20la%20integridad.jpg');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-bullhorn"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Canales por la Integridad</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"La integridad pública es un compromiso de todos"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Directorio interactivo que reúne todos los canales de denuncia administrativa del Organismo Ejecutivo.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Fortalece la transparencia, reduce barreras y centraliza la información.</p></div>
+                                <a href="canales-por-la-integridad/" class="plat-link"><i class="fas fa-arrow-right"></i> Visitar</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vigilando la Integridad (icono) -->
+                    <div class="swiper-slide">
+                        <div class="plat-card">
+                            <div class="plat-card-bg" style="background-image:url('/img/Vigilando%20la%20integridad.jpg');"></div>
+                            <div class="plat-front">
+                                <div class="plat-logo-wrap">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <div class="plat-front-foot">
+                                    <h3>Vigilando la Integridad</h3>
+                                    <div class="plat-front-line"></div>
+                                </div>
+                            </div>
+                            <div class="plat-back">
+                                <div class="plat-back-quote">"Ante irregularidades, denunciar es clave"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Plataforma oficial para canalizar denuncias administrativas en línea, disponible 24/7.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Centraliza denuncias, mejora tiempos de respuesta.</p></div>
+                                <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> Denunciar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+            <button class="plat-nav-btn plat-prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="plat-nav-btn plat-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</section>
+<!-- ============================================================
+     ASÍ FUNCIONA PIA (infografía de flujo dinámico e interactivo)
+============================================================ -->
+<style>
+    /*==============================================================
+                    ASÍ FUNCIONA PIA — FLUJO DE INFOGRAFÍA
+    ==============================================================*/
+    .flow-infographic-container {
+        position: relative;
+        background: linear-gradient(145deg, #05111F 0%, #0c2033 100%);
+        border-radius: 36px;
+        padding: 4.5rem 3.5rem;
+        border: 1px solid rgba(0, 194, 224, 0.2);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+    }
+    .flow-infographic-container::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(ellipse at 15% 15%, rgba(0, 194, 224, 0.15), transparent 50%),
+            radial-gradient(ellipse at 85% 85%, rgba(43, 130, 201, 0.15), transparent 50%),
+            linear-gradient(rgba(0, 194, 224, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 194, 224, 0.03) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+        pointer-events: none;
+    }
+
+    .flow-header {
+        text-align: center;
+        max-width: 820px;
+        margin: 0 auto 3.5rem;
+        position: relative;
+        z-index: 2;
+    }
+    .flow-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 20px;
+        border-radius: 50px;
+        background: rgba(0, 194, 224, 0.10);
+        border: 1px solid rgba(0, 194, 224, 0.25);
+        color: var(--cyan);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 1.2rem;
+    }
+
+    /*==============================================================
+             ASÍ FUNCIONA PIA — LÍNEA DE TIEMPO INTERACTIVA
+    ==============================================================*/
+    .pia-timeline {
+        position: relative;
+        max-width: 1000px;
+        margin: 2.5rem auto 0;
+        padding: 1rem 0;
+        z-index: 2;
+    }
+
+    /* Línea vertical central */
+    .pia-timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 4px;
+        margin-left: -2px;
+        background: linear-gradient(180deg, 
+            rgba(0, 194, 224, 0.2) 0%, 
+            rgba(0, 194, 224, 0.85) 15%, 
+            rgba(43, 130, 201, 0.95) 50%, 
+            rgba(0, 194, 224, 0.85) 85%, 
+            rgba(0, 194, 224, 0.2) 100%
+        );
+        box-shadow: 0 0 15px rgba(0, 194, 224, 0.4);
+        border-radius: 4px;
+        z-index: 1;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 3.2rem;
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .timeline-item:last-child {
+        margin-bottom: 1rem;
+    }
+
+    .timeline-item.left {
+        justify-content: flex-start;
+    }
+    .timeline-item.right {
+        justify-content: flex-end;
+    }
+
+    /* Nodo Central */
+    .timeline-node {
+        position: absolute;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #0c2033;
+        border: 2px solid var(--cyan);
+        box-shadow: 0 0 20px rgba(0, 194, 224, 0.4), inset 0 0 12px rgba(0, 194, 224, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        cursor: pointer;
+    }
+
+    .timeline-node i {
+        font-size: 1.4rem;
+        color: var(--cyan);
+        transition: all 0.4s ease;
+    }
+
+    .node-number-badge {
+        position: absolute;
+        bottom: -8px;
+        background: var(--cyan);
+        color: var(--navy);
+        font-family: var(--font-head);
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 1px 8px;
+        border-radius: 20px;
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 8px rgba(0, 194, 224, 0.5);
+        transition: all 0.3s ease;
+    }
+
+    /* Efectos de Iluminación en el Nodo al Hover */
+    .timeline-item:hover .timeline-node {
+        transform: translateX(-50%) scale(1.18);
+        background: var(--cyan);
+        border-color: #ffffff;
+        box-shadow: 0 0 35px rgba(0, 194, 224, 0.88), 0 0 60px rgba(0, 194, 224, 0.45);
+    }
+    .timeline-item:hover .timeline-node i {
+        color: var(--navy);
+        transform: scale(1.1) rotate(6deg);
+    }
+    .timeline-item:hover .node-number-badge {
+        background: #ffffff;
+        color: var(--navy);
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+    }
+
+    /* Tarjetas del Timeline */
+    .timeline-card {
+        width: 43%;
+        background: rgba(12, 32, 51, 0.88);
+        border: 1px solid rgba(0, 194, 224, 0.2);
+        border-radius: var(--radius-xl);
+        padding: 2.2rem 2rem;
+        position: relative;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        z-index: 2;
+    }
+
+    /* Conector horizontal desde la tarjeta al nodo */
+    .timeline-card::before {
+        content: '';
+        position: absolute;
+        top: 40px;
+        width: 16%;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(0,194,224,0.4), rgba(0,194,224,0.1));
+        z-index: 1;
+        transition: all 0.4s ease;
+    }
+    .timeline-item.left .timeline-card::before {
+        right: -16%;
+        background: linear-gradient(90deg, rgba(0,194,224,0.1), rgba(0,194,224,0.6));
+    }
+    .timeline-item.right .timeline-card::before {
+        left: -16%;
+        background: linear-gradient(90deg, rgba(0,194,224,0.6), rgba(0,194,224,0.1));
+    }
+
+    /* Efectos de Iluminación en la Tarjeta */
+    .timeline-item:hover .timeline-card {
+        transform: translateY(-6px);
+        border-color: var(--cyan);
+        background: rgba(15, 42, 70, 0.95);
+        box-shadow: 0 20px 50px rgba(0, 194, 224, 0.3), 0 0 1px 1px rgba(0, 194, 224, 0.5);
+    }
+    .timeline-item:hover .timeline-card::before {
+        height: 3px;
+        box-shadow: 0 0 12px var(--cyan);
+    }
+    .timeline-item.left:hover .timeline-card::before {
+        background: linear-gradient(90deg, rgba(0,194,224,0.3), rgba(0,194,224,1));
+    }
+    .timeline-item.right:hover .timeline-card::before {
+        background: linear-gradient(90deg, rgba(0,194,224,1), rgba(0,194,224,0.3));
+    }
+
+    .timeline-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .timeline-step-tag {
+        font-family: var(--font-head);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--cyan);
+        background: rgba(0, 194, 224, 0.12);
+        border: 1px solid rgba(0, 194, 224, 0.3);
+        padding: 4px 12px;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    .timeline-item:hover .timeline-step-tag {
+        background: var(--cyan);
+        color: var(--navy);
+        box-shadow: 0 0 12px rgba(0, 194, 224, 0.5);
+    }
+
+    .timeline-card h3 {
+        font-family: var(--font-head);
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 0.7rem;
+        line-height: 1.3;
+    }
+    .timeline-card p {
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.75);
+        line-height: 1.65;
+        margin-bottom: 0.2rem;
+    }
+
+    .timeline-arrow-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--cyan);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.3s ease;
+    }
+    .timeline-arrow-action i {
+        transition: transform 0.3s ease;
+    }
+    .timeline-item:hover .timeline-arrow-action i {
+        transform: translateX(6px);
+    }
+
+    /* Paso 6 Especial - Impacto Final */
+    .timeline-item.final-step .timeline-card {
+        background: linear-gradient(135deg, rgba(0, 194, 224, 0.22), rgba(43, 130, 201, 0.32));
+        border: 1px solid rgba(0, 194, 224, 0.5);
+        box-shadow: 0 15px 40px rgba(0, 194, 224, 0.25);
+    }
+    .timeline-item.final-step:hover .timeline-card {
+        background: linear-gradient(135deg, rgba(0, 194, 224, 0.32), rgba(43, 130, 201, 0.45));
+        border-color: #ffffff;
+        box-shadow: 0 25px 60px rgba(0, 194, 224, 0.45);
+    }
+    .timeline-item.final-step .timeline-node {
+        background: linear-gradient(135deg, var(--cyan), #00e5ff);
+        border-color: #ffffff;
+    }
+    .timeline-item.final-step .timeline-node i {
+        color: var(--navy);
+    }
+
+    /* Barra inferior de garantías */
+    .flow-features-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.2rem;
+        margin-top: 3.5rem;
+        position: relative;
+        z-index: 2;
+    }
+    .flow-feature-box {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-xl);
+        padding: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: border-color 0.3s;
+    }
+    .flow-feature-box:hover {
+        border-color: rgba(0, 194, 224, 0.3);
+    }
+    .flow-feature-box i {
+        font-size: 1.4rem;
+        color: var(--cyan);
+        flex-shrink: 0;
+    }
+    .flow-feature-text h4 {
+        font-family: var(--font-head);
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 2px;
+    }
+    .flow-feature-text p {
+        font-size: 0.74rem;
+        color: rgba(255, 255, 255, 0.55);
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    @media (max-width: 920px) {
+        .pia-timeline::before {
+            left: 28px;
+            margin-left: 0;
+        }
+
+        .timeline-item,
+        .timeline-item.left,
+        .timeline-item.right {
+            justify-content: flex-start;
+            padding-left: 72px;
+        }
+
+        .timeline-node {
+            left: 28px;
+            transform: translateX(0);
+        }
+        .timeline-item:hover .timeline-node {
+            transform: scale(1.15);
+        }
+
+        .timeline-card {
+            width: 100%;
+            padding: 1.8rem 1.5rem;
+        }
+
+        .timeline-card::before {
+            left: -30px !important;
+            right: auto !important;
+            width: 30px !important;
+            background: linear-gradient(90deg, rgba(0,194,224,0.6), rgba(0,194,224,0.1)) !important;
+        }
+
+        .flow-features-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 580px) {
+        .pia-timeline::before {
+            left: 20px;
+        }
+        .timeline-node {
+            left: 20px;
+            width: 46px;
+            height: 46px;
+            top: 20px;
+        }
+        .timeline-node i {
+            font-size: 1.1rem;
+        }
+        .node-number-badge {
+            font-size: 0.6rem;
+            padding: 1px 6px;
+            bottom: -6px;
+        }
+        .timeline-item,
+        .timeline-item.left,
+        .timeline-item.right {
+            padding-left: 54px;
+        }
+        .timeline-card::before {
+            left: -22px !important;
+            width: 22px !important;
+        }
+        .flow-features-strip { grid-template-columns: 1fr; }
+        .flow-infographic-container { padding: 2.8rem 1.6rem; }
+    }
+</style>
+
+<div class="container">
+    <section class="section">
+        <div class="flow-infographic-container fade-up">
+            <div class="flow-header">
+                <div class="flow-badge"><i class="fas fa-diagram-project"></i> Flujo de navegación e interacción</div>
+                <h2 class="section-title on-dark" style="margin-bottom: 0.8rem;">Así funciona PIA</h2>
+                <p class="section-sub" style="color: rgba(255,255,255,0.7); margin: 0 auto;">
+                    Un proceso guiado e intuitivo en 6 etapas que conecta las necesidades ciudadanas con el ecosistema de datos abiertos, fiscalización y denuncia.
+                </p>
+            </div>
+
+            <!-- Línea de Tiempo Interactiva en 6 Pasos -->
+            <div class="pia-timeline">
+                <!-- Paso 1 -->
+                <div class="timeline-item left">
+                    <div class="timeline-node">
+                        <i class="fas fa-lightbulb"></i>
+                        <span class="node-number-badge">01</span>
+                    </div>
+                    <div class="timeline-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-step-tag">Paso 01</span>
+                            <span style="font-size: 0.75rem; color: var(--cyan); font-weight: 600;"><i class="fas fa-circle-play"></i> Inicio</span>
+                        </div>
+                        <h3>1. Identificación de necesidad</h3>
+                        <p>Reconoce qué tipo de información pública o servicio requieres: solicitudes de datos, consulta vehicular, monitoreo de riesgos o denuncias.</p>
+                    </div>
+                </div>
+
+                <!-- Paso 2 -->
+                <div class="timeline-item right">
+                    <div class="timeline-node">
+                        <i class="fas fa-th-large"></i>
+                        <span class="node-number-badge">02</span>
+                    </div>
+                    <div class="timeline-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-step-tag">Paso 02</span>
+                            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"><i class="fas fa-layer-group"></i> Ecosistema</span>
+                        </div>
+                        <h3>2. Selección de plataforma</h3>
+                        <p>Navega entre las 9 plataformas del ecosistema PIA y elige la especializada para tu consulta (Transparencia Vehicular, Radiografía, Vigilando, etc.).</p>
+                    </div>
+                </div>
+
+                <!-- Paso 3 -->
+                <div class="timeline-item left">
+                    <div class="timeline-node">
+                        <i class="fas fa-hand-pointer"></i>
+                        <span class="node-number-badge">03</span>
+                    </div>
+                    <div class="timeline-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-step-tag">Paso 03</span>
+                            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"><i class="fas fa-mouse-pointer"></i> Acción</span>
+                        </div>
+                        <h3>3. Consulta o interacción</h3>
+                        <p>Accede directamente a tableros, buscadores interactivos, módulos de formación o al formulario seguro de denuncias 24/7.</p>
+                    </div>
+                </div>
+
+                <!-- Paso 4 -->
+                <div class="timeline-item right">
+                    <div class="timeline-node">
+                        <i class="fas fa-file-circle-check"></i>
+                        <span class="node-number-badge">04</span>
+                    </div>
+                    <div class="timeline-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-step-tag">Paso 04</span>
+                            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"><i class="fas fa-database"></i> Resultados</span>
+                        </div>
+                        <h3>4. Obtención de datos</h3>
+                        <p>Visualiza datos abiertos, indicadores institucionales, certificaciones de cursos o números de correlativo de seguimiento.</p>
+                    </div>
+                </div>
+
+                <!-- Paso 5 -->
+                <div class="timeline-item left">
+                    <div class="timeline-node">
+                        <i class="fas fa-users"></i>
+                        <span class="node-number-badge">05</span>
+                    </div>
+                    <div class="timeline-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-step-tag">Paso 05</span>
+                            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"><i class="fas fa-user-check"></i> Ciudadanía</span>
+                        </div>
+                        <h3>5. Participación activa</h3>
+                        <p>Utiliza la información para auditar la gestión pública, ejercer tu derecho de petición o alertar sobre posibles anomalías de forma segura.</p>
+                    </div>
+                </div>
+
+                <!-- Paso 6 (Impacto) -->
+                <div class="timeline-item right final-step">
+                    <div class="timeline-node">
+                        <i class="fas fa-shield-heart"></i>
+                        <span class="node-number-badge" style="background:#ffffff; color:var(--navy);">06</span>
+                    </div>
+                    <div class="timeline-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-step-tag" style="background:var(--cyan); color:var(--navy);">Paso Final</span>
+                            <span style="font-size: 0.75rem; color: var(--cyan); font-weight: 700;"><i class="fas fa-star"></i> Integridad Activa</span>
+                        </div>
+                        <h3>6. Fortalecimiento de Integridad</h3>
+                        <p>Cada consulta, denuncia y acción fiscalizadora impulsa la cultura de probidad, reduce la opacidad y fortalece el Estado de Derecho.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trazabilidad / Garantías -->
+            <div class="flow-features-strip">
+                <div class="flow-feature-box">
+                    <i class="fas fa-user-shield"></i>
+                    <div class="flow-feature-text">
+                        <h4>Anonimato Garantizado</h4>
+                        <p>Protección total del denunciante</p>
+                    </div>
+                </div>
+                <div class="flow-feature-box">
+                    <i class="fas fa-clock"></i>
+                    <div class="flow-feature-text">
+                        <h4>Disponible 24/7</h4>
+                        <p>Plataformas digitales activas</p>
+                    </div>
+                </div>
+                <div class="flow-feature-box">
+                    <i class="fas fa-chart-pie"></i>
+                    <div class="flow-feature-text">
+                        <h4>Datos Abiertos</h4>
+                        <p>Visualización transparente</p>
+                    </div>
+                </div>
+                <div class="flow-feature-box">
+                    <i class="fas fa-gavel"></i>
+                    <div class="flow-feature-text">
+                        <h4>Seguimiento Oficial</h4>
+                        <p>Canales institucionales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- ============================================================
+     PRINCIPIOS
+============================================================ -->
+<div class="container">
+    <section class="section" style="padding-top: 0.5rem; padding-bottom: 3rem;">
+        <div class="principles-band fade-up">
+            <div class="section-header center" style="margin-bottom:0;">
+                <div class="section-tag" style="justify-content:center;">¿En qué se basa este ecosistema?</div>
+                <h2 class="section-title">Principios y Metodología</h2>
+                <p class="section-sub" style="margin:0.6rem auto 0; max-width:760px;">La lucha contra la corrupción constituye un pilar esencial para el desarrollo sostenible y el bienestar de la población guatemalteca. Este proyecto nace con el propósito de fortalecer a las instituciones del Estado y de promover la transparencia en cada una de sus acciones.</p>
+            </div>
+            <div class="principles-grid">
+                <div class="principle-card">
+                    <div class="principle-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                    <h3>Gestión y acompañamiento especializado</h3>
+                    <p>Las denuncias son recibidas y gestionadas por Instancias de Probidad, con seguimiento continuo y protocolos establecidos.</p>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon"><i class="fas fa-handshake"></i></div>
+                    <h3>Compromiso con la lucha anticorrupción</h3>
+                    <p>Impulso a la rendición de cuentas, transformando cada denuncia en acción concreta y visible para la ciudadanía.</p>
+                </div>
+                <div class="principle-card">
+                    <div class="principle-icon"><i class="fas fa-globe-americas"></i></div>
+                    <h3>Alineados con la agenda global</h3>
+                    <p>Guatemala ratificó la Convención Interamericana contra la Corrupción, reafirmando su compromiso con los estándares internacionales.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- ============================================================
+     ACCESO DIRECTO (Carrusel de Profundidad 3D)
+============================================================ -->
+<div class="container">
+    <section class="section" style="padding-top:0;">
+        <div class="section-header center">
+            <div class="section-tag" style="justify-content:center;">Acceso directo</div>
+            <h2 class="section-title">Accede a nuestras plataformas</h2>
+            <p class="section-sub">Cada plataforma cumple una función diferente, pero juntas conforman un ecosistema digital para fortalecer la integridad pública. Puedes ingresar por cualquiera de ellas o recorrerlas según tu necesidad.</p>
+        </div>
+
+        <!-- Depth Carousel Container -->
+        <div class="depth-carousel" id="depthCarousel" role="group" aria-roledescription="carousel" aria-label="Plataformas de Integridad" tabindex="0">
+            <div class="depth-carousel__stage" id="depthStage">
+                <!-- 1. Directorio Acceso al Ejecutivo -->
+                <a href="directorio/" class="depth-carousel__card" data-theme="blue-1">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="logo-card-name">Directorio Acceso al Ejecutivo</div>
+                        <div class="logo-card-desc">Consolida datos de contacto y mecanismos de acceso a la información.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Accede <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 2. Transparencia CODEDE -->
+                <a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener noreferrer" class="depth-carousel__card" data-theme="blue-2">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="logo-card-name">Transparencia CODEDE</div>
+                        <div class="logo-card-desc">Información pública de oficio del Organismo Ejecutivo.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 3. Tu Gobierno en Números -->
+                <a href="gobierno_en_numeros/" class="depth-carousel__card" data-theme="blue-3">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="logo-card-name">Tu Gobierno en Números</div>
+                        <div class="logo-card-desc">Tableros de rendición de cuentas con indicadores de gestión.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 4. Radiografía de la Corrupción -->
+                <a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener noreferrer" class="depth-carousel__card" data-theme="blue-4">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="logo-card-name">Radiografía de la Corrupción</div>
+                        <div class="logo-card-desc">Visualización de datos abiertos sobre denuncias y tendencias.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 5. Riesgo en la Mira -->
+                <a href="riesgo/" class="depth-carousel__card" data-theme="blue-5">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-crosshairs"></i>
+                        </div>
+                        <div class="logo-card-name">Riesgo en la Mira</div>
+                        <div class="logo-card-desc">Transparencia en la gestión de riesgos institucionales.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 6. Transparencia Vehicular (Oculto temporalmente)
+                <a href="vehiculos/" class="depth-carousel__card" data-theme="blue-6">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-car-side"></i>
+                        </div>
+                        <div class="logo-card-name">Transparencia Vehicular</div>
+                        <div class="logo-card-desc">Consulta y control transparente del parque vehicular del Estado.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+                -->
+
+                <!-- 7. Acadeti -->
+                <a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener noreferrer" class="depth-carousel__card" data-theme="blue-7">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="logo-card-name">Acadeti</div>
+                        <div class="logo-card-desc">Plataforma educativa para la formación en integridad.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Aprende <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 8. Canales por la Integridad -->
+                <a href="canales-por-la-integridad/" class="depth-carousel__card" data-theme="blue-8">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div class="logo-card-name">Canales por la Integridad</div>
+                        <div class="logo-card-desc">Directorio interactivo de canales de denuncia administrativa.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Reporta <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+
+                <!-- 9. Vigilando la Integridad -->
+                <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="depth-carousel__card" data-theme="blue-9">
+                    <div class="depth-card-inner">
+                        <div class="depth-card-badge">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="logo-card-name">Vigilando la Integridad</div>
+                        <div class="logo-card-desc">Canal oficial 24/7 para presentar denuncias de forma segura.</div>
+                        <div class="depth-card-footer">
+                            <span class="btn-capsula">Reporta <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                        </div>
+                    </div>
+                    <span class="depth-carousel__tint"></span>
+                </a>
+            </div>
+
+            <!-- Arrow Controls -->
+            <button type="button" class="depth-carousel__arrow depth-carousel__arrow--prev" id="depthPrevBtn" aria-label="Anterior plataforma">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="depth-carousel__arrow depth-carousel__arrow--next" id="depthNextBtn" aria-label="Siguiente plataforma">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+
+            <!-- Dots Indicator -->
+            <div class="depth-carousel__dots" id="depthDots" role="tablist" aria-label="Plataformas"></div>
+        </div>
+    </section>
+</div>
+
+
+<!-- ============================================================
+     FOOTER UNIFICADO
+============================================================ -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <img src="/img/L1.png" alt="Gobierno de Guatemala">
+                <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
+                <p>Dónde hay vigilancia, hay menos corrupción. La integridad del Organismo Ejecutivo empieza con una denuncia bien canalizada.</p>
+                <!-- Enlace Admin discreto justo debajo del párrafo -->
+                <div class="footer-admin" style="margin-top:0.5rem;">
+                    <a href="/admin/" style="font-size:0.75rem; opacity:0.5; color:#aaa; text-decoration:none; transition: opacity 0.2s;">
+                        <i class="fas fa-lock"></i> AdminPIA
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Reporta irregularidades</h4>
+                <ul class="footer-links">
+                    <li><a href="canales-por-la-integridad/">Canales por la Integridad</a></li>
+                    <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Explora datos</h4>
+                <ul class="footer-links">
+                    <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
+                    <li><a href="riesgo/">Riesgo en la Mira</a></li>
+                    <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Accede a la información</h4>
+                <ul class="footer-links">
+                    <li><a href="directorio/">Directorio acceso al ejecutivo</a></li>
+                    <!-- <li><a href="vehiculos/">Transparencia Vehicular</a></li> -->
+                    <li><a href="gobierno_en_numeros/">Tu Gobierno en números</a></li>
+                </ul>
+                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <ul class="footer-links">
+                    <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <div class="footer-contact">
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                </div>
+                <div class="social-row">
+                    <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="https://x.com/GuatemalaGob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.youtube.com/@GobiernodelaRepublicadeGuatema" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
+            <div class="footer-logos">
+                <img src="/img/L1.png" alt="Gobierno de Guatemala">
+                <img src="/img/logoPIA.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- ============================================================
+   SCRIPTS
+============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script>
+    /* ============================================================
+       MENÚ MÓVIL Y SCROLL
+    ============================================================ */
+    document.getElementById('mobileMenu').addEventListener('click', () => {
+        document.getElementById('navMenu').classList.toggle('open');
+    });
+
+    document.querySelectorAll('.submenu a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 680) {
+                document.getElementById('navMenu').classList.remove('open');
+            }
+        });
+    });
+
+    document.querySelectorAll('.menu-group > a').forEach(groupLink => {
+        groupLink.addEventListener('click', (e) => {
+            if (window.innerWidth <= 680) {
+                e.preventDefault();
+                const parentLi = groupLink.closest('.menu-group');
+                parentLi.classList.toggle('open');
+            }
+        });
+    });
+
+    window.addEventListener('scroll', () => {
+        document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const id = a.getAttribute('href').slice(1);
+            const el = document.getElementById(id);
+            if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); }
+        });
+    });
+
+    /* ============================================================
+       CARGAR DATOS DESDE JSON (data_portal.json)
+    ============================================================ */
+    async function cargarDatos() {
+        try {
+            const response = await fetch('data_portal.json');
+            if (!response.ok) throw new Error('No se pudo cargar data_portal.json');
+            const data = await response.json();
+
+            document.getElementById('oficinasProbidad').innerText = data.oficinasProbidad || 0;
+            document.getElementById('canalesDenuncia').innerText = data.canalesDenuncia || 0;
+            document.getElementById('denunciasPenales').innerText = data.denunciasPenales || 0;
+            document.getElementById('plataformasActivas').innerText = data.plataformasActivas || 8;
+
+            if (data.descripciones) {
+                if (data.descripciones.oficinasProbidad) document.getElementById('descOficinas').innerText = data.descripciones.oficinasProbidad;
+                if (data.descripciones.canalesDenuncia) document.getElementById('descCanales').innerText = data.descripciones.canalesDenuncia;
+                if (data.descripciones.denunciasPenales) document.getElementById('descDenuncias').innerText = data.descripciones.denunciasPenales;
+                if (data.descripciones.plataformasActivas) document.getElementById('descPlataformas').innerText = data.descripciones.plataformasActivas;
+            }
+
+            console.log('✅ Datos cargados correctamente desde data_portal.json', data);
+            startCounters();
+        } catch (error) {
+            console.error('❌ Error cargando data_portal.json:', error);
+            document.getElementById('oficinasProbidad').innerText = '67';
+            document.getElementById('canalesDenuncia').innerText = '191';
+            document.getElementById('denunciasPenales').innerText = '423';
+            document.getElementById('plataformasActivas').innerText = '8';
+            startCounters();
+        }
+    }
+
+    let countersStarted = false;
+    let countersRunning = false;
+
+    function startCounters() {
+        if (countersRunning) return;
+        countersRunning = true;
+        const counters = document.querySelectorAll('.stats-ribbon .counter');
+        counters.forEach(counter => {
+            const target = parseInt(counter.innerText);
+            if (isNaN(target)) return;
+            let current = 0;
+            const step = Math.max(1, Math.ceil(target / 80));
+            const update = () => {
+                current = Math.min(current + step, target);
+                counter.innerText = current;
+                if (current < target) setTimeout(update, 18);
+            };
+            update();
+        });
+    }
+
+    const ribbonObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !countersStarted) {
+                countersStarted = true;
+            }
+        });
+    }, { threshold: 0.3 });
+    ribbonObserver.observe(document.querySelector('.stats-ribbon'));
+
+    /* ============================================================
+       HERO BANNER BACKGROUND SLIDER
+    ============================================================ */
+    (function initHeroBgSlider() {
+        const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
+        const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
+        if (!slides.length) return;
+
+        let currentIndex = 0;
+        let slideInterval = null;
+
+        function goToSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            let nextIndex = (currentIndex + 1) % slides.length;
+            goToSlide(nextIndex);
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoplay() {
+            if (slideInterval) clearInterval(slideInterval);
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                startAutoplay();
+            });
+        });
+
+        startAutoplay();
+    })();
+
+    /* ============================================================
+       SWIPER DE PLATAFORMAS
+    ============================================================ */
+    const platSwiper = new Swiper('#platSwiper', {
+        slidesPerView: 1,
+        spaceBetween: 24,
+        loop: true,
+        observer: true,
+        observeParents: true,
+        autoplay: { delay: 5500, disableOnInteraction: false, pauseOnMouseEnter: true },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.plat-next', prevEl: '.plat-prev' },
+        breakpoints: {
+            640:  { slidesPerView: 1 },
+            768:  { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+            1280: { slidesPerView: 4 }
+        }
+    });
+
+    /* ============================================================
+       FADE-UP ON SCROLL
+    ============================================================ */
+    const fadeObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                fadeObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.05, rootMargin: '0px 0px 100px 0px' });
+    document.querySelectorAll('.fade-up').forEach(el => fadeObserver.observe(el));
+
+    /* ============================================================
+       ACCESIBILIDAD Y MULTILINGÜE MAYA (JS MEJORADO)
+    ============================================================ */
+    function toggleInclusionModule() {
+        const mod = document.getElementById('accesibilidad-multilingue');
+        const btn = document.getElementById('btnToggleInclusionModule');
+        if (!mod) return;
+        const isHidden = (mod.style.display === 'none' || !mod.style.display);
+        if (isHidden) {
+            mod.style.display = 'block';
+            if (btn) {
+                btn.style.background = 'rgba(0,194,224,0.22)';
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar Inclusión Universal';
+            }
+            setTimeout(() => {
+                mod.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 60);
+        } else {
+            mod.style.display = 'none';
+            if (btn) {
+                btn.style.background = 'rgba(0,194,224,0.08)';
+                btn.innerHTML = '<i class="fas fa-universal-access"></i> Inclusión Universal y Guiado';
+            }
+        }
+    }
+
+    function toggleA11yTopBar() {
+        const topBar = document.getElementById('a11yTopBar');
+        const triggerBtn = document.getElementById('btnToggleA11yHeader');
+        if (!topBar) return;
+        const isOpen = topBar.classList.toggle('open');
+        if (triggerBtn) triggerBtn.classList.toggle('active', isOpen);
+    }
+
+    function toggleA11yContrast() {
+        document.body.classList.toggle('high-contrast');
+        const isHC = document.body.classList.contains('high-contrast');
+        const btnMain = document.getElementById('btnToggleContrast');
+        const btnTop = document.getElementById('btnToggleContrastTop');
+        if (btnMain) btnMain.classList.toggle('active', isHC);
+        if (btnTop) btnTop.classList.toggle('active', isHC);
+    }
+
+    let a11yFontSizePercent = 100;
+    function changeA11yFontSize(delta) {
+        a11yFontSizePercent = Math.min(140, Math.max(85, a11yFontSizePercent + (delta * 10)));
+        document.documentElement.style.fontSize = a11yFontSizePercent + '%';
+    }
+
+    function resetA11yFontSize() {
+        a11yFontSizePercent = 100;
+        document.documentElement.style.fontSize = '100%';
+    }
+
+    let currentA11yLang = 'es';
+    let currentA11yModule = 'full';
+    let currentSpeechRate = 0.95;
+
+    const piaAudioDatabase = {
+        'es': {
+            langName: 'Español (Oficial)',
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: 'Resumen General del Portal de Integridad Activa (PIA)',
+                    text: 'El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial de la Comisión Nacional contra la Corrupción (CNC) que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia del Gobierno de Guatemala. A través del portal, los ciudadanos pueden acceder al Directorio Institucional, consultar Datos Abiertos sobre presupuestos y vehículos oficiales, analizar indicadores de Riesgo en la Mira y presentar denuncias confidenciales las 24 horas.'
+                },
+                'directorio': {
+                    title: 'Directorio de Acceso al Ejecutivo',
+                    text: 'El módulo Directorio de Acceso al Ejecutivo concentra la información oficial de contacto, ubicación, autoridades y Oficinas de Probidad de más de 65 instituciones, ministerios y secretarías del Organismo Ejecutivo de Guatemala. Permite localizar funcionarios públicos y consultar los enlaces de acceso a la información pública de cada dependencia.'
+                },
+                'vehiculos': {
+                    title: 'Transparencia Vehicular Oficial',
+                    text: 'El módulo de Transparencia Vehicular ofrece la fiscalización ciudadana de la flota de vehículos oficiales del Gobierno de Guatemala. Los ciudadanos pueden verificar números de placa, tipo de vehículo, dependencia asignada y estado de uso, facilitando la detección y denuncia confidencial de cualquier uso indebido de los bienes del Estado.'
+                },
+                'gobierno_numeros': {
+                    title: 'Tu Gobierno en Números - Datos Abiertos',
+                    text: 'Tu Gobierno en Números es la herramienta interactiva de Datos Abiertos que visualiza la asignación y ejecución del presupuesto general de la Nación. Muestra gráficos en tiempo real sobre gastos por dependencia, programas de inversión social y transparencia en las contrataciones públicas.'
+                },
+                'canales_denuncias': {
+                    title: 'Canales por la Integridad y Denuncia Segura',
+                    text: 'Canales por la Integridad es el centro seguro para la recepción de denuncias ciudadanas y alertas sobre actos de corrupción, faltas éticas o irregularidades administrativas. Garantiza protección total al denunciante, confidencialidad las 24 horas y seguimiento activo por la Comisión Nacional contra la Corrupción.'
+                },
+                'riesgo_mira': {
+                    title: 'Riesgo en la Mira y Radiografía de la Corrupción',
+                    text: 'Riesgo en la Mira monitorea indicadores preventivos de transparencia y cumplimiento en contrataciones públicas del Estado. Permite identificar anomalías, sobrecostos o concentración de proveedores antes de que comprometan los fondos públicos.'
+                },
+                'acadeti': {
+                    title: 'Acadeti - Escuela de Probidad e Integridad Pública',
+                    text: 'Acadeti es la plataforma educativa de la Comisión Nacional contra la Corrupción orientada a la formación continua de servidores públicos y ciudadanos en materia de ética pública, prevención de la corrupción, probidad y transparencia.'
+                }
+            }
+        },
+        'en': {
+            langName: 'English (Inglés)',
+            ttsLang: 'en-US',
+            modules: {
+                'full': {
+                    title: 'Active Integrity Portal (PIA) Overview',
+                    text: 'The Active Integrity Portal (PIA) is the official digital platform of Guatemala\'s National Commission Against Corruption. It provides citizen access to institutional directories, open data on public budgets and government fleet management, corruption risk indicators, and 24/7 confidential reporting channels to promote transparency and accountability.'
+                },
+                'directorio': {
+                    title: 'Executive Branch Directory',
+                    text: 'The Executive Access Directory consolidates official contact details, addresses, leadership information, and integrity offices across more than 65 ministries, secretariats, and government agencies of Guatemala\'s Executive Branch.'
+                },
+                'vehiculos': {
+                    title: 'Official Vehicle Fleet Transparency',
+                    text: 'The Vehicle Transparency module enables public oversight of the official state vehicle fleet in Guatemala. Citizens can verify license plates, vehicle models, assigned government departments, and usage status to prevent and report improper asset use.'
+                },
+                'gobierno_numeros': {
+                    title: 'Government in Numbers - Open Data',
+                    text: 'Government in Numbers is an interactive Open Data visualization tool monitoring national budget allocation and expenditure. It features real-time charts on spending per agency, social investment programs, and public procurement transparency.'
+                },
+                'canales_denuncias': {
+                    title: 'Integrity Channels & Safe Whistleblowing',
+                    text: 'Integrity Channels is a secure portal for submitting citizen complaints regarding corruption, ethical breaches, or administrative misconduct. It guarantees full whistleblower protection, 24/7 confidentiality, and direct oversight by the National Commission Against Corruption.'
+                },
+                'riesgo_mira': {
+                    title: 'Risk Spotlight & Corruption Radiography',
+                    text: 'Risk Spotlight tracks preventive integrity and compliance metrics within government procurement systems, identifying irregularities, cost overruns, or supplier monopolies before public funds are compromised.'
+                },
+                'acadeti': {
+                    title: 'Acadeti - Public Ethics & Integrity Academy',
+                    text: 'Acadeti is the educational platform of the National Commission Against Corruption, dedicated to training public servants and citizens in anti-corruption principles, public ethics, probity, and open governance.'
+                }
+            }
+        },
+        'kiche': {
+            langName: "K'iche' (Idioma Maya)",
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: "Utzilaj Chak pa le Portal PIA (K'iche')",
+                    text: "Ri Portal de Integridad Activa (PIA) rech ri Comisión Nacional contra la Corrupción xutz'aqatisaj ri utzilaj chak rech k'o q'alajisanik pa le qatinamit Guatemala. Chuxe' ri PIA, ri winaq kakwinik kakiriq uq'alajisaxik ri patanib'al rech ri q'atb'al tzij, kakitz'et ri chakub'al xaqje' kakik'am b'i tz'ujonik pa jikomal."
+                },
+                'directorio': {
+                    title: "K'olbal K'iyisamaj rech Tak'alib'al (K'iche')",
+                    text: "Ri K'olbal K'iyisamaj rech Tak'alib'al k'o chi upam ri kimo's, ri kib'i' ri nimak'amalb'e rech ri poponem rech qatinamit Guatemala. Kakwinik kakiriq ri k'olbal rech taqem patanil pa uxak q'alajisanik."
+                },
+                'vehiculos': {
+                    title: "Q'alajisanik rech Ch'ich' rech Q'atb'al Tzij (K'iche')",
+                    text: "Ri chakub'al rech Q'alajisanik rech Ch'ich' kuya' q'alajisanik pa wi' ri ch'ich' rech ri q'atb'al tzij pa Guatemala. Ri winaq kakwinik kakitz'et ri retal ch'ich' ex kakib'an tz'ujonik we k'o uq'asaxik chak pa kijas."
+                },
+                'gobierno_numeros': {
+                    title: "Ri Qatinamit pa Ajlab'al (K'iche')",
+                    text: "Ri Qatinamit pa Ajlab'al k'o q'alajisanik pa wi' ri pwaq rech qatinamit, ri uxak sachoj ex ri cholchak rech patanil. Kuk'ut pa wachb'al ri uxak sachoj rech ri k'iyik amaq'."
+                },
+                'canales_denuncias': {
+                    title: "B'e rech Tz'ujonik rech Jikomal (K'iche')",
+                    text: "Ri B'e rech Tz'ujonik rech Jikomal uya'om rutzilal rech tz'ujonik pa mukche' pa wi' ri elaq' o etzelal rech patanib'al. Kuya' jikomal ex mukch'ab'al chi re ri winaq xk'amow b'i tz'ujonik."
+                },
+                'riesgo_mira': {
+                    title: "Q'atb'al Elq'anem xaqje' Tz'etonem (K'iche')",
+                    text: "Ri Q'atb'al Elq'anem kutz'et ri retal sachoj xaqje' ri loq'oj pa ri patanib'al rech qatinamit rech kuq'atej ri elaq' pwaq chuxe' xq'axik."
+                },
+                'acadeti': {
+                    title: "Acadeti - Tijob'al rech Jikomal (K'iche')",
+                    text: "Ri Acadeti uya'om tijonik xaqje' eta'manik chi rech ri pataninelib'al xaqje' ri winaq pa wi' ri utzilaj ch'ob'onik, jikomal xaqje' q'atenik elaq' pa qatinamit."
+                }
+            }
+        },
+        'qeqchi': {
+            langName: "Q'eqchi' (Idioma Maya)",
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: "Xyaalalil ut Xcha'alil li Portal PIA (Q'eqchi')",
+                    text: "Li Portal de Integridad Activa (PIA) a'an li xk'anjelil li Comisión Nacional contra la Corrupción re xch'olch'ob'il li yaal ut li yaalil k'anjel sa' li tenamit Guatemala. Sa' li PIA, chixjunil li tenamit truko'q xk'anjelob'al li tenamit, xk'anjelob'al li xch'och' ut tz'aqal k'anjel xbanunkil li yaalil atin sa' mukmuil."
+                },
+                'directorio': {
+                    title: "Xtenamitil li Jolominelib' (Q'eqchi')",
+                    text: "Li tenamitil li jolominelib' xch'oleb' chixjunil li rochochil k'anjel, li c'a'uxb'il xjolom ut xch'olch'ob'il xk'anjelil li rochoch k'anjel sa' Guatemala re xyaalalil k'anjel."
+                },
+                'vehiculos': {
+                    title: "Xyaalalil li B'eleba'aal re Tenamit (Q'eqchi')",
+                    text: "Li Xyaalalil li B'eleba'aal kixk'utub' chixjunil li b'eleba'aal xk'anjelil li tenamit Guatemala. Li tenamit tuko'q xk'e xyaalalil li placas ut xk'anjelil re xramb'al li maak."
+                },
+                'gobierno_numeros': {
+                    title: "Li Tenamit sa' Ajl (Q'eqchi')",
+                    text: "Li Tenamit sa' Ajl k'o sa' tz'aqal tz'ilok re xk'utb'al xch'ina'usil tumin, xk'anjelob'al li tumin re tenamit ut li loq'ok k'anjel xbanunkil."
+                },
+                'canales_denuncias': {
+                    title: "Be re Yehok Maak sa' Yaal (Q'eqchi')",
+                    text: "Li Be re Yehok Maak a'an li mukmuil rochochil re xk'ulb'al li yehok maak pa wi' li elq' ut li xmaa'usil k'anjel, re xk'ebal xyaalalil ut xcolbal li tenamit."
+                },
+                'riesgo_mira': {
+                    title: "Xk'amb'al li C'a'ux pa Yaal (Q'eqchi')",
+                    text: "Li Xk'amb'al li C'a'ux kixk'e xch'ina'usil retalil xkolbal li tumin re tenamit sa' li loq'ok k'anjel re xramb'al li elq' sa' k'anjel."
+                },
+                'acadeti': {
+                    title: "Acadeti - Tz'oleb'aal re Yaalil K'anjel (Q'eqchi')",
+                    text: "Acadeti a'an li tz'oleb'aal re xk'ebal tz'oleb'aal ut na'leb' chi re li k'anjelajel ut tenamit sa' li yaalil atin ut xcha'alil k'anjel."
+                }
+            }
+        },
+        'kaqchikel': {
+            langName: "Kaqchikel (Idioma Maya)",
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: "Rutzil Samaj pa ri Portal PIA (Kaqchikel)",
+                    text: "Ri Portal de Integridad Activa (PIA) richin ri Comisión Nacional contra la Corrupción nuyo'oj rutzil samaj richin ruximik ri jikomal pa ri qatinamit Guatemala. Pa ri PIA, ri winaqi' tikel nkitzet ri samaj richin ri q'atb'al tzij, ri pwaq xq'asax ut nkiya' rutzijol samaj rech jikomal pa rutzilal."
+                },
+                'directorio': {
+                    title: "Ruk'olbal Rutzijol K'amalb'ey (Kaqchikel)",
+                    text: "Ruk'olbal Rutzijol K'amalb'ey k'o chi upam ri ruyo'onem, ri xq'atb'al tzij richin ri taqem samaj pa Guatemala richin ruto'ik ri winaqi' pa ri rutzijol."
+                },
+                'vehiculos': {
+                    title: "Ch'ich' richin Q'atb me Tzij pa Jikomal (Kaqchikel)",
+                    text: "Ri ch'ich' richin Q'atb'al Tzij nuya' rutzijol ri ch'ich' richin ri q'atb'al tzij. Ri winaqi' tikil nkitz'et ri retal ch'ich' richin nkiq'atej ri elaq' samaj."
+                },
+                'gobierno_numeros': {
+                    title: "Ri Qatinamit pa Ajlab'al (Kaqchikel)",
+                    text: "Ri Qatinamit pa Ajlab'al nuk'ut ri pwaq xk'amob'eyij richin ri qatinamit, ri to'ik samaj xaqje' ri sachoj rech taqem loq'oj."
+                },
+                'canales_denuncias': {
+                    title: "Ruk'olbal Ya'oj Tzij pa Mukche' (Kaqchikel)",
+                    text: "Ruk'olbal Ya'oj Tzij nuko'j ri ya'oj tzij pa mukche' richin q'atenik elaq' xaqje' etzelal, nuya' jikomal ex rutzilal chi re ri winaq."
+                },
+                'riesgo_mira': {
+                    title: "Tz'etoj Ruyonal Elaq' (Kaqchikel)",
+                    text: "Ri Tz'etoj Ruyonal Elaq' nuk'am ri retal samaj pa loq'oj richin nuq'atej ri elaq' pwaq richin ri qatinamit Guatemala."
+                },
+                'acadeti': {
+                    title: "Acadeti - Tijob'al richin Jikomal (Kaqchikel)",
+                    text: "Acadeti nuya' tijonik xaqje' etamanik chi ke ri samajel richin q'atb'al tzij xaqje' ri winaqi' pa wi' ri jikomal xaqje' rutzil samaj."
+                }
+            }
+        },
+        'mam': {
+            langName: "Mam (Idioma Maya)",
+            ttsLang: 'es-GT',
+            modules: {
+                'full': {
+                    title: "Tzalajeb'il tu'n T-tx'olil Portal PIA (Mam)",
+                    text: "Ju Portal de Integridad Activa (PIA) te ju Comisión Nacional contra la Corrupción nxq'uynen tnam tu'n t-tx'olil tzalajeb'il ex kolb'il te tnam Guatemala. Ju tnam jaku t-sje'n tijil t-tx'olil ajlab'il, t-jak'il ch'iyyb'il ex t-kolil tnam tu'n tzalajeb'il ex yaal."
+                },
+                'directorio': {
+                    title: "T-tx'olil Kavil Kavil te Tnam (Mam)",
+                    text: "Ju T-tx'olil Kavil Kavil xq'uynen chixjunil t-tx'olil ju ak'b'il, t-xakil Kavil Kavil te Guatemala tu'n t-kolb'il ex t-tzalajeb'il tnam."
+                },
+                'vehiculos': {
+                    title: "T-kolil B'eleba'al te Kavil (Mam)",
+                    text: "Ju T-kolil B'eleba'al nxq'uynen t-tx'olil b'eleba'al te Kavil te Guatemala, tu'n t-sje'n tnam ju placa ex tu'n t-kolil ja' t-sje'n elq'."
+                },
+                'gobierno_numeros': {
+                    title: "Ju Tnam sa' Ajlab'il (Mam)",
+                    text: "Ju Tnam sa' Ajlab'il nxq'uynen pwaq te tnam, ju t-jak'il ch'iyyb'il ex ju laq'ob'il t-xakil pwaq te Guatemala."
+                },
+                'canales_denuncias': {
+                    title: "Be te Q'i'n Tzij sa' Kolb'il (Mam)",
+                    text: "Ju Be te Q'i'n Tzij nq'on tzalajeb'il tu'n t-k'ulil q'i'n tzij sa' mukche' tib'aj elq' ex il, nxq'uynen kolb'il te tnam."
+                },
+                'riesgo_mira': {
+                    title: "T-tz'etb'il Elq' sa' Kolb'il (Mam)",
+                    text: "Ju T-tz'etb'il Elq' nxq'uynen t-tx'olil laq'ob'il pwaq tu'n t-kolil pwaq te tnam ch'atx t-elq'ij."
+                },
+                'acadeti': {
+                    title: "Acadeti - Ja te Xnaq'tzb'il Jikomal (Mam)",
+                    text: "Acadeti nq'on xnaq'tzb'il ex t-tx'olil chi e ak'el te Kavil ex tnam tu'n t-tzalajeb'il, jikomal ex t-kolil elq'."
+                }
+            }
+        }
+    };
+
+    function selectA11yLang(key) {
+        if (!piaAudioDatabase[key]) return;
+        currentA11yLang = key;
+
+        // Sync top select dropdown
+        const topSelect = document.getElementById('a11yLangSelectTop');
+        if (topSelect) topSelect.value = key;
+
+        // Sync main tab buttons
+        const tabBtns = document.querySelectorAll('#a11yLangTabs .a11y-tab-btn');
+        tabBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-lang') === key);
+        });
+
+        updateA11yCardUI();
+        stopPiaSpeech();
+    }
+
+    function selectA11yModule(modKey) {
+        currentA11yModule = modKey;
+
+        // Sync module pills
+        document.querySelectorAll('#a11yModulePills .a11y-module-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-mod') === modKey);
+        });
+
+        updateA11yCardUI();
+        stopPiaSpeech();
+        speakCurrentA11yTopic();
+    }
+
+    function updateA11yCardUI() {
+        const langData = piaAudioDatabase[currentA11yLang] || piaAudioDatabase['es'];
+        const topic = (langData.modules && langData.modules[currentA11yModule]) 
+            || (langData.modules && langData.modules['full']) 
+            || { title: 'Portal PIA', text: '' };
+
+        const badgeEl = document.getElementById('a11yCardLangBadge');
+        const titleEl = document.getElementById('a11yCardTitle');
+        const textEl = document.getElementById('a11yCardText');
+        const btnPlay = document.getElementById('btnPlayA11yAudio');
+
+        if (badgeEl) badgeEl.innerHTML = `<i class="fas fa-check-circle"></i> ${langData.langName}`;
+        if (titleEl) titleEl.innerText = topic.title;
+        if (textEl) textEl.innerText = topic.text;
+        if (btnPlay) btnPlay.innerHTML = `<i class="fas fa-volume-high"></i> Escuchar en ${langData.langName}`;
+    }
+
+    function setA11ySpeechRate(rate) {
+        currentSpeechRate = rate;
+        if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
+            speakCurrentA11yTopic();
+        }
+    }
+
+    function playCurrentA11yLang() {
+        speakCurrentA11yTopic();
+    }
+
+    function speakCurrentA11yTopic() {
+        if (!('speechSynthesis' in window)) {
+            alert('Su navegador no soporta lectura por voz.');
+            return;
+        }
+        const langData = piaAudioDatabase[currentA11yLang] || piaAudioDatabase['es'];
+        const topic = (langData.modules && langData.modules[currentA11yModule]) || langData.modules['full'];
+        if (!topic) return;
+
+        window.speechSynthesis.cancel();
+
+        const playerStatus = document.getElementById('piaAudioPlayerStatus');
+        const statusText = document.getElementById('piaAudioStatusText');
+        if (playerStatus && statusText) {
+            playerStatus.style.display = 'flex';
+            statusText.innerText = 'Escuchando (' + langData.langName + '): ' + topic.title;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(topic.text);
+        utterance.lang = langData.ttsLang || 'es-GT';
+        utterance.rate = currentSpeechRate || 0.95;
+
+        utterance.onend = function() {
+            if (playerStatus) playerStatus.style.display = 'none';
+        };
+        utterance.onerror = function() {
+            if (playerStatus) playerStatus.style.display = 'none';
+        };
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function speakPiaTopic(key) {
+        if (piaAudioDatabase[key]) {
+            selectA11yLang(key);
+            speakCurrentA11yTopic();
+        } else if (key && key !== 'full' && (piaAudioDatabase['es'].modules[key])) {
+            selectA11yModule(key);
+        } else {
+            speakCurrentA11yTopic();
+        }
+    }
+
+    function stopPiaSpeech() {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        const playerStatus = document.getElementById('piaAudioPlayerStatus');
+        if (playerStatus) playerStatus.style.display = 'none';
+    }
+
+    function handleModuleLangChange(val) {
+        selectA11yLang(val);
+        speakCurrentA11yTopic();
+    }
+
+    /* ============================================================
+       CARRUSEL COVERFLOW MAGNÉTICO 3D (PLATAFORMAS) INIT
+    ============================================================ */
+    (function initDepthCarousel() {
+        const root = document.getElementById('depthCarousel');
+        const stage = document.getElementById('depthStage');
+        if (!root || !stage) return;
+
+        const cards = Array.from(stage.querySelectorAll('.depth-carousel__card'));
+        const count = cards.length;
+        if (!count) return;
+
+        const dotsContainer = document.getElementById('depthDots');
+        let dots = [];
+        if (dotsContainer) {
+            dotsContainer.innerHTML = '';
+            cards.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = `depth-carousel__dot${i === 0 ? ' is-active' : ''}`;
+                dot.setAttribute('aria-label', `Ir a plataforma ${i + 1}`);
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setFocus(i, true);
+                });
+                dotsContainer.appendChild(dot);
+                dots.push(dot);
+            });
+        }
+
+        const cfg = {
+            count: count,
+            duration: 650,
+            ease: 'power3.out',
+            loop: true,
+            autoplayDelay: 3500
+        };
+
+        let pos = 0;
+        let focusIndex = 0;
+        let currentTween = null;
+        let drag = null;
+        let autoTimer = null;
+        let isHovered = false;
+        let isFocused = false;
+
+        function clamp(v, min, max) {
+            return Math.min(Math.max(v, min), max);
+        }
+
+        function getResponsiveParams() {
+            const w = root.offsetWidth || window.innerWidth;
+            const isSmall = w <= 480;
+            const isMobile = w <= 768;
+            return {
+                isMobile,
+                isSmall,
+                spreadCenter: isSmall ? 105 : (isMobile ? 135 : 220),
+                spreadStep: isSmall ? 55 : (isMobile ? 70 : 125),
+                depthStep: isSmall ? 110 : (isMobile ? 140 : 190),
+                angle: isSmall ? 38 : (isMobile ? 44 : 50),
+                visibleRadius: isSmall ? 2 : (isMobile ? 2.5 : 3.5),
+                scaleActive: isMobile ? 1.02 : 1.06,
+                scaleSide: isSmall ? 0.78 : (isMobile ? 0.82 : 0.86),
+                dragStepPx: isSmall ? 100 : (isMobile ? 130 : 200)
+            };
+        }
+
+        function layout(currentPos) {
+            const params = getResponsiveParams();
+            const { spreadCenter, spreadStep, depthStep, angle, visibleRadius, scaleActive, scaleSide } = params;
+
+            for (let i = 0; i < count; i++) {
+                const el = cards[i];
+                if (!el) continue;
+
+                let d = i - currentPos;
+                if (cfg.loop && count > 1) {
+                    d = ((d % count) + count) % count;
+                    if (d > count / 2) d -= count;
+                }
+
+                const absD = Math.abs(d);
+                const shown = absD <= visibleRadius + 0.5;
+
+                if (!shown) {
+                    el.style.opacity = '0';
+                    el.style.pointerEvents = 'none';
+                    el.style.transform = 'translate(-50%, -50%) scale(0.4)';
+                    continue;
+                }
+
+                const sign = d === 0 ? 0 : (d > 0 ? 1 : -1);
+                
+                // Continuous Coverflow interpolation
+                let tx = 0;
+                let tz = 0;
+                let ry = 0;
+                let cardScale = scaleActive;
+
+                if (absD < 1) {
+                    tx = sign * (absD * spreadCenter);
+                    tz = -absD * depthStep;
+                    ry = -sign * (absD * angle);
+                    cardScale = scaleActive - absD * (scaleActive - scaleSide);
+                } else {
+                    tx = sign * (spreadCenter + (absD - 1) * spreadStep);
+                    tz = -absD * depthStep;
+                    ry = -sign * angle;
+                    cardScale = scaleSide;
+                }
+
+                const opacity = Math.max(0, 1 - (absD - 1.25) * 0.45);
+                const brightness = Math.max(0.3, 1 - absD * 0.2);
+                const zi = Math.round(2000 - absD * 100);
+
+                el.style.transform = `translate(-50%, -50%) translateX(${tx.toFixed(2)}px) translateZ(${tz.toFixed(2)}px) rotateY(${ry.toFixed(2)}deg) scale(${cardScale.toFixed(3)})`;
+                el.style.opacity = Math.min(1, opacity).toFixed(3);
+                el.style.filter = absD < 0.08 ? 'none' : `brightness(${brightness.toFixed(3)})`;
+                el.style.zIndex = String(zi);
+                el.style.pointerEvents = absD < 1.2 ? 'auto' : 'none';
+
+                const ov = el.querySelector('.depth-carousel__tint');
+                if (ov) {
+                    ov.style.opacity = absD < 0.1 ? '0' : Math.min(0.8, (absD * 0.25)).toFixed(3);
+                }
+            }
+        }
+
+        function notify(idx) {
+            dots.forEach((dot, i) => {
+                if (i === idx) dot.classList.add('is-active');
+                else dot.classList.remove('is-active');
+            });
+            cards.forEach((card, i) => {
+                if (i === idx) {
+                    card.classList.add('is-active');
+                    card.setAttribute('aria-hidden', 'false');
+                } else {
+                    card.classList.remove('is-active');
+                    card.setAttribute('aria-hidden', 'true');
+                }
+            });
+        }
+
+        function tweenTo(target, animate) {
+            if (currentTween) currentTween.kill();
+            const proxy = { p: pos };
+            const dur = animate ? cfg.duration / 1000 : 0;
+
+            if (window.gsap && dur > 0) {
+                currentTween = gsap.to(proxy, {
+                    p: target,
+                    duration: dur,
+                    ease: cfg.ease,
+                    onUpdate: () => {
+                        pos = proxy.p;
+                        layout(pos);
+                    },
+                    onComplete: () => {
+                        if (count > 0) pos = ((pos % count) + count) % count;
+                        layout(pos);
+                    }
+                });
+            } else {
+                pos = target;
+                if (count > 0) pos = ((pos % count) + count) % count;
+                layout(pos);
+            }
+        }
+
+        function setFocus(rawIndex, animate = true) {
+            if (!count) return;
+            const idx = cfg.loop ? ((rawIndex % count) + count) % count : clamp(rawIndex, 0, count - 1);
+            let delta = idx - pos;
+            if (cfg.loop && count > 1) {
+                delta = ((delta % count) + count) % count;
+                if (delta > count / 2) delta -= count;
+            }
+            tweenTo(pos + delta, animate);
+            if (idx !== focusIndex) {
+                focusIndex = idx;
+                notify(idx);
+            }
+        }
+
+        function navigateBy(step) {
+            setFocus(focusIndex + step, true);
+        }
+
+        // ResizeObserver
+        if ('ResizeObserver' in window) {
+            const ro = new ResizeObserver(() => {
+                layout(pos);
+            });
+            ro.observe(root);
+        }
+
+        // Pointer Drag & Touch
+        root.addEventListener('pointerdown', (e) => {
+            if (count < 2) return;
+            if (currentTween) currentTween.kill();
+            drag = {
+                x: e.clientX,
+                y: e.clientY,
+                startPos: pos,
+                lastX: e.clientX,
+                lastT: performance.now(),
+                v: 0,
+                moved: false,
+                id: e.pointerId
+            };
+        });
+
+        root.addEventListener('pointermove', (e) => {
+            if (!drag) return;
+            const params = getResponsiveParams();
+            const dx = e.clientX - drag.x;
+            const dy = e.clientY - drag.y;
+
+            if (!drag.moved && (Math.abs(dx) > 5 || Math.abs(dy) > 10)) {
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    drag.moved = true;
+                    try { root.setPointerCapture(drag.id); } catch(err){}
+                } else {
+                    drag = null;
+                    return;
+                }
+            }
+            if (!drag.moved) return;
+
+            const now = performance.now();
+            const dt = Math.max(now - drag.lastT, 1);
+            drag.v = (e.clientX - drag.lastX) / dt;
+            drag.lastX = e.clientX;
+            drag.lastT = now;
+            pos = drag.startPos - dx / params.dragStepPx;
+            layout(pos);
+        });
+
+        function onPointerEnd() {
+            if (!drag) return;
+            const wasMoved = drag.moved;
+            const finalV = drag.v || 0;
+            drag = null;
+            if (!wasMoved) return;
+
+            // Magnetic snap with velocity assist
+            let targetIdx = Math.round(pos - finalV * 0.18);
+            setFocus(targetIdx, true);
+        }
+
+        root.addEventListener('pointerup', onPointerEnd);
+        root.addEventListener('pointercancel', onPointerEnd);
+
+        // Keyboard
+        root.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateBy(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateBy(1);
+            }
+        });
+
+        // Card Clicks
+        cards.forEach((card, i) => {
+            card.addEventListener('click', (e) => {
+                if (drag && drag.moved) {
+                    e.preventDefault();
+                    return;
+                }
+                if (i !== focusIndex) {
+                    e.preventDefault();
+                    setFocus(i, true);
+                }
+            });
+        });
+
+        // Navigation Controls
+        const prevBtn = document.getElementById('depthPrevBtn');
+        const nextBtn = document.getElementById('depthNextBtn');
+        if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateBy(-1); });
+        if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateBy(1); });
+
+        // Autoplay
+        function startAutoplay() {
+            stopAutoplay();
+            autoTimer = setInterval(() => {
+                if (!isHovered && !isFocused) {
+                    navigateBy(1);
+                }
+            }, cfg.autoplayDelay);
+        }
+
+        function stopAutoplay() {
+            if (autoTimer) clearInterval(autoTimer);
+            autoTimer = null;
+        }
+
+        root.addEventListener('mouseenter', () => { isHovered = true; });
+        root.addEventListener('mouseleave', () => { isHovered = false; });
+        root.addEventListener('focusin', () => { isFocused = true; });
+        root.addEventListener('focusout', () => { isFocused = false; });
+
+        notify(0);
+        layout(0);
+        startAutoplay();
+    })();
+
+    cargarDatos();
+</script>
+<!-- INTERNACIONALIZACIÓN Y TRADUCCIÓN REACTIVA -->
+<script src="/js/pia-i18n.js"></script>
+<!-- ASISTENTE VIRTUAL IA PIA -->
+<script src="/js/pia-chatbot.js" defer></script>
+
+</body>
+</html>

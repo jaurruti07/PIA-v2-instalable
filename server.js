@@ -32,6 +32,7 @@ if (!fs.existsSync(BACKUPS_DIR)) fs.mkdirSync(BACKUPS_DIR, { recursive: true });
 const OPERATORS_FILE = path.join(DATA_DIR, 'authorized_operators.json');
 const AUDIT_FILE = path.join(DATA_DIR, 'audit_logs.json');
 const VISITS_FILE = path.join(DATA_DIR, 'page_visits.json');
+const USERS_FILE = path.join(DATA_DIR, 'users_roles.json');
 
 // Lista blanca estricta de archivos autorizados (Protección contra Path Traversal)
 const WHITELIST_JSON_MAP = {
@@ -394,6 +395,122 @@ function saveAuthorizedOperators(operators) {
   }
 }
 
+// ========================================================
+// 3.B GESTIÓN DE ROLES, PERMISOS Y CONTRASEÑAS ENCRIPTADAS
+// ========================================================
+
+const DEFAULT_AUTHORIZED_USERS = [
+  {
+    id: "usr_cnc_01",
+    email: "deteccionydenuncia@cnc.gob.gt",
+    displayName: "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
+    role: "admin",
+    // Contraseña inicial 12345 encriptada con PBKDF2/SHA-512 y sal criptográfica
+    passwordHash: "f929ebd07fd2c63da7eb3004213bd3d2:9d5f0b3dc9c5e3160bcd726cfd0104c4b310ba6369d64914435c4de8c1ad5d6fb3723aa263cdcaf84f57ef6160b3634442819a3e43f657c0eeb088fbd317ef59",
+    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
+    status: "active",
+    operatorIndex: 1,
+    lastPasswordChange: "2026-03-30T10:00:00.000Z",
+    updatedAt: "2026-03-30T10:00:00.000Z"
+  },
+  {
+    id: "usr_cnc_02",
+    email: "apoyogi@cnc.gob.gt",
+    displayName: "Apoyo a la Gestión de Irregularidades (CNC)",
+    role: "admin",
+    // Contraseña inicial 12345 encriptada con PBKDF2/SHA-512 y sal criptográfica
+    passwordHash: "29af97fbdcade6df44a7d6fb84022548:b3e638225077f1c21b848b5bc32b9cf95d4b7f083dd3eb246d389a042475d86dd8002e0bb7fa0e47234b7a8164304e5a784af86ba8575357e361c93a5a33137e",
+    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
+    status: "active",
+    operatorIndex: 2,
+    lastPasswordChange: "2026-03-30T10:00:00.000Z",
+    updatedAt: "2026-03-30T10:00:00.000Z"
+  }
+];
+
+function hashPassword(password, salt = null) {
+  if (!salt) {
+    salt = crypto.randomBytes(16).toString('hex');
+  }
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, storedCombined) {
+  if (!storedCombined || typeof storedCombined !== 'string' || !storedCombined.includes(':')) {
+    return false;
+  }
+  const [salt, expectedHash] = storedCombined.split(':');
+  if (!salt || !expectedHash) return false;
+  try {
+    const actualHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    return crypto.timingSafeEqual(Buffer.from(actualHash, 'hex'), Buffer.from(expectedHash, 'hex'));
+  } catch (e) {
+    return false;
+  }
+}
+
+const SESSION_HMAC_SECRET = process.env.PIA_SESSION_SECRET || crypto.createHash('sha256').update('PIA_CNC_GUATEMALA_SECRET_KEY_2026').digest('hex');
+
+function createLocalSessionToken(user) {
+  const payload = {
+    uid: user.id || user.uid,
+    email: user.email,
+    displayName: user.displayName,
+    role: user.role || 'admin',
+    modules: user.modules || [],
+    operatorIndex: user.operatorIndex || 1,
+    exp: Date.now() + (12 * 60 * 60 * 1000)
+  };
+  const bodyB64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = crypto.createHmac('sha256', SESSION_HMAC_SECRET).update(bodyB64).digest('base64url');
+  return `pia_sess_${bodyB64}.${signature}`;
+}
+
+function verifyLocalSessionToken(token) {
+  if (!token || typeof token !== 'string' || !token.startsWith('pia_sess_')) return null;
+  const parts = token.slice('pia_sess_'.length).split('.');
+  if (parts.length !== 2) return null;
+  const [bodyB64, signature] = parts;
+  const expectedSig = crypto.createHmac('sha256', SESSION_HMAC_SECRET).update(bodyB64).digest('base64url');
+  if (signature.length !== expectedSig.length) return null;
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(bodyB64, 'base64url').toString('utf8'));
+    if (payload.exp && Date.now() > payload.exp) return null;
+    return payload;
+  } catch (e) {
+    return null;
+  }
+}
+
+function getUsersRoles() {
+  if (fs.existsSync(USERS_FILE)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+    } catch (e) {
+      console.error('Error leyendo users_roles.json:', e);
+    }
+  }
+  saveUsersRoles(DEFAULT_AUTHORIZED_USERS);
+  return DEFAULT_AUTHORIZED_USERS;
+}
+
+function saveUsersRoles(users) {
+  try {
+    const tempFile = path.join(DATA_DIR, `.tmp_users_${Date.now()}`);
+    fs.writeFileSync(tempFile, JSON.stringify(users, null, 2), 'utf8');
+    fs.renameSync(tempFile, USERS_FILE);
+    return true;
+  } catch (e) {
+    console.error('Error guardando users_roles.json:', e);
+    return false;
+  }
+}
+
 // Validación criptográfica estricta de token de Firebase Authentication en el servidor
 async function verifyFirebaseToken(token) {
   if (!token || typeof token !== 'string') {
@@ -429,17 +546,44 @@ async function verifyFirebaseToken(token) {
   };
 }
 
-// Middleware de autenticación y autorización para dos operadores mediante Firebase Auth
+// Middleware de autenticación y autorización para dos operadores (Sesión Local o Firebase Auth)
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.replace(/^Bearer\s+/i, '').trim();
 
   if (!token) {
     return res.status(401).json({
-      error: 'Acceso no autorizado. Debe autenticarse con una cuenta autorizada de la CNC mediante Firebase Auth.'
+      error: 'Acceso no autorizado. Debe autenticarse con una cuenta autorizada de la CNC.'
     });
   }
 
+  // 1. Verificación de token de sesión local criptográfica (HMAC-SHA256)
+  if (token.startsWith('pia_sess_')) {
+    const localSession = verifyLocalSessionToken(token);
+    if (!localSession) {
+      return res.status(401).json({ error: 'Sesión inválida o expirada.' });
+    }
+    const userEmail = (localSession.email || '').toLowerCase();
+    if (!ALLOWED_OPERATOR_EMAILS.includes(userEmail)) {
+      return res.status(403).json({ error: 'Usuario no autorizado en el portal.' });
+    }
+    const allUsers = getUsersRoles();
+    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail);
+
+    req.user = {
+      uid: localSession.uid || dbUser?.id || 'usr_cnc_01',
+      oid: localSession.uid || dbUser?.id || 'usr_cnc_01',
+      email: userEmail,
+      upn: userEmail,
+      displayName: dbUser?.displayName || localSession.displayName,
+      operatorIndex: dbUser?.operatorIndex || localSession.operatorIndex || 1,
+      role: dbUser?.role || 'admin',
+      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide']
+    };
+    return next();
+  }
+
+  // 2. Verificación de token de Firebase Authentication
   try {
     const verified = await verifyFirebaseToken(token);
     const userUid = verified.uid;
@@ -476,7 +620,6 @@ async function requireAuth(req, res, next) {
       });
     }
 
-    // Si el operador ya tiene un UID fijado en el servidor, debe coincidir estrictamente
     if (matchedOperator.uid && matchedOperator.uid !== userUid) {
       logAudit({
         user: userEmail,
@@ -496,7 +639,6 @@ async function requireAuth(req, res, next) {
       });
     }
 
-    // Si es el primer ingreso exitoso y no tenía UID fijado, enlazarlo de forma inmutable
     if (!matchedOperator.uid) {
       matchedOperator.uid = userUid;
       matchedOperator.status = 'active';
@@ -514,29 +656,32 @@ async function requireAuth(req, res, next) {
       });
     }
 
+    const allUsers = getUsersRoles();
+    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail);
+
     req.user = {
       uid: userUid,
-      oid: userUid, // compatibilidad
+      oid: userUid,
       email: userEmail,
-      upn: userEmail, // compatibilidad
-      displayName: matchedOperator.displayName || verified.name,
+      upn: userEmail,
+      displayName: dbUser?.displayName || matchedOperator.displayName || verified.name,
       operatorIndex: matchedOperator.operatorIndex,
-      role: 'data_operator',
-      modules: ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'chatbot']
+      role: dbUser?.role || 'admin',
+      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide']
     };
 
     next();
   } catch (err) {
     return res.status(401).json({
-      error: 'Token de Firebase inválido, expirado o no autorizado.',
+      error: 'Token de autorización inválido, expirado o no autorizado.',
       details: err.message
     });
   }
 }
 
-// Middleware de verificación de rol de operador de datos
+// Middleware de verificación de rol de operador o administrador
 function requireOperator(req, res, next) {
-  if (!req.user || req.user.role !== 'data_operator') {
+  if (!req.user || (req.user.role !== 'data_operator' && req.user.role !== 'admin')) {
     return res.status(403).json({ error: 'Operación reservada exclusivamente para los operadores autorizados.' });
   }
   next();
@@ -584,6 +729,79 @@ app.get('/api/auth/entra-config', (req, res) => {
   });
 });
 
+// Inicio de sesión directo con correo y contraseña encriptada (con sal PBKDF2/SHA-512)
+app.post('/api/auth/login', (req, res) => {
+  const { email, username, password } = req.body || {};
+  const userIdentifier = (email || username || '').trim().toLowerCase();
+  const rawPassword = password || '';
+
+  if (!userIdentifier || !rawPassword) {
+    return res.status(401).json({ error: 'Credenciales incompletas. Debe ingresar correo y contraseña.' });
+  }
+
+  // Verificar si es uno de los 2 usuarios autorizados
+  if (!ALLOWED_OPERATOR_EMAILS.includes(userIdentifier)) {
+    logAudit({
+      user: userIdentifier,
+      action: 'LOGIN FALLIDO (USUARIO NO AUTORIZADO)',
+      module: 'auth',
+      target: 'admin',
+      details: `Intento de acceso rechazado para cuenta no autorizada: ${userIdentifier}`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+    return res.status(401).json({ error: 'Credenciales incorrectas o usuario no autorizado.' });
+  }
+
+  const users = getUsersRoles();
+  const user = users.find(u => u.email.toLowerCase() === userIdentifier);
+
+  if (!user || !user.passwordHash) {
+    return res.status(401).json({ error: 'Credenciales incorrectas o usuario no configurado.' });
+  }
+
+  const isValid = verifyPassword(rawPassword, user.passwordHash);
+  if (!isValid) {
+    logAudit({
+      user: userIdentifier,
+      action: 'LOGIN FALLIDO (CONTRASEÑA INCORRECTA)',
+      module: 'auth',
+      target: 'admin',
+      details: `Contraseña inválida ingresada para el usuario ${userIdentifier}`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+    return res.status(401).json({ error: 'Credenciales incorrectas o usuario no autorizado.' });
+  }
+
+  const token = createLocalSessionToken(user);
+
+  logAudit({
+    user: user.email,
+    userUid: user.id,
+    userRole: user.role,
+    action: 'INICIO DE SESIÓN EXITOSO (ADMIN LOCAL/ENCRIPTADO)',
+    module: 'auth',
+    target: 'admin',
+    details: `Inicio de sesión exitoso como ${user.displayName} (${user.email}) con permisos en: ${(user.modules || []).join(', ')}`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json({
+    success: true,
+    token,
+    user: {
+      id: user.id,
+      uid: user.id,
+      oid: user.id,
+      email: user.email,
+      upn: user.email,
+      displayName: user.displayName,
+      role: user.role || 'admin',
+      modules: user.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+      operatorIndex: user.operatorIndex
+    }
+  });
+});
+
 app.get('/api/auth/verify', requireAuth, (req, res) => {
   res.json({
     user: {
@@ -593,7 +811,7 @@ app.get('/api/auth/verify', requireAuth, (req, res) => {
       upn: req.user.email,
       displayName: req.user.displayName,
       operatorIndex: req.user.operatorIndex,
-      role: 'data_operator',
+      role: req.user.role || 'admin',
       modules: req.user.modules
     }
   });
@@ -601,49 +819,51 @@ app.get('/api/auth/verify', requireAuth, (req, res) => {
 
 // Estado de configuración institucional de los dos operadores y políticas de seguridad
 app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) => {
-  const ops = getAuthorizedOperators();
-  const op1 = ops.find(o => o.operatorIndex === 1);
-  const op2 = ops.find(o => o.operatorIndex === 2);
+  const users = getUsersRoles();
+  const op1 = users.find(o => o.operatorIndex === 1) || users[0];
+  const op2 = users.find(o => o.operatorIndex === 2) || users[1];
 
   res.json({
     model: 'two_operators_exclusive',
     maxAllowed: 2,
-    configuredCount: ops.length,
+    configuredCount: users.length,
     slots: [
       {
         slot: 1,
-        configured: !!(op1 && op1.uid),
+        configured: !!(op1 && op1.status === 'active'),
         displayName: op1?.displayName || 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI',
         email: 'deteccionydenuncia@cnc.gob.gt',
         upn: 'deteccionydenuncia@cnc.gob.gt',
-        uidMasked: op1?.uid ? `${op1.uid.substring(0, 8)}...${op1.uid.slice(-4)}` : 'Pendiente de primer ingreso (deteccionydenuncia@cnc.gob.gt)',
-        source: process.env.PIA_OPERATOR_1_UID ? 'Variable de Entorno (PIA_OPERATOR_1_UID)' : (op1?.uid ? 'authorized_operators.json (Enlazado)' : 'Pendiente primer login'),
-        role: 'data_operator',
-        status: op1?.status || 'pending_first_login',
-        notes: op1?.notes || ''
+        uidMasked: op1?.id || 'usr_cnc_01',
+        source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
+        role: op1?.role || 'admin',
+        modules: op1?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+        status: op1?.status || 'active',
+        lastPasswordChange: op1?.lastPasswordChange
       },
       {
         slot: 2,
-        configured: !!(op2 && op2.uid),
-        displayName: op2?.displayName || 'Apoyo GI (CNC)',
+        configured: !!(op2 && op2.status === 'active'),
+        displayName: op2?.displayName || 'Apoyo a la Gestión de Irregularidades (CNC)',
         email: 'apoyogi@cnc.gob.gt',
         upn: 'apoyogi@cnc.gob.gt',
-        uidMasked: op2?.uid ? `${op2.uid.substring(0, 8)}...${op2.uid.slice(-4)}` : 'Pendiente de primer ingreso (apoyogi@cnc.gob.gt)',
-        source: process.env.PIA_OPERATOR_2_UID ? 'Variable de Entorno (PIA_OPERATOR_2_UID)' : (op2?.uid ? 'authorized_operators.json (Enlazado)' : 'Pendiente primer login'),
-        role: 'data_operator',
-        status: op2?.status || 'pending_first_login',
-        notes: op2?.notes || ''
+        uidMasked: op2?.id || 'usr_cnc_02',
+        source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
+        role: op2?.role || 'admin',
+        modules: op2?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+        status: op2?.status || 'active',
+        lastPasswordChange: op2?.lastPasswordChange
       }
     ],
     security: {
-      authProvider: 'Firebase Authentication (Email/Contraseña + Verificación JWKS Google)',
+      authProvider: 'Autenticación Criptográfica (PBKDF2/SHA-512) + Firebase Auth',
       projectId: FIREBASE_PROJECT_ID,
       authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
       concurrencyControl: 'SHA-256 ETag Optimistic Concurrency Activo',
       atomicWrites: 'Activo (.tmp + rename atómico)',
       automatedBackups: 'Activo (rotación de 30 versiones en data/backups)',
-      immutableUidAudit: 'Activo (registro individualizado en audit_logs.json con UID)',
-      browserUserCreationDisabled: true,
+      immutableUidAudit: 'Activo (registro individualizado en audit_logs.json)',
+      browserUserCreationDisabled: false,
       geminiLupita: {
         model: 'gemini-2.5-flash',
         configured: !!process.env.GEMINI_API_KEY,
@@ -655,18 +875,163 @@ app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) 
   });
 });
 
-// Bloqueo explícito de gestión de usuarios en el navegador
-app.all(['/api/users', '/api/users/*'], requireAuth, requireOperator, (req, res) => {
-  if (req.method === 'GET') {
-    const ops = getAuthorizedOperators();
-    return res.json({
-      model: 'two_operators_exclusive',
-      authorizedCount: ops.length,
-      maxAllowed: 2
-    });
+// Obtener lista autorizada de usuarios (sanitizada sin hashes de contraseña)
+app.get('/api/users', requireAuth, requireOperator, (req, res) => {
+  const users = getUsersRoles();
+  const sanitized = users.map(u => ({
+    id: u.id,
+    email: u.email,
+    displayName: u.displayName,
+    role: u.role || 'admin',
+    modules: u.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+    status: u.status || 'active',
+    operatorIndex: u.operatorIndex,
+    lastPasswordChange: u.lastPasswordChange,
+    updatedAt: u.updatedAt
+  }));
+
+  res.json({
+    model: 'two_operators_exclusive',
+    authorizedCount: sanitized.length,
+    maxAllowed: 2,
+    users: sanitized
+  });
+});
+
+// Actualizar módulos permitidos para un usuario desde el panel admin
+app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (req, res) => {
+  const targetEmail = (req.params.email || '').trim().toLowerCase();
+  const { modules } = req.body || {};
+
+  if (!ALLOWED_OPERATOR_EMAILS.includes(targetEmail)) {
+    return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
   }
-  return res.status(403).json({
-    error: 'La gestión de usuarios desde el navegador está deshabilitada en la arquitectura de dos operadores. La configuración se realiza exclusivamente mediante variables de entorno del servidor o autorización de TI.'
+
+  if (!Array.isArray(modules)) {
+    return res.status(400).json({ error: 'El listado de módulos debe ser un arreglo de cadenas.' });
+  }
+
+  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
+  const sanitizedModules = modules.filter(m => validModules.includes(m));
+
+  const users = getUsersRoles();
+  const user = users.find(u => u.email.toLowerCase() === targetEmail);
+  if (!user) {
+    return res.status(404).json({ error: 'Usuario no encontrado.' });
+  }
+
+  user.modules = sanitizedModules;
+  user.updatedAt = new Date().toISOString();
+  saveUsersRoles(users);
+
+  logAudit({
+    user: req.user.email,
+    userUid: req.user.uid,
+    action: 'ACTUALIZACIÓN DE PERMISOS DE MÓDULOS',
+    module: 'users',
+    target: targetEmail,
+    details: `Módulos asignados a ${targetEmail}: ${sanitizedModules.join(', ')}`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json({
+    success: true,
+    message: `Permisos actualizados para ${targetEmail}`,
+    user: {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      role: user.role,
+      modules: user.modules,
+      status: user.status
+    }
+  });
+});
+
+// Cambiar y encriptar contraseña para un usuario desde el panel admin
+app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, res) => {
+  const targetEmail = (req.params.email || '').trim().toLowerCase();
+  const { newPassword } = req.body || {};
+
+  if (!ALLOWED_OPERATOR_EMAILS.includes(targetEmail)) {
+    return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
+  }
+
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 4) {
+    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 4 caracteres.' });
+  }
+
+  const users = getUsersRoles();
+  const user = users.find(u => u.email.toLowerCase() === targetEmail);
+  if (!user) {
+    return res.status(404).json({ error: 'Usuario no encontrado.' });
+  }
+
+  // Encriptar con sal criptográfica única y PBKDF2/SHA-512
+  const newHash = hashPassword(newPassword.trim());
+  user.passwordHash = newHash;
+  user.lastPasswordChange = new Date().toISOString();
+  user.updatedAt = new Date().toISOString();
+  saveUsersRoles(users);
+
+  logAudit({
+    user: req.user.email,
+    userUid: req.user.uid,
+    action: 'CAMBIO DE CONTRASEÑA ENCRIPTADA',
+    module: 'users',
+    target: targetEmail,
+    details: `Contraseña actualizada y encriptada con sal PBKDF2/SHA-512 para el usuario ${targetEmail}`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json({
+    success: true,
+    message: `Contraseña de ${targetEmail} actualizada y encriptada exitosamente.`
+  });
+});
+
+// Actualizar rol de usuario (admin o data_operator)
+app.put('/api/admin/users/:email/role', requireAuth, requireOperator, (req, res) => {
+  const targetEmail = (req.params.email || '').trim().toLowerCase();
+  const { role } = req.body || {};
+
+  if (!ALLOWED_OPERATOR_EMAILS.includes(targetEmail)) {
+    return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
+  }
+
+  const allowedRoles = ['admin', 'data_operator'];
+  if (!allowedRoles.includes(role)) {
+    return res.status(400).json({ error: 'Rol no válido. Permitidos: admin, data_operator.' });
+  }
+
+  const users = getUsersRoles();
+  const user = users.find(u => u.email.toLowerCase() === targetEmail);
+  if (!user) {
+    return res.status(404).json({ error: 'Usuario no encontrado.' });
+  }
+
+  user.role = role;
+  user.updatedAt = new Date().toISOString();
+  saveUsersRoles(users);
+
+  logAudit({
+    user: req.user.email,
+    userUid: req.user.uid,
+    action: 'ACTUALIZACIÓN DE ROL',
+    module: 'users',
+    target: targetEmail,
+    details: `Rol asignado a ${targetEmail}: ${role}`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json({
+    success: true,
+    message: `Rol actualizado a ${role} para ${targetEmail}`,
+    user: {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    }
   });
 });
 

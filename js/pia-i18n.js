@@ -222,7 +222,7 @@
             "Acadeti": "Tijob'al Acadeti",
             "Canales por la Integridad": "B'ey richin Jikomal",
             "Vigilando": "Vigilando la Integridad",
-            "Consultar canales": "Tikanuj B'ey",
+            "Consultar canales": "Consultar canales",
             "Guía de Denuncia Segura": "Ruwachb'al Jikorisaxik pa Ewäl",
             "¿Qué es Canales por la Integridad?": "¿Achike ri B'ey richin Jikomal?",
             "Canales de denuncia": "B'ey richin Jikorisaxik",
@@ -638,18 +638,16 @@
     let currentLang = 'es';
 
     function detectLanguage() {
+        // La guía multilingüe se encuentra inactivada de la interfaz por requerimiento oficial.
+        // El idioma predeterminado de la plataforma es estrictamente Español ('es').
         try {
+            // Limpiar cualquier residuo previo en localStorage para garantizar español
             const stored = localStorage.getItem('pia_inclusive_lang') || localStorage.getItem('pia_selected_lang');
-            if (stored && SUPPORTED_LANGS.includes(stored.toLowerCase())) {
-                return stored.toLowerCase();
+            if (stored && stored !== 'es' && !window.PIA_MULTILINGUE_ACTIVE) {
+                localStorage.setItem('pia_inclusive_lang', 'es');
+                localStorage.setItem('pia_selected_lang', 'es');
             }
         } catch (_) {}
-
-        const htmlLang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
-        if (SUPPORTED_LANGS.includes(htmlLang)) {
-            return htmlLang;
-        }
-
         return 'es';
     }
 
@@ -741,11 +739,11 @@
         });
 
         // B. Reemplazo por IDs conocidos del Portal y Canales
+        // Nota: heroCTA se mantiene estrictamente en español por requerimiento oficial
         const idMap = {
             'mayaStepsHeadingText': 'Procedimiento de Denuncia Segura en 4 Pasos',
             'mayaGuaranteesTitle': 'Garantías de Confidencialidad y Protección CNC',
             'labelToggleDash': 'Mostrar Dashboard de Cumplimiento CNC',
-            'heroCTA': 'Consultar canales',
             'heroGuiaCTA': 'Guía de Denuncia Segura'
         };
 

@@ -16,12 +16,19 @@
     let triggerBtn, chatWindow, messagesContainer, textareaInput, sendBtn;
 
     // Initialize Chatbot Widget on DOM Ready
-    function initChatbot() {
+    async function initChatbot() {
         if (!document.body) {
             document.addEventListener('DOMContentLoaded', initChatbot);
             return;
         }
         if (document.getElementById('piaChatbotWindow')) return; // Avoid duplicate
+
+        // INACTIVACIÓN DE LA OPCIÓN DE CHATBOT EN LA INTERFAZ PÚBLICA (Solicitud de cambio)
+        // Mantenido al 100% a nivel de código listo para cuando se necesite estar visible en la interfaz
+        const CHATBOT_UI_ACTIVE = false;
+        if (!CHATBOT_UI_ACTIVE && !window.PIA_CHATBOT_FORCE_ACTIVE) {
+            return;
+        }
 
         // Append CSS link
         if (!document.querySelector('link[href*="pia-chatbot.css"]')) {

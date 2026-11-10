@@ -1,12 +1,12 @@
 {
-  "totalVisits": 8,
+  "totalVisits": 14,
   "createdAt": "2026-11-06T13:35:18.000Z",
-  "lastUpdated": "2026-11-06T13:46:16.640Z",
+  "lastUpdated": "2026-11-10T13:56:24.870Z",
   "pages": {
     "/": {
       "name": "Portal Principal / Inicio",
-      "visits": 2,
-      "lastVisit": "2026-11-06T13:45:10.425Z"
+      "visits": 7,
+      "lastVisit": "2026-11-10T13:51:59.218Z"
     },
     "/directorio": {
       "name": "Directorio Acceso al Ejecutivo",
@@ -15,8 +15,8 @@
     },
     "/canales-por-la-integridad": {
       "name": "Canales por la Integridad",
-      "visits": 1,
-      "lastVisit": "2026-11-06T13:35:18.017Z"
+      "visits": 2,
+      "lastVisit": "2026-11-10T13:56:24.871Z"
     },
     "/gobierno_en_numeros": {
       "name": "Tu Gobierno en Números",
@@ -30,6 +30,54 @@
     }
   },
   "recentVisits": [
+    {
+      "id": "aa4bd635",
+      "path": "/canales-por-la-integridad",
+      "pageName": "Canales por la Integridad",
+      "timestamp": "2026-11-10T13:56:24.871Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "b5ccb260",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-10T13:51:59.218Z",
+      "maskedIp": "190.56.***.***",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15"
+    },
+    {
+      "id": "d05d4cce",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-10T13:50:20.882Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    },
+    {
+      "id": "f8413040",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-10T13:29:42.917Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "504dca61",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-10T13:24:28.886Z",
+      "maskedIp": "190.56.***.***",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15"
+    },
+    {
+      "id": "0e816c26",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-10T13:10:33.355Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    },
     {
       "id": "5c8d30b5",
       "path": "/gobierno_en_numeros",

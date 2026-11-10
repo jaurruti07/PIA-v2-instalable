@@ -3160,12 +3160,12 @@
         <p class="hero-sub">Listado público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo. Encuentra fácilmente dónde y cómo reportar posibles irregularidades.</p>
         <div class="hero-actions">
             <div class="hero-actions-primary">
-                <a href="#directorio" class="btn-hero-main" id="heroCTA">
+                <a href="#directorio" class="btn-hero-main" id="heroCTA" translate="no" data-no-translate="true">
                     <i class="fas fa-search"></i> Consultar canales
                 </a>
             </div>
-            <div class="hero-actions-secondary">
-                <a href="#guiaMultilingue" class="btn-hero-sub" id="heroGuiaCTA" role="button" aria-expanded="false" title="Mostrar u ocultar Guía Multilingüe de Denuncia Segura">
+                <!-- Guía Multilingüe: Inactivada de la interfaz visible por solicitud, preservada a nivel de código lista para reactivación -->
+                <a href="#guiaMultilingue" class="btn-hero-sub" id="heroGuiaCTA" role="button" aria-expanded="false" title="Mostrar u ocultar Guía Multilingüe de Denuncia Segura" style="display:none !important;" data-status="inactive">
                     <i class="fas fa-shield-alt" style="color:var(--cyan);"></i> Guía de Denuncia Segura
                 </a>
                 <a href="#sobre" class="btn-hero-sub">
@@ -4816,12 +4816,12 @@ if (btnHideGuiaEl) {
     });
 }
 
-// Visualizar automáticamente si se navega directamente con hash #guiaMultilingue
-if (window.location.hash === '#guiaMultilingue') {
+// Visualizar automáticamente si se navega directamente con hash #guiaMultilingue (solo si está activo en la interfaz)
+if (window.location.hash === '#guiaMultilingue' && window.PIA_GUIA_MULTILINGUE_VISIBLE === true) {
     toggleGuiaMultilingue(true);
 }
 window.addEventListener('hashchange', () => {
-    if (window.location.hash === '#guiaMultilingue') {
+    if (window.location.hash === '#guiaMultilingue' && window.PIA_GUIA_MULTILINGUE_VISIBLE === true) {
         toggleGuiaMultilingue(true);
     }
 });

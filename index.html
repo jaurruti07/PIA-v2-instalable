@@ -1709,8 +1709,9 @@
             </button>
         </div>
         <div class="a11y-right-group">
-            <span style="font-size:0.75rem; color:rgba(255,255,255,0.8); font-weight:600;"><i class="fas fa-language" style="color:var(--cyan);"></i> Guía Multilingüe:</span>
-            <select class="a11y-lang-select" id="a11yLangSelectTop" onchange="handleModuleLangChange(this.value)">
+            <!-- Guía Multilingüe: Inactivada de la interfaz visible por solicitud, preservada en código -->
+            <span id="labelGuiaMultilingueTop" style="display:none; font-size:0.75rem; color:rgba(255,255,255,0.8); font-weight:600;"><i class="fas fa-language" style="color:var(--cyan);"></i> Guía Multilingüe:</span>
+            <select class="a11y-lang-select" id="a11yLangSelectTop" style="display:none;" onchange="handleModuleLangChange(this.value)">
                 <option value="es">Español (Oficial)</option>
                 <option value="en">English (Inglés)</option>
                 <option value="kiche">K'iche' (Maya)</option>
@@ -2002,7 +2003,7 @@
                         Normal
                     </button>
                 </div>
-                <div>
+                <div style="display:none !important;">
                     <a href="canales-por-la-integridad/#guiaMultilingue" style="font-size:0.82rem; color:var(--cyan); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem;">
                         <i class="fas fa-external-link-alt"></i> Ver Guía de Denuncia en Idiomas Mayas
                     </a>

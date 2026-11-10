@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página no encontrada - Portal PIA</title>
+    <script>
+        // Redirección inteligente si se intenta acceder a /admin o rutas hijas
+        (function() {
+            var path = window.location.pathname;
+            if (path.indexOf('/admin') !== -1 && !path.endsWith('.html') && !path.endsWith('/')) {
+                window.location.replace(path + '/');
+            }
+        })();
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background: #05111F;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            padding: 2rem;
+            background: rgba(12, 32, 51, 0.85);
+            border: 1px solid rgba(0, 194, 224, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            font-size: 3rem;
+            margin: 0 0 1rem;
+            color: #00c2e0;
+        }
+        p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        a {
+            display: inline-block;
+            background: #00c2e0;
+            color: #05111F;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 194, 224, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>404</h1>
+        <p>La página que buscas no existe o ha sido movida.</p>
+        <a href="./">Volver al Portal PIA</a>
+    </div>
+</body>
+</html>

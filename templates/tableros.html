@@ -1,0 +1,3840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Tu Gobierno en Números · Tableros de Rendición de Cuentas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/css/pia-chatbot.css">
+    <style>
+        /* ============================================================
+           DESIGN TOKENS
+        ============================================================ */
+        :root {
+            --navy:       #05111F;
+            --navy-mid:   #0C2033;
+            --navy-light: #163250;
+            --blue:       #1A5C8F;
+            --blue-bright:#2B82C9;
+            --cyan:       #00C2E0;
+            --cyan-dim:   #0093AA;
+            --amber:      #F5A623;
+            --green:      #22C55E;
+            --surface:    #F0F5FB;
+            --surface-card:#FFFFFF;
+            --text-main:  #0C1F30;
+            --text-muted: #5E7A8E;
+            --text-light: #A8BFCC;
+            --border:     rgba(26,92,143,0.14);
+            --radius-xl:  24px;
+            --radius-2xl: 32px;
+            --shadow-sm:  0 2px 8px rgba(5,17,31,0.06);
+            --shadow-md:  0 6px 24px rgba(5,17,31,0.10);
+            --shadow-lg:  0 16px 48px rgba(5,17,31,0.14);
+            --font-head:  'Sora', sans-serif;
+            --font-body:  'DM Sans', sans-serif;
+        }
+
+        /* ============================================================
+           RESET & BASE
+        ============================================================ */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; background-color: #05111F !important; }
+
+        /* View Transitions API (Navegación Fluida sin Parpadeos) */
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: 220ms cubic-bezier(0.4, 0, 0.2, 1) both pageFadeOut; }
+        ::view-transition-new(root) { animation: 220ms cubic-bezier(0.4, 0, 0.2, 1) both pageFadeIn; }
+        @keyframes pageFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.995); } }
+        @keyframes pageFadeIn { from { opacity: 0; transform: scale(1.005); } to { opacity: 1; transform: scale(1); } }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--surface);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body.page-exiting { opacity: 0 !important; }
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; }
+        button { font-family: var(--font-body); cursor: pointer; }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 28px; }
+
+        /* ============================================================
+           HEADER / NAV
+        ============================================================ */
+        .site-header {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(5,17,31,0.92);
+            backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid rgba(0,194,224,0.10);
+            transition: box-shadow 0.3s;
+        }
+        .site-header.scrolled { box-shadow: 0 4px 32px rgba(0,0,0,0.3); }
+
+        .navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 0;
+            gap: 1.5rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+        .logo-area a {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .gov-logo {
+            height: 52px;
+            width: auto;
+            max-height: 52px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+            margin-left: auto;
+        }
+        .nav-menu > li { position: relative; }
+        .nav-menu a {
+            display: inline-block;
+            padding: 0.45rem 0.9rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-size: 0.77rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.65);
+            transition: all 0.2s;
+        }
+        .nav-menu > li > a { cursor: default; }
+        .nav-menu > li > a .fa-chevron-down {
+            font-size: 0.6rem;
+            margin-left: 4px;
+            transition: transform 0.2s;
+        }
+        .nav-menu > li:hover > a .fa-chevron-down { transform: rotate(180deg); }
+        .nav-menu a:hover, .nav-menu a.active {
+            color: var(--cyan);
+            background: rgba(0,194,224,0.08);
+        }
+        .nav-menu a.nav-cta {
+            background: var(--cyan);
+            color: var(--navy);
+            font-weight: 700;
+        }
+        .nav-menu a.nav-cta:hover { background: #00ddf7; }
+
+        .submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 220px;
+            background: var(--navy-mid);
+            border-radius: 16px;
+            padding: 0.5rem 0;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            border: 1px solid rgba(0,194,224,0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+            list-style: none;
+            z-index: 300;
+        }
+        .nav-menu > li:hover .submenu,
+        .nav-menu > li.open .submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .submenu li a {
+            display: block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 0;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0.02em;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        .submenu li a:hover {
+            background: rgba(0,194,224,0.08);
+            color: var(--cyan);
+            border-left-color: var(--cyan);
+        }
+        .submenu li a i { margin-right: 8px; width: 16px; text-align: center; }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        /* ============================================================
+           HERO
+        ============================================================ */
+        .hero {
+            position: relative;
+            background: var(--navy);
+            overflow: hidden;
+            padding: 6rem 0 5rem;
+            text-align: center;
+        }
+        .hero-bg-slider {
+            position: absolute; inset: 0; z-index: 0;
+            overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center 30%;
+            filter: brightness(0.48) contrast(1.1);
+            opacity: 0;
+            transform: scale(1.06);
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), transform 7s ease-out;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .hero-slider-dots {
+            position: absolute;
+            bottom: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            gap: 8px;
+            padding: 5px 12px;
+            background: rgba(5, 17, 31, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            border-radius: 50px;
+        }
+        .hero-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        .hero-dot:hover {
+            background: rgba(0, 194, 224, 0.8);
+        }
+        .hero-dot.active {
+            width: 24px;
+            border-radius: 12px;
+            background: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 194, 224, 0.6);
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(43,130,201,0.45), transparent),
+                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,194,224,0.22), transparent),
+                linear-gradient(180deg, rgba(5,17,31,0.60) 0%, rgba(5,17,31,0.90) 100%);
+        }
+        .hero::after {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background-image:
+                linear-gradient(rgba(0,194,224,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,194,224,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+        .hero-inner { position: relative; z-index: 2; }
+
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; border-radius: 50px;
+            border: 1px solid rgba(0,194,224,0.35);
+            background: rgba(0,194,224,0.08);
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em;
+            text-transform: uppercase; color: var(--cyan);
+            margin-bottom: 1.6rem;
+        }
+        .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; }
+        @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+
+        .hero h1 {
+            font-family: var(--font-head);
+            font-size: clamp(2.6rem, 6vw, 4.2rem);
+            font-weight: 800;
+            line-height: 1.1;
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+        }
+        .hero h1 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-lema {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.5);
+            font-style: italic;
+            margin-bottom: 1.2rem;
+        }
+        .hero-sub {
+            max-width: 600px; margin: 0 auto 2.5rem;
+            font-size: 1rem; color: rgba(255,255,255,0.65); line-height: 1.7;
+        }
+
+        .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--cyan); color: var(--navy);
+            font-family: var(--font-head); font-weight: 700; font-size: 0.9rem;
+            padding: 0.85rem 2rem; border-radius: 50px;
+            border: none; transition: all 0.25s;
+            box-shadow: 0 0 32px rgba(0,194,224,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(0,194,224,0.5); background: #00ddf7; }
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; color: rgba(255,255,255,0.8);
+            font-family: var(--font-head); font-weight: 600; font-size: 0.9rem;
+            padding: 0.85rem 2rem; border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.2); transition: all 0.25s;
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.4); }
+
+        /* ============================================================
+           STATS RIBBON
+        ============================================================ */
+        .stats-ribbon {
+            background: var(--navy-mid);
+            border-top: 1px solid rgba(0,194,224,0.08);
+            border-bottom: 1px solid rgba(0,194,224,0.08);
+            padding: 1.6rem 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+            gap: 1px;
+            background: rgba(0,194,224,0.08);
+            border: 1px solid rgba(0,194,224,0.08);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+        .stat-cell {
+            background: var(--navy-mid);
+            padding: 1.2rem;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .stat-cell:hover { background: rgba(0,194,224,0.06); }
+        .stat-icon { font-size: 1.3rem; color: var(--cyan); margin-bottom: 0.4rem; }
+        .stat-num { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1; }
+        .stat-lbl { font-size: 0.72rem; font-weight: 500; color: var(--text-light); margin-top: 0.2rem; letter-spacing: 0.03em; text-transform: uppercase; }
+
+        /* ============================================================
+           SECTION SHELL
+        ============================================================ */
+        .section { padding: 4rem 0; }
+        .section-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--cyan);
+            margin-bottom: 0.75rem;
+        }
+        .section-tag::before { content:''; width:24px; height:2px; background: var(--cyan); border-radius:2px; }
+        h2.section-title {
+            font-family: var(--font-head);
+            font-size: clamp(1.7rem, 3vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            line-height: 1.15;
+            margin-bottom: 0.5rem;
+        }
+        .section-sub { font-size: 0.97rem; color: var(--text-muted); max-width: 560px; }
+        .section-header { margin-bottom: 2.5rem; }
+        .section-header.center { text-align: center; }
+        .section-header.center .section-sub { margin: 0 auto; }
+
+        /* ============================================================
+           SOBRE LA PLATAFORMA 
+        ============================================================ */
+        .about-section {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius-2xl);
+            background: linear-gradient(145deg, var(--navy) 0%, var(--navy-light) 100%);
+            padding: 3.5rem 4rem;
+            box-shadow: 0 20px 60px rgba(5,17,31,0.25);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        .about-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(0,194,224,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(43,130,201,0.06) 0%, transparent 40%),
+                repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 21px);
+            pointer-events: none;
+        }
+        .about-content {
+            position: relative;
+            z-index: 2;
+        }
+        .about-content .section-tag {
+            color: var(--cyan);
+        }
+        .about-content .section-tag::before {
+            background: var(--cyan);
+        }
+        .about-content h2 {
+            font-family: var(--font-head);
+            font-size: clamp(2rem, 3.5vw, 2.8rem);
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+        }
+        .about-content h2 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .about-content p {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.75);
+            margin-bottom: 1.2rem;
+        }
+        .about-content p:last-child { margin-bottom: 0; }
+        .about-content .highlight {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+        .about-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+        .about-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 0.9rem 1.2rem;
+            transition: all 0.3s;
+        }
+        .about-feature:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+            border-color: rgba(0,194,224,0.3);
+        }
+        .about-feature i {
+            font-size: 1.2rem;
+            color: var(--cyan);
+            width: 28px;
+            text-align: center;
+        }
+        .about-feature span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+        }
+        .about-image {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .about-image img {
+            max-width: 100%;
+            width: 550px;
+            margin: 0 auto;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* ============================================================
+           GLOSARIO (tabs)
+        ============================================================ */
+        .glosario-tabs {
+            margin-top: 1.5rem;
+        }
+        .glosario-tab-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .glosario-tab-btn {
+            padding: 0.6rem 1.4rem;
+            border: 1.5px solid var(--border);
+            border-radius: 50px;
+            background: #fff;
+            font-family: var(--font-head);
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+        .glosario-tab-btn:hover {
+            border-color: var(--blue-bright);
+            color: var(--blue-bright);
+        }
+        .glosario-tab-btn.active {
+            background: var(--navy);
+            color: #fff;
+            border-color: var(--navy);
+        }
+        .glosario-tab-panels {
+            position: relative;
+        }
+        .glosario-panel {
+            display: none;
+            animation: fadeUp 0.4s ease;
+        }
+        .glosario-panel.active {
+            display: block;
+        }
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .glosario-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+        .glosario-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem 1.8rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+        .glosario-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(43,130,201,0.25);
+        }
+        .glosario-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #EBF5FF, #D2EAFF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--blue-bright);
+            flex-shrink: 0;
+        }
+        .glosario-card h3 {
+            font-family: var(--font-head);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.3;
+        }
+        .glosario-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            margin: 0;
+            flex: 1;
+        }
+
+        /* ============================================================
+           FILTER BAR
+        ============================================================ */
+        .filter-bar {
+            background: var(--surface-card, #ffffff);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-2xl, 20px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(5, 17, 31, 0.05);
+            margin-bottom: 2rem;
+            transition: all 0.25s ease;
+        }
+        .filter-bar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .filter-bar-title {
+            font-family: var(--font-head);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .filter-active-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 194, 224, 0.12);
+            color: var(--cyan-dim, #0093AA);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.65rem;
+            border-radius: 50px;
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1.25rem;
+            align-items: end;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .filter-label {
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
+            text-transform: uppercase; color: var(--blue-bright, #2B82C9);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .filter-group select {
+            width: 100%; padding: 0.75rem 2.5rem 0.75rem 1.15rem;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            font-family: var(--font-body); font-size: 0.88rem; font-weight: 500;
+            color: var(--text-main); background-color: var(--surface);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230C2033' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(12, 32, 51, 0.04);
+            transition: all 0.2s ease;
+        }
+        .filter-group select option {
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            font-family: var(--font-body);
+            background-color: #ffffff;
+            color: var(--navy);
+            border-radius: 8px;
+        }
+        #directorio.theme-dark .filter-group select option {
+            background-color: #0c1f30;
+            color: #ffffff;
+        }
+        .filter-group input[type="text"] {
+            width: 100%; padding: 0.75rem 2.2rem 0.75rem 1.15rem;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            font-family: var(--font-body); font-size: 0.88rem;
+            color: var(--text-main); background: var(--surface);
+            box-shadow: 0 2px 8px rgba(12, 32, 51, 0.04);
+            transition: all 0.2s ease;
+        }
+        .filter-group select:hover,
+        .filter-group input[type="text"]:hover {
+            border-color: var(--blue-bright);
+            box-shadow: 0 2px 8px rgba(0, 194, 224, 0.08);
+        }
+        .filter-group select:focus,
+        .filter-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3.5px rgba(0, 194, 224, 0.18);
+            background-color: #ffffff;
+        }
+        .filter-group select.has-value,
+        .filter-group input[type="text"].has-value {
+            border-color: var(--blue-bright);
+            background-color: rgba(43, 130, 201, 0.06);
+            font-weight: 600;
+            color: var(--navy);
+        }
+        .input-clear-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .input-clear-btn {
+            position: absolute;
+            right: 0.6rem;
+            background: rgba(0, 0, 0, 0.06);
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            z-index: 2;
+        }
+        .input-clear-btn:hover {
+            background: rgba(220, 38, 38, 0.2);
+            color: #DC2626;
+        }
+        .active-chips-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+            padding-top: 0.85rem;
+            border-top: 1px dashed var(--border);
+        }
+        .active-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(43, 130, 201, 0.1);
+            border: 1px solid rgba(43, 130, 201, 0.28);
+            color: var(--navy);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.28rem 0.75rem;
+            border-radius: 50px;
+        }
+        .active-filter-chip button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            transition: all 0.15s;
+        }
+        .active-filter-chip button:hover {
+            background: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+        }
+
+        .voice-row { display: flex; gap: 8px; }
+        .voice-btn {
+            flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--surface); border: 1.5px solid var(--border);
+            color: var(--blue-bright); font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .voice-btn:hover { background: var(--blue-bright); color: #fff; }
+        .voice-btn.listening { background: #FEE2E2; border-color: #EF4444; color: #EF4444; animation: ring 1.2s infinite; }
+        @keyframes ring { 0%{ box-shadow:0 0 0 0 rgba(239,68,68,0.4); } 70%{ box-shadow:0 0 0 8px rgba(239,68,68,0); } 100%{ box-shadow:0 0 0 0 rgba(239,68,68,0); } }
+
+        .filter-actions { display:flex; justify-content:flex-end; margin-top:1.5rem; flex-wrap: wrap; gap: 0.5rem; }
+        .btn-reset {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--navy); color: #fff;
+            font-family: var(--font-head); font-weight: 600; font-size: 0.82rem;
+            padding: 0.65rem 1.5rem; border-radius: 50px; border: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-reset:hover { background: var(--navy-light); transform: translateY(-1px); }
+
+        .btn-reset-grid {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            height: 44px;
+            padding: 0.65rem 1.25rem;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            color: #fff;
+            font-family: var(--font-head);
+            font-weight: 600;
+            font-size: 0.82rem;
+            border-radius: 50px;
+            border: 1.5px solid rgba(0, 194, 224, 0.35);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(5, 17, 31, 0.15);
+            white-space: nowrap;
+        }
+        .btn-reset-grid:hover {
+            background: var(--blue-bright);
+            color: #fff;
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(43, 130, 201, 0.3);
+        }
+        .btn-reset-grid i {
+            color: var(--cyan);
+            font-size: 0.95rem;
+            transition: transform 0.3s ease;
+        }
+        .btn-reset-grid:hover i {
+            color: #fff;
+            transform: rotate(-15deg) scale(1.15);
+        }
+
+        /* ============================================================
+           ANIMATIONS & TRANSITIONS
+        ============================================================ */
+        @keyframes fadeInUpCard {
+            from {
+                opacity: 0;
+                transform: translateY(22px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeInScaleChart {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.985);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes popKpiCard {
+            from {
+                opacity: 0;
+                transform: translateX(-14px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(0, 194, 224, 0.25); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 194, 224, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 194, 224, 0); }
+        }
+
+        /* ============================================================
+           DATA VISUALIZATION - BENCHMARKS CHART
+        ============================================================ */
+        .benchmark-chart-card {
+            background: var(--surface-card, #ffffff);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-2xl, 24px);
+            padding: 1.75rem 2rem;
+            box-shadow: 0 6px 24px rgba(5, 17, 31, 0.06);
+            margin-bottom: 2rem;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.3s ease,
+                        background-color 0.3s ease;
+            animation: fadeInScaleChart 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+            will-change: transform, opacity;
+        }
+        .benchmark-chart-card:hover {
+            box-shadow: 0 12px 32px rgba(5, 17, 31, 0.1);
+            border-color: rgba(0, 194, 224, 0.3);
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .chart-title-group h3 {
+            font-family: var(--font-head);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: color 0.3s ease;
+        }
+        .chart-title-group p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+        .chart-controls-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .chart-mode-btn {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 50px;
+            padding: 0.45rem 0.95rem;
+            font-family: var(--font-head);
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chart-mode-btn:hover {
+            border-color: var(--blue-bright);
+            color: var(--blue-bright);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(43, 130, 201, 0.12);
+        }
+        .chart-mode-btn.active {
+            background: var(--navy);
+            border-color: var(--navy);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(5, 17, 31, 0.2);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .chart-grid-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        @media (max-width: 992px) {
+            .chart-grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .chart-canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            transition: opacity 0.3s ease;
+        }
+        .kpi-mini-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+        .kpi-mini-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 0.85rem 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.28s ease,
+                        background-color 0.28s ease;
+            animation: popKpiCard 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+            will-change: transform, opacity;
+        }
+        .kpi-mini-card:nth-child(1) { animation-delay: 0.08s; }
+        .kpi-mini-card:nth-child(2) { animation-delay: 0.14s; }
+        .kpi-mini-card:nth-child(3) { animation-delay: 0.20s; }
+        .kpi-mini-card:nth-child(4) { animation-delay: 0.26s; }
+
+        .kpi-mini-card:hover {
+            border-color: var(--cyan);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 194, 224, 0.14);
+        }
+        .kpi-mini-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(0, 194, 224, 0.12);
+            color: var(--cyan-dim, #0093AA);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .kpi-mini-card:hover .kpi-mini-icon {
+            transform: scale(1.12) rotate(4deg);
+        }
+        .kpi-mini-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .kpi-mini-val {
+            font-family: var(--font-head);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.1;
+            transition: color 0.3s ease;
+        }
+        .kpi-mini-lbl {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        #directorio.theme-dark .benchmark-chart-card {
+            background: var(--navy-mid);
+            border-color: rgba(0, 194, 224, 0.2);
+        }
+        #directorio.theme-dark .chart-title-group h3 {
+            color: #ffffff;
+        }
+        #directorio.theme-dark .chart-mode-btn {
+            background: var(--navy-light);
+            border-color: rgba(0, 194, 224, 0.25);
+            color: var(--text-light);
+        }
+        #directorio.theme-dark .chart-mode-btn.active {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            color: var(--navy);
+        }
+        #directorio.theme-dark .kpi-mini-card {
+            background: var(--navy-light);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        #directorio.theme-dark .kpi-mini-val {
+            color: #ffffff;
+        }
+
+        /* ============================================================
+           COUNTER BADGES (Grid compacto estilo Banner KPIs)
+        ============================================================ */
+        .counter-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            margin-top: 1.25rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .counter-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.1rem 0.5rem;
+            background: #fff;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        .counter-badge:hover {
+            background: rgba(0,194,224,0.04);
+        }
+        .counter-badge-icon {
+            font-size: 1.25rem;
+            color: var(--blue-bright);
+            margin-bottom: 0.35rem;
+        }
+        .counter-val {
+            font-family: var(--font-head);
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.1;
+        }
+        .counter-lbl {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        #directorio.theme-dark .counter-row {
+            background: rgba(0,194,224,0.15);
+            border-color: rgba(0,194,224,0.15);
+        }
+        #directorio.theme-dark .counter-badge {
+            background: var(--navy-mid);
+        }
+        #directorio.theme-dark .counter-badge:hover {
+            background: rgba(0,194,224,0.08);
+        }
+        #directorio.theme-dark .counter-badge-icon {
+            color: var(--cyan);
+        }
+        #directorio.theme-dark .counter-val {
+            color: #fff;
+        }
+
+        @media (max-width: 992px) {
+            .counter-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 640px) {
+            .counter-badge {
+                padding: 0.75rem 0.25rem;
+            }
+            .counter-badge-icon {
+                font-size: 1.1rem;
+                margin-bottom: 0.2rem;
+            }
+            .counter-val {
+                font-size: 1.3rem;
+            }
+            .counter-lbl {
+                font-size: 0.6rem;
+                letter-spacing: 0;
+                line-height: 1.15;
+            }
+        }
+
+        /* ============================================================
+           VIEW TOGGLE
+        ============================================================ */
+        .view-toggle {
+            display: flex; gap: 0.4rem;
+            background: var(--surface);
+            padding: 0.3rem;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+        .view-toggle button {
+            background: none; border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .view-toggle button.active {
+            background: #fff;
+            color: var(--navy);
+            box-shadow: var(--shadow-sm);
+        }
+        .view-toggle button:hover:not(.active) { color: var(--blue-bright); }
+
+        /* ============================================================
+           DIRECTORY CARDS (grid)
+        ============================================================ */
+        .dir-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        .dir-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+        .dir-grid.list-view .dir-card {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 1.2rem 1.8rem;
+            min-height: auto;
+        }
+        .dir-grid.list-view .dir-card .card-strip {
+            min-height: auto;
+            flex: 0 0 180px;
+            padding: 1rem;
+            border-radius: var(--radius-xl);
+        }
+        .dir-grid.list-view .dir-card .card-body {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.5rem;
+            align-items: center;
+        }
+        .dir-grid.list-view .dir-card .card-actions {
+            margin-top: 0;
+            flex: 0 0 auto;
+            flex-direction: row;
+        }
+
+        .dir-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.35s ease,
+                        background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 280px;
+            animation: fadeInUpCard 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+            will-change: transform, opacity;
+        }
+        .dir-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 16px 36px rgba(5, 17, 31, 0.12);
+            border-color: rgba(0, 194, 224, 0.4);
+        }
+
+        .card-strip {
+            background: linear-gradient(135deg, var(--navy), var(--navy-light));
+            padding: 1.2rem 1.4rem;
+            position: relative;
+            overflow: hidden;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-shrink: 0;
+            transition: background 0.4s ease;
+        }
+        .card-strip::after {
+            content:''; position:absolute; top:-30px; right:-30px;
+            width:110px; height:110px; border-radius:50%;
+            background: rgba(0,194,224,0.12);
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease;
+        }
+        .dir-card:hover .card-strip::after {
+            transform: scale(1.3) translate(-5px, 5px);
+            background: rgba(0, 194, 224, 0.22);
+        }
+        .card-siglas {
+            font-family: var(--font-head);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            background: rgba(0,194,224,0.15);
+            border: 1px solid rgba(0,194,224,0.2);
+            padding: 2px 12px;
+            border-radius: 50px;
+            display: inline-block;
+            width: fit-content;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .card-name {
+            font-family: var(--font-head);
+            font-size: 0.95rem; font-weight: 700; color: #fff;
+            line-height: 1.3; position: relative; z-index: 1;
+            margin-bottom: 0.4rem;
+        }
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+            margin-top: auto;
+        }
+        .card-tipo {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.08);
+            padding: 2px 12px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .card-estado {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .card-estado.disponible {
+            background: rgba(34,197,94,0.15);
+            color: #4ADE80;
+            border: 1px solid rgba(34,197,94,0.25);
+        }
+        .card-estado.no-disponible {
+            background: rgba(148,163,184,0.12);
+            color: #94A3B8;
+            border: 1px solid rgba(148,163,184,0.2);
+        }
+
+        .card-body {
+            padding: 1.2rem 1.4rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .card-body .desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 0.3rem;
+        }
+        .card-body .fecha {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        .card-body .fecha i { margin-right: 4px; }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .btn-card {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 0.8rem;
+            border: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-card-primary {
+            background: var(--navy);
+            color: #fff;
+        }
+        .btn-card-primary:hover {
+            background: var(--blue);
+            transform: translateY(-2px);
+        }
+        .btn-card-outline {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1.5px solid var(--border);
+        }
+        .btn-card-outline:hover {
+            border-color: var(--blue-bright);
+            color: var(--blue-bright);
+        }
+        .btn-card-share {
+            background: #25D366;
+            color: #fff;
+        }
+        .btn-card-share:hover {
+            background: #1DBE5A;
+            transform: translateY(-2px);
+        }
+
+        /* ============================================================
+           PAGINACIÓN
+        ============================================================ */
+        .pagination-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .pagination-wrap button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .pagination-wrap button.active {
+            background: var(--navy);
+            color: #fff;
+            border-color: var(--navy);
+        }
+        .pagination-wrap button:hover:not(.active) {
+            border-color: var(--blue-bright);
+            color: var(--blue-bright);
+        }
+
+        /* ============================================================
+           EXPORT BUTTONS
+        ============================================================ */
+        .export-row { display: flex; justify-content: center; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+        .btn-export {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 0.8rem 2rem;
+            background: transparent; color: var(--navy);
+            font-family: var(--font-head); font-weight: 700; font-size: 0.85rem;
+            border: 1.5px solid var(--navy); border-radius: 50px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-export:hover { background: var(--navy); color: #fff; }
+        .btn-export.excel { color: #16A34A; border-color: #16A34A; }
+        .btn-export.excel:hover { background: #16A34A; color: #fff; }
+        .btn-export.csv { color: #0EA5E9; border-color: #0EA5E9; }
+        .btn-export.csv:hover { background: #0EA5E9; color: #fff; }
+
+        /* ============================================================
+           FAQ
+        ============================================================ */
+        .faq-wrap { max-width: 740px; margin: 0 auto; }
+        .faq-item { border-bottom: 1px solid var(--border); }
+        .faq-q {
+            width: 100%; background: none; border: none;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.1rem 0; text-align: left;
+            font-family: var(--font-head); font-weight: 600; font-size: 0.92rem;
+            color: var(--text-main); cursor: pointer; transition: color 0.2s;
+        }
+        .faq-q:hover { color: var(--blue-bright); }
+        .faq-q i { font-size: 0.75rem; color: var(--blue-bright); transition: transform 0.3s; flex-shrink:0; }
+        .faq-item.open .faq-q i { transform: rotate(180deg); }
+        .faq-a {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s;
+            font-size: 0.88rem; color: var(--text-muted); line-height: 1.7;
+            padding: 0 1rem;
+        }
+        .faq-item.open .faq-a { max-height: 300px; padding-bottom: 1.1rem; }
+
+        /* ============================================================
+           FOOTER
+        ============================================================ */
+        .footer {
+            background: var(--navy);
+            color: rgba(255,255,255,0.6);
+            padding: 3.5rem 0 1.5rem;
+            margin-top: 3rem;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.2fr 1fr;
+            gap: 2rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .footer-brand img {
+            height: 48px;
+            width: auto;
+            max-height: 48px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+            display: block;
+        }
+        .footer-brand p { font-size: 0.85rem; line-height: 1.7; }
+        .footer-col h4 {
+            font-family: var(--font-head);
+            font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; color: rgba(255,255,255,0.9);
+            margin-bottom: 1rem;
+        }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+        .footer-links a { font-size: 0.85rem; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--cyan); }
+
+        .footer-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .footer-contact span {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .footer-contact a { color: var(--cyan); }
+        .footer-contact a:hover { text-decoration: underline; }
+
+        .social-row {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.7);
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .social-btn:hover {
+            background: var(--cyan);
+            color: var(--navy);
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-top: 1.5rem;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.3);
+        }
+        .footer-logos {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .footer-logos img {
+            height: 36px;
+            width: auto;
+            max-height: 36px;
+            max-width: 100%;
+            object-fit: contain;
+            aspect-ratio: auto;
+            opacity: 0.6;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        /* ============================================================
+           MODAL
+        ============================================================ */
+        .card-modal-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            background: rgba(5,17,31,0.75);
+            backdrop-filter: blur(12px) saturate(1.4);
+            display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .card-modal-overlay.active {
+            opacity: 1; pointer-events: all;
+        }
+
+        .card-modal {
+            background: var(--surface-card);
+            border-radius: var(--radius-2xl);
+            width: 100%; max-width: 860px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            box-shadow: 0 32px 80px rgba(5,17,31,0.45), 0 0 0 1px rgba(0,194,224,0.12);
+            transform: translateY(24px) scale(0.97);
+            transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            position: relative;
+        }
+        .card-modal-overlay.active .card-modal { transform: translateY(0) scale(1); }
+
+        .modal-header-strip {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 60%, #1a4a7a 100%);
+            padding: 2rem 2.5rem 1.6rem;
+            position: relative; overflow: hidden; flex-shrink: 0;
+        }
+        .modal-header-strip::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 220px; height: 220px; border-radius: 50%;
+            background: radial-gradient(rgba(0,194,224,0.18), transparent 70%);
+            pointer-events: none;
+        }
+        .modal-header-strip::after {
+            content: '';
+            position: absolute; bottom: -40px; left: 30%;
+            width: 140px; height: 140px; border-radius: 50%;
+            background: radial-gradient(rgba(43,130,201,0.12), transparent 70%);
+            pointer-events: none;
+        }
+        .modal-close-btn {
+            position: absolute; top: 1.2rem; right: 1.2rem;
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.8); font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; z-index: 5;
+        }
+        .modal-close-btn:hover { background: rgba(239,68,68,0.7); color: #fff; border-color: transparent; }
+
+        .modal-inst-name {
+            font-family: var(--font-head);
+            font-size: clamp(1.15rem, 3vw, 1.5rem);
+            font-weight: 800; color: #fff;
+            line-height: 1.25; position: relative; z-index: 1;
+            margin-bottom: 0.75rem;
+            padding-right: 2.5rem;
+        }
+        .modal-meta-row {
+            display: flex; align-items: center; gap: 0.75rem;
+            flex-wrap: wrap; position: relative; z-index: 1;
+        }
+        .modal-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(0,194,224,0.22); color: var(--cyan);
+            border: 1px solid rgba(0,194,224,0.35);
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;
+            padding: 4px 14px; border-radius: 50px;
+        }
+        .modal-tipo-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+            border: 1px solid rgba(255,255,255,0.15);
+            font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
+            padding: 4px 14px; border-radius: 50px;
+        }
+
+        .modal-body { overflow-y: auto; flex: 1; padding: 2rem 2.5rem; }
+        .modal-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .modal-detail-item {
+            background: var(--surface); border-radius: 12px;
+            padding: 1rem 1.2rem;
+            border: 1px solid var(--border);
+        }
+        .modal-detail-item .lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+        .modal-detail-item .val { font-size: 0.88rem; color: var(--text-main); font-weight: 500; line-height: 1.5; }
+        .modal-detail-item .val a { color: var(--blue-bright); text-decoration: underline; }
+        .modal-detail-item .val a:hover { color: var(--cyan-dim); }
+        .modal-detail-item.full { grid-column: 1 / -1; }
+
+        .modal-actions-row {
+            display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;
+        }
+        .modal-action-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 0.75rem 1.5rem; border-radius: 50px;
+            font-family: var(--font-head); font-weight: 700; font-size: 0.82rem;
+            border: none; transition: all 0.2s; cursor: pointer;
+        }
+        .modal-action-btn.primary {
+            background: var(--navy); color: #fff;
+        }
+        .modal-action-btn.primary:hover { background: var(--blue); transform: translateY(-2px); }
+        .modal-action-btn.outline {
+            background: var(--surface); color: var(--text-main);
+            border: 1.5px solid var(--border);
+        }
+        .modal-action-btn.outline:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+        .modal-action-btn.whatsapp { background: #25D366; color: #fff; }
+        .modal-action-btn.whatsapp:hover { background: #1DBE5A; transform: translateY(-2px); }
+
+        #directorio.theme-dark .card-modal { background: #0F1E2E; }
+        #directorio.theme-dark .modal-body { background: #0F1E2E; }
+        #directorio.theme-dark .modal-detail-item { background: rgba(255,255,255,0.04); border-color: rgba(0,194,224,0.1); }
+        #directorio.theme-dark .modal-detail-item .lbl { color: rgba(255,255,255,0.4); }
+        #directorio.theme-dark .modal-detail-item .val { color: rgba(255,255,255,0.85); }
+
+        /* ============================================================
+           THEME — DARK
+        ============================================================ */
+        #directorio.theme-dark .dir-card { background: #0F1E2E; border-color: rgba(0,194,224,0.15); }
+        #directorio.theme-dark .dir-card .card-body { background: #0F1E2E; }
+        #directorio.theme-dark .dir-card .desc { color: rgba(255,255,255,0.6); }
+        #directorio.theme-dark .dir-card .fecha { color: rgba(255,255,255,0.35); }
+        #directorio.theme-dark .btn-card-outline { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.15); }
+        #directorio.theme-dark .btn-card-outline:hover { border-color: var(--cyan); color: var(--cyan); }
+        #directorio.theme-dark .filter-bar { background: var(--navy-mid); border-color: rgba(0,194,224,0.12); }
+        #directorio.theme-dark .filter-label { color: var(--cyan); }
+        #directorio.theme-dark .filter-group select,
+        #directorio.theme-dark .filter-group input { background: var(--navy-light); color: #fff; border-color: rgba(0,194,224,0.2); }
+        #directorio.theme-dark .btn-export { color: var(--cyan); border-color: var(--cyan); }
+        #directorio.theme-dark .btn-export:hover { background: var(--cyan); color: var(--navy); }
+        #directorio.theme-dark .btn-export.excel { color: #4ADE80; border-color: #4ADE80; }
+        #directorio.theme-dark .btn-export.excel:hover { background: #4ADE80; color: var(--navy); }
+        #directorio.theme-dark .btn-export.csv { color: #38BDF8; border-color: #38BDF8; }
+        #directorio.theme-dark .btn-export.csv:hover { background: #38BDF8; color: var(--navy); }
+        #directorio.theme-dark .view-toggle { background: var(--navy-light); border-color: rgba(0,194,224,0.15); }
+        #directorio.theme-dark .view-toggle button.active { background: var(--navy); color: #fff; }
+        #directorio.theme-dark .view-toggle button { color: rgba(255,255,255,0.5); }
+        #directorio.theme-dark .pagination-wrap button { background: var(--navy-mid); color: rgba(255,255,255,0.6); border-color: rgba(0,194,224,0.12); }
+        #directorio.theme-dark .pagination-wrap button.active { background: var(--cyan); color: var(--navy); border-color: var(--cyan); }
+        #directorio.theme-dark .pagination-wrap button:hover:not(.active) { border-color: var(--cyan); color: var(--cyan); }
+        #directorio.theme-dark .about-section { background: linear-gradient(145deg, #0a1a2e, #0f2440); }
+        #directorio.theme-dark .about-content p { color: rgba(255,255,255,0.7); }
+        #directorio.theme-dark .about-feature { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); }
+        #directorio.theme-dark .about-feature span { color: rgba(255,255,255,0.8); }
+        #directorio.theme-dark .glosario-card { background: #0F1E2E; border-color: rgba(0,194,224,0.12); }
+        #directorio.theme-dark .glosario-card h3 { color: #fff; }
+        #directorio.theme-dark .glosario-card p { color: rgba(255,255,255,0.6); }
+        #directorio.theme-dark .glosario-tab-btn { background: #0F1E2E; color: rgba(255,255,255,0.6); border-color: rgba(0,194,224,0.15); }
+        #directorio.theme-dark .glosario-tab-btn.active { background: var(--cyan); color: var(--navy); border-color: var(--cyan); }
+        #directorio.theme-dark .glosario-tab-btn:hover:not(.active) { border-color: var(--cyan); color: var(--cyan); }
+
+        /* ============================================================
+           TOAST
+        ============================================================ */
+        .toast {
+            position: fixed; bottom: 28px; left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: var(--navy-light); color: #fff;
+            padding: 12px 24px; border-radius: 50px;
+            font-size: 0.82rem; font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0;
+            animation: toastIn 2.2s forwards;
+        }
+        @keyframes toastIn {
+            0%  { opacity:0; transform: translateX(-50%) translateY(12px); }
+            15% { opacity:1; transform: translateX(-50%) translateY(0); }
+            80% { opacity:1; }
+            100%{ opacity:0; transform: translateX(-50%) translateY(-8px); }
+        }
+
+        /* ============================================================
+           RESPONSIVE
+        ============================================================ */
+        @media (max-width: 1100px) {
+            .footer-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+        @media (max-width: 900px) {
+            .about-section {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 2.5rem 2rem;
+            }
+            .about-image { order: -1; }
+            .about-image img { max-width: 320px; }
+            .about-features { grid-template-columns: 1fr; }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 680px) {
+            .menu-toggle { display: flex; }
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%; left: 0; right: 0;
+                background: rgba(5,17,31,0.97);
+                flex-direction: column;
+                padding: 1rem 1.5rem;
+                border-top: 1px solid rgba(0,194,224,0.1);
+                gap: 0.25rem;
+            }
+            .nav-menu.open { display: flex; }
+            .nav-menu > li { width: 100%; }
+            .nav-menu > li > a {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.7rem 1.2rem;
+                border-radius: 12px;
+                width: 100%;
+                font-size: 0.85rem;
+            }
+            .submenu {
+                position: static;
+                background: rgba(255,255,255,0.04);
+                border-radius: 12px;
+                padding: 0;
+                margin: 0 0 0.5rem 0;
+                box-shadow: none;
+                border: none;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, padding 0.3s ease;
+                padding: 0 0 0 0.5rem;
+            }
+            .nav-menu > li.open .submenu {
+                max-height: 300px;
+                padding: 0.5rem 0 0.5rem 0.5rem;
+            }
+            .submenu li a {
+                padding: 0.5rem 1rem;
+                border-left: none;
+                font-size: 0.8rem;
+            }
+            .submenu li a:hover { border-left: none; }
+            .hero { padding: 4rem 0 3rem; }
+            .about-section { padding: 1.5rem; }
+            .about-image img { max-width: 280px; }
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .filter-grid { grid-template-columns: 1fr; }
+            .export-row { flex-direction: column; align-items: center; }
+            .card-modal { border-radius: var(--radius-xl); }
+            .modal-header-strip { padding: 1.5rem 1.4rem 1.2rem; }
+            .modal-body { padding: 1.4rem; }
+            .modal-detail-grid { grid-template-columns: 1fr; }
+            .dir-grid { grid-template-columns: 1fr; }
+            .dir-grid.list-view .dir-card { flex-direction: column; align-items: stretch; }
+            .dir-grid.list-view .dir-card .card-strip { flex: unset; }
+            .dir-grid.list-view .dir-card .card-body { padding: 1rem; }
+            .glosario-panel-grid { grid-template-columns: 1fr; }
+            .glosario-tab-btn { font-size: 0.72rem; padding: 0.4rem 1rem; }
+            .footer-bottom { flex-direction: column; align-items: center; text-align: center; }
+            .footer-logos { justify-content: center; }
+            .footer-logos img { height: 32px; max-height: 32px; }
+        }
+        @media (max-width: 400px) {
+            .modal-actions-row { flex-direction: column; }
+            .card-actions { flex-direction: column; }
+            .dir-grid.list-view .dir-card .card-actions { flex-direction: column; }
+        }
+
+        .about-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+        .about-features img {
+            grid-column: 1 / -1;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            display: block;
+        }
+        /* ============================================================
+           SOBRE LA PLATAFORMA — MEJORAS RESPONSIVE
+        ============================================================ */
+        .about-section {
+            padding: 3rem 2rem;
+        }
+        .about-image img {
+            width: 100%;
+            max-width: 550px;
+            height: auto;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .about-features img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        .about-features {
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .about-section {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 2rem 1.5rem;
+            }
+            .about-image {
+                order: -1;
+            }
+            .about-image img {
+                max-width: 100%;
+                width: 100%;
+                max-height: 300px;
+                object-fit: cover;
+            }
+            .about-content h2 {
+                font-size: 1.8rem;
+            }
+            .about-content p {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+            .about-features {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+            }
+            .about-features img {
+                max-width: 100%;
+                grid-column: 1 / -1;
+                margin-top: 0.5rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .about-section {
+                padding: 1.5rem 1rem;
+                border-radius: var(--radius-xl);
+            }
+            .about-content h2 {
+                font-size: 1.5rem;
+            }
+            .about-content p {
+                font-size: 0.9rem;
+            }
+            .about-features {
+                grid-template-columns: 1fr;
+                gap: 0.6rem;
+            }
+            .about-feature {
+                padding: 0.7rem 1rem;
+            }
+            .about-feature i {
+                font-size: 1rem;
+                width: 24px;
+            }
+            .about-feature span {
+                font-size: 0.8rem;
+            }
+            .about-image img {
+                max-height: 220px;
+                object-fit: cover;
+                border-radius: var(--radius-xl);
+            }
+        }
+        /* ============================================================
+           BANNER TRANSPARENCIA ACTIVA — RESPONSIVE
+        ============================================================ */
+        .banner-transparencia {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            border-radius: var(--radius-2xl);
+            padding: 3rem 3.5rem;
+            margin: 3rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+            box-shadow: 0 24px 64px rgba(5, 17, 31, 0.22);
+        }
+
+        .banner-etiqueta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(0, 194, 224, 0.3);
+            background: rgba(0, 194, 224, 0.08);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 1.4rem;
+        }
+        .banner-etiqueta i {
+            font-size: 0.45rem;
+            animation: blink 1.8s infinite;
+        }
+
+        .banner-texto h2 {
+            font-family: var(--font-head);
+            font-size: clamp(1.6rem, 3vw, 2.3rem);
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+        .banner-texto h2 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--cyan), var(--blue-bright));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .banner-texto p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.62);
+            line-height: 1.78;
+            margin-bottom: 2rem;
+            max-width: 420px;
+        }
+
+        .banner-acciones {
+            display: flex;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .banner-acciones .btn-primary {
+            background: var(--cyan);
+            color: var(--navy);
+            box-shadow: 0 0 28px rgba(0, 194, 224, 0.35);
+        }
+        .banner-acciones .btn-primary:hover {
+            background: #00ddf7;
+            transform: translateY(-3px);
+        }
+        .banner-logo {
+            max-width: 140px;
+            height: auto;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .banner-tarjetas {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .banner-tarjeta {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(0, 194, 224, 0.18);
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .banner-tarjeta-icono {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(0, 194, 224, 0.15);
+            border: 1px solid rgba(0, 194, 224, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--cyan);
+            flex-shrink: 0;
+        }
+        .banner-tarjeta h4 {
+            font-family: var(--font-head);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .banner-tarjeta p {
+            font-size: 0.74rem;
+            color: rgba(255, 255, 255, 0.52);
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        @media (max-width: 900px) {
+            .banner-transparencia {
+                grid-template-columns: 1fr;
+                padding: 2.5rem 2rem;
+                gap: 2rem;
+                margin: 2rem 0;
+            }
+            .banner-texto {
+                order: 1;
+            }
+            .banner-tarjetas {
+                order: 2;
+            }
+            .banner-texto p {
+                max-width: 100%;
+            }
+            .banner-logo {
+                max-width: 120px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .banner-transparencia {
+                padding: 1.8rem 1.2rem;
+                border-radius: var(--radius-xl);
+                margin: 1.5rem 0;
+                gap: 1.5rem;
+            }
+            .banner-texto h2 {
+                font-size: 1.5rem;
+            }
+            .banner-texto p {
+                font-size: 0.88rem;
+                margin-bottom: 1.5rem;
+            }
+            .banner-acciones {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .banner-acciones .btn-primary {
+                justify-content: center;
+                width: 100%;
+            }
+            .banner-logo {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+            .banner-tarjeta {
+                padding: 1rem 1.2rem;
+                gap: 12px;
+            }
+            .banner-tarjeta-icono {
+                width: 38px;
+                height: 38px;
+                font-size: 0.95rem;
+            }
+            .banner-tarjeta h4 {
+                font-size: 0.8rem;
+            }
+            .banner-tarjeta p {
+                font-size: 0.7rem;
+            }
+        }
+    
+        /* Push notifications mobile */
+        .push-notify-banner { display: none !important;  background:#1a365d; border-radius:var(--radius-2xl); padding:1.4rem 1.8rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; box-shadow:0 10px 30px rgba(5,17,31,0.2); color:#fff; }
+        .push-notify-content { display:flex; align-items:center; gap:1.2rem; flex:1 1 300px; }
+        .push-notify-icon { width:52px; height:52px; border-radius:16px; background:rgba(0,194,224,0.15); border:1px solid rgba(0,194,224,0.4); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:var(--cyan); flex-shrink:0; box-shadow:0 0 15px rgba(0,194,224,0.2); }
+        .push-notify-info h4 { font-family:var(--font-head); font-size:1.08rem; font-weight:800; margin-bottom:0.25rem; color:#fff; display:flex; align-items:center; gap:0.6rem; }
+        .push-notify-info p { font-size:0.85rem; color:rgba(255,255,255,0.8); line-height:1.45; margin:0; }
+        .push-notify-actions { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; }
+        .btn-push-subscribe { background:var(--cyan); color:var(--navy); border:none; padding:0.65rem 1.3rem; border-radius:40px; font-weight:700; font-size:0.82rem; display:inline-flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.25s; font-family:var(--font-head); box-shadow:0 4px 12px rgba(0,194,224,0.3); }
+        .btn-push-subscribe:hover { background:#00ddf7; transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,194,224,0.45); }
+        .btn-push-subscribe.active { background:#16a34a; color:#fff; box-shadow:0 4px 12px rgba(22,163,74,0.3); }
+        
+        .push-status-badge { font-size:0.75rem; padding:0.2rem 0.6rem; border-radius:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .push-status-default { background:rgba(255,255,255,0.1); color:#fff; }
+        .push-status-granted { background:rgba(22,163,74,0.2); color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+        .push-status-denied { background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(248,113,113,0.3); }
+        
+        #directorio.theme-dark .push-notify-banner, #gobierno-numeros.theme-dark .push-notify-banner { display: none !important;  background: #0F1E2E; border:1px solid rgba(255,255,255,0.05); }
+        #directorio.theme-light .push-notify-banner, #gobierno-numeros.theme-light .push-notify-banner { display: none !important;  background: #1a365d; }
+    
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER 
+============================================================ -->
+<header class="site-header" id="siteHeader">
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo-area">
+                <a href="../" title="Portal Principal">
+                    <img src="/img/L1.png" alt="Gobierno de Guatemala" class="gov-logo">
+                </a>
+            </div>
+
+            <button class="menu-toggle" id="mobileMenu" aria-label="Menú">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <ul class="nav-menu" id="navMenu">
+                <li class="menu-group">
+                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
+                        <!-- Transparencia Vehicular no visible temporalmente -->
+                    </ul>
+                </li>
+
+                <li class="menu-group">
+                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
+                        <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
+                        <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-chart-pie"></i> Radiografía de la Corrupción</a></li>
+                        <li><a href="../riesgo/"><i class="fas fa-binoculars"></i> Riesgo en la Mira</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-group">
+                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
+                    </ul>
+                </li>
+                <li class="menu-group">
+                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <ul class="submenu">
+                        <li><a href="../canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
+                        <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero">
+    <div class="hero-bg-slider" id="heroBgSlider">
+        <div class="hero-slide active" style="background-image: url('/img/gobiernoNumerosWall2.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/gobiernoNumerosWall.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/gobiernoNumerosWall3.jpg');"></div>
+        <div class="hero-slide" style="background-image: url('/img/numeros.png');"></div>
+    </div>
+    <div class="hero-slider-dots" id="heroSliderDots">
+        <button class="hero-dot active" aria-label="Diapositiva 1"></button>
+        <button class="hero-dot" aria-label="Diapositiva 2"></button>
+        <button class="hero-dot" aria-label="Diapositiva 3"></button>
+        <button class="hero-dot" aria-label="Diapositiva 4"></button>
+    </div>
+    <div class="container hero-inner">
+        <div class="hero-eyebrow"><span></span>Transparencia y Rendición de Cuentas</div>
+        <h1>Tu <br><em>Gobierno en Números</em></h1>
+        <p class="hero-lema">Tableros de Rendición de cuentas</p>
+        <p class="hero-sub">Son herramientas de prevención que busca favorecer la rendición de cuentas. Centraliza y publica de manera proactiva, información importante sobre la gestión de recursos en las instituciones que conforman el Organismo Ejecutivo.</p>
+        <div class="hero-actions">
+            <a href="#directorio" class="btn-primary" id="heroCTA"><i class="fas fa-chart-simple"></i> Consultar Tableros</a>
+            <a href="#sobre" class="btn-outline"><i class="fas fa-info-circle"></i> Conocer Más</a>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     STATS RIBBON
+============================================================ -->
+<div class="stats-ribbon">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-building"></i></div><div class="stat-num" id="totalInstitucionesStats">0</div><div class="stat-lbl">Instituciones registradas</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-table"></i></div><div class="stat-num" id="totalTablerosStats">0</div><div class="stat-lbl">Tableros disponibles</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-university"></i></div><div class="stat-num" id="totalMinisteriosStats">0</div><div class="stat-lbl">Ministerios</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-file-signature"></i></div><div class="stat-num" id="totalSecretariasStats">0</div><div class="stat-lbl">Secretarías</div></div>
+            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-sitemap"></i></div><div class="stat-num" id="totalOtrasStats">0</div><div class="stat-lbl">Otras dependencias</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- ============================================================
+         SOBRE LA PLATAFORMA 
+    ============================================================ -->
+    <section class="section" id="sobre">
+        <div class="about-section">
+            <div class="about-content">
+                <div class="section-tag">Sobre la plataforma</div>
+                <h2>Tu <em>Gobierno en Números</em></h2>
+                
+                <p>Facilita el acceso a información gubernamental mediante tableros claros, accesibles y de fácil comprensión, fortaleciendo la transparencia y la rendición de cuentas.</p>
+                <p>Dirigido a ciudadanía, periodistas, organizaciones, academia y autoridades que requieran información clara y consolidada para conocer, analizar y dar seguimiento a la gestión y uso de los recursos públicos del Organismo Ejecutivo.</p>
+                <div class="about-features">
+                    <div class="about-feature"><i class="fas fa-chart-pie"></i><span>Datos actualizados</span></div>
+                    <div class="about-feature"><i class="fas fa-share-alt"></i><span>Comparte información</span></div>
+                    <div class="about-feature"><i class="fas fa-download"></i><span>Exporta resultados</span></div>
+                    <div class="about-feature"><i class="fas fa-eye"></i><span>Transparencia activa</span></div>
+                    <img src="/img/gobierno_en_numerosV2.png" alt="Tu Gobierno en Números">
+                </div>
+                 
+            </div>
+            <div class="about-image">
+                <img src="/img/tablero.png" alt="Datos y gráficos">
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         GLOSARIO (tabs)
+    ============================================================ -->
+    <section class="section" style="padding-top:0;">
+        
+        <div class="section-header center">
+            <div class="section-tag" style="justify-content:center;">Conceptos clave</div>
+            <h2 class="section-title">Glosario de Transparencia y Rendición de Cuentas</h2>
+        </div>
+        <div class="glosario-tabs">
+            <div class="glosario-tab-nav" id="glosarioTabNav">
+                <!-- Los botones se generan desde JS -->
+            </div>
+                
+            <div class="glosario-tab-panels" id="glosarioTabPanels">
+                <!-- Los paneles se generan desde JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         DIRECTORIO
+    ============================================================ -->
+    <section class="section" id="directorio">
+        <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
+            <div>
+                <div class="section-tag">Datos y transparencia</div>
+                <h2 class="section-title">Tableros de Rendición de Cuentas</h2>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem; max-width:600px;">
+                    <i class="fas fa-info-circle"></i> La información que se presenta ha sido proporcionada bajo responsabilidad de las dependencias encargadas del acceso a la información pública del Organismo Ejecutivo. La actualización de los enlaces y contenidos es responsabilidad de cada institución.
+                </div>
+            </div>
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+                <div class="view-toggle" id="viewToggle">
+                    <button class="active" data-view="grid"><i class="fas fa-th"></i> Tarjetas</button>
+                    <button data-view="list"><i class="fas fa-list"></i> Lista</button>
+                </div>
+                <button id="themeToggleBtn" style="display:inline-flex; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--border); border-radius:50px; padding:0.55rem 1.2rem; font-family:var(--font-head); font-size:0.78rem; font-weight:600; color:var(--text-muted); transition:all 0.2s;" onmouseover="this.style.borderColor='var(--blue-bright)'; this.style.color='var(--blue-bright)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
+                    <i class="fas fa-palette"></i> Cambiar tema
+                </button>
+            </div>
+        </div>
+
+        <!-- FILTROS DE BÚSQUEDA -->
+        
+            
+    
+<div class="filter-bar">
+            <div class="filter-bar-header">
+                <div class="filter-bar-title">
+                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
+                </div>
+                <div class="filter-active-count" id="activeFilterBadge" style="display:none;">
+                    <i class="fas fa-filter"></i> <span id="activeFilterCountText">0 filtros activos</span>
+                </div>
+            </div>
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-layer-group"></i> Tipo dependencia</span>
+                    <select id="tipoFilter" aria-label="Filtrar por tipo de dependencia"><option value="">Todos los tipos</option></select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-building"></i> Nombre</span>
+                    <select id="institucionFilter" aria-label="Filtrar por nombre"><option value="">Todas las instituciones</option></select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-circle"></i> Estado</span>
+                    <select id="estadoFilter" aria-label="Filtrar por estado"><option value="">Todos los estados</option></select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-search"></i> Búsqueda libre</span>
+                    <div class="voice-row">
+                        <div class="input-clear-wrapper" style="flex:1;">
+                            <input type="text" id="searchInput" placeholder="Institución, siglas, descripción…" aria-label="Buscar en tableros">
+                            <button class="input-clear-btn" id="searchClearBtn" title="Limpiar texto" aria-label="Limpiar texto"><i class="fas fa-times"></i></button>
+                        </div>
+                        <button id="voiceSearchBtn" class="voice-btn" title="Buscar por voz" aria-label="Buscar por voz"><i class="fas fa-microphone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div id="activeChipsBar" class="active-chips-bar" style="display:none;"></div>
+            <div class="filter-actions" style="margin-top:1rem;">
+                <button id="resetFilters" class="btn-reset"><i class="fas fa-undo-alt"></i> Restablecer filtros</button>
+            </div>
+        </div>
+
+        <!-- CONTADORES -->
+        <div class="counter-row">
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-building"></i></div>
+                <div>
+                    <div class="counter-val" id="totalInstituciones">0</div>
+                    <div class="counter-lbl">Instituciones registradas</div>
+                </div>
+            </div>
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-table"></i></div>
+                <div>
+                    <div class="counter-val" id="totalTablerosCount">0</div>
+                    <div class="counter-lbl">Tableros disponibles</div>
+                </div>
+            </div>
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-university"></i></div>
+                <div>
+                    <div class="counter-val" id="totalMinisteriosCount">0</div>
+                    <div class="counter-lbl">Ministerios</div>
+                </div>
+            </div>
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-file-signature"></i></div>
+                <div>
+                    <div class="counter-val" id="totalSecretariasCount">0</div>
+                    <div class="counter-lbl">Secretarías</div>
+                </div>
+            </div>
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-sitemap"></i></div>
+                <div>
+                    <div class="counter-val" id="totalOtrasCount">0</div>
+                    <div class="counter-lbl">Otras dependencias</div>
+                </div>
+            </div>
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-filter"></i></div>
+                <div>
+                    <div class="counter-val" id="resultadosFiltrados">0</div>
+                    <div class="counter-lbl">Resultados filtrados</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRID DE TARJETAS -->
+        <div class="dir-grid" id="cardsContainer"></div>
+
+        <!-- PAGINACIÓN -->
+        <div class="pagination-wrap" id="paginationWrap"></div>
+
+        <div class="export-row">
+            <button id="exportPdfBtn" class="btn-export"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+            <button id="exportXlsBtn" class="btn-export excel"><i class="fas fa-file-excel"></i> Exportar Excel</button>
+        </div>
+
+    </section>
+
+    <!-- ============================================================
+         FAQ
+    ============================================================ -->
+    <section class="section" id="faq" style="padding-top:0;">
+        <div class="section-header center">
+            <div class="section-tag" style="justify-content:center;">Preguntas frecuentes</div>
+            <h2 class="section-title">Resolvemos tus dudas</h2>
+            <p class="section-sub">Respuestas a las consultas más comunes sobre la plataforma y los tableros de rendición de cuentas.</p>
+        </div>
+        <div class="faq-wrap">
+            <div class="faq-item"><button class="faq-q">¿Qué información puedo consultar? <i class="fas fa-chevron-down"></i></button><div class="faq-a">En algunos tableros podrás consultar las autoridades de cada institución, el presupuesto vigente, el presupuesto ejecutado, información de pago de salarios, avance en proyectos prioritarios, resultados o logros, espacios para sugerencias y mucho más.</div></div>
+            <div class="faq-item"><button class="faq-q">¿Quién actualiza los tableros? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Cada institución es responsable de la actualización y calidad de la información publicada en su tablero. La plataforma solo enlaza a las fuentes oficiales.</div></div>
+            <div class="faq-item"><button class="faq-q">¿Puedo descargar información? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Sí, puede exportar los resultados filtrados en formato PDF o Excel utilizando los botones de exportación disponibles en la sección del directorio.</div></div>
+            <div class="faq-item"><button class="faq-q">¿Cómo comparto un tablero? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Cada tarjeta tiene un botón de compartir que genera un mensaje con el nombre de la institución y el enlace al tablero, listo para enviar por WhatsApp o copiar al portapapeles.</div></div>
+            <div class="faq-item"><button class="faq-q">¿La plataforma genera información propia? <i class="fas fa-chevron-down"></i></button><div class="faq-a">No. La plataforma es un directorio que enlaza a las fuentes oficiales de cada institución. No genera ni modifica la información publicada.</div></div>
+        </div>
+    </section>
+
+</div><!-- /container -->
+
+
+<!-- ============================================================
+     FOOTER UNIFICADO
+============================================================ -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <img src="/img/L1.png" alt="Gobierno de Guatemala">
+                <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
+                <p>Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Reporta irregularidades</h4>
+                <ul class="footer-links">
+                    <li><a href="canales-por-la-integridad/">Canales por la Integridad</a></li>
+                    <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Explora datos</h4>
+                <ul class="footer-links">
+                    <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
+                    <li><a href="../riesgo/">Riesgo en la Mira</a></li>
+                    <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener">Transparencia CODEDE</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Accede a la información</h4>
+                <ul class="footer-links">
+                    <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
+                    <!-- <li><a href="../vehiculos/">Transparencia Vehicular</a></li> -->
+                    <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
+                </ul>
+                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <ul class="footer-links">
+                    <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <div class="footer-contact">
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                </div>
+                <div class="social-row">
+                    <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="https://x.com/GuatemalaGob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.youtube.com/@GobiernodelaRepublicadeGuatema" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
+            <div class="footer-logos">
+                <img src="/img/L1.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
+                <img src="/img/gobierno_en_numerosV2.png" alt="Tu Gobierno en Números" style="height:36px; width:auto; opacity:0.6;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ============================================================
+     MODAL
+============================================================ -->
+<div id="cardModal" class="card-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalInstName">
+    <div class="card-modal" id="cardModalInner">
+        <div class="modal-header-strip" id="modalHeaderStrip">
+            <button class="modal-close-btn" id="modalCloseBtn" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+            <div class="modal-inst-name" id="modalInstName"></div>
+            <div class="modal-meta-row" id="modalMetaRow"></div>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <div class="modal-detail-grid" id="modalDetailGrid"></div>
+            <div class="modal-actions-row" id="modalActionsRow"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SCRIPTS
+============================================================ -->
+<script>
+/* ============================================================
+   DATOS DE GLOSARIO
+============================================================ */
+const GLOSARIO_ITEMS = [
+    { icon: 'fa-hand-holding-heart', titulo: 'Rendición de cuentas', desc: 'la rendición de cuentas es el deber de las instituciones y servidores públicos de informar, explicar y justificar sus decisiones y resultados, asumiendo la responsabilidad por su actuación y estando sujetos al escrutinio y las consecuencias que correspondan.' },
+    { icon: 'fa-people-arrows', titulo: 'Gobierno Abierto', desc: 'modelo de gestión pública basado en la transparencia, la participación ciudadana, la colaboración y la innovación para fortalecer la confianza y mejorar la toma de decisiones públicas.' },
+    { icon: 'fa-cloud-upload-alt', titulo: 'Datos abiertos', desc: 'información pública disponible en formatos abiertos, accesibles y reutilizables, que puede ser utilizada, compartida y redistribuida libremente para generar valor público.' },
+    { icon: 'fa-chart-bar', titulo: 'Indicador', desc: 'medida cuantitativa o cualitativa que permite evaluar, monitorear y comunicar el desempeño, avance o resultados de una política, programa o proceso.' }
+];
+
+/* ============================================================
+   DATA PRINCIPAL (se cargará desde JSON externo)
+============================================================ */
+let instituciones = [];
+
+// Datos de respaldo
+const FALLBACK_DATA = [
+    { id: 1, nombre_institucion: "Comisión Nacional contra la Corrupción", siglas: "CNC", tipo_dependencia: "Comisión", sector: "Presidencia", link_tablero: "https://sgp.gob.gt/web/index.php/uip/informacion-publica-de-oficio/category/371-2026", descripcion: "Tablero institucional de rendición de cuentas de la Comisión Nacional contra la Corrupción.", fecha_actualizacion: "2026", estado: "Disponible" },
+    { id: 2, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno", siglas: "AMSCLAE", tipo_dependencia: "Autoridad", sector: "Ambiente", link_tablero: "https://www.amsclae.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 3, nombre_institucion: "Comisión Presidencial contra la Discriminación y el Racismo", siglas: "CODISRA", tipo_dependencia: "Comisión", sector: "Presidencia", link_tablero: "https://codisra.gob.gt/index.php/informacion-publica/tablero-de-rendicion-de-cuentas", descripcion: "Tablero de rendición de cuentas de la Comisión Presidencial contra la Discriminación y el Racismo.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 4, nombre_institucion: "Ministerio de Agricultura, Ganadería y Alimentación", siglas: "MAGA", tipo_dependencia: "Ministerio", sector: "Agricultura", link_tablero: "https://www.maga.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Agricultura, Ganadería y Alimentación.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 5, nombre_institucion: "Ministerio de Ambiente y Recursos Naturales", siglas: "MARN", tipo_dependencia: "Ministerio", sector: "Ambiente", link_tablero: "https://www.marn.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Ambiente y Recursos Naturales.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 6, nombre_institucion: "Ministerio de Comunicaciones, Infraestructura y Vivienda", siglas: "MICIVI", tipo_dependencia: "Ministerio", sector: "Infraestructura", link_tablero: "https://www.micivi.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Comunicaciones, Infraestructura y Vivienda.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 7, nombre_institucion: "Ministerio de Cultura y Deportes", siglas: "MCD", tipo_dependencia: "Ministerio", sector: "Cultura", link_tablero: "https://www.mcd.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Cultura y Deportes.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 8, nombre_institucion: "Ministerio de Desarrollo Social", siglas: "MIDES", tipo_dependencia: "Ministerio", sector: "Social", link_tablero: "https://www.mides.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Desarrollo Social.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 9, nombre_institucion: "Ministerio de Economía", siglas: "MINECO", tipo_dependencia: "Ministerio", sector: "Economía", link_tablero: "https://www.mineco.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Economía.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 10, nombre_institucion: "Ministerio de Educación", siglas: "MINEDUC", tipo_dependencia: "Ministerio", sector: "Educación", link_tablero: "https://www.mineduc.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Educación.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 11, nombre_institucion: "Ministerio de Energía y Minas", siglas: "MEM", tipo_dependencia: "Ministerio", sector: "Energía", link_tablero: "https://www.mem.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Energía y Minas.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 12, nombre_institucion: "Ministerio de Finanzas Públicas", siglas: "MINFIN", tipo_dependencia: "Ministerio", sector: "Finanzas", link_tablero: "https://www.minfin.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Finanzas Públicas.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 13, nombre_institucion: "Ministerio de Gobernación", siglas: "MINGOB", tipo_dependencia: "Ministerio", sector: "Seguridad", link_tablero: "https://www.mingob.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Gobernación.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 14, nombre_institucion: "Ministerio de la Defensa Nacional", siglas: "MINDEF", tipo_dependencia: "Ministerio", sector: "Defensa", link_tablero: "https://www.mindef.mil.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de la Defensa Nacional.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 15, nombre_institucion: "Ministerio de Relaciones Exteriores", siglas: "MINEX", tipo_dependencia: "Ministerio", sector: "Relaciones Exteriores", link_tablero: "https://www.minex.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Relaciones Exteriores.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 16, nombre_institucion: "Ministerio de Salud Pública y Asistencia Social", siglas: "MSPAS", tipo_dependencia: "Ministerio", sector: "Salud", link_tablero: "https://www.mspas.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Salud Pública y Asistencia Social.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 17, nombre_institucion: "Ministerio de Trabajo y Previsión Social", siglas: "MINTRAB", tipo_dependencia: "Ministerio", sector: "Trabajo", link_tablero: "https://www.mintrabajo.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Trabajo y Previsión Social.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 18, nombre_institucion: "Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas", siglas: "SVET", tipo_dependencia: "Secretaría", sector: "Seguridad", link_tablero: "https://www.svet.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 19, nombre_institucion: "Secretaría de Asuntos Administrativos y de Seguridad", siglas: "SAAS", tipo_dependencia: "Secretaría", sector: "Administración", link_tablero: "https://www.saas.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Asuntos Administrativos y de Seguridad.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 20, nombre_institucion: "Secretaría de Bienestar Social de la Presidencia", siglas: "SBS", tipo_dependencia: "Secretaría", sector: "Social", link_tablero: "https://www.sbs.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Bienestar Social de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 21, nombre_institucion: "Secretaría de Comunicación Social de la Presidencia", siglas: "SCSPR", tipo_dependencia: "Secretaría", sector: "Comunicación", link_tablero: "https://www.scspr.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Comunicación Social de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 22, nombre_institucion: "Secretaría de Coordinación Ejecutiva de la Presidencia", siglas: "SCEP", tipo_dependencia: "Secretaría", sector: "Coordinación", link_tablero: "https://www.scep.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Coordinación Ejecutiva de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 23, nombre_institucion: "Secretaría de Inteligencia Estratégica del Estado", siglas: "SIE", tipo_dependencia: "Secretaría", sector: "Inteligencia", link_tablero: "https://www.sie.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Inteligencia Estratégica del Estado.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 24, nombre_institucion: "Secretaría de Obras Sociales de la Esposa del Presidente", siglas: "SOSEP", tipo_dependencia: "Secretaría", sector: "Social", link_tablero: "https://www.sosep.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Obras Sociales de la Esposa del Presidente.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 25, nombre_institucion: "Secretaría de Planificación y Programación de la Presidencia", siglas: "SEGEPLAN", tipo_dependencia: "Secretaría", sector: "Planificación", link_tablero: "https://www.segeplan.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Planificación y Programación de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 26, nombre_institucion: "Secretaría de Seguridad Alimentaria y Nutricional", siglas: "SESAN", tipo_dependencia: "Secretaría", sector: "Social", link_tablero: "https://www.sesan.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Seguridad Alimentaria y Nutricional.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 27, nombre_institucion: "Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas", siglas: "SECCATID", tipo_dependencia: "Secretaría", sector: "Seguridad", link_tablero: "https://www.seccatid.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 28, nombre_institucion: "Secretaría General de la Presidencia", siglas: "SGP", tipo_dependencia: "Secretaría", sector: "Presidencia", link_tablero: "https://www.sgp.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría General de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 29, nombre_institucion: "Secretaría Nacional de Ciencia y Tecnología", siglas: "SENACYT", tipo_dependencia: "Secretaría", sector: "Ciencia", link_tablero: "https://www.senacyt.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Nacional de Ciencia y Tecnología.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 30, nombre_institucion: "Secretaría Presidencial de la Mujer", siglas: "SEPREM", tipo_dependencia: "Secretaría", sector: "Género", link_tablero: "https://www.seprem.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Presidencial de la Mujer.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 31, nombre_institucion: "Secretaría Privada de la Presidencia", siglas: "SPRIV", tipo_dependencia: "Secretaría", sector: "Presidencia", link_tablero: "https://www.spriv.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Privada de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 32, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán", siglas: "AMSA", tipo_dependencia: "Autoridad", sector: "Ambiente", link_tablero: "https://www.amsa.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 33, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno", siglas: "AMSCLAE", tipo_dependencia: "Autoridad", sector: "Ambiente", link_tablero: "https://www.amsclae.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 34, nombre_institucion: "Consejo Nacional de Áreas Protegidas", siglas: "CONAP", tipo_dependencia: "Consejo", sector: "Ambiente", link_tablero: "https://www.conap.gob.gt/", descripcion: "Tablero de rendición de cuentas del Consejo Nacional de Áreas Protegidas.", fecha_actualizacion: "2025", estado: "Disponible" }
+];
+
+/* ============================================================
+   STATE GLOBAL
+============================================================ */
+let currentFilters = {
+    institucion: '',
+    siglas: '',
+    tipo: '',
+    sector: '',
+    estado: '',
+    search: ''
+};
+let currentView = 'grid';
+let currentPage = 1;
+const ITEMS_PER_PAGE = 12;
+let currentTheme = localStorage.getItem('dir_theme') || 'light';
+let recognition = null;
+
+/* ============================================================
+   ELEMENTOS DOM
+============================================================ */
+const $institucionFilter = document.getElementById('institucionFilter');
+const $siglasFilter = document.getElementById('siglasFilter');
+const $tipoFilter = document.getElementById('tipoFilter');
+const $sectorFilter = document.getElementById('sectorFilter');
+const $estadoFilter = document.getElementById('estadoFilter');
+const $searchInput = document.getElementById('searchInput');
+const $cardsContainer = document.getElementById('cardsContainer');
+const $paginationWrap = document.getElementById('paginationWrap');
+const $totalInst = document.getElementById('totalInstituciones');
+const $totalTableros = document.getElementById('totalTablerosCount');
+const $totalMinisterios = document.getElementById('totalMinisteriosCount');
+const $totalSecretarias = document.getElementById('totalSecretariasCount');
+const $totalOtras = document.getElementById('totalOtrasCount');
+const $resultadosFilt = document.getElementById('resultadosFiltrados');
+const $statsInst = document.getElementById('totalInstitucionesStats');
+const $statsTableros = document.getElementById('totalTablerosStats');
+const $statsMinisterios = document.getElementById('totalMinisteriosStats');
+const $statsSecretarias = document.getElementById('totalSecretariasStats');
+const $statsOtras = document.getElementById('totalOtrasStats');
+const $themeBtn = document.getElementById('themeToggleBtn');
+const $dirSection = document.getElementById('directorio');
+const $voiceBtn = document.getElementById('voiceSearchBtn');
+const $viewToggle = document.getElementById('viewToggle');
+
+/* ============================================================
+   UTILIDADES
+============================================================ */
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2400);
+}
+
+function cleanText(t) {
+    return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function getUniqueValues(arr, key) {
+    return [...new Set(arr.map(i => i[key]).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+}
+
+/* ============================================================
+   GLOSARIO TABS
+============================================================ */
+function renderGlosarioTabs() {
+    const nav = document.getElementById('glosarioTabNav');
+    const panels = document.getElementById('glosarioTabPanels');
+    if (nav) {
+        nav.innerHTML = '';
+        nav.style.display = 'none';
+    }
+    if (!panels) return;
+
+    panels.innerHTML = '';
+    const panel = document.createElement('div');
+    panel.className = 'glosario-panel active';
+    const grid = document.createElement('div');
+    grid.className = 'glosario-panel-grid';
+    grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(260px, 1fr))';
+
+    GLOSARIO_ITEMS.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'glosario-card';
+        card.innerHTML = `
+            <div class="glosario-icon"><i class="fas ${item.icon}"></i></div>
+            <h3>${item.titulo}</h3>
+            <p>${item.desc}</p>
+        `;
+        grid.appendChild(card);
+    });
+    panel.appendChild(grid);
+    panels.appendChild(panel);
+}
+
+/* ============================================================
+   POBLAR FILTROS
+============================================================ */
+function populateFilters() {
+    const tipos = getUniqueValues(instituciones, 'tipo_dependencia');
+    const estados = getUniqueValues(instituciones, 'estado');
+
+    const catalogOrder = [
+        'Ministerio', 'Ministerios',
+        'Secretaría', 'Secretarías',
+        'Vicepresidencia',
+        'Otras dependencias',
+        'Dependencias temporales',
+        'Gobernación Departamental', 'Gobernaciones Departamentales',
+        'Autoridad', 'Consejo', 'Comisión'
+    ];
+    tipos.sort((a, b) => {
+        let ia = catalogOrder.findIndex(c => c.toLowerCase() === a.toLowerCase());
+        let ib = catalogOrder.findIndex(c => c.toLowerCase() === b.toLowerCase());
+        if (ia === -1) ia = 999;
+        if (ib === -1) ib = 999;
+        if (ia !== ib) return ia - ib;
+        return a.localeCompare(b);
+    });
+
+    if ($tipoFilter) {
+        $tipoFilter.innerHTML = '<option value="">Todos los tipos de dependencia</option>';
+        tipos.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; $tipoFilter.appendChild(o); });
+    }
+
+    if ($estadoFilter) {
+        $estadoFilter.innerHTML = '<option value="">Todos los estados</option>';
+        estados.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; $estadoFilter.appendChild(o); });
+    }
+
+    populateInstFilter();
+}
+
+function populateInstFilter(selectedTipo = '') {
+    if (!$institucionFilter) return;
+    const prevVal = $institucionFilter.value;
+    let list = instituciones;
+    if (selectedTipo) {
+        list = list.filter(i => i.tipo_dependencia === selectedTipo);
+    }
+    const insts = getUniqueValues(list, 'nombre_institucion');
+    $institucionFilter.innerHTML = '<option value="">Todas las instituciones</option>';
+    insts.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; $institucionFilter.appendChild(o); });
+    if (prevVal && insts.includes(prevVal)) {
+        $institucionFilter.value = prevVal;
+    } else {
+        $institucionFilter.value = '';
+    }
+}
+
+/* ============================================================
+   LÓGICA DE FILTRADO
+============================================================ */
+function filtrar() {
+    return instituciones.filter(i => {
+        if (currentFilters.tipo && i.tipo_dependencia !== currentFilters.tipo) return false;
+        if (currentFilters.institucion && i.nombre_institucion !== currentFilters.institucion) return false;
+        if (currentFilters.estado && i.estado !== currentFilters.estado) return false;
+        if (currentFilters.search) {
+            const q = cleanText(currentFilters.search);
+            const hay = cleanText(`${i.nombre_institucion} ${i.siglas || ''} ${i.tipo_dependencia || ''} ${i.descripcion || ''} ${i.sector || ''}`);
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+}
+
+function contarPorTipo(list, tipo) {
+    const q = cleanText(tipo);
+    return list.filter(i => {
+        const val = cleanText(i.tipo_dependencia || '');
+        return val.includes(q) || q.includes(val);
+    }).length;
+}
+
+function actualizarContadores(list, filtrados) {
+    const total = filtrados.length;
+    if ($totalInst) $totalInst.textContent = total;
+    if ($totalTableros) $totalTableros.textContent = filtrados.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
+    if ($totalMinisterios) $totalMinisterios.textContent = contarPorTipo(filtrados, 'Ministerio');
+    if ($totalSecretarias) $totalSecretarias.textContent = contarPorTipo(filtrados, 'Secretaría');
+    if ($totalOtras) $totalOtras.textContent = Math.max(0, total - contarPorTipo(filtrados, 'Ministerio') - contarPorTipo(filtrados, 'Secretaría'));
+    if ($resultadosFilt) $resultadosFilt.textContent = total;
+
+    const totalGbl = instituciones.length;
+    if ($statsInst) $statsInst.textContent = totalGbl;
+    if ($statsTableros) $statsTableros.textContent = instituciones.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
+    if ($statsMinisterios) $statsMinisterios.textContent = contarPorTipo(instituciones, 'Ministerio');
+    if ($statsSecretarias) $statsSecretarias.textContent = contarPorTipo(instituciones, 'Secretaría');
+    if ($statsOtras) $statsOtras.textContent = Math.max(0, totalGbl - contarPorTipo(instituciones, 'Ministerio') - contarPorTipo(instituciones, 'Secretaría'));
+}
+
+/* ============================================================
+   LÓGICA DEL GRÁFICO DINÁMICO DE BENCHMARKS (CHART.JS)
+============================================================ */
+let benchmarksChartInstance = null;
+let currentChartMode = 'tipo';
+let currentChartOrientation = 'x';
+
+window.setChartMode = function(mode) {
+    currentChartMode = mode;
+    ['btnModeTipo', 'btnModeSector', 'btnModeBenchmark'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+    });
+    if (mode === 'tipo') document.getElementById('btnModeTipo')?.classList.add('active');
+    if (mode === 'sector') document.getElementById('btnModeSector')?.classList.add('active');
+    if (mode === 'benchmark') document.getElementById('btnModeBenchmark')?.classList.add('active');
+    renderBenchmarksChart();
+};
+
+window.toggleChartOrientation = function() {
+    currentChartOrientation = currentChartOrientation === 'x' ? 'y' : 'x';
+    renderBenchmarksChart();
+};
+
+function renderBenchmarksChart() {
+    const canvas = document.getElementById('benchmarksChartCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const filteredList = filtrar();
+
+    // Actualizar KPI Mini Badges
+    const kpiTotalInstEl = document.getElementById('kpiBenchTotalInst');
+    const kpiTablerosAvailEl = document.getElementById('kpiBenchTablerosAvail');
+    const kpiPendientesEl = document.getElementById('kpiBenchInstPendientes');
+
+    const totalInstCount = filteredList.length;
+    const availCount = filteredList.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
+    const totalRegistradasGbl = instituciones.length;
+    const pendientesCount = Math.max(0, 67 - totalRegistradasGbl);
+
+    if (kpiTotalInstEl) kpiTotalInstEl.textContent = totalInstCount;
+    if (kpiTablerosAvailEl) kpiTablerosAvailEl.textContent = availCount;
+    if (kpiPendientesEl) kpiPendientesEl.textContent = pendientesCount;
+
+    const isDark = currentTheme === 'dark';
+    const textColor = isDark ? '#A8BFCC' : '#5E7A8E';
+    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(26,92,143,0.1)';
+
+    let labels = [];
+    let datasetAvailable = [];
+    let datasetTotal = [];
+    let datasetBenchmarkPct = [];
+
+    if (currentChartMode === 'tipo') {
+        const tipos = [...new Set(instituciones.map(i => i.tipo_dependencia).filter(Boolean))].sort();
+        tipos.forEach(tipo => {
+            const listFilt = filteredList.filter(i => i.tipo_dependencia === tipo);
+            const availCount = listFilt.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
+            const totalCount = listFilt.length;
+            if (totalCount > 0) {
+                labels.push(tipo);
+                datasetAvailable.push(availCount);
+                datasetTotal.push(totalCount);
+                datasetBenchmarkPct.push(totalCount > 0 ? Math.round((availCount / totalCount) * 100) : 0);
+            }
+        });
+    } else if (currentChartMode === 'sector') {
+        const sectoresMap = {
+            'Ministerio': 'Ministerios',
+            'Ministerios': 'Ministerios',
+            'Secretaría': 'Secretarías',
+            'Secretarías': 'Secretarías',
+            'Comisión': 'Comisiones y Autoridades',
+            'Autoridad': 'Comisiones y Autoridades',
+            'Gobernación Departamental': 'Gobernaciones Departamentales',
+            'Gobernaciones Departamentales': 'Gobernaciones Departamentales',
+            'Vicepresidencia': 'Otras Dependencias',
+            'Otras dependencias': 'Otras Dependencias',
+            'Dependencias temporales': 'Otras Dependencias'
+        };
+        const sectorGrouped = {};
+        filteredList.forEach(i => {
+            const t = i.tipo_dependencia || 'Otras Dependencias';
+            const groupName = sectoresMap[t] || 'Otras Dependencias';
+            if (!sectorGrouped[groupName]) {
+                sectorGrouped[groupName] = { total: 0, avail: 0 };
+            }
+            sectorGrouped[groupName].total++;
+            if (i.link_tablero && i.link_tablero.trim() !== '') {
+                sectorGrouped[groupName].avail++;
+            }
+        });
+        Object.keys(sectorGrouped).sort().forEach(secName => {
+            const grp = sectorGrouped[secName];
+            if (grp.total > 0) {
+                labels.push(secName);
+                datasetAvailable.push(grp.avail);
+                datasetTotal.push(grp.total);
+                datasetBenchmarkPct.push(Math.round((grp.avail / grp.total) * 100));
+            }
+        });
+    } else if (currentChartMode === 'benchmark') {
+        labels = [
+            'Publicación Tableros',
+            'Info Actualizada (25/26)',
+            'Transparencia Activa',
+            'Cobertura Institucional'
+        ];
+        const total = filteredList.length || 1;
+        const avail = filteredList.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
+        const recent = filteredList.filter(i => (i.fecha_actualizacion || '').includes('2025') || (i.fecha_actualizacion || '').includes('2026')).length;
+        const dispState = filteredList.filter(i => i.estado === 'Disponible').length;
+        datasetBenchmarkPct = [
+            Math.round((avail / total) * 100),
+            Math.round((recent / total) * 100),
+            Math.round((dispState / total) * 100),
+            Math.round((avail / (instituciones.length || 1)) * 100)
+        ];
+    }
+
+    if (benchmarksChartInstance) {
+        benchmarksChartInstance.destroy();
+    }
+
+    let datasets = [];
+    if (currentChartMode === 'benchmark') {
+        datasets = [{
+            label: '% Cumplimiento de Benchmark',
+            data: datasetBenchmarkPct,
+            backgroundColor: [
+                'rgba(0, 194, 224, 0.85)',
+                'rgba(34, 197, 94, 0.85)',
+                'rgba(43, 130, 201, 0.85)',
+                'rgba(245, 166, 35, 0.85)'
+            ],
+            borderColor: ['#00C2E0', '#22C55E', '#2B82C9', '#F5A623'],
+            borderWidth: 2,
+            borderRadius: 8
+        }];
+    } else {
+        datasets = [
+            {
+                label: 'Tableros Disponibles',
+                data: datasetAvailable,
+                backgroundColor: 'rgba(0, 194, 224, 0.85)',
+                borderColor: '#00C2E0',
+                borderWidth: 1.5,
+                borderRadius: 6
+            },
+            {
+                label: 'Total Registrados',
+                data: datasetTotal,
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(12, 32, 51, 0.15)',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(12, 32, 51, 0.3)',
+                borderWidth: 1.5,
+                borderRadius: 6
+            }
+        ];
+    }
+
+    const ctx = canvas.getContext('2d');
+    benchmarksChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+            indexAxis: currentChartOrientation,
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 500, easing: 'easeOutQuart' },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: textColor,
+                        font: { family: 'Sora', size: 11, weight: '600' },
+                        usePointStyle: true,
+                        padding: 12
+                    }
+                },
+                tooltip: {
+                    backgroundColor: isDark ? '#163250' : '#05111F',
+                    titleColor: '#00C2E0',
+                    bodyColor: '#FFFFFF',
+                    padding: 12,
+                    cornerRadius: 10,
+                    titleFont: { family: 'Sora', size: 13, weight: '700' },
+                    bodyFont: { family: 'DM Sans', size: 12 },
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed !== null) {
+                                const val = currentChartOrientation === 'y' ? context.parsed.x : context.parsed.y;
+                                label += currentChartMode === 'benchmark' ? `${val}%` : val;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: {
+                        color: textColor,
+                        font: { family: 'DM Sans', size: 11, weight: '500' }
+                    }
+                },
+                y: {
+                    grid: { color: gridColor },
+                    ticks: {
+                        color: textColor,
+                        font: { family: 'DM Sans', size: 11, weight: '500' }
+                    },
+                    beginAtZero: true,
+                    max: currentChartMode === 'benchmark' ? 100 : undefined
+                }
+            }
+        }
+    });
+}
+
+/* ============================================================
+   RENDER TARJETAS
+============================================================ */
+function renderCards(page, totalPages) {
+    const filtered = filtrar();
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    const end = Math.min(start + ITEMS_PER_PAGE, filtered.length);
+    const pageItems = filtered.slice(start, end);
+
+    $cardsContainer.innerHTML = '';
+
+    if (!pageItems.length) {
+        $cardsContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:4rem; color:var(--text-muted);">
+            <i class="fas fa-search" style="font-size:2.5rem; color:var(--cyan); margin-bottom:1rem;"></i>
+            <p>No se encontraron tableros que coincidan con los filtros.</p>
+        </div>`;
+        return;
+    }
+
+    pageItems.forEach((inst, idx) => {
+        const card = document.createElement('div');
+        card.className = 'dir-card';
+        card.style.animationDelay = `${idx * 0.04}s`;
+        const estadoClase = inst.estado === 'Disponible' ? 'disponible' : 'no-disponible';
+        const hasLink = inst.link_tablero && inst.link_tablero.trim() !== '';
+        const nombreSeguro = inst.nombre_institucion.replace(/'/g, "\\'");
+
+        card.innerHTML = `
+            <div class="card-strip">
+                <div class="card-siglas">${inst.siglas || '—'}</div>
+                <div class="card-name">${inst.nombre_institucion}</div>
+                <div class="card-meta">
+                    <span class="card-tipo">${inst.tipo_dependencia || '—'}</span>
+                    <span class="card-estado ${estadoClase}">${inst.estado || 'No disponible'}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                ${inst.descripcion ? `<div class="desc">${inst.descripcion}</div>` : ''}
+                <div class="fecha"><i class="fas fa-calendar-alt"></i> Actualización: ${inst.fecha_actualizacion || 'No especificada'}</div>
+                <div class="card-actions">
+                    ${hasLink ? `<a href="${inst.link_tablero}" target="_blank" rel="noopener" class="btn-card btn-card-primary"><i class="fas fa-external-link-alt"></i> Consultar Tablero</a>` : `<span class="btn-card btn-card-primary" style="opacity:0.5; cursor:default;"><i class="fas fa-link"></i> Enlace no disponible</span>`}
+                    <button class="btn-card btn-card-outline" onclick="window._openModal('${nombreSeguro}')"><i class="fas fa-info-circle"></i> Detalles</button>
+                    <button class="btn-card btn-card-share" onclick="window._shareCard('${nombreSeguro}')"><i class="fab fa-whatsapp"></i> Compartir</button>
+                </div>
+            </div>
+        `;
+        $cardsContainer.appendChild(card);
+    });
+
+    $paginationWrap.innerHTML = '';
+    if (totalPages > 1) {
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            if (i === page) btn.classList.add('active');
+            btn.addEventListener('click', () => { currentPage = i; renderCards(currentPage, totalPages); });
+            $paginationWrap.appendChild(btn);
+        }
+    }
+
+    actualizarContadores(instituciones, filtered);
+}
+
+function applyFiltersAndRender() {
+    currentPage = 1;
+    const filtered = filtrar();
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+    renderCards(currentPage, totalPages);
+    renderBenchmarksChart();
+}
+
+function readFilters() {
+    currentFilters.tipo = $tipoFilter ? $tipoFilter.value : '';
+    currentFilters.institucion = $institucionFilter ? $institucionFilter.value : '';
+    currentFilters.estado = $estadoFilter ? $estadoFilter.value : '';
+    currentFilters.search = $searchInput ? $searchInput.value : '';
+
+    updateFilterStylesAndChips();
+    applyFiltersAndRender();
+}
+
+function updateFilterStylesAndChips() {
+    [$tipoFilter, $institucionFilter, $estadoFilter, $searchInput].forEach(el => {
+        if (!el) return;
+        if (el.value && el.value.trim() !== '') el.classList.add('has-value');
+        else el.classList.remove('has-value');
+    });
+
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    if (searchClearBtn) {
+        searchClearBtn.style.display = ($searchInput && $searchInput.value && $searchInput.value.trim() !== '') ? 'flex' : 'none';
+    }
+
+    const activeChipsBar = document.getElementById('activeChipsBar');
+    const badge = document.getElementById('activeFilterBadge');
+    const badgeText = document.getElementById('activeFilterCountText');
+
+    let activeCount = 0;
+    let chipsHtml = '';
+
+    if (currentFilters.tipo) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-layer-group"></i> ${currentFilters.tipo} <button onclick="clearFilterField('tipoFilter')"><i class="fas fa-times"></i></button></span>`;
+    }
+    if (currentFilters.institucion) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-building"></i> ${currentFilters.institucion} <button onclick="clearFilterField('institucionFilter')"><i class="fas fa-times"></i></button></span>`;
+    }
+    if (currentFilters.estado) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-circle"></i> ${currentFilters.estado} <button onclick="clearFilterField('estadoFilter')"><i class="fas fa-times"></i></button></span>`;
+    }
+    if (currentFilters.search) {
+        activeCount++;
+        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-search"></i> "${currentFilters.search}" <button onclick="clearFilterField('searchInput')"><i class="fas fa-times"></i></button></span>`;
+    }
+
+    if (activeCount > 0) {
+        if (badge && badgeText) {
+            badgeText.textContent = `${activeCount} filtro${activeCount > 1 ? 's' : ''} activo${activeCount > 1 ? 's' : ''}`;
+            badge.style.display = 'inline-flex';
+        }
+        if (activeChipsBar) {
+            activeChipsBar.innerHTML = chipsHtml;
+            activeChipsBar.style.display = 'flex';
+        }
+    } else {
+        if (badge) badge.style.display = 'none';
+        if (activeChipsBar) {
+            activeChipsBar.innerHTML = '';
+            activeChipsBar.style.display = 'none';
+        }
+    }
+}
+
+window.clearFilterField = function(fieldId) {
+    const el = document.getElementById(fieldId);
+    if (el) {
+        el.value = '';
+        if (fieldId === 'tipoFilter') populateInstFilter('');
+        readFilters();
+    }
+};
+
+window.resetAllFilters = function() {
+    if ($tipoFilter) $tipoFilter.value = '';
+    populateInstFilter('');
+    if ($institucionFilter) $institucionFilter.value = '';
+    if ($estadoFilter) $estadoFilter.value = '';
+    if ($searchInput) $searchInput.value = '';
+    readFilters();
+};
+
+/* ============================================================
+   VIEW TOGGLE
+============================================================ */
+$viewToggle.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const view = btn.dataset.view;
+    if (view === currentView) return;
+    currentView = view;
+    document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (view === 'list') {
+        $cardsContainer.classList.add('list-view');
+    } else {
+        $cardsContainer.classList.remove('list-view');
+    }
+    applyFiltersAndRender();
+});
+
+/* ============================================================
+   GLOBAL CALLBACKS
+============================================================ */
+window._shareCard = function(nombre) {
+    const inst = instituciones.find(i => i.nombre_institucion === nombre);
+    if (!inst) return;
+    const msg = `Tu Gobierno en Números\n${inst.nombre_institucion}\nConsulte el tablero institucional:\n${inst.link_tablero || 'Enlace no disponible'}`;
+    if (navigator.share) {
+        navigator.share({ title: `Tablero - ${inst.nombre_institucion}`, text: msg });
+    } else {
+        navigator.clipboard.writeText(msg).then(() => showToast('Información copiada al portapapeles'));
+    }
+};
+
+window._openModal = function(nombre) {
+    const inst = instituciones.find(i => i.nombre_institucion === nombre);
+    if (!inst) return;
+    document.getElementById('modalInstName').textContent = inst.nombre_institucion + (inst.siglas ? ` (${inst.siglas})` : '');
+    document.getElementById('modalMetaRow').innerHTML = `
+        <span class="modal-badge"><i class="fas fa-tag"></i> ${inst.tipo_dependencia || '—'}</span>
+        <span class="modal-tipo-badge"><i class="fas fa-sitemap"></i> ${inst.sector || '—'}</span>
+        <span class="modal-tipo-badge ${inst.estado === 'Disponible' ? 'modal-badge' : ''}">${inst.estado || '—'}</span>
+    `;
+
+    document.getElementById('modalDetailGrid').innerHTML = `
+        <div class="modal-detail-item"><div class="lbl">Institución</div><div class="val">${inst.nombre_institucion}</div></div>
+        <div class="modal-detail-item"><div class="lbl">Siglas</div><div class="val">${inst.siglas || '—'}</div></div>
+        <div class="modal-detail-item"><div class="lbl">Tipo dependencia</div><div class="val">${inst.tipo_dependencia || '—'}</div></div>
+        <div class="modal-detail-item"><div class="lbl">Sector</div><div class="val">${inst.sector || '—'}</div></div>
+        <div class="modal-detail-item full"><div class="lbl">Descripción</div><div class="val">${inst.descripcion || 'No disponible'}</div></div>
+        <div class="modal-detail-item"><div class="lbl">Fecha actualización</div><div class="val">${inst.fecha_actualizacion || '—'}</div></div>
+        <div class="modal-detail-item"><div class="lbl">Estado</div><div class="val">${inst.estado || '—'}</div></div>
+        <div class="modal-detail-item full"><div class="lbl">URL del tablero</div><div class="val">${inst.link_tablero ? `<a href="${inst.link_tablero}" target="_blank" rel="noopener">${inst.link_tablero}</a>` : 'No disponible'}</div></div>
+    `;
+
+    const safeName = inst.nombre_institucion.replace(/'/g, "\\'");
+    document.getElementById('modalActionsRow').innerHTML = `
+        ${inst.link_tablero ? `<a href="${inst.link_tablero}" target="_blank" rel="noopener" class="modal-action-btn primary"><i class="fas fa-external-link-alt"></i> Abrir Tablero</a>` : ''}
+        <button class="modal-action-btn pdf" onclick="window._exportFichaPdf('${safeName}')" style="background:var(--cyan); color:var(--navy); font-weight:700;"><i class="fas fa-file-pdf"></i> Exportar Ficha a PDF</button>
+        <button class="modal-action-btn outline" onclick="window._copyLink('${inst.link_tablero || ''}')"><i class="fas fa-copy"></i> Copiar Enlace</button>
+        <button class="modal-action-btn whatsapp" onclick="window._shareCard('${safeName}')"><i class="fab fa-whatsapp"></i> Compartir</button>
+    `;
+
+    document.getElementById('cardModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+window._copyLink = function(url) {
+    if (url) {
+        navigator.clipboard.writeText(url).then(() => showToast('Enlace copiado correctamente.'));
+    } else {
+        showToast('No hay enlace disponible para copiar.');
+    }
+};
+
+function closeModal() {
+    document.getElementById('cardModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+document.getElementById('cardModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('cardModal')) closeModal();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('cardModal').classList.contains('active')) closeModal();
+});
+
+/* ============================================================
+   EXPORTAR FUNCIONES
+============================================================ */
+window._exportFichaPdf = async function(nombreParam) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        if (typeof showToast === 'function') showToast("Cargando generador PDF, reintente en un momento.");
+        else alert("Cargando generador PDF, reintente en un momento.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const modalNameEl = document.getElementById('modalInstName');
+    const modalName = modalNameEl ? modalNameEl.textContent.trim() : '';
+    const targetSearch = (nombreParam || modalName).trim();
+    if (!targetSearch) { alert('No hay datos para exportar.'); return; }
+
+    const inst = instituciones.find(i => {
+        const fullN = i.nombre_institucion + (i.siglas ? ` (${i.siglas})` : '');
+        return i.nombre_institucion === targetSearch || fullN === targetSearch || targetSearch.includes(i.nombre_institucion) || i.nombre_institucion.includes(targetSearch);
+    });
+    if (!inst) { alert('No se encontraron datos para la institución.'); return; }
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'letter' });
+    const pageWidth = doc.internal.pageSize.getWidth();   // 215.9 mm
+    const pageHeight = doc.internal.pageSize.getHeight(); // 279.4 mm
+    const margin = 15;
+    const contentWidth = pageWidth - (margin * 2);
+
+    // Header Box (Gobierno Navy)
+    doc.setFillColor(15, 30, 46);
+    doc.rect(margin, 12, contentWidth, 24, 'F');
+
+    doc.setTextColor(0, 194, 224);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("GOBIERNO DE GUATEMALA", margin + 6, 20);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Tu Gobierno en Números — Ficha Técnica de Rendición de Cuentas", margin + 6, 27);
+
+    let yPos = 42;
+
+    // Título de la Institución (Caja dinámica)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11.5);
+    const fullTitle = inst.nombre_institucion + (inst.siglas ? ` (${inst.siglas})` : '');
+    const titleLines = doc.splitTextToSize(fullTitle, contentWidth - 12);
+    const titleBoxHeight = Math.max(14, (titleLines.length * 5) + 6);
+
+    doc.setFillColor(245, 247, 250);
+    doc.setDrawColor(200, 210, 220);
+    doc.roundedRect(margin, yPos, contentWidth, titleBoxHeight, 2, 2, 'FD');
+
+    doc.setTextColor(15, 30, 46);
+    doc.text(titleLines, margin + 6, yPos + 6.5);
+
+    yPos += titleBoxHeight + 5;
+
+    // Ficha de Resumen
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "normal");
+    const tipoLines = doc.splitTextToSize(`Tipo de dependencia: ${inst.tipo_dependencia || 'No especificado'}`, 82);
+    const sectorLines = doc.splitTextToSize(`Sector institucional: ${inst.sector || 'No especificado'}`, 82);
+    const estadoLines = doc.splitTextToSize(`Estado del tablero: ${inst.estado || 'No especificado'}`, 82);
+    const fechaLines = doc.splitTextToSize(`Última actualización: ${inst.fecha_actualizacion || 'No especificada'}`, 82);
+
+    const leftColHeight = (tipoLines.length * 4.2) + (sectorLines.length * 4.2) + 2;
+    const rightColHeight = (estadoLines.length * 4.2) + (fechaLines.length * 4.2) + 2;
+    const topGridHeight = Math.max(leftColHeight, rightColHeight);
+    const totalResumenHeight = 11 + topGridHeight + 6;
+
+    // Dibujar marco contenedor de Resumen
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(0, 194, 224);
+    doc.roundedRect(margin, yPos, contentWidth, totalResumenHeight, 2, 2, 'D');
+
+    // Título de sección de resumen
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(15, 30, 46);
+    doc.text("RESUMEN DE ESTADO Y CLASIFICACIÓN", margin + 6, yPos + 6.5);
+
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 70, 80);
+
+    // Renderizar Columna Izquierda
+    let leftY = yPos + 12;
+    doc.text(tipoLines, margin + 6, leftY);
+    leftY += (tipoLines.length * 4.2) + 2;
+    doc.text(sectorLines, margin + 6, leftY);
+
+    // Renderizar Columna Derecha
+    let rightY = yPos + 12;
+    doc.text(estadoLines, margin + 95, rightY);
+    rightY += (estadoLines.length * 4.2) + 2;
+    doc.text(fechaLines, margin + 95, rightY);
+
+    yPos += totalResumenHeight + 6;
+
+    // Sección: Detalle de Tablero e Indicadores
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 30, 46);
+    doc.text("DETALLES DEL TABLERO DE RENDICIÓN DE CUENTAS", margin, yPos);
+    doc.setLineWidth(0.4);
+    doc.setDrawColor(0, 194, 224);
+    doc.line(margin, yPos + 2, margin + contentWidth, yPos + 2);
+
+    yPos += 7;
+
+    const items = [
+        { label: "Descripción del Tablero", val: inst.descripcion || "No disponible" },
+        { label: "Enlace Directo al Tablero", val: inst.link_tablero || "No disponible" },
+        { label: "Estado de Disponibilidad", val: inst.estado || "No disponible" },
+        { label: "Sector de Cobertura", val: inst.sector || "No especificado" }
+    ];
+
+    items.forEach(item => {
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(226, 232, 240);
+        const valLines = doc.splitTextToSize(String(item.val), contentWidth - 65);
+        const boxHeight = Math.max(9, (valLines.length * 4.2) + 5);
+        doc.roundedRect(margin, yPos, contentWidth, boxHeight, 1.5, 1.5, 'FD');
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.setTextColor(15, 30, 46);
+        doc.text(item.label + ":", margin + 4, yPos + 5.5);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(50, 60, 70);
+        doc.text(valLines, margin + 60, yPos + 5.5);
+
+        yPos += boxHeight + 2.5;
+    });
+
+    // Pie de página
+    const now = new Date();
+    doc.setFontSize(7.5);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(120, 130, 140);
+    doc.setDrawColor(200, 210, 220);
+    doc.line(margin, pageHeight - 15, margin + contentWidth, pageHeight - 15);
+    doc.text("Ficha oficial generada desde Tu Gobierno en Números — Gobierno de Guatemala", margin, pageHeight - 10);
+    doc.text(`Fecha y hora de impresión: ${now.toLocaleDateString('es-GT')} ${now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}`, margin + contentWidth, pageHeight - 10, { align: 'right' });
+
+    const safeFilename = inst.nombre_institucion.replace(/[^a-zA-Z0-9_-]/g, '_');
+    doc.save(`Ficha_Gobierno_Numeros_${safeFilename}.pdf`);
+};
+async function exportToPdf() {
+    const { jsPDF } = window.jspdf;
+    const filtered = filtrar();
+    if (!filtered.length) { alert('No hay datos para exportar.'); return; }
+    const doc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'legal' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10;
+    const logoUrl = '/img/logo-gobierno-pdf.png';
+    const loadImg = url => new Promise((res) => {
+        const img = new Image(); img.crossOrigin = 'Anonymous';
+        img.onload = () => res(img); img.onerror = () => res(null);
+        img.src = url;
+    });
+    const logoImg = await loadImg(logoUrl);
+    const addHeader = (d, pg, total) => {
+        if (logoImg) { const lw = 24, lh = (logoImg.height * lw) / logoImg.width; d.addImage(logoImg, 'PNG', margin, 5, lw, lh); }
+        d.setFontSize(13); d.setFont('helvetica', 'bold');
+        d.text('Tu Gobierno en Números - Tableros de Rendición de Cuentas', pageWidth / 2, 12, { align: 'center' });
+        const now = new Date();
+        d.setFontSize(8); d.setFont('helvetica', 'normal');
+        d.text(`Generado: ${now.toLocaleDateString('es-GT')} ${now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })}`, pageWidth - margin, 8, { align: 'right' });
+        d.setDrawColor(150); d.line(margin, 22, pageWidth - margin, 22);
+        d.setFontSize(8); d.text(`Página ${pg} de ${total}`, pageWidth - margin, 285, { align: 'right' });
+    };
+    const cols = [
+        { header: 'Institución', dataKey: 'nombre_institucion', width: 45 },
+        { header: 'Siglas', dataKey: 'siglas', width: 12 },
+        { header: 'Tipo dependencia', dataKey: 'tipo_dependencia', width: 22 },
+        { header: 'Sector', dataKey: 'sector', width: 18 },
+        { header: 'Estado', dataKey: 'estado', width: 14 },
+        { header: 'Actualización', dataKey: 'fecha_actualizacion', width: 16 },
+        { header: 'Descripción', dataKey: 'descripcion', width: 50 },
+        { header: 'Enlace', dataKey: 'link_tablero', width: 70 }
+    ];
+    const rows = filtered.map(inst => cols.map(c => inst[c.dataKey] || ''));
+    const finalDoc = new jsPDF({ orientation: 'l', unit: 'mm', format: 'legal' });
+    let pageCount = 0;
+    finalDoc.autoTable({
+        startY: 26,
+        head: [cols.map(c => c.header)],
+        body: rows,
+        theme: 'grid',
+        headStyles: { fillColor: [5, 17, 31], textColor: 255, fontStyle: 'bold', halign: 'center' },
+        styles: { fontSize: 7, cellPadding: 1.5, valign: 'middle', overflow: 'linebreak', lineColor: [180, 180, 180] },
+        columnStyles: cols.reduce((acc, c, idx) => { acc[idx] = { cellWidth: c.width }; return acc; }, {}),
+        margin: { top: 26, bottom: 20, left: margin, right: margin },
+        didDrawPage: () => { pageCount++; addHeader(finalDoc, pageCount, 0); }
+    });
+    const totalPgs = finalDoc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPgs; i++) { finalDoc.setPage(i); addHeader(finalDoc, i, totalPgs); }
+    finalDoc.save(`Tu_Gobierno_Numeros_${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+function exportToExcel() {
+    const filtered = filtrar();
+    if (!filtered.length) { alert('No hay datos para exportar.'); return; }
+    const headers = ['Institución', 'Siglas', 'Tipo dependencia', 'Sector', 'Estado', 'Fecha Actualización', 'Descripción', 'Enlace Tablero'];
+    const rows = filtered.map(i => [
+        i.nombre_institucion,
+        i.siglas || '',
+        i.tipo_dependencia || '',
+        i.sector || '',
+        i.estado || '',
+        i.fecha_actualizacion || '',
+        i.descripcion || '',
+        i.link_tablero || ''
+    ]);
+    const wsData = [headers, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{ wch: 40 }, { wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 50 }, { wch: 70 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Tableros');
+    XLSX.writeFile(wb, `Tu_Gobierno_Numeros_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    showToast('Archivo Excel descargado');
+}
+
+function exportToCsv() {
+    const filtered = filtrar();
+    if (!filtered.length) { alert('No hay datos para exportar.'); return; }
+    const headers = ['Institución', 'Siglas', 'Tipo dependencia', 'Sector', 'Estado', 'Fecha Actualización', 'Descripción', 'Enlace Tablero'];
+    const rows = filtered.map(i => [
+        `"${i.nombre_institucion}"`,
+        `"${i.siglas || ''}"`,
+        `"${i.tipo_dependencia || ''}"`,
+        `"${i.sector || ''}"`,
+        `"${i.estado || ''}"`,
+        `"${i.fecha_actualizacion || ''}"`,
+        `"${(i.descripcion || '').replace(/"/g, '""')}"`,
+        `"${i.link_tablero || ''}"`
+    ]);
+    const csvContent = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Tu_Gobierno_Numeros_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    showToast('Archivo CSV descargado');
+}
+
+/* ============================================================
+   BÚSQUEDA POR VOZ
+============================================================ */
+if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognitionClass();
+    recognition.lang = 'es-ES';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+        if ($voiceBtn) {
+            $voiceBtn.classList.add('listening');
+            $voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+        }
+        if (typeof showToast === 'function') showToast('🎙️ Escuchando... habla ahora');
+    };
+
+    recognition.onresult = e => {
+        if (e.results && e.results[0] && e.results[0][0]) {
+            const transcript = e.results[0][0].transcript.trim();
+            if ($searchInput) {
+                $searchInput.value = transcript;
+                if ($searchInput.dispatchEvent) $searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            readFilters();
+            if (typeof showToast === 'function') showToast(`🎙️ Buscando por voz: "${transcript}"`);
+        }
+    };
+
+    recognition.onend = () => {
+        if ($voiceBtn) {
+            $voiceBtn.classList.remove('listening');
+            $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        if ($searchInput && $searchInput.value && $searchInput.value.trim() !== '') {
+            readFilters();
+        }
+    };
+
+    recognition.onerror = (err) => {
+        if ($voiceBtn) {
+            $voiceBtn.classList.remove('listening');
+            $voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        if (err.error !== 'no-speech' && typeof showToast === 'function') {
+            showToast('⚠️ No se detectó audio de voz. Intenta de nuevo.');
+        }
+    };
+
+    if ($voiceBtn) {
+        $voiceBtn.addEventListener('click', () => {
+            if ($voiceBtn.classList.contains('listening')) {
+                try { recognition.stop(); } catch(e) {}
+            } else {
+                try { recognition.start(); } catch(e) {}
+            }
+        });
+    }
+} else {
+    if ($voiceBtn) $voiceBtn.style.display = 'none';
+}
+
+/* ============================================================
+   EVENTOS
+============================================================ */
+if ($tipoFilter) {
+    $tipoFilter.addEventListener('change', () => {
+        populateInstFilter($tipoFilter.value);
+        readFilters();
+    });
+}
+if ($institucionFilter) $institucionFilter.addEventListener('change', readFilters);
+if ($estadoFilter) $estadoFilter.addEventListener('change', readFilters);
+if ($searchInput) $searchInput.addEventListener('input', readFilters);
+
+const searchClearBtnEl = document.getElementById('searchClearBtn');
+if (searchClearBtnEl) {
+    searchClearBtnEl.addEventListener('click', () => {
+        $searchInput.value = '';
+        readFilters();
+    });
+}
+
+document.getElementById('resetFilters').addEventListener('click', window.resetAllFilters);
+
+document.getElementById('exportPdfBtn').addEventListener('click', exportToPdf);
+document.getElementById('exportXlsBtn').addEventListener('click', exportToExcel);
+
+// Se eliminó la referencia a exportCsvBtn que no existe
+
+$themeBtn.addEventListener('click', () => {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme();
+    showToast(`Tema cambiado a modo ${currentTheme === 'dark' ? 'oscuro' : 'claro'}`);
+});
+
+function applyTheme() {
+    if (currentTheme === 'dark') $dirSection.classList.add('theme-dark');
+    else $dirSection.classList.remove('theme-dark');
+    localStorage.setItem('dir_theme', currentTheme);
+    renderBenchmarksChart();
+}
+
+document.getElementById('mobileMenu').addEventListener('click', () => {
+    document.getElementById('navMenu').classList.toggle('open');
+});
+
+document.querySelectorAll('.submenu a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth <= 680) document.getElementById('navMenu').classList.remove('open');
+    });
+});
+
+document.querySelectorAll('.menu-group > a').forEach(groupLink => {
+    groupLink.addEventListener('click', (e) => {
+        if (window.innerWidth <= 680) {
+            e.preventDefault();
+            const parentLi = groupLink.closest('.menu-group');
+            parentLi.classList.toggle('open');
+        }
+    });
+});
+
+window.addEventListener('scroll', () => {
+    document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+document.getElementById('heroCTA').addEventListener('click', e => {
+    e.preventDefault();
+    document.getElementById('directorio').scrollIntoView({ behavior: 'smooth' });
+});
+
+document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.faq-item').classList.toggle('open'));
+});
+
+/* ============================================================
+   HERO BANNER BACKGROUND SLIDER
+============================================================ */
+(function initHeroBgSlider() {
+    document.addEventListener('DOMContentLoaded', () => {
+        const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
+        const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
+        if (!slides.length) return;
+
+        let currentIndex = 0;
+        let slideInterval = null;
+
+        function goToSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            let nextIndex = (currentIndex + 1) % slides.length;
+            goToSlide(nextIndex);
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function stopAutoplay() {
+            if (slideInterval) clearInterval(slideInterval);
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                startAutoplay();
+            });
+        });
+
+        startAutoplay();
+    });
+})();
+
+/* ============================================================
+   INICIALIZACIÓN PRINCIPAL
+============================================================ */
+async function cargarDatosYIniciar() {
+    let loadedData = null;
+    const pathsToTry = ['/gobierno_en_numeros/data_tableros.json', 'data_tableros.json', './data_tableros.json'];
+    for (const p of pathsToTry) {
+        try {
+            const response = await fetch(p);
+            if (response.ok) {
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    loadedData = data;
+                    break;
+                }
+            }
+        } catch (e) {
+            // continuar intentando
+        }
+    }
+
+    if (loadedData) {
+        instituciones = loadedData;
+        console.log('Datos cargados desde JSON:', instituciones.length);
+    } else {
+        console.warn('No se pudo cargar data_tableros.json desde red, usando datos de respaldo.');
+        instituciones = FALLBACK_DATA;
+        showToast('⚠️ Usando datos de respaldo integrados.');
+    }
+
+    instituciones.sort((a, b) => (a.nombre_institucion || '').localeCompare(b.nombre_institucion || ''));
+    populateFilters();
+    applyTheme();
+    readFilters();
+    renderGlosarioTabs();
+    showToast('Directorio cargado correctamente ✅');
+}
+
+// Asegurar que el DOM esté listo antes de ejecutar
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', cargarDatosYIniciar);
+} else {
+    cargarDatosYIniciar();
+}
+
+/* ============================================================
+   SISTEMA DE NOTIFICACIONES PUSH
+============================================================ */
+function updatePushStatusUI() {
+    const bannerBadge = document.getElementById('pushStatusBadgeBanner');
+    const subscribeBtn = document.getElementById('btnSubscribePush');
+    
+    if(!bannerBadge || !subscribeBtn) return;
+
+    const perm = ("Notification" in window) ? Notification.permission : 'unsupported';
+    let badgeClass = 'push-status-default';
+    let badgeText = 'Pendiente';
+    let btnHtml = '<i class="fas fa-bell"></i> Activar Notificaciones';
+    let btnActiveClass = false;
+
+    if (perm === 'granted') {
+        badgeClass = 'push-status-granted';
+        badgeText = 'Activo';
+        btnHtml = '<i class="fas fa-check-circle"></i> Notificaciones Activas';
+        btnActiveClass = true;
+    } else if (perm === 'denied') {
+        badgeClass = 'push-status-denied';
+        badgeText = 'Bloqueado';
+        btnHtml = '<i class="fas fa-exclamation-circle"></i> Permiso Denegado';
+    } else if (perm === 'unsupported') {
+        badgeClass = 'push-status-default';
+        badgeText = 'In-App';
+        btnHtml = '<i class="fas fa-bell"></i> Alertas In-App';
+    }
+
+    bannerBadge.className = `push-status-badge ${badgeClass}`;
+    bannerBadge.innerText = badgeText;
+    
+    subscribeBtn.innerHTML = btnHtml;
+    if (btnActiveClass) subscribeBtn.classList.add('active');
+    else subscribeBtn.classList.remove('active');
+}
+
+async function requestPushPermission() {
+    if (!("Notification" in window)) {
+        if (typeof showToast === 'function') showToast("🔔 Notificaciones In-App Activadas");
+        updatePushStatusUI();
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        sendPushNotification("🔔 Notificaciones Push Activas", "Las alertas push están habilitadas para esta sección.");
+        return;
+    }
+
+    try {
+        const permission = await Notification.requestPermission();
+        updatePushStatusUI();
+        if (permission === 'granted') {
+            sendPushNotification("🎉 ¡Notificaciones Activadas!", "Recibirás alertas en tiempo real sobre nuevas actualizaciones institucionales.");
+        } else {
+            if (typeof showToast === 'function') showToast("⚠️ Permiso de Notificaciones denegado");
+        }
+    } catch(e) {
+        console.error("Error al solicitar permiso", e);
+    }
+}
+
+function sendPushNotification(title, body) {
+    if (typeof showToast === 'function') showToast(title);
+    if ("Notification" in window && Notification.permission === 'granted') {
+        try {
+            const notif = new Notification(title, {
+                body: body,
+                icon: '/img/logo-gobierno.png'
+            });
+            notif.onclick = function() { window.focus(); notif.close(); };
+        } catch(e) { console.error("Error Notification API", e); }
+    }
+}
+
+function simularCambioEstadoPush() {
+    if (!tableros || tableros.length === 0) return;
+    const item = tableros[Math.floor(Math.random() * tableros.length)];
+    sendPushNotification("✅ Actualización en Institución", `${item.nombre_institucion} ha reportado nueva información pública.`);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        updatePushStatusUI();
+        const subBtn = document.getElementById('btnSubscribePush');
+        const testBtn = document.getElementById('btnTestPush');
+        if(subBtn) subBtn.addEventListener('click', requestPushPermission);
+        if(testBtn) testBtn.addEventListener('click', simularCambioEstadoPush);
+    }, 1000);
+});
+
+</script>
+<script src="/js/pia-chatbot.js" defer></script>
+</body>
+</html>

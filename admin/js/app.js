@@ -235,26 +235,42 @@ const ROLE_LABELS = {
 
 function hasAccessToModule(moduleName) {
     if (!currentUser) return false;
-    // En el modelo de dos operadores cerrados, ambos disponen de acceso pleno a los módulos autorizados
-    if (moduleName === 'users' || moduleName === 'roles') {
-        return false; // Módulos obsoletos retirados del navegador
+    if (moduleName === 'dashboard') return true;
+    if (moduleName === 'vehiculos' || moduleName === 'vehiculos_instituciones') return false;
+
+    // Módulo de usuarios y roles
+    if (moduleName === 'security' || moduleName === 'users' || moduleName === 'roles') {
+        if (!currentUser.modules || currentUser.modules.includes('users') || currentUser.role === 'admin') {
+            return true;
+        }
+        return false;
     }
-    if (moduleName === 'vehiculos' || moduleName === 'vehiculos_instituciones') {
-        return false; // Transparencia Vehicular no visible temporalmente mientras se completa su validación
+
+    // Verificar si el módulo está en la lista asignada por el administrador
+    if (Array.isArray(currentUser.modules) && currentUser.modules.length > 0) {
+        return currentUser.modules.includes(moduleName);
     }
     return true;
 }
 
 function updateSidebarPermissions() {
     if (!currentUser) return;
+    const userModules = currentUser.modules || [];
+    const isAdmin = currentUser.role === 'admin';
+
     document.querySelectorAll('[data-module]').forEach(btn => {
         const mod = btn.dataset.module;
         const parent = btn.closest('li') || btn;
 
-        if (mod === 'users' || mod === 'roles' || mod === 'vehiculos') {
+        if (mod === 'vehiculos') {
             parent.style.display = 'none';
-        } else {
+        } else if (mod === 'dashboard') {
             parent.style.display = 'block';
+        } else if (mod === 'security' || mod === 'users') {
+            parent.style.display = (isAdmin || userModules.includes('users')) ? 'block' : 'none';
+        } else {
+            const hasPerm = isAdmin || userModules.length === 0 || userModules.includes(mod);
+            parent.style.display = hasPerm ? 'block' : 'none';
         }
     });
 }
@@ -333,13 +349,8 @@ window.navigateTo = async function(module) {
         return;
     }
 
-    if (module === 'users' || module === 'roles') {
-        navigateTo('security');
-        return;
-    }
-
-    if (module === 'security') {
-        await initUserManager('security');
+    if (module === 'users' || module === 'roles' || module === 'security') {
+        await initUserManager('operators');
         return;
     }
 

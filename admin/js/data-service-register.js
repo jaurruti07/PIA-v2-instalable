@@ -26,4 +26,3 @@ function updateMockData(path, data) {
   
   // Exponer función globalmente
   window.updateMockData = updateMockData;
-}
