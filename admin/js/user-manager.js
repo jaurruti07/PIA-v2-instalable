@@ -10,6 +10,7 @@ const AVAILABLE_MODULES = [
   { id: 'directorio', label: 'Directorio Acceso al Ejecutivo', icon: 'fa-address-book' },
   { id: 'tableros', label: 'Tu Gobierno en Números', icon: 'fa-chart-pie' },
   { id: 'riesgo', label: 'Riesgo en la Mira', icon: 'fa-triangle-exclamation' },
+  { id: 'vehiculos', label: 'Transparencia Vehicular', icon: 'fa-car' },
   { id: 'portal', label: 'Métricas Generales del Portal', icon: 'fa-tachometer-alt' },
   { id: 'visits', label: 'Contador de Visitas Reales', icon: 'fa-chart-line' },
   { id: 'chatbot', label: 'Configuración Asistente Lupita', icon: 'fa-robot' },
@@ -508,7 +509,7 @@ function renderSecurityTab(sec) {
           Contraseñas cifradas mediante sal aleatoria única por usuario y 10,000 iteraciones PBKDF2 con SHA-512, complementadas con tokens de sesión HMAC-SHA256 con expiración automática.
         </p>
         <div style="font-size: 0.82rem; background: var(--surface); padding: 0.75rem 1rem; border-radius: 8px;">
-          <div><strong>Algoritmo Cifrado:</strong> <code>PBKDF2-HMAC-SHA512 (10,000 iteraciones)</code></div>
+          <div><strong>Algoritmo Cifrado:</strong> <code>PBKDF2-HMAC-SHA512 (310,000 iteraciones)</code></div>
           <div><strong>Cuentas Autorizadas:</strong> <code>2 operadores de la CNC</code></div>
         </div>
       </div>
