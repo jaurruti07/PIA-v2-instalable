@@ -158,22 +158,39 @@ Set-Acl -Path $DataPath -AclObject $acl
 Write-Success "Permisos NTFS reforzados en $DataPath. Acceso denegado a usuarios públicos."
 
 # ========================================================
-# 4. INSTALACIÓN DE DEPENDENCIAS DEL PROYECTO
+# 4. COPIA DEL PROYECTO E INSTALACIÓN DE DEPENDENCIAS
 # ========================================================
-Write-Step "4. Preparando dependencias de Node.js en $InstallPath..."
-$currentDir = $PSScriptRoot
-if (-not $currentDir) { $currentDir = (Get-Location).Path }
+Write-Step "4. Preparando la instalación en $InstallPath..."
 
-Set-Location $currentDir
-if (Test-Path "package.json") {
-    Write-Host "  Ejecutando npm install para producción..."
-    & npm install --omit=dev --no-audit --no-fund
-    Write-Success "Dependencias de producción verificadas."
-} else {
-    Write-WarnMsg "package.json no encontrado en el directorio actual. Omitiendo npm install."
+$sourceDir = $PSScriptRoot
+if (-not $sourceDir) { $sourceDir = (Get-Location).Path }
+$sourceFullPath = [System.IO.Path]::GetFullPath($sourceDir)
+$installFullPath = [System.IO.Path]::GetFullPath($InstallPath)
+
+if (-not (Test-Path $installFullPath)) {
+    New-Item -ItemType Directory -Path $installFullPath -Force | Out-Null
 }
 
-# ========================================================
+if ($sourceFullPath.TrimEnd('\') -ne $installFullPath.TrimEnd('\')) {
+    Get-ChildItem -Path $sourceFullPath -Force |
+        Where-Object { $_.Name -notin @('.git', 'node_modules', 'data', 'uploads', '.env') } |
+        ForEach-Object { Copy-Item -Path $_.FullName -Destination $installFullPath -Recurse -Force }
+    Write-Success "Archivos de aplicación copiados a $installFullPath."
+} else {
+    Write-Success "El script se ejecuta directamente desde el directorio de instalación."
+}
+
+$currentDir = $installFullPath
+Set-Location $currentDir
+
+if (-not (Test-Path (Join-Path $currentDir "package.json"))) {
+    throw "No se encontró package.json en $currentDir."
+}
+Write-Host "  Instalando dependencias de producción..."
+& npm install --omit=dev --no-audit --no-fund
+if ($LASTEXITCODE -ne 0) { throw "Falló npm install. Revise la conexión y las dependencias." }
+Write-Success "Dependencias de producción instaladas."
+
 # 5. CONFIGURACIÓN DE VARIABLES DE ENTORNO
 # ========================================================
 Write-Step "5. Configurando secretos y credenciales iniciales..."
