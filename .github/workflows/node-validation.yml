@@ -1,0 +1,45 @@
+name: PIA Node.js validation
+
+on:
+  push:
+    branches:
+      - main
+      - refactor/distribucion-node-express
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      PIA_DATA_DIR: ${{ runner.temp }}/pia-test-data
+      PIA_SESSION_SECRET: ci-only-secret-key-do-not-use-in-production-0123456789-abcdefghijklmnopqrstuvwxyz
+      PIA_OPERATOR_1_PASSWORD: CI-only-operator-password-one-2026!
+      PIA_OPERATOR_2_PASSWORD: CI-only-operator-password-two-2026!
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Syntax checks
+        run: npm run check
+      - name: Start test server
+        run: |
+          mkdir -p "$PIA_DATA_DIR"
+          npm start > "$RUNNER_TEMP/pia-server.log" 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/api/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/pia-server.log"
+          exit 1
+      - name: Run security and regression tests
+        run: npm test
