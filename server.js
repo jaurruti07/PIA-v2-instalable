@@ -414,7 +414,7 @@ function createInitialAuthorizedUsers() {
   }
 
   const now = new Date().toISOString();
-  const modules = ["canales", "directorio", "tableros", "riesgo", "vehiculos", "portal", "visits", "chatbot", "users", "audit", "database", "guide"];
+  const modules = ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"];
   return [
     {
       id: "usr_cnc_01",
@@ -1011,7 +1011,7 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, req
     return res.status(400).json({ error: 'El listado de módulos debe ser un arreglo de cadenas.' });
   }
 
-  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'vehiculos', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
+  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
   const sanitizedModules = modules.filter(m => validModules.includes(m));
 
   const users = getUsersRoles();
@@ -1250,7 +1250,7 @@ function saveModuleRecords(module, records, user = 'sistema', expectedHash = nul
 const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin'];
 
 app.get('/api/modules', (req, res) => {
-  res.json(['canales', 'directorio', 'tableros', 'riesgo', 'vehiculos', 'portal']);
+  res.json(['canales', 'directorio', 'tableros', 'riesgo', 'portal']);
 });
 
 // Lectura de módulos (Público y Operadores) con ETag para control de concurrencia
