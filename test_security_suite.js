@@ -158,11 +158,12 @@ async function runTests() {
 
   // Test 7: Verificación de persistencia, copias de respaldo y escrituras atómicas
   try {
-    const backupsDir = path.join(process.cwd(), 'data', 'backups');
+    const privateDataDir = process.env.PIA_DATA_DIR || path.resolve(process.cwd(), '..', 'pia-data');
+    const backupsDir = path.join(privateDataDir, 'backups');
     const backupsExist = fs.existsSync(backupsDir);
     recordTest('7.1 Carpeta de respaldos automáticos /data/backups/ inicializada', backupsExist);
 
-    const usersRolesFile = path.join(process.cwd(), 'data', 'users_roles.json');
+    const usersRolesFile = path.join(privateDataDir, 'users_roles.json');
     const rolesFileExist = fs.existsSync(usersRolesFile);
     recordTest('7.2 Archivo protegido /data/users_roles.json inicializado fuera de wwwroot', rolesFileExist);
   } catch (err) {
