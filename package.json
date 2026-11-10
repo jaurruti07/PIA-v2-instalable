@@ -1,13 +1,18 @@
 {
   "name": "pia-portal-integridad-activa",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "private": true,
   "type": "module",
+  "description": "Portal de Integridad Activa (PIA) - CNC Guatemala",
+  "engines": {
+    "node": ">=20.6.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
-    "dev": "node server.js",
-    "build": "echo 'Build complete'",
-    "lint": "node --check server.js && node --check test_security_suite.js",
-    "test": "node test_security_suite.js",
-    "start": "node server.js"
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --watch --env-file-if-exists=.env server.js",
+    "check": "node --check server.js && node --check test_security_suite.js",
+    "test": "npm run check && node test_security_suite.js"
   },
   "dependencies": {
     "@google/genai": "^2.14.0",
