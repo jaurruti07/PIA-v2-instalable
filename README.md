@@ -53,7 +53,7 @@ Versión de distribución basada en **Node.js + Express**. El servidor Express e
 
 6. Abrir el portal en `http://localhost:3000` y el panel administrativo en `http://localhost:3000/admin`.
 
-En el primer arranque, si no existe el archivo de identidades en el directorio de datos, el servidor crea las dos cuentas institucionales únicamente si las dos contraseñas de inicialización están configuradas. Los hashes se almacenan en el directorio de datos. Si las variables no están configuradas, el sistema no crea usuarios ni permite iniciar sesión.
+En el primer arranque, si no existe el archivo de identidades en el directorio de datos, el servidor crea las dos cuentas institucionales únicamente si las dos contraseñas de inicialización están configuradas. Los hashes se almacenan en el directorio de datos. Si las variables no están configuradas, el sistema no crea usuarios ni permite iniciar sesión. **Después de confirmar que el inicio fue correcto y que existe `users_roles.json` en `PIA_DATA_DIR`, elimine las variables `PIA_OPERATOR_1_PASSWORD` y `PIA_OPERATOR_2_PASSWORD` del archivo `.env` y reinicie el servicio.** En Docker, elimínelas también del archivo `.env` del host y recree el contenedor; no son necesarias después del primer arranque.
 
 ## Preparación en Windows Server con IIS
 
@@ -63,7 +63,7 @@ Desde PowerShell ejecutado como Administrador, en la carpeta del repositorio:
 .\deploy-iis.ps1 -InstallPath "C:\inetpub\wwwroot\PIA" -DataPath "C:\PIA_Data" -Port 3000
 ```
 
-El script comprueba Node.js 22.9+, copia el código sin archivos operativos ni secretos, crea el directorio privado, solicita las dos contraseñas iniciales de forma protegida, genera el secreto de sesión y prepara las dependencias. No instala automáticamente un gestor de procesos ni habilita ARR: TI debe configurar el proceso Node persistente (por ejemplo, NSSM o PM2) y el proxy inverso IIS/ARR conforme a la infraestructura del servidor. El archivo `web.config` contiene las reglas de proxy previstas.
+El script comprueba Node.js 22.9+, copia el código sin archivos operativos ni secretos, crea el directorio privado, solicita las dos contraseñas iniciales de forma protegida, genera el secreto de sesión y prepara las dependencias. Admite el parámetro `-ServiceAccount` para asignar permisos mínimos a la identidad que ejecutará Node; por defecto utiliza `NT AUTHORITY\SYSTEM`. No instala automáticamente un gestor de procesos ni habilita ARR: TI debe configurar el proceso Node persistente (por ejemplo, NSSM o PM2) y el proxy inverso IIS/ARR conforme a la infraestructura del servidor. El archivo `web.config` contiene las reglas de proxy previstas.
 
 Para una prueba inicial, desde la carpeta de instalación y con el archivo `.env` ya creado:
 
