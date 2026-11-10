@@ -690,7 +690,7 @@ async function requireAuth(req, res, next) {
         module: 'auth',
         target: 'admin',
         details: `UID de Firebase Auth registrado exitosamente para operador ${matchedOperator.displayName}: ${userUid}`,
-        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+        ip: req.socket.remoteAddress || '127.0.0.1'
       });
     }
 
@@ -830,7 +830,7 @@ app.post('/api/auth/login', loginRateLimit, (req, res) => {
       module: 'auth',
       target: 'admin',
       details: `Intento de acceso rechazado para cuenta no autorizada: ${userIdentifier}`,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
     return res.status(401).json({ error: 'Credenciales incorrectas o usuario no autorizado.' });
   }
@@ -850,7 +850,7 @@ app.post('/api/auth/login', loginRateLimit, (req, res) => {
       module: 'auth',
       target: 'admin',
       details: `Contraseña inválida ingresada para el usuario ${userIdentifier}`,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
     return res.status(401).json({ error: 'Credenciales incorrectas o usuario no autorizado.' });
   }
@@ -874,7 +874,7 @@ app.post('/api/auth/login', loginRateLimit, (req, res) => {
     module: 'auth',
     target: 'admin',
     details: `Inicio de sesión exitoso como ${user.displayName} (${user.email}) con permisos en: ${(user.modules || []).join(', ')}`,
-    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    ip: req.socket.remoteAddress || '127.0.0.1'
   });
 
   res.json({
@@ -1025,7 +1025,7 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, req
     module: 'users',
     target: targetEmail,
     details: `Módulos asignados a ${targetEmail}: ${sanitizedModules.join(', ')}`,
-    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    ip: req.socket.remoteAddress || '127.0.0.1'
   });
 
   res.json({
@@ -1077,7 +1077,7 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, requir
     module: 'users',
     target: targetEmail,
     details: `Contraseña actualizada y encriptada con sal PBKDF2/SHA-512 para el usuario ${targetEmail}`,
-    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    ip: req.socket.remoteAddress || '127.0.0.1'
   });
 
   res.json({
@@ -1119,7 +1119,7 @@ app.put('/api/admin/users/:email/role', requireAuth, requireOperator, requireMod
     module: 'users',
     target: targetEmail,
     details: `Rol asignado a ${targetEmail}: ${role}`,
-    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    ip: req.socket.remoteAddress || '127.0.0.1'
   });
 
   res.json({
@@ -1383,7 +1383,7 @@ app.post('/api/:module', requireAuth, requireOperator, requireModuleFromParam, (
       recordId: newId,
       details: `Registro ID ${newId} creado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
@@ -1423,7 +1423,7 @@ app.put('/api/:module/:id', requireAuth, requireOperator, requireModuleFromParam
       recordId: id,
       details: `Registro ID ${id} actualizado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
@@ -1462,7 +1462,7 @@ app.delete('/api/:module/:id', requireAuth, requireOperator, requireModuleFromPa
       recordId: id,
       details: `Registro ID ${id} eliminado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
-      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+      ip: req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
