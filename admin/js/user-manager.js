@@ -10,7 +10,6 @@ const AVAILABLE_MODULES = [
   { id: 'directorio', label: 'Directorio Acceso al Ejecutivo', icon: 'fa-address-book' },
   { id: 'tableros', label: 'Tu Gobierno en Números', icon: 'fa-chart-pie' },
   { id: 'riesgo', label: 'Riesgo en la Mira', icon: 'fa-triangle-exclamation' },
-  { id: 'vehiculos', label: 'Transparencia Vehicular', icon: 'fa-car' },
   { id: 'portal', label: 'Métricas Generales del Portal', icon: 'fa-tachometer-alt' },
   { id: 'visits', label: 'Contador de Visitas Reales', icon: 'fa-chart-line' },
   { id: 'chatbot', label: 'Configuración Asistente Lupita', icon: 'fa-robot' },
