@@ -212,7 +212,7 @@ function recordPageVisit(pagePath = '/', req = {}) {
     data.pages[norm].lastVisit = new Date().toISOString();
 
     const headers = req.headers || {};
-    const rawIp = (headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1').split(',')[0].trim();
+    const rawIp = (req.socket?.remoteAddress || '127.0.0.1').split(',')[0].trim();
     const ipParts = rawIp.split('.');
     const maskedIp = ipParts.length === 4 ? `${ipParts[0]}.${ipParts[1]}.***.***` : '127.0.***';
     const userAgent = String(headers['user-agent'] || 'Navegador Web').slice(0, 90);
@@ -388,8 +388,10 @@ function saveAuthorizedOperators(operators) {
     const tempFile = path.join(DATA_DIR, `.tmp_operators_${Date.now()}`);
     fs.writeFileSync(tempFile, JSON.stringify(operators, null, 2), 'utf8');
     fs.renameSync(tempFile, OPERATORS_FILE);
+    return true;
   } catch (e) {
     console.error('Error guardando authorized_operators.json:', e);
+    return false;
   }
 }
 
@@ -514,7 +516,7 @@ function getUsersRoles() {
     console.error('PIA: no existen usuarios iniciales. Configure PIA_OPERATOR_1_PASSWORD y PIA_OPERATOR_2_PASSWORD (mínimo 14 caracteres) y reinicie.');
     return [];
   }
-  saveUsersRoles(initialUsers);
+  if (!saveUsersRoles(initialUsers)) return [];
   return initialUsers;
 }
 
@@ -537,6 +539,9 @@ if (process.env.PIA_OPERATOR_1_PASSWORD && process.env.PIA_OPERATOR_2_PASSWORD) 
 
 // Validación criptográfica estricta de token de Firebase Authentication en el servidor
 async function verifyFirebaseToken(token) {
+  if (!FIREBASE_PROJECT_ID) {
+    throw new Error('Firebase Authentication no está configurado para esta instalación.');
+  }
   if (!token || typeof token !== 'string') {
     throw new Error('Token de autorización no proporcionado.');
   }
@@ -661,7 +666,7 @@ async function requireAuth(req, res, next) {
         module: 'auth',
         target: 'admin',
         details: `Discrepancia de UID en servidor: Recibido ${userUid}, registrado ${matchedOperator.uid}`,
-        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+        ip: req.socket.remoteAddress || '127.0.0.1'
       });
 
       return res.status(403).json({
@@ -673,7 +678,9 @@ async function requireAuth(req, res, next) {
     if (!matchedOperator.uid) {
       matchedOperator.uid = userUid;
       matchedOperator.status = 'active';
-      saveAuthorizedOperators(operators);
+      if (!saveAuthorizedOperators(operators)) {
+        return res.status(500).json({ error: 'No fue posible registrar la identidad del operador en el servidor.' });
+      }
       logAudit({
         user: userEmail,
         userUid,
@@ -1007,7 +1014,9 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, req
 
   user.modules = sanitizedModules;
   user.updatedAt = new Date().toISOString();
-  saveUsersRoles(users);
+  if (!saveUsersRoles(users)) {
+    return res.status(500).json({ error: 'No fue posible guardar los permisos del usuario.' });
+  }
 
   logAudit({
     user: req.user.email,
@@ -1057,7 +1066,9 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, requir
   user.passwordHash = newHash;
   user.lastPasswordChange = new Date().toISOString();
   user.updatedAt = new Date().toISOString();
-  saveUsersRoles(users);
+  if (!saveUsersRoles(users)) {
+    return res.status(500).json({ error: 'No fue posible guardar la nueva contraseña.' });
+  }
 
   logAudit({
     user: req.user.email,
@@ -1097,7 +1108,9 @@ app.put('/api/admin/users/:email/role', requireAuth, requireOperator, requireMod
 
   user.role = role;
   user.updatedAt = new Date().toISOString();
-  saveUsersRoles(users);
+  if (!saveUsersRoles(users)) {
+    return res.status(500).json({ error: 'No fue posible guardar el rol del usuario.' });
+  }
 
   logAudit({
     user: req.user.email,
@@ -1232,7 +1245,7 @@ function saveModuleRecords(module, records, user = 'sistema', expectedHash = nul
   return atomicWriteJson(filePath, records, expectedHash, user);
 }
 
-const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin'];
+const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin', 'visits', 'page_visits.json', 'chatbot_settings.json', 'chatbot_knowledge.json'];
 
 // Rutas de JSON permitidas para la herramienta de mantenimiento administrativo.
 // Nunca se acepta una ruta de archivo arbitraria proporcionada por el navegador.
