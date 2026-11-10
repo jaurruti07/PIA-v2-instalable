@@ -13,7 +13,7 @@
 param(
     [string]$InstallPath = "C:\inetpub\wwwroot\PIA",
     [string]$DataPath = "C:\PIA_Data",
-    [int]$Port = 3000,
+    [int]$Port = 3000
 )
 
 $ErrorActionPreference = "Stop"
