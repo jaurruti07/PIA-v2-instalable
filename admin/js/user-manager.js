@@ -506,7 +506,7 @@ function renderSecurityTab(sec) {
           </div>
         </div>
         <p style="font-size: 0.88rem; color: #5E7A8E; line-height: 1.45; margin-bottom: 1rem;">
-          Contraseñas cifradas mediante sal aleatoria única por usuario y 10,000 iteraciones PBKDF2 con SHA-512, complementadas con tokens de sesión HMAC-SHA256 con expiración automática.
+          Contraseñas cifradas mediante sal aleatoria única por usuario y 310,000 iteraciones PBKDF2 con SHA-512, complementadas con tokens de sesión HMAC-SHA256 con expiración automática.
         </p>
         <div style="font-size: 0.82rem; background: var(--surface); padding: 0.75rem 1rem; border-radius: 8px;">
           <div><strong>Algoritmo Cifrado:</strong> <code>PBKDF2-HMAC-SHA512 (310,000 iteraciones)</code></div>
