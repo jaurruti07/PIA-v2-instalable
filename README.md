@@ -97,7 +97,8 @@ Los datos operativos se conservan en el volumen Docker `pia_data`, independiente
 
 | Variable | Obligatoria | Descripción |
 |---|---:|---|
-| `PORT` | No | Puerto HTTP; por defecto 3000 |
+| `PORT` | No | Puerto HTTP local; por defecto 3000 (el contenedor siempre usa 3000 internamente) |
+| `HOST_PORT` | No | Puerto publicado en el host por Docker Compose; por defecto 3000 |
 | `PIA_SESSION_SECRET` | Sí | Secreto HMAC de 64 caracteres o más |
 | `PIA_DATA_DIR` | No | Ruta del almacenamiento persistente privado |
 | `PIA_OPERATOR_1_PASSWORD` | Para primer arranque | Contraseña inicial del operador DAGI (mínimo 14 caracteres) |
