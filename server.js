@@ -10,7 +10,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = Number(process.env.DEFAULT_APP_PORT) || 3000;
+const PORT = Number(process.env.PORT || process.env.DEFAULT_APP_PORT) || 3000;
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'pia', timestamp: new Date().toISOString() });
+});
 
 // Body Parsers con límites institucionales controlados
 app.use(express.json({ limit: '20mb' }));
@@ -399,35 +403,42 @@ function saveAuthorizedOperators(operators) {
 // 3.B GESTIÓN DE ROLES, PERMISOS Y CONTRASEÑAS ENCRIPTADAS
 // ========================================================
 
-const DEFAULT_AUTHORIZED_USERS = [
-  {
-    id: "usr_cnc_01",
-    email: "deteccionydenuncia@cnc.gob.gt",
-    displayName: "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
-    role: "admin",
-    // Contraseña inicial 12345 encriptada con PBKDF2/SHA-512 y sal criptográfica
-    passwordHash: "f929ebd07fd2c63da7eb3004213bd3d2:9d5f0b3dc9c5e3160bcd726cfd0104c4b310ba6369d64914435c4de8c1ad5d6fb3723aa263cdcaf84f57ef6160b3634442819a3e43f657c0eeb088fbd317ef59",
-    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
-    status: "active",
-    operatorIndex: 1,
-    lastPasswordChange: "2026-03-30T10:00:00.000Z",
-    updatedAt: "2026-03-30T10:00:00.000Z"
-  },
-  {
-    id: "usr_cnc_02",
-    email: "apoyogi@cnc.gob.gt",
-    displayName: "Apoyo a la Gestión de Irregularidades (CNC)",
-    role: "admin",
-    // Contraseña inicial 12345 encriptada con PBKDF2/SHA-512 y sal criptográfica
-    passwordHash: "29af97fbdcade6df44a7d6fb84022548:b3e638225077f1c21b848b5bc32b9cf95d4b7f083dd3eb246d389a042475d86dd8002e0bb7fa0e47234b7a8164304e5a784af86ba8575357e361c93a5a33137e",
-    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
-    status: "active",
-    operatorIndex: 2,
-    lastPasswordChange: "2026-03-30T10:00:00.000Z",
-    updatedAt: "2026-03-30T10:00:00.000Z"
+function createInitialAuthorizedUsers() {
+  const password1 = (process.env.PIA_OPERATOR_1_PASSWORD || '').trim();
+  const password2 = (process.env.PIA_OPERATOR_2_PASSWORD || '').trim();
+  if (!password1 || !password2 || password1.length < 14 || password2.length < 14) {
+    return [];
   }
-];
 
+  const now = new Date().toISOString();
+  const modules = ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"];
+  return [
+    {
+      id: "usr_cnc_01",
+      email: "deteccionydenuncia@cnc.gob.gt",
+      displayName: process.env.PIA_OPERATOR_1_NAME || "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
+      role: "admin",
+      passwordHash: hashPassword(password1),
+      modules,
+      status: "active",
+      operatorIndex: 1,
+      lastPasswordChange: null,
+      updatedAt: now
+    },
+    {
+      id: "usr_cnc_02",
+      email: "apoyogi@cnc.gob.gt",
+      displayName: process.env.PIA_OPERATOR_2_NAME || "Apoyo a la Gestión de Irregularidades (CNC)",
+      role: "admin",
+      passwordHash: hashPassword(password2),
+      modules,
+      status: "active",
+      operatorIndex: 2,
+      lastPasswordChange: null,
+      updatedAt: now
+    }
+  ];
+}
 function hashPassword(password, salt = null) {
   if (!salt) {
     salt = crypto.randomBytes(16).toString('hex');
@@ -450,7 +461,10 @@ function verifyPassword(password, storedCombined) {
   }
 }
 
-const SESSION_HMAC_SECRET = process.env.PIA_SESSION_SECRET || crypto.createHash('sha256').update('PIA_CNC_GUATEMALA_SECRET_KEY_2026').digest('hex');
+const SESSION_HMAC_SECRET = (process.env.PIA_SESSION_SECRET || '').trim();
+if (SESSION_HMAC_SECRET.length < 64) {
+  throw new Error('Configuración insegura: PIA_SESSION_SECRET es obligatorio y debe contener al menos 64 caracteres aleatorios.');
+}
 
 function createLocalSessionToken(user) {
   const payload = {
@@ -495,8 +509,13 @@ function getUsersRoles() {
       console.error('Error leyendo users_roles.json:', e);
     }
   }
-  saveUsersRoles(DEFAULT_AUTHORIZED_USERS);
-  return DEFAULT_AUTHORIZED_USERS;
+  const initialUsers = createInitialAuthorizedUsers();
+  if (initialUsers.length !== 2) {
+    console.error('PIA: no existen usuarios iniciales. Configure PIA_OPERATOR_1_PASSWORD y PIA_OPERATOR_2_PASSWORD (mínimo 14 caracteres) y reinicie.');
+    return [];
+  }
+  saveUsersRoles(initialUsers);
+  return initialUsers;
 }
 
 function saveUsersRoles(users) {
