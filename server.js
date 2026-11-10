@@ -1007,8 +1007,8 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, requir
     return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
   }
 
-  if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 4) {
-    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 4 caracteres.' });
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 14) {
+    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 14 caracteres.' });
   }
 
   const users = getUsersRoles();
@@ -1763,6 +1763,19 @@ app.get(['/riesgo', '/riesgo/'], (req, res) => {
 app.get('/', (req, res) => {
   recordPageVisit('/', req);
   sendFreshHtml(path.join(__dirname, 'index.html'), res);
+});
+
+// Evitar que archivos de operación/identidad heredados puedan servirse como contenido público.
+const PRIVATE_STATIC_FILES = new Set([
+  '/audit_logs.json',
+  '/chatbot_conversations.json',
+  '/page_visits.json',
+  '/authorized_operators.json',
+  '/users_roles.json'
+]);
+app.use((req, res, next) => {
+  if (PRIVATE_STATIC_FILES.has(req.path.toLowerCase())) return res.sendStatus(404);
+  next();
 });
 
 app.use(express.static(__dirname, {
