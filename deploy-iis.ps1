@@ -6,7 +6,7 @@
 .DESCRIPTION
     Este script realiza las siguientes acciones de forma determinista y segura:
     1. Verifica privilegios de Administrador local.
-    2. Comprueba prerrequisitos: Node.js LTS (>= 18), npm, IIS, URL Rewrite Module y ARR.
+    2. Comprueba prerrequisitos: Node.js LTS (>= 22.9), npm, IIS, URL Rewrite Module y ARR.
     3. Crea la estructura de almacenamiento protegido en C:\PIA_Data con permisos NTFS restringidos.
     4. Inicializa el directorio de respaldos automáticos rotativos (C:\PIA_Data\backups).
     5. Instala las dependencias de producción de Node.js (npm ci / npm install --omit=dev).
@@ -76,11 +76,14 @@ Write-Step "2. Verificando software base requerido (Node.js, npm, IIS)..."
 
 # Node.js
 try {
-    $nodeVersion = & node -v
-    Write-Success "Node.js detectado: $nodeVersion"
+    $nodeVersion = & node -p "process.versions.node"
+    if ([version]$nodeVersion -lt [version]"22.9.0") {
+        throw "Se requiere Node.js 22.9 o superior. Versión detectada: $nodeVersion"
+    }
+    Write-Success "Node.js compatible detectado: v$nodeVersion"
 } catch {
-    Write-ErrorMsg "Node.js no está instalado o no figura en la variable PATH del sistema."
-    Write-Host "  Por favor descargue e instale Node.js LTS (>= 18.x) desde https://nodejs.org/"
+    Write-ErrorMsg $_.Exception.Message
+    Write-Host "  Instale Node.js LTS 22.9 o superior desde https://nodejs.org/"
     exit 1
 }
 
@@ -173,25 +176,75 @@ if (Test-Path "package.json") {
 # ========================================================
 # 5. CONFIGURACIÓN DE VARIABLES DE ENTORNO
 # ========================================================
-Write-Step "5. Verificando plantilla de variables de entorno institucional..."
+Write-Step "5. Configurando secretos y credenciales iniciales..."
+
 $envFile = Join-Path $currentDir ".env"
-$envExample = Join-Path $currentDir ".env.example"
+$dataPathEnv = $DataPath -replace '\\', '/'
 
 if (-not (Test-Path $envFile)) {
-    if (Test-Path $envExample) {
-        Copy-Item -Path $envExample -Destination $envFile
-        Write-WarnMsg "Se generó .env a partir de .env.example. Por favor complete los identificadores institucionales provistos por TI:"
-        Write-Host "  - ENTRA_TENANT_ID (Tenant ID de Microsoft Azure / Entra ID)"
-        Write-Host "  - ENTRA_CLIENT_ID (Client ID de la SPA registrada)"
-        Write-Host "  - PIA_OPERATOR_1_OID (Object ID de apoyogi@cnc.gob.gt)"
-        Write-Host "  - PIA_OPERATOR_2_OID (Object ID de deteccionydenuncia@cnc.gob.gt)"
-        Write-Host "  - GEMINI_API_KEY (Opcional: Si falta, Lupita funciona con motor heurístico local)"
+    Write-Host "  Se solicitarán dos contraseñas distintas de al menos 14 caracteres."
+    $secure1 = Read-Host "Contraseña inicial de deteccionydenuncia@cnc.gob.gt" -AsSecureString
+    $secure2 = Read-Host "Contraseña inicial de apoyogi@cnc.gob.gt" -AsSecureString
+    $ptr1 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure1)
+    $ptr2 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure2)
+    try {
+        $password1 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr1)
+        $password2 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr2)
+    } finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr1)
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr2)
     }
+
+    if ($password1.Length -lt 14 -or $password2.Length -lt 14 -or $password1 -eq $password2) {
+        throw "Las contraseñas deben ser diferentes y contener al menos 14 caracteres."
+    }
+    if ($password1 -notmatch '^[A-Za-z0-9!@#$%^&*()_+=-]{14,256}$' -or $password2 -notmatch '^[A-Za-z0-9!@#$%^&*()_+=-]{14,256}$') {
+        throw "Use contraseñas de 14 a 256 caracteres con letras, números y símbolos comunes; no incluya espacios ni comillas."
+    }
+
+    $sessionSecret = & node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+    $envLines = @(
+        "NODE_ENV=production",
+        "PORT=$Port",
+        "PIA_DATA_DIR=$dataPathEnv",
+        "PIA_SESSION_SECRET=$sessionSecret",
+        "PIA_OPERATOR_1_PASSWORD=$password1",
+        "PIA_OPERATOR_2_PASSWORD=$password2",
+        "PIA_OPERATOR_1_NAME=Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
+        "PIA_OPERATOR_2_NAME=Apoyo a la Gestión de Irregularidades (CNC)",
+        "FIREBASE_PROJECT_ID=pia-portal-integridad",
+        "GEMINI_API_KEY="
+    )
+    [System.IO.File]::WriteAllLines($envFile, $envLines, [System.Text.UTF8Encoding]::new($false))
+    $password1 = $null
+    $password2 = $null
+    Write-Success "Archivo .env generado con secreto aleatorio y credenciales iniciales."
 } else {
-    Write-Success "Archivo .env existente detectado. Conservando configuración actual."
+    Write-Success "Archivo .env existente detectado. Conservando sus credenciales."
+    $envContent = Get-Content -Path $envFile -Raw
+    if ($envContent -notmatch '(?m)^PIA_SESSION_SECRET=.{64,}$') {
+        throw "PIA_SESSION_SECRET no está configurado con al menos 64 caracteres. Corrija .env antes de continuar."
+    }
+    if ($envContent -notmatch '(?m)^PIA_OPERATOR_1_PASSWORD=.{14,}$' -or $envContent -notmatch '(?m)^PIA_OPERATOR_2_PASSWORD=.{14,}$') {
+        Write-WarnMsg "Las contraseñas iniciales no están completas. Si ya existe users_roles.json, puede retirar estas variables; de lo contrario, defínalas antes del primer arranque."
+    }
+    if ($envContent -match '(?m)^PIA_DATA_DIR=.*$') {
+        $envContent = [regex]::Replace($envContent, '(?m)^PIA_DATA_DIR=.*$', "PIA_DATA_DIR=$dataPathEnv")
+    } else {
+        $envContent += "`r`nPIA_DATA_DIR=$dataPathEnv`r`n"
+    }
+    [System.IO.File]::WriteAllText($envFile, $envContent, [System.Text.UTF8Encoding]::new($false))
 }
 
-# ========================================================
+# Restringir lectura del archivo de secretos.
+$envAcl = New-Object System.Security.AccessControl.FileSecurity
+$envAcl.SetAccessRuleProtection($true, $false)
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\IIS_IUSRS", "Read", "Allow")))
+Set-Acl -Path $envFile -AclObject $envAcl
+Write-Success "Permisos NTFS del archivo .env restringidos."
+
 # 6. CONFIGURACIÓN DE IIS (SITE Y APPLICATION POOL)
 # ========================================================
 Write-Step "6. Configurando IIS Application Pool y Sitio Web..."
@@ -233,11 +286,11 @@ Write-Step "8. Ejecutando verificación de salud institucional..."
 
 $healthTestCode = @"
 try {
-    const resModules = await fetch('http://127.0.0.1:$Port/api/modules');
-    const modules = await resModules.json();
+    const resHealth = await fetch('http://127.0.0.1:$Port/api/health');
+    const health = await resHealth.json();
     const resChat = await fetch('http://127.0.0.1:$Port/api/chatbot/config');
     const chat = await resChat.json();
-    console.log(JSON.stringify({ ok: true, modulesCount: modules.length, chatbotActive: chat.enabled !== false }));
+    console.log(JSON.stringify({ ok: resHealth.ok && health.status === 'ok', service: health.service, chatbotActive: chat.enabled !== false }));
 } catch (e) {
     console.log(JSON.stringify({ ok: false, error: e.message }));
 }
@@ -249,7 +302,7 @@ if ($healthResult) {
         $jsonRes = $healthResult | ConvertFrom-Json
         if ($jsonRes.ok) {
             Write-Success "Servicio Node.js respondiendo correctamente en http://127.0.0.1:$Port"
-            Write-Success "Módulos activos: $($jsonRes.modulesCount). Asistente Lupita: $($jsonRes.chatbotActive)"
+            Write-Success "Backend Express saludable. Asistente Lupita: $($jsonRes.chatbotActive)"
         } else {
             Write-WarnMsg "El servicio aún no está levantado en el puerto $Port ($($jsonRes.error)). Inicie el servicio para verificar."
         }
