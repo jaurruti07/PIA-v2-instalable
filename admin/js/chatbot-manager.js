@@ -107,7 +107,7 @@ async function loadStatsTab() {
 
         const totalConversations = stats.totalConversations || 0;
         const avgTime = stats.avgResponseTimeMs || 0;
-        const satRate = stats.satisfactionRate || 95;
+        const satRate = Number.isFinite(stats.satisfactionRate) ? stats.satisfactionRate : null;
         const unansweredCount = (stats.unansweredQueries || []).length;
 
         let dailyBarsHTML = '';
@@ -156,7 +156,7 @@ async function loadStatsTab() {
                         <i class="fas fa-comments" style="color: var(--cyan); font-size: 1.3rem;"></i>
                     </div>
                     <div style="font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-top: 8px;">${totalConversations}</div>
-                    <span style="font-size: 0.75rem; color: var(--green);"><i class="fas fa-arrow-up"></i> Consultas atendidas en vivo</span>
+                    <span style="font-size: 0.75rem; color: var(--green);"><i class="fas fa-arrow-up"></i> Registros conservados según la política de historial</span>
                 </div>
 
                 <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--blue);">
@@ -173,7 +173,7 @@ async function loadStatsTab() {
                         <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Índice de Satisfacción</span>
                         <i class="fas fa-smile" style="color: #10B981; font-size: 1.3rem;"></i>
                     </div>
-                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-top: 8px;">${satRate}%</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-top: 8px;">${satRate === null ? 'Sin datos' : satRate + '%'} </div>
                     <span style="font-size: 0.75rem; color: var(--text-muted);"><i class="fas fa-thumbs-up"></i> Basado en valoraciones de usuarios</span>
                 </div>
 
