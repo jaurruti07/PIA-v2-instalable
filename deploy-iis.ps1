@@ -278,9 +278,9 @@ if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
     $appPool.managedRuntimeVersion = "" # Sin runtime .NET (.NET CLR Version: No Managed Code)
     $appPool.processModel.idleTimeout = [TimeSpan]::Zero # No suspender el proceso
     $appPool | Set-Item
-    Write-Success "Application Pool '$appPoolName' creado sin Managed Code."
+    Write-Success "Application Pool $appPoolName creado sin Managed Code."
 } else {
-    Write-Success "Application Pool '$appPoolName' ya existe."
+    Write-Success "Application Pool $appPoolName ya existe."
 }
 
 # ========================================================
