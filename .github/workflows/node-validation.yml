@@ -44,3 +44,15 @@ jobs:
           exit 1
       - name: Run security and regression tests
         run: npm test
+      - name: Validate Windows installer syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("$PWD/deploy-iis.ps1", [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_ }
+            exit 1
+          }
+      - name: Build production Docker image
+        run: docker build -t pia-portal:ci .
