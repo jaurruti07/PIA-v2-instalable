@@ -307,25 +307,13 @@ if (-not $SkipServiceCreation) {
 # ========================================================
 Write-Step "8. Ejecutando verificación de salud institucional..."
 
-$healthTestCode = @"
-try {
-    const resHealth = await fetch('http://127.0.0.1:$Port/api/health');
-    const health = await resHealth.json();
-    const resChat = await fetch('http://127.0.0.1:$Port/api/chatbot/config');
-    const chat = await resChat.json();
-    console.log(JSON.stringify({ ok: resHealth.ok && health.status === 'ok', service: health.service, chatbotActive: chat.enabled !== false }));
-} catch (e) {
-    console.log(JSON.stringify({ ok: false, error: e.message }));
-}
-"@
-
-$healthResult = & node -e "$healthTestCode" 2>$null
+$healthResult = & node -e "fetch('http://127.0.0.1:$Port/api/health').then(async r => { const data = await r.json(); console.log(JSON.stringify({ ok: r.ok && data.status === 'ok', service: data.service })); }).catch(e => console.log(JSON.stringify({ ok: false, error: e.message })))" 2>$null
 if ($healthResult) {
     try {
         $jsonRes = $healthResult | ConvertFrom-Json
         if ($jsonRes.ok) {
             Write-Success "Servicio Node.js respondiendo correctamente en http://127.0.0.1:$Port"
-            Write-Success "Backend Express saludable. Asistente Lupita: $($jsonRes.chatbotActive)"
+            Write-Success "Backend Express saludable: $($jsonRes.service)"
         } else {
             Write-WarnMsg "El servicio aún no está levantado en el puerto $Port ($($jsonRes.error)). Inicie el servicio para verificar."
         }
