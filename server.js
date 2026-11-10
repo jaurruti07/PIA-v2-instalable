@@ -1557,6 +1557,7 @@ const CHATBOT_SETTINGS_FILE = path.join(DATA_DIR, 'chatbot_settings.json');
 const CHATBOT_KNOWLEDGE_FILE = path.join(DATA_DIR, 'chatbot_knowledge.json');
 const CHATBOT_CONVERSATIONS_FILE = path.join(DATA_DIR, 'chatbot_conversations.json');
 const LEGACY_CHATBOT_FILES = [
+  [path.join(__dirname, 'chatbot_settings.json'), CHATBOT_SETTINGS_FILE],
   [path.join(__dirname, 'chatbot_knowledge.json'), CHATBOT_KNOWLEDGE_FILE]
 ];
 
