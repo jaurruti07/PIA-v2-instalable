@@ -1752,20 +1752,71 @@ app.post('/api/chatbot/chat', async (req, res) => {
 });
 
 app.post('/api/chatbot/rate', (req, res) => {
-  res.json({ success: true, message: 'Gracias por su retroalimentación.' });
+  if (process.env.PIA_CHATBOT_LOG_CONVERSATIONS !== 'true') {
+    return res.json({ success: true, recorded: false, message: 'Gracias por su retroalimentación. Las valoraciones no se conservan en esta instalación.' });
+  }
+
+  const { messageId, rating } = req.body || {};
+  if (typeof messageId !== 'string' || !['like', 'dislike'].includes(rating)) {
+    return res.status(400).json({ error: 'Valoración inválida.' });
+  }
+
+  const conversations = readJsonFile(CHATBOT_CONVERSATIONS_FILE) || [];
+  const conversation = conversations.find(item => item.id === messageId);
+  if (!conversation) return res.status(404).json({ error: 'La conversación no existe o ya no está disponible.' });
+  conversation.rating = rating;
+  conversation.ratedAt = new Date().toISOString();
+
+  try {
+    atomicWriteJson(CHATBOT_CONVERSATIONS_FILE, conversations.slice(0, 200), null, 'chatbot');
+    res.json({ success: true, recorded: true, message: 'Gracias por su retroalimentación.' });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible guardar la valoración.' });
+  }
 });
 
-// Admin stats
+// Estadísticas calculadas únicamente a partir de registros conservados.
+// No se muestran métricas simuladas cuando el historial está desactivado.
 app.get('/api/admin/chatbot/stats', requireAuth, requireOperator, requireModule('chatbot'), (req, res) => {
   const settings = getChatbotSettings();
   const knowledge = getChatbotKnowledge();
+  const conversations = process.env.PIA_CHATBOT_LOG_CONVERSATIONS === 'true'
+    ? (readJsonFile(CHATBOT_CONVERSATIONS_FILE) || [])
+    : [];
+  const rated = conversations.filter(item => item.rating === 'like' || item.rating === 'dislike');
+  const positive = rated.filter(item => item.rating === 'like').length;
+  const average = conversations.length
+    ? Math.round(conversations.reduce((sum, item) => sum + (Number(item.responseTimeMs) || 0), 0) / conversations.length)
+    : 0;
+
+  const dailyCounts = new Map();
+  const queryCounts = new Map();
+  for (const item of conversations) {
+    const date = String(item.timestamp || '').slice(0, 10);
+    if (date) dailyCounts.set(date, (dailyCounts.get(date) || 0) + 1);
+    const query = String(item.userMessage || '').trim();
+    if (query) queryCounts.set(query, (queryCounts.get(query) || 0) + 1);
+  }
+
+  const dailyStats = [...dailyCounts.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-14)
+    .map(([date, count]) => ({ date, count }));
+  const frequentQueries = [...queryCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([query, count]) => ({ query, count }));
+
   res.json({
-    totalConversations: 168,
-    avgResponseTimeMs: 980,
-    satisfactionRate: 96,
+    totalConversations: conversations.length,
+    avgResponseTimeMs: average,
+    satisfactionRate: rated.length ? Math.round((positive / rated.length) * 100) : null,
     knowledgeCount: knowledge.length,
     model: settings.model,
-    enabled: settings.enabled
+    enabled: settings.enabled,
+    dailyStats,
+    frequentQueries,
+    unansweredQueries: []
   });
 });
 
