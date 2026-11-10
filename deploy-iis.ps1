@@ -11,7 +11,7 @@
     4. Inicializa el directorio de respaldos automáticos rotativos (C:\PIA_Data\backups).
     5. Instala las dependencias de producción de Node.js (npm ci / npm install --omit=dev).
     6. Valida la plantilla .env institucional sin almacenar contraseñas ni secretos en repositorio.
-    7. Configura el Sitio Web y el Application Pool dedicado en IIS.
+    7. Prepara un Application Pool dedicado; la creación del sitio y la habilitación de ARR se completan según la política de TI.
     8. Ejecuta pruebas de verificación de arranque y validación de endpoints HTTP.
 
 .PARAMETER InstallPath
@@ -264,7 +264,7 @@ Write-Success "Permisos NTFS del archivo .env restringidos."
 
 # 6. CONFIGURACIÓN DE IIS (SITE Y APPLICATION POOL)
 # ========================================================
-Write-Step "6. Configurando IIS Application Pool y Sitio Web..."
+Write-Step "6. Preparando IIS Application Pool..."
 Import-Module WebAdministration -ErrorAction SilentlyContinue
 
 $appPoolName = "PiaAppPool"
@@ -283,6 +283,7 @@ if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
 # ========================================================
 if (-not $SkipServiceCreation) {
     Write-Step "7. Configuración recomendada para proceso Node.js permanente..."
+    Write-Host "  Asocie el sitio IIS a $currentDir y configure ARR/URL Rewrite según web.config." 
     Write-Host "  Para mantener Node.js activo 24/7 en Windows Server se recomienda:"
     Write-Host "  Opción A: Instalar PM2 para Windows:"
     Write-Host "    npm install pm2 -g"
@@ -331,5 +332,5 @@ if ($healthResult) {
 }
 
 Write-Host "`n=============================================================" -ForegroundColor Green
-Write-Host " INSTALACIÓN Y PREPARACIÓN DE VERSIÓN 1 COMPLETADA CON ÉXITO" -ForegroundColor Green
+Write-Host " PREPARACIÓN DEL ENTORNO PIA COMPLETADA" -ForegroundColor Green
 Write-Host "=============================================================`n"
