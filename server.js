@@ -309,6 +309,9 @@ try {
   if (fs.existsSync(FIREBASE_CONFIG_FILE)) {
     const raw = JSON.parse(fs.readFileSync(FIREBASE_CONFIG_FILE, 'utf8'));
     firebaseConfig = { ...firebaseConfig, ...raw };
+    firebaseConfig.apiKey = process.env.FIREBASE_API_KEY || firebaseConfig.apiKey;
+    firebaseConfig.authDomain = process.env.FIREBASE_AUTH_DOMAIN || firebaseConfig.authDomain;
+    firebaseConfig.appId = process.env.FIREBASE_APP_ID || firebaseConfig.appId;
   }
 } catch (e) {
   console.error('Error leyendo firebase-applet-config.json:', e);
@@ -785,8 +788,30 @@ app.get('/api/auth/entra-config', (req, res) => {
   });
 });
 
+const LOGIN_RATE_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_RATE_MAX_ATTEMPTS = 8;
+const loginAttempts = new Map();
+
+function loginRateLimit(req, res, next) {
+  const key = req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  let entry = loginAttempts.get(key);
+  if (!entry || now - entry.windowStartedAt >= LOGIN_RATE_WINDOW_MS) {
+    entry = { windowStartedAt: now, count: 0 };
+  }
+  entry.count += 1;
+  loginAttempts.set(key, entry);
+
+  if (entry.count > LOGIN_RATE_MAX_ATTEMPTS) {
+    const retryAfter = Math.max(1, Math.ceil((LOGIN_RATE_WINDOW_MS - (now - entry.windowStartedAt)) / 1000));
+    res.setHeader('Retry-After', String(retryAfter));
+    return res.status(429).json({ error: 'Demasiados intentos de inicio de sesión. Espere antes de volver a intentar.' });
+  }
+  next();
+}
+
 // Inicio de sesión directo con correo y contraseña encriptada (con sal PBKDF2/SHA-512)
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', loginRateLimit, (req, res) => {
   const { email, username, password } = req.body || {};
   const userIdentifier = (email || username || '').trim().toLowerCase();
   const rawPassword = password || '';
@@ -1013,8 +1038,8 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, requir
     return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
   }
 
-  if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 14) {
-    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 14 caracteres.' });
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length < 14 || newPassword.trim().length > 256) {
+    return res.status(400).json({ error: 'La nueva contraseña debe tener entre 14 y 256 caracteres.' });
   }
 
   const users = getUsersRoles();
