@@ -411,7 +411,7 @@ function createInitialAuthorizedUsers() {
   }
 
   const now = new Date().toISOString();
-  const modules = ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"];
+  const modules = ["canales", "directorio", "tableros", "riesgo", "vehiculos", "portal", "visits", "chatbot", "users", "audit", "database", "guide"];
   return [
     {
       id: "usr_cnc_01",
@@ -443,19 +443,25 @@ function hashPassword(password, salt = null) {
   if (!salt) {
     salt = crypto.randomBytes(16).toString('hex');
   }
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-  return `${salt}:${hash}`;
+  const iterations = 310000;
+  const hash = crypto.pbkdf2Sync(password, salt, iterations, 64, 'sha512').toString('hex');
+  return `${salt}:${iterations}:${hash}`;
 }
 
 function verifyPassword(password, storedCombined) {
   if (!storedCombined || typeof storedCombined !== 'string' || !storedCombined.includes(':')) {
     return false;
   }
-  const [salt, expectedHash] = storedCombined.split(':');
-  if (!salt || !expectedHash) return false;
+  const parts = storedCombined.split(':');
+  const salt = parts[0];
+  const iterations = parts.length === 3 ? Number(parts[1]) : 10000;
+  const expectedHash = parts.length === 3 ? parts[2] : parts[1];
+  if (!salt || !expectedHash || !Number.isSafeInteger(iterations) || iterations < 10000 || iterations > 1000000) return false;
   try {
-    const actualHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-    return crypto.timingSafeEqual(Buffer.from(actualHash, 'hex'), Buffer.from(expectedHash, 'hex'));
+    const actualHash = crypto.pbkdf2Sync(password, salt, iterations, 64, 'sha512').toString('hex');
+    const expectedBuffer = Buffer.from(expectedHash, 'hex');
+    const actualBuffer = Buffer.from(actualHash, 'hex');
+    return expectedBuffer.length === actualBuffer.length && crypto.timingSafeEqual(actualBuffer, expectedBuffer);
   } catch (e) {
     return false;
   }
@@ -961,7 +967,7 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, req
     return res.status(400).json({ error: 'El listado de módulos debe ser un arreglo de cadenas.' });
   }
 
-  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
+  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'vehiculos', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
   const sanitizedModules = modules.filter(m => validModules.includes(m));
 
   const users = getUsersRoles();
@@ -1200,7 +1206,7 @@ function saveModuleRecords(module, records, user = 'sistema', expectedHash = nul
 const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin'];
 
 app.get('/api/modules', (req, res) => {
-  res.json(['canales', 'directorio', 'tableros', 'riesgo', 'portal']);
+  res.json(['canales', 'directorio', 'tableros', 'riesgo', 'vehiculos', 'portal']);
 });
 
 // Lectura de módulos (Público y Operadores) con ETag para control de concurrencia
