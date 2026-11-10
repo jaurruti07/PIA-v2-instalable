@@ -587,17 +587,20 @@ async function requireAuth(req, res, next) {
       return res.status(403).json({ error: 'Usuario no autorizado en el portal.' });
     }
     const allUsers = getUsersRoles();
-    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail);
+    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail && u.status === 'active');
+    if (!dbUser) {
+      return res.status(403).json({ error: 'La cuenta no está inicializada o se encuentra deshabilitada en el servidor.' });
+    }
 
     req.user = {
-      uid: localSession.uid || dbUser?.id || 'usr_cnc_01',
-      oid: localSession.uid || dbUser?.id || 'usr_cnc_01',
+      uid: dbUser.id,
+      oid: dbUser.id,
       email: userEmail,
       upn: userEmail,
-      displayName: dbUser?.displayName || localSession.displayName,
-      operatorIndex: dbUser?.operatorIndex || localSession.operatorIndex || 1,
-      role: dbUser?.role || 'admin',
-      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide']
+      displayName: dbUser.displayName,
+      operatorIndex: dbUser.operatorIndex,
+      role: dbUser.role,
+      modules: Array.isArray(dbUser.modules) ? dbUser.modules : []
     };
     return next();
   }
@@ -607,6 +610,10 @@ async function requireAuth(req, res, next) {
     const verified = await verifyFirebaseToken(token);
     const userUid = verified.uid;
     const userEmail = verified.email;
+
+    if (!verified.email_verified) {
+      return res.status(403).json({ error: 'La cuenta institucional debe tener el correo verificado en Firebase.' });
+    }
 
     // Verificar si el correo pertenece estrictamente a las 2 cuentas autorizadas
     if (!ALLOWED_OPERATOR_EMAILS.includes(userEmail)) {
@@ -676,17 +683,20 @@ async function requireAuth(req, res, next) {
     }
 
     const allUsers = getUsersRoles();
-    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail);
+    const dbUser = allUsers.find(u => u.email.toLowerCase() === userEmail && u.status === 'active');
+    if (!dbUser) {
+      return res.status(403).json({ error: 'La cuenta institucional no está inicializada o se encuentra deshabilitada en el servidor.' });
+    }
 
     req.user = {
       uid: userUid,
       oid: userUid,
       email: userEmail,
       upn: userEmail,
-      displayName: dbUser?.displayName || matchedOperator.displayName || verified.name,
-      operatorIndex: matchedOperator.operatorIndex,
-      role: dbUser?.role || 'admin',
-      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide']
+      displayName: dbUser.displayName || matchedOperator.displayName || verified.name,
+      operatorIndex: dbUser.operatorIndex || matchedOperator.operatorIndex,
+      role: dbUser.role,
+      modules: Array.isArray(dbUser.modules) ? dbUser.modules : []
     };
 
     next();
