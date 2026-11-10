@@ -539,6 +539,11 @@ function saveUsersRoles(users) {
   }
 }
 
+// Inicializar las dos identidades en el almacenamiento privado durante el primer arranque.
+if (process.env.PIA_OPERATOR_1_PASSWORD && process.env.PIA_OPERATOR_2_PASSWORD) {
+  getUsersRoles();
+}
+
 // Validación criptográfica estricta de token de Firebase Authentication en el servidor
 async function verifyFirebaseToken(token) {
   if (!token || typeof token !== 'string') {
