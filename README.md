@@ -55,6 +55,24 @@ Versión de distribución basada en **Node.js + Express**. El servidor Express e
 
 En el primer arranque, si no existe el archivo de identidades en el directorio de datos, el servidor crea las dos cuentas institucionales únicamente si las dos contraseñas de inicialización están configuradas. Los hashes se almacenan en el directorio de datos. Si las variables no están configuradas, el sistema no crea usuarios ni permite iniciar sesión.
 
+## Preparación en Windows Server con IIS
+
+Desde PowerShell ejecutado como Administrador, en la carpeta del repositorio:
+
+```powershell
+.\deploy-iis.ps1 -InstallPath "C:\inetpub\wwwroot\PIA" -DataPath "C:\PIA_Data" -Port 3000
+```
+
+El script comprueba Node.js 22.9+, copia el código sin archivos operativos ni secretos, crea el directorio privado, solicita las dos contraseñas iniciales de forma protegida, genera el secreto de sesión y prepara las dependencias. No instala automáticamente un gestor de procesos ni habilita ARR: TI debe configurar el proceso Node persistente (por ejemplo, NSSM o PM2) y el proxy inverso IIS/ARR conforme a la infraestructura del servidor. El archivo `web.config` contiene las reglas de proxy previstas.
+
+Para una prueba inicial, desde la carpeta de instalación y con el archivo `.env` ya creado:
+
+```powershell
+npm start
+```
+
+Verificar `http://localhost:3000/api/health` antes de publicar el sitio.
+
 ## Instalación con Docker Compose
 
 1. Copiar `.env.example` como `.env` y completar las variables obligatorias descritas anteriormente. No cambiar `PIA_DATA_DIR`: el contenedor utiliza `/var/lib/pia/data`.
