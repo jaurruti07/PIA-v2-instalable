@@ -398,6 +398,7 @@ async function loadSettingsTab() {
                         <div>
                             <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Modelo de Lenguaje</label>
                             <select id="cbSettingModel" class="form-control">
+                                <option value="gemini-2.5-flash" ${settings.model === 'gemini-2.5-flash' ? 'selected' : ''}>gemini-2.5-flash (Modelo predeterminado)</option>
                                 <option value="gemini-3.6-flash" ${settings.model === 'gemini-3.6-flash' ? 'selected' : ''}>gemini-3.6-flash (Recomendado - Ultra Rápido)</option>
                                 <option value="gemini-3.1-pro-preview" ${settings.model === 'gemini-3.1-pro-preview' ? 'selected' : ''}>gemini-3.1-pro-preview (Razonamiento Complejo)</option>
                                 <option value="gemini-3.1-flash-lite" ${settings.model === 'gemini-3.1-flash-lite' ? 'selected' : ''}>gemini-3.1-flash-lite (Respuesta Ligera)</option>
