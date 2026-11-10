@@ -194,37 +194,20 @@ export async function sendFirebasePasswordReset(email) {
 
 // Verificar validez del token y UID en el servidor PIA
 export async function verifyToken(token) {
-    if (!token) {
-        throw new Error('Token no proporcionado.');
+    if (!token) throw new Error('Token no proporcionado.');
+
+    const res = await fetch(`${API_BASE}/auth/verify`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Token inválido o expirado.');
     }
 
-    // Modo offline / standalone
-    if (token.startsWith('pia_sess_offline_')) {
-        const stored = localStorage.getItem('user') || sessionStorage.getItem('user');
-        if (stored) {
-            try {
-                return { user: JSON.parse(stored) };
-            } catch (_) {}
-        }
-    }
-
-    try {
-        const res = await fetch(`${API_BASE}/auth/verify`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            throw new Error(err.error || 'Token inválido o expirado.');
-        }
-
-        const data = await res.json();
-        if (data.user) {
-            localStorage.setItem('user', JSON.stringify(data.user));
-        }
-        return data;
-    } catch (e) {
-        throw e;
+    const data = await res.json();
+    if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+    return data;
 }
 
 // Cierre de sesión y limpieza de estado local
