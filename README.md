@@ -1,210 +1,137 @@
 # Portal de Integridad Activa (PIA)
-### Comisión Nacional contra la Corrupción (CNC) — Presidencia de la República de Guatemala
-**Documentación Técnica de Arquitectura, Despliegue y Entrega al Departamento de TI**
+### Comisión Nacional contra la Corrupción (CNC) — Guatemala
 
----
+Versión de distribución basada en **Node.js + Express**. El servidor Express es el único backend de ejecución previsto para esta entrega. Los archivos históricos de Flask se conservan temporalmente para revisión y no forman parte del arranque oficial.
 
-## 1. Resumen Ejecutivo y Arquitectura
+## Requisitos
 
-El **Portal de Integridad Activa (PIA)** es la plataforma oficial del Organismo Ejecutivo de Guatemala orientada a centralizar y transparentar la información pública, canales de denuncia confidencial, directorio institucional, tableros de rendición de cuentas y gestión de riesgos de corrupción.
+- Node.js 22.9 o superior (recomendado Node.js 22 LTS).
+- npm 10 o superior.
+- Para contenedor: Docker Engine y Docker Compose v2.
+- Un directorio de datos persistente, fuera de la carpeta pública del portal.
 
-### Pila Tecnológica (Tech Stack)
-- **Backend Principal (Producción TI):** Python 3.11+ con **Flask** y servidor WSGI **Gunicorn**.
-- **Backend Secundario / Desarrollo:** Node.js con Express (motor dual compatible).
-- **Frontend:** HTML5 semántico, CSS3 con variables nativas de diseño institucional, JavaScript ES6+ modular sin dependencias pesadas.
-- **Seguridad Criptográfica:** Contraseñas encriptadas con sal PBKDF2-HMAC-SHA512 (10,000 iteraciones), tokens de sesión HMAC-SHA256, cabeceras estrictas (CSP, X-Frame-Options, ETag de concurrencia).
-- **Almacenamiento Persistente:** Estructuras JSON protegidas fuera del document root con escrituras atómicas y respaldo automático versionado.
+## Instalación local en Windows o Linux
 
----
+1. Descargar o clonar el repositorio y abrir una terminal en la carpeta raíz.
+2. Instalar dependencias:
 
-## 2. Estructura Estándar del Proyecto
-
-```text
-/
-├── app.py                      # Backend principal en Python Flask (rutas, APIs, seguridad)
-├── gunicorn.conf.py            # Configuración de producción para el servidor WSGI Gunicorn
-├── requirements.txt            # Dependencias oficiales de Python
-├── Dockerfile                  # Contenedor de producción con usuario no privilegiado
-├── .env.example                # Plantilla de variables de entorno seguras
-├── README.md                   # Manual técnico y guía de despliegue para TI
-│
-├── templates/                  # Plantillas HTML del portal
-│   ├── index.html              # Portada del Portal PIA
-│   ├── canales.html            # Canales por la Integridad
-│   ├── directorio.html         # Directorio Acceso al Ejecutivo
-│   ├── tableros.html           # Tu Gobierno en Números
-│   ├── riesgo.html             # Riesgo en la Mira
-│   ├── admin.html              # Panel Administrativo y de Gestión
-│   └── 404.html                # Página de error 404 institucional
-│
-├── static/                     # Recursos estáticos organizados
-│   ├── css/                    # Hojas de estilo generales y de módulos
-│   ├── js/                     # Librerías cliente, internacionalización y utilidades
-│   └── images/                 # Logos institucionales, infografías y fotografías
-│
-├── data/                       # Almacenamiento persistente protegido
-│   ├── users_roles.json        # Identidades, contraseñas encriptadas y módulos autorizados
-│   ├── authorized_operators.json # Metadatos de operadores
-│   ├── audit_logs.json         # Bitácora inmutable de auditoría individualizada
-│   ├── page_visits.json        # Contador y analítica de visitas reales
-│   └── backups/                # Respaldos automáticos rotativos (hasta 30 versiones)
-│
-├── canales-por-la-integridad/  # Recursos específicos del módulo de denuncias
-├── directorio/                 # Recursos específicos del directorio de autoridades
-├── gobierno_en_numeros/        # Datos y tableros de rendición de cuentas
-├── riesgo/                     # Matriz de riesgos de corrupción por institución
-├── server.js                   # Servidor alternativo en Node.js para entornos Node
-└── test_security_suite.js      # Suite automatizada de pruebas de seguridad (24/24)
-```
-
----
-
-## 3. Identidades Institucionales, Permisos y Contraseñas
-
-Por directriz de seguridad de la CNC, el acceso administrativo está restringido exclusivamente a **dos identidades operativas institucionales**:
-
-| Usuario (Correo) | Rol por Defecto | Contraseña Inicial | Mecanismo de Seguridad |
-|---|---|---|---|
-| `deteccionydenuncia@cnc.gob.gt` | Administrador Pleno | `12345` | Sal PBKDF2/SHA-512 inmutable |
-| `apoyogi@cnc.gob.gt` | Administrador Pleno | `12345` | Sal PBKDF2/SHA-512 inmutable |
-
-### Control de Permisos por Módulo desde el Administrador
-1. **Acceso a Todos los Módulos por Defecto:** Ambos usuarios disponen inicialmente de permisos completos para:
-   - Canales por la Integridad (`canales`)
-   - Directorio Acceso al Ejecutivo (`directorio`)
-   - Tu Gobierno en Números (`tableros`)
-   - Riesgo en la Mira (`riesgo`)
-   - Métricas y Estadísticas del Portal (`portal`)
-   - Contador de Visitas Reales (`visits`)
-   - Asistente Virtual Lupita (`chatbot`)
-   - Gestión de Usuarios y Permisos (`users`)
-   - Bitácora de Auditoría (`audit`)
-   - Mantenimiento de Base de Datos y Respaldos (`database`)
-   - Guía Técnica del Sistema (`guide`)
-2. **Personalización de Permisos:** Desde el módulo **Usuarios y Permisos**, el administrador puede marcar o desmarcar módulos específicos para cada usuario y guardar la configuración en tiempo real (`PUT /api/admin/users/:email/permissions`).
-3. **Cambio de Contraseña desde el Administrador:** El botón **Cambiar Contraseña** en la tarjeta de cada usuario abre el diálogo de actualización segura, encriptando la nueva contraseña en el backend con una nueva sal criptográfica de 128 bits (`PUT /api/admin/users/:email/password`).
-
----
-
-## 4. Estado de Características Especiales
-
-- **Chatbot (Asistente Virtual Lupita):** Inactivado de la interfaz visual del portal público por solicitud institucional (`CHATBOT_UI_ACTIVE = false`), manteniendo todo el código, componentes e integración con Gemini listos para reactivarse instantáneamente cuando la dirección lo disponga.
-- **Guía Multilingüe de Denuncia Segura:** Inactivada y retirada de los elementos visibles de la interfaz (`#heroGuiaCTA`, selector en barra de accesibilidad y enlaces directos), preservando en el código todas las traducciones en idiomas mayas (K'iche', Q'eqchi', Kaqchikel, Mam), síntesis de voz y estructura para cuando deba volver a mostrarse.
-
----
-
-## 5. Instrucciones de Despliegue para el Departamento de TI
-
-### Opción A: Despliegue con Docker (Recomendado)
-
-1. **Construir la imagen de contenedor:**
    ```bash
-   docker build -t pia-portal:latest .
+   npm install
    ```
 
-2. **Ejecutar el contenedor montando el volumen de datos persistentes:**
+3. Crear la configuración local:
+
+   **Windows PowerShell**
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+   **Linux**
    ```bash
-   docker run -d \
-     --name pia-portal-app \
-     -p 3000:3000 \
-     -v /opt/pia/data:/app/data \
-     --env-file .env \
-     --restart unless-stopped \
-     pia-portal:latest
+   cp .env.example .env
+   chmod 600 .env
    ```
 
-### Opción B: Despliegue en Servidor Linux (Systemd + Gunicorn + Nginx)
+4. Editar `.env` y configurar obligatoriamente:
+   - `PIA_SESSION_SECRET`: secreto aleatorio de al menos 64 caracteres.
+   - `PIA_OPERATOR_1_PASSWORD` y `PIA_OPERATOR_2_PASSWORD`: contraseñas diferentes de al menos 14 caracteres.
+   - `PIA_DATA_DIR`: directorio persistente fuera del proyecto. En Windows se recomienda `C:/PIA_Data`; en Linux, `/var/lib/pia/data`.
 
-1. **Instalar dependencias en el servidor:**
+   Para generar un secreto aleatorio con Node.js:
+
    ```bash
-   sudo apt-get update && sudo apt-get install -y python3-pip python3-venv nginx
+   node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
    ```
 
-2. **Crear entorno virtual e instalar requerimientos:**
+   No utilizar las contraseñas de ejemplo ni compartir el archivo `.env`. En Linux, limitar sus permisos al usuario del servicio.
+
+5. Iniciar el servidor:
+
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
+   npm start
    ```
 
-3. **Configurar servicio en Systemd (`/etc/systemd/system/pia.service`):**
-   ```ini
-   [Unit]
-   Description=Portal de Integridad Activa (PIA) - CNC
-   After=network.target
+6. Abrir el portal en `http://localhost:3000` y el panel administrativo en `http://localhost:3000/admin`.
 
-   [Service]
-   User=www-data
-   Group=www-data
-   WorkingDirectory=/var/www/pia
-   Environment="PATH=/var/www/pia/venv/bin"
-   EnvironmentFile=/var/www/pia/.env
-   ExecStart=/var/www/pia/venv/bin/gunicorn -c gunicorn.conf.py app:app
-   Restart=always
-   RestartSec=5
+En el primer arranque, si no existe el archivo de identidades en el directorio de datos, el servidor crea las dos cuentas institucionales únicamente si las dos contraseñas de inicialización están configuradas. Los hashes se almacenan en el directorio de datos. Si las variables no están configuradas, el sistema no crea usuarios ni permite iniciar sesión.
 
-   [Install]
-   WantedBy=multi-user.target
-   ```
+## Instalación con Docker Compose
 
-4. **Habilitar e iniciar el servicio:**
+1. Copiar `.env.example` como `.env` y completar las variables obligatorias descritas anteriormente. No cambiar `PIA_DATA_DIR`: el contenedor utiliza `/var/lib/pia/data`.
+2. Construir e iniciar:
+
    ```bash
-   sudo systemctl daemon-reload
-   sudo systemctl enable pia
-   sudo systemctl start pia
+   docker compose up -d --build
    ```
 
-5. **Configuración de Nginx Reverse Proxy (`/etc/nginx/sites-available/pia`):**
-   ```nginx
-   server {
-       listen 80;
-       server_name pia.gob.gt;
-       return 301 https://$host$request_uri;
-   }
+3. Consultar el estado:
 
-   server {
-       listen 443 ssl http2;
-       server_name pia.gob.gt;
-
-       ssl_certificate /etc/ssl/certs/pia_gob_gt.crt;
-       ssl_certificate_key /etc/ssl/private/pia_gob_gt.key;
-
-       # Cabeceras de seguridad institucional
-       add_header X-Frame-Options "SAMEORIGIN" always;
-       add_header X-Content-Type-Options "nosniff" always;
-       add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-
-       location / {
-           proxy_pass http://127.0.0.1:3000;
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-           proxy_set_header X-Forwarded-Proto $scheme;
-       }
-   }
+   ```bash
+   docker compose ps
+   docker compose logs -f pia
    ```
 
----
+4. Abrir `http://localhost:3000`.
 
-## 6. Verificación de Seguridad y Pruebas Automatizadas
+Los datos operativos se conservan en el volumen Docker `pia_data`, independiente del ciclo de vida del contenedor. Antes de actualizar o trasladar el servicio, realizar un respaldo del volumen.
 
-El proyecto incluye la suite completa de 24 pruebas de regresión y seguridad en `test_security_suite.js`.
+## Configuración de entorno
 
-Para verificar la integridad del portal:
+| Variable | Obligatoria | Descripción |
+|---|---:|---|
+| `PORT` | No | Puerto HTTP; por defecto 3000 |
+| `PIA_SESSION_SECRET` | Sí | Secreto HMAC de 64 caracteres o más |
+| `PIA_DATA_DIR` | No | Ruta del almacenamiento persistente privado |
+| `PIA_OPERATOR_1_PASSWORD` | Para primer arranque | Contraseña inicial del operador DAGI (mínimo 14 caracteres) |
+| `PIA_OPERATOR_2_PASSWORD` | Para primer arranque | Contraseña inicial de Apoyo GI (mínimo 14 caracteres, distinta de la primera) |
+| `GEMINI_API_KEY` | No | Clave para habilitar respuestas con Gemini |
+| `FIREBASE_PROJECT_ID` | No | Proyecto de Firebase cuando se habilite autenticación federada |
+
+Las cuentas administrativas autorizadas son:
+- `deteccionydenuncia@cnc.gob.gt`
+- `apoyogi@cnc.gob.gt`
+
+La autorización se valida en el servidor. Los permisos por módulo se comprueban en las rutas administrativas y no dependen únicamente de ocultar opciones del menú.
+
+## Almacenamiento y seguridad
+
+- Los archivos de identidad, bitácora, visitas y respaldos deben residir fuera del directorio público.
+- El servidor exige `PIA_SESSION_SECRET`; no existe una clave de firma predeterminada.
+- No hay autenticación administrativa offline ni sesión local aceptada sin validación del servidor.
+- Las cuentas iniciales se generan con contraseñas configuradas en el entorno; no se distribuyen contraseñas maestras.
+- Los archivos operativos no deben incorporarse al repositorio. El repositorio incluye reglas de exclusión y el servidor bloquea la entrega estática de archivos operativos heredados.
+- Publicar el portal detrás de HTTPS y un proxy inverso institucional. No exponer el puerto de administración a Internet sin controles de red, monitoreo y revisión de seguridad.
+- La clave API de Firebase usada por aplicaciones web no equivale a una clave privada de servicio; debe restringirse desde Google/Firebase y las reglas del proyecto deben revisarse.
+
+## Pruebas
+
+Con el servidor activo en el puerto 3000:
+
 ```bash
-node test_security_suite.js
+npm run check
+npm test
 ```
 
-**Resultado esperado:**
-```text
-=============================================================
-RESUMEN DE PRUEBAS: 24 SUPERADAS / 0 FALLIDAS
-=============================================================
+La suite `test_security_suite.js` realiza solicitudes HTTP contra el servidor local. No ejecutar pruebas de escritura contra datos institucionales reales: utilizar un directorio de datos de prueba y credenciales temporales.
+
+Comprobación de disponibilidad:
+
+```bash
+curl http://localhost:3000/api/health
 ```
 
-Pruebas cubiertas:
-- Rechazo estricto de accesos no autenticados en mutaciones (`POST`, `PUT`, `DELETE`).
-- Bloqueo de path traversal (`../../`).
-- Eliminación de credenciales genéricas/maestras no admitidas.
-- Validación de persistencia, rotación de respaldos a 30 versiones y escrituras atómicas.
-- Comprobación de endpoints públicos para visualización ciudadana.
+Respuesta esperada: JSON con `status: "ok"`.
+
+## Estructura principal
+
+- `server.js`: backend Express, API, autenticación y autorización.
+- `admin/`: panel administrativo.
+- `canales-por-la-integridad/`, `directorio/`, `gobierno_en_numeros/`, `riesgo/`, `vehiculos/`: módulos del portal y sus recursos.
+- `data/`, `css/`, `js/`, `img/`: recursos estáticos y datos públicos que forman parte del portal.
+- `PIA_DATA_DIR`: datos operativos privados, fuera del repositorio y del directorio web.
+- `Dockerfile` y `docker-compose.yml`: despliegue contenerizado.
+- `app.py`, `requirements.txt` y `gunicorn.conf.py`: componentes heredados de Flask, pendientes de retirar después de comprobar que no existen dependencias externas.
+
+## Estado de validación
+
+Esta rama contiene ajustes de distribución y seguridad en curso. La instalación, la suite completa, la persistencia y todos los flujos del panel administrativo deben probarse en un entorno aislado antes de fusionar los cambios en `main` o distribuir una versión institucional.
