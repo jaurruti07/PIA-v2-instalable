@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Portal de Integridad Activa (PIA) - CNC Guatemala",
   "engines": {
-    "node": ">=20.6.0",
+    "node": ">=22.9.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
@@ -17,7 +17,6 @@
   "dependencies": {
     "@google/genai": "^2.14.0",
     "express": "^4.19.2",
-    "firebase": "^13.0.0",
     "jose": "^6.2.12"
   }
 }
