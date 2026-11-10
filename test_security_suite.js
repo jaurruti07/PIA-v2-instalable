@@ -33,6 +33,28 @@ async function runTests() {
 
     const privateAudit = await fetch(`${BASE_URL}/audit_logs.json`);
     recordTest('10.3 Bitácora heredada no es pública (404)', privateAudit.status === 404);
+
+    const internalPaths = [
+      '/server.js',
+      '/package.json',
+      '/deploy-iis.ps1',
+      '/web.config',
+      '/test_security_suite.js',
+      '/firebase-applet-config.json',
+      '/.env.example',
+      '/data/users_roles.json',
+      '/.git/config'
+    ];
+    const internalResults = await Promise.all(internalPaths.map(async (route) => {
+      const response = await fetch(`${BASE_URL}${route}`);
+      return { route, status: response.status };
+    }));
+    const exposed = internalResults.filter(item => item.status !== 404 && item.status !== 403);
+    recordTest(
+      '10.4 Código fuente, configuración y archivos privados no son públicos',
+      exposed.length === 0,
+      exposed.length ? JSON.stringify(exposed) : ''
+    );
   } catch (err) {
     recordTest('10. Seguridad de archivos estáticos', false, err.message);
   }
