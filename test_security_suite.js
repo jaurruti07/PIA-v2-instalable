@@ -23,6 +23,20 @@ function recordTest(name, passed, details = '') {
 }
 
 async function runTests() {
+  // Test 10: Health check y exposición accidental de archivos privados.
+  try {
+    const health = await fetch(`${BASE_URL}/api/health`);
+    recordTest('10.1 Health check del backend Express (200)', health.status === 200);
+
+    const privateData = await fetch(`${BASE_URL}/data/users_roles.json`);
+    recordTest('10.2 Archivos operativos de /data no son públicos (404)', privateData.status === 404);
+
+    const privateAudit = await fetch(`${BASE_URL}/audit_logs.json`);
+    recordTest('10.3 Bitácora heredada no es pública (404)', privateAudit.status === 404);
+  } catch (err) {
+    recordTest('10. Seguridad de archivos estáticos', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(' INICIANDO BATERÍA DE PRUEBAS DE SEGURIDAD Y REGRESIÓN PIA');
   console.log('=============================================================\n');
