@@ -183,6 +183,16 @@ if ($sourceFullPath.TrimEnd('\') -ne $installFullPath.TrimEnd('\')) {
 $currentDir = $installFullPath
 Set-Location $currentDir
 
+if ($Port -lt 1024 -or $Port -gt 65535) {
+    throw "El puerto de Node debe estar entre 1024 y 65535."
+}
+$webConfigPath = Join-Path $currentDir "web.config"
+if (Test-Path $webConfigPath) {
+    $webConfigContent = Get-Content -Path $webConfigPath -Raw
+    $webConfigContent = [regex]::Replace($webConfigContent, '127\.0\.0\.1:\d+', "127.0.0.1:$Port")
+    [System.IO.File]::WriteAllText($webConfigPath, $webConfigContent, [System.Text.UTF8Encoding]::new($false))
+}
+
 if (-not (Test-Path (Join-Path $currentDir "package.json"))) {
     throw "No se encontró package.json en $currentDir."
 }
@@ -245,8 +255,349 @@ if (-not (Test-Path $envFile)) {
     if ($envContent -notmatch '(?m)^PIA_OPERATOR_1_PASSWORD=.{14,}$' -or $envContent -notmatch '(?m)^PIA_OPERATOR_2_PASSWORD=.{14,}$') {
         Write-WarnMsg "Las contraseñas iniciales no están completas. Si ya existe users_roles.json, puede retirar estas variables; de lo contrario, defínalas antes del primer arranque."
     }
-    if ($envContent -match '(?m)^PIA_DATA_DIR=.*$') {
-        $envContent = [regex]::Replace($envContent, '(?m)^PIA_DATA_DIR=.*$', "PIA_DATA_DIR=$dataPathEnv")
+    if ($envContent -match '(?m)^PORT=.*    [System.IO.File]::WriteAllText($envFile, $envContent, [System.Text.UTF8Encoding]::new($false))
+}
+
+# Restringir lectura del archivo de secretos.
+$envAcl = New-Object System.Security.AccessControl.FileSecurity
+$envAcl.SetAccessRuleProtection($true, $false)
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\IIS_IUSRS", "Read", "Allow")))
+Set-Acl -Path $envFile -AclObject $envAcl
+Write-Success "Permisos NTFS del archivo .env restringidos."
+
+# 6. CONFIGURACIÓN DE IIS (SITE Y APPLICATION POOL)
+# ========================================================
+Write-Step "6. Preparando IIS Application Pool..."
+Import-Module WebAdministration -ErrorAction SilentlyContinue
+
+$appPoolName = "PiaAppPool"
+if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+    $appPool = New-Item "IIS:\AppPools\$appPoolName"
+    $appPool.managedRuntimeVersion = "" # Sin runtime .NET (.NET CLR Version: No Managed Code)
+    $appPool.processModel.idleTimeout = [TimeSpan]::Zero # No suspender el proceso
+    $appPool | Set-Item
+    Write-Success "Application Pool '$appPoolName' creado sin Managed Code."
+} else {
+    Write-Success "Application Pool '$appPoolName' ya existe."
+}
+
+# ========================================================
+# 7. SERVICIO DE BACKGROUND PARA NODE.JS
+# ========================================================
+if (-not $SkipServiceCreation) {
+    Write-Step "7. Configuración recomendada para proceso Node.js permanente..."
+    Write-Host "  Asocie el sitio IIS a $currentDir y configure ARR/URL Rewrite según web.config." 
+    Write-Host "  Para mantener Node.js activo 24/7 en Windows Server se recomienda:"
+    Write-Host "  Opción A: Instalar PM2 para Windows:"
+    Write-Host "    npm install pm2 -g"
+    Write-Host "    npm install pm2-windows-service -g"
+    Write-Host "    pm2 start server.js --name pia-backend --env production"
+    Write-Host "    pm2 save"
+    Write-Host ""
+    Write-Host "  Opción B: Instalar como servicio nativo con NSSM (Non-Sucking Service Manager):"
+    Write-Host "    nssm install PIA_Service node.exe `"$currentDir\server.js`""
+    Write-Host "    nssm set PIA_Service AppDirectory `"$currentDir`""
+    Write-Host "    nssm start PIA_Service"
+}
+
+# ========================================================
+# 8. PRUEBAS DE HUMO (SELF-HEALTHCHECK)
+# ========================================================
+Write-Step "8. Ejecutando verificación de salud institucional..."
+
+$healthTestCode = @"
+try {
+    const resHealth = await fetch('http://127.0.0.1:$Port/api/health');
+    const health = await resHealth.json();
+    const resChat = await fetch('http://127.0.0.1:$Port/api/chatbot/config');
+    const chat = await resChat.json();
+    console.log(JSON.stringify({ ok: resHealth.ok && health.status === 'ok', service: health.service, chatbotActive: chat.enabled !== false }));
+} catch (e) {
+    console.log(JSON.stringify({ ok: false, error: e.message }));
+}
+"@
+
+$healthResult = & node -e "$healthTestCode" 2>$null
+if ($healthResult) {
+    try {
+        $jsonRes = $healthResult | ConvertFrom-Json
+        if ($jsonRes.ok) {
+            Write-Success "Servicio Node.js respondiendo correctamente en http://127.0.0.1:$Port"
+            Write-Success "Backend Express saludable. Asistente Lupita: $($jsonRes.chatbotActive)"
+        } else {
+            Write-WarnMsg "El servicio aún no está levantado en el puerto $Port ($($jsonRes.error)). Inicie el servicio para verificar."
+        }
+    } catch {
+        Write-WarnMsg "Respuesta no JSON del healthcheck. Verifique que el servicio esté corriendo."
+    }
+} else {
+    Write-WarnMsg "Servicio no detectado en el puerto $Port. Inicie 'node server.js' o el servicio Windows configurado."
+}
+
+Write-Host "`n=============================================================" -ForegroundColor Green
+Write-Host " PREPARACIÓN DEL ENTORNO PIA COMPLETADA" -ForegroundColor Green
+Write-Host "=============================================================`n"
+) {
+        $envContent = [regex]::Replace($envContent, '(?m)^PORT=.*    [System.IO.File]::WriteAllText($envFile, $envContent, [System.Text.UTF8Encoding]::new($false))
+}
+
+# Restringir lectura del archivo de secretos.
+$envAcl = New-Object System.Security.AccessControl.FileSecurity
+$envAcl.SetAccessRuleProtection($true, $false)
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\IIS_IUSRS", "Read", "Allow")))
+Set-Acl -Path $envFile -AclObject $envAcl
+Write-Success "Permisos NTFS del archivo .env restringidos."
+
+# 6. CONFIGURACIÓN DE IIS (SITE Y APPLICATION POOL)
+# ========================================================
+Write-Step "6. Preparando IIS Application Pool..."
+Import-Module WebAdministration -ErrorAction SilentlyContinue
+
+$appPoolName = "PiaAppPool"
+if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+    $appPool = New-Item "IIS:\AppPools\$appPoolName"
+    $appPool.managedRuntimeVersion = "" # Sin runtime .NET (.NET CLR Version: No Managed Code)
+    $appPool.processModel.idleTimeout = [TimeSpan]::Zero # No suspender el proceso
+    $appPool | Set-Item
+    Write-Success "Application Pool '$appPoolName' creado sin Managed Code."
+} else {
+    Write-Success "Application Pool '$appPoolName' ya existe."
+}
+
+# ========================================================
+# 7. SERVICIO DE BACKGROUND PARA NODE.JS
+# ========================================================
+if (-not $SkipServiceCreation) {
+    Write-Step "7. Configuración recomendada para proceso Node.js permanente..."
+    Write-Host "  Asocie el sitio IIS a $currentDir y configure ARR/URL Rewrite según web.config." 
+    Write-Host "  Para mantener Node.js activo 24/7 en Windows Server se recomienda:"
+    Write-Host "  Opción A: Instalar PM2 para Windows:"
+    Write-Host "    npm install pm2 -g"
+    Write-Host "    npm install pm2-windows-service -g"
+    Write-Host "    pm2 start server.js --name pia-backend --env production"
+    Write-Host "    pm2 save"
+    Write-Host ""
+    Write-Host "  Opción B: Instalar como servicio nativo con NSSM (Non-Sucking Service Manager):"
+    Write-Host "    nssm install PIA_Service node.exe `"$currentDir\server.js`""
+    Write-Host "    nssm set PIA_Service AppDirectory `"$currentDir`""
+    Write-Host "    nssm start PIA_Service"
+}
+
+# ========================================================
+# 8. PRUEBAS DE HUMO (SELF-HEALTHCHECK)
+# ========================================================
+Write-Step "8. Ejecutando verificación de salud institucional..."
+
+$healthTestCode = @"
+try {
+    const resHealth = await fetch('http://127.0.0.1:$Port/api/health');
+    const health = await resHealth.json();
+    const resChat = await fetch('http://127.0.0.1:$Port/api/chatbot/config');
+    const chat = await resChat.json();
+    console.log(JSON.stringify({ ok: resHealth.ok && health.status === 'ok', service: health.service, chatbotActive: chat.enabled !== false }));
+} catch (e) {
+    console.log(JSON.stringify({ ok: false, error: e.message }));
+}
+"@
+
+$healthResult = & node -e "$healthTestCode" 2>$null
+if ($healthResult) {
+    try {
+        $jsonRes = $healthResult | ConvertFrom-Json
+        if ($jsonRes.ok) {
+            Write-Success "Servicio Node.js respondiendo correctamente en http://127.0.0.1:$Port"
+            Write-Success "Backend Express saludable. Asistente Lupita: $($jsonRes.chatbotActive)"
+        } else {
+            Write-WarnMsg "El servicio aún no está levantado en el puerto $Port ($($jsonRes.error)). Inicie el servicio para verificar."
+        }
+    } catch {
+        Write-WarnMsg "Respuesta no JSON del healthcheck. Verifique que el servicio esté corriendo."
+    }
+} else {
+    Write-WarnMsg "Servicio no detectado en el puerto $Port. Inicie 'node server.js' o el servicio Windows configurado."
+}
+
+Write-Host "`n=============================================================" -ForegroundColor Green
+Write-Host " PREPARACIÓN DEL ENTORNO PIA COMPLETADA" -ForegroundColor Green
+Write-Host "=============================================================`n"
+, "PORT=$Port")
+    } else {
+        $envContent += "`r`nPORT=$Port`r`n"
+    }
+    if ($envContent -match '(?m)^PIA_DATA_DIR=.*    [System.IO.File]::WriteAllText($envFile, $envContent, [System.Text.UTF8Encoding]::new($false))
+}
+
+# Restringir lectura del archivo de secretos.
+$envAcl = New-Object System.Security.AccessControl.FileSecurity
+$envAcl.SetAccessRuleProtection($true, $false)
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\IIS_IUSRS", "Read", "Allow")))
+Set-Acl -Path $envFile -AclObject $envAcl
+Write-Success "Permisos NTFS del archivo .env restringidos."
+
+# 6. CONFIGURACIÓN DE IIS (SITE Y APPLICATION POOL)
+# ========================================================
+Write-Step "6. Preparando IIS Application Pool..."
+Import-Module WebAdministration -ErrorAction SilentlyContinue
+
+$appPoolName = "PiaAppPool"
+if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+    $appPool = New-Item "IIS:\AppPools\$appPoolName"
+    $appPool.managedRuntimeVersion = "" # Sin runtime .NET (.NET CLR Version: No Managed Code)
+    $appPool.processModel.idleTimeout = [TimeSpan]::Zero # No suspender el proceso
+    $appPool | Set-Item
+    Write-Success "Application Pool '$appPoolName' creado sin Managed Code."
+} else {
+    Write-Success "Application Pool '$appPoolName' ya existe."
+}
+
+# ========================================================
+# 7. SERVICIO DE BACKGROUND PARA NODE.JS
+# ========================================================
+if (-not $SkipServiceCreation) {
+    Write-Step "7. Configuración recomendada para proceso Node.js permanente..."
+    Write-Host "  Asocie el sitio IIS a $currentDir y configure ARR/URL Rewrite según web.config." 
+    Write-Host "  Para mantener Node.js activo 24/7 en Windows Server se recomienda:"
+    Write-Host "  Opción A: Instalar PM2 para Windows:"
+    Write-Host "    npm install pm2 -g"
+    Write-Host "    npm install pm2-windows-service -g"
+    Write-Host "    pm2 start server.js --name pia-backend --env production"
+    Write-Host "    pm2 save"
+    Write-Host ""
+    Write-Host "  Opción B: Instalar como servicio nativo con NSSM (Non-Sucking Service Manager):"
+    Write-Host "    nssm install PIA_Service node.exe `"$currentDir\server.js`""
+    Write-Host "    nssm set PIA_Service AppDirectory `"$currentDir`""
+    Write-Host "    nssm start PIA_Service"
+}
+
+# ========================================================
+# 8. PRUEBAS DE HUMO (SELF-HEALTHCHECK)
+# ========================================================
+Write-Step "8. Ejecutando verificación de salud institucional..."
+
+$healthTestCode = @"
+try {
+    const resHealth = await fetch('http://127.0.0.1:$Port/api/health');
+    const health = await resHealth.json();
+    const resChat = await fetch('http://127.0.0.1:$Port/api/chatbot/config');
+    const chat = await resChat.json();
+    console.log(JSON.stringify({ ok: resHealth.ok && health.status === 'ok', service: health.service, chatbotActive: chat.enabled !== false }));
+} catch (e) {
+    console.log(JSON.stringify({ ok: false, error: e.message }));
+}
+"@
+
+$healthResult = & node -e "$healthTestCode" 2>$null
+if ($healthResult) {
+    try {
+        $jsonRes = $healthResult | ConvertFrom-Json
+        if ($jsonRes.ok) {
+            Write-Success "Servicio Node.js respondiendo correctamente en http://127.0.0.1:$Port"
+            Write-Success "Backend Express saludable. Asistente Lupita: $($jsonRes.chatbotActive)"
+        } else {
+            Write-WarnMsg "El servicio aún no está levantado en el puerto $Port ($($jsonRes.error)). Inicie el servicio para verificar."
+        }
+    } catch {
+        Write-WarnMsg "Respuesta no JSON del healthcheck. Verifique que el servicio esté corriendo."
+    }
+} else {
+    Write-WarnMsg "Servicio no detectado en el puerto $Port. Inicie 'node server.js' o el servicio Windows configurado."
+}
+
+Write-Host "`n=============================================================" -ForegroundColor Green
+Write-Host " PREPARACIÓN DEL ENTORNO PIA COMPLETADA" -ForegroundColor Green
+Write-Host "=============================================================`n"
+) {
+        $envContent = [regex]::Replace($envContent, '(?m)^PIA_DATA_DIR=.*    [System.IO.File]::WriteAllText($envFile, $envContent, [System.Text.UTF8Encoding]::new($false))
+}
+
+# Restringir lectura del archivo de secretos.
+$envAcl = New-Object System.Security.AccessControl.FileSecurity
+$envAcl.SetAccessRuleProtection($true, $false)
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "Allow")))
+$envAcl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\IIS_IUSRS", "Read", "Allow")))
+Set-Acl -Path $envFile -AclObject $envAcl
+Write-Success "Permisos NTFS del archivo .env restringidos."
+
+# 6. CONFIGURACIÓN DE IIS (SITE Y APPLICATION POOL)
+# ========================================================
+Write-Step "6. Preparando IIS Application Pool..."
+Import-Module WebAdministration -ErrorAction SilentlyContinue
+
+$appPoolName = "PiaAppPool"
+if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+    $appPool = New-Item "IIS:\AppPools\$appPoolName"
+    $appPool.managedRuntimeVersion = "" # Sin runtime .NET (.NET CLR Version: No Managed Code)
+    $appPool.processModel.idleTimeout = [TimeSpan]::Zero # No suspender el proceso
+    $appPool | Set-Item
+    Write-Success "Application Pool '$appPoolName' creado sin Managed Code."
+} else {
+    Write-Success "Application Pool '$appPoolName' ya existe."
+}
+
+# ========================================================
+# 7. SERVICIO DE BACKGROUND PARA NODE.JS
+# ========================================================
+if (-not $SkipServiceCreation) {
+    Write-Step "7. Configuración recomendada para proceso Node.js permanente..."
+    Write-Host "  Asocie el sitio IIS a $currentDir y configure ARR/URL Rewrite según web.config." 
+    Write-Host "  Para mantener Node.js activo 24/7 en Windows Server se recomienda:"
+    Write-Host "  Opción A: Instalar PM2 para Windows:"
+    Write-Host "    npm install pm2 -g"
+    Write-Host "    npm install pm2-windows-service -g"
+    Write-Host "    pm2 start server.js --name pia-backend --env production"
+    Write-Host "    pm2 save"
+    Write-Host ""
+    Write-Host "  Opción B: Instalar como servicio nativo con NSSM (Non-Sucking Service Manager):"
+    Write-Host "    nssm install PIA_Service node.exe `"$currentDir\server.js`""
+    Write-Host "    nssm set PIA_Service AppDirectory `"$currentDir`""
+    Write-Host "    nssm start PIA_Service"
+}
+
+# ========================================================
+# 8. PRUEBAS DE HUMO (SELF-HEALTHCHECK)
+# ========================================================
+Write-Step "8. Ejecutando verificación de salud institucional..."
+
+$healthTestCode = @"
+try {
+    const resHealth = await fetch('http://127.0.0.1:$Port/api/health');
+    const health = await resHealth.json();
+    const resChat = await fetch('http://127.0.0.1:$Port/api/chatbot/config');
+    const chat = await resChat.json();
+    console.log(JSON.stringify({ ok: resHealth.ok && health.status === 'ok', service: health.service, chatbotActive: chat.enabled !== false }));
+} catch (e) {
+    console.log(JSON.stringify({ ok: false, error: e.message }));
+}
+"@
+
+$healthResult = & node -e "$healthTestCode" 2>$null
+if ($healthResult) {
+    try {
+        $jsonRes = $healthResult | ConvertFrom-Json
+        if ($jsonRes.ok) {
+            Write-Success "Servicio Node.js respondiendo correctamente en http://127.0.0.1:$Port"
+            Write-Success "Backend Express saludable. Asistente Lupita: $($jsonRes.chatbotActive)"
+        } else {
+            Write-WarnMsg "El servicio aún no está levantado en el puerto $Port ($($jsonRes.error)). Inicie el servicio para verificar."
+        }
+    } catch {
+        Write-WarnMsg "Respuesta no JSON del healthcheck. Verifique que el servicio esté corriendo."
+    }
+} else {
+    Write-WarnMsg "Servicio no detectado en el puerto $Port. Inicie 'node server.js' o el servicio Windows configurado."
+}
+
+Write-Host "`n=============================================================" -ForegroundColor Green
+Write-Host " PREPARACIÓN DEL ENTORNO PIA COMPLETADA" -ForegroundColor Green
+Write-Host "=============================================================`n"
+, "PIA_DATA_DIR=$dataPathEnv")
     } else {
         $envContent += "`r`nPIA_DATA_DIR=$dataPathEnv`r`n"
     }
