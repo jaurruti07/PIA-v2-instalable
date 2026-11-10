@@ -27,3 +27,5 @@ test-results/
 /page_visits.json
 /authorized_operators.json
 /users_roles.json
+/chatbot_settings.json
+/security_policies.json
