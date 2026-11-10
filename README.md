@@ -145,11 +145,12 @@ Respuesta esperada: JSON con `status: "ok"`.
 - `server.js`: backend Express, API, autenticación y autorización.
 - `admin/`: panel administrativo.
 - `canales-por-la-integridad/`, `directorio/`, `gobierno_en_numeros/`, `riesgo/`, `vehiculos/`: módulos del portal y sus recursos.
-- `css/`, `js/`, `img/`: recursos estáticos del portal.
-- `data/`: únicamente plantillas de ejemplo no operativas; Express bloquea su acceso HTTP. No guardar ahí datos reales ni credenciales.
+- `css/`, `js/`, `img/`: recursos estáticos activos del portal.
+- `data/`: únicamente plantilla de ejemplo no operativa; Express bloquea su acceso HTTP. No guardar ahí datos reales ni credenciales.
+- Las copias duplicadas de `static/`, las plantillas antiguas de Flask y el lockfile obsoleto de Bun se retiraron de esta distribución.
 - `PIA_DATA_DIR`: datos operativos privados, fuera del repositorio y del directorio web.
 - `Dockerfile` y `docker-compose.yml`: despliegue contenerizado.
-- `app.py`, `requirements.txt` y `gunicorn.conf.py`: componentes heredados de Flask, pendientes de retirar después de comprobar que no existen dependencias externas.
+- El backend Flask, sus dependencias y sus plantillas fueron retirados de esta rama. Node.js + Express es el único backend incluido en la distribución.
 
 ## Estado de validación
 
