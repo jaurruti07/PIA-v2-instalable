@@ -293,10 +293,15 @@ async function renderMockFiles() {
   const filePromises = AVAILABLE_JSON_FILES.map(async f => {
     let preview = 'Sin datos';
     try {
-      const res = await fetch(`/api/raw-json?path=${encodeURIComponent(f.path)}`);
-      if (res.ok) {
-        const data = await res.json();
+      const data = window.PiaDataEngine ? await window.PiaDataEngine.fetchRawJson(f.path) : null;
+      if (data) {
         preview = JSON.stringify(data).substring(0, 110) + '...';
+      } else {
+        const res = await fetch(`/api/raw-json?path=${encodeURIComponent(f.path)}`);
+        if (res.ok) {
+          const resData = await res.json();
+          preview = JSON.stringify(resData).substring(0, 110) + '...';
+        }
       }
     } catch {
       preview = 'No se pudo leer el archivo';
@@ -556,9 +561,13 @@ async function openJsonEditor(path) {
   
   let currentData = {};
   try {
-    const res = await fetch(`/api/raw-json?path=${encodeURIComponent(path)}`);
-    if (res.ok) {
-      currentData = await res.json();
+    if (window.PiaDataEngine) {
+      currentData = (await window.PiaDataEngine.fetchRawJson(path)) || {};
+    } else {
+      const res = await fetch(`/api/raw-json?path=${encodeURIComponent(path)}`);
+      if (res.ok) {
+        currentData = await res.json();
+      }
     }
   } catch (err) {
     console.error('Error al cargar JSON:', err);
@@ -707,21 +716,39 @@ async function saveJsonEditor() {
   }
 
   try {
-    const res = await fetch('/api/raw-json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        path: currentJsonPath,
-        data: syntaxResult.data
-      })
-    });
+    let saved = false;
+    try {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const res = await fetch('/api/raw-json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify({
+          path: currentJsonPath,
+          data: syntaxResult.data
+        })
+      });
+      if (res.ok) saved = true;
+    } catch (e) {}
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Error al guardar el archivo');
+    if (!saved) {
+      localStorage.setItem('pia_custom_json_' + currentJsonPath, JSON.stringify(syntaxResult.data));
+      const blob = new Blob([JSON.stringify(syntaxResult.data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentJsonPath.split('/').pop();
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Fichero JSON actualizado localmente y descargado a tu equipo', 'success');
+    } else {
+      showToast('Fichero JSON validado y actualizado en el servidor', 'success');
     }
 
-    showToast('Fichero JSON validado y actualizado correctamente en el servidor', 'success');
     closeJsonModal();
     await renderMockFiles();
   } catch (err) {

@@ -455,8 +455,13 @@ function renderDashboardView() {
 
 async function loadDashboardData() {
     try {
-        const res = await fetch('/api/dashboard/stats', { headers: getHeaders() });
-        const stats = await res.json();
+        let stats = null;
+        if (window.PiaDataEngine) {
+            stats = await window.PiaDataEngine.fetchDashboardStats();
+        } else {
+            const res = await fetch('/api/dashboard/stats', { headers: getHeaders() });
+            stats = await res.json();
+        }
 
         const dashRegs = document.getElementById('dashTotalRegs');
         const dashInst = document.getElementById('dashTotalInst');
@@ -474,9 +479,14 @@ async function loadDashboardData() {
 
         // Cargar desglose de visitas en el dashboard
         try {
-            const vRes = await fetch('/api/admin/visits', { headers: getHeaders() });
-            if (vRes.ok) {
-                const vData = await vRes.json();
+            let vData = null;
+            if (window.PiaDataEngine) {
+                vData = await window.PiaDataEngine.fetchVisitsData();
+            } else {
+                const vRes = await fetch('/api/admin/visits', { headers: getHeaders() });
+                if (vRes.ok) vData = await vRes.json();
+            }
+            if (vData) {
                 if (dashVisits) dashVisits.textContent = (Number(vData.totalVisits) || 0).toLocaleString();
                 const miniList = document.getElementById('dashVisitsMiniList');
                 if (miniList && vData.pages) {
@@ -506,8 +516,13 @@ async function loadDashboardData() {
             console.error('Error cargando mini visitas:', e);
         }
 
-        const auditRes = await fetch('/api/dashboard/audit', { headers: getHeaders() });
-        const audit = await auditRes.json();
+        let audit = null;
+        if (window.PiaDataEngine) {
+            audit = await window.PiaDataEngine.fetchAuditData();
+        } else {
+            const auditRes = await fetch('/api/dashboard/audit', { headers: getHeaders() });
+            audit = await auditRes.json();
+        }
         const activityList = document.getElementById('activityList');
 
         if (activityList) {
@@ -655,9 +670,14 @@ function renderVisitsView() {
 
 async function loadVisitsData() {
     try {
-        const res = await fetch('/api/admin/visits', { headers: getHeaders() });
-        if (!res.ok) throw new Error('Error al consultar contador de visitas');
-        const data = await res.json();
+        let data = null;
+        if (window.PiaDataEngine) {
+            data = await window.PiaDataEngine.fetchVisitsData();
+        } else {
+            const res = await fetch('/api/admin/visits', { headers: getHeaders() });
+            if (!res.ok) throw new Error('Error al consultar contador de visitas');
+            data = await res.json();
+        }
         visitsDataCache = data;
 
         const totalVisits = Number(data.totalVisits) || 0;
@@ -926,9 +946,13 @@ async function loadAuditData() {
                 <tr class="skeleton-row"><td colspan="6" style="padding:1rem;"><div class="skeleton-loader" style="width:85%;"></div></td></tr>
             `;
         }
-        const res = await fetch('/api/audit', { headers: getHeaders() });
-        if (!res.ok) throw new Error('Error al obtener registros de auditoría');
-        auditLogsData = await res.json();
+        if (window.PiaDataEngine) {
+            auditLogsData = await window.PiaDataEngine.fetchAuditData();
+        } else {
+            const res = await fetch('/api/audit', { headers: getHeaders() });
+            if (!res.ok) throw new Error('Error al obtener registros de auditoría');
+            auditLogsData = await res.json();
+        }
 
         // Update indicators
         const totalEv = document.getElementById('auditTotalEvents');
@@ -1379,9 +1403,13 @@ async function fetchAndRenderTable(module) {
         if (typeof window.renderSkeletonTable === 'function') {
             window.renderSkeletonTable('crudTable', 5, 5);
         }
-        const res = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders() });
-        if (!res.ok) throw new Error('Error al cargar módulo');
-        currentModuleData = await res.json();
+        if (window.PiaDataEngine) {
+            currentModuleData = await window.PiaDataEngine.fetchModuleRecords(module);
+        } else {
+            const res = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders() });
+            if (!res.ok) throw new Error('Error al cargar módulo');
+            currentModuleData = await res.json();
+        }
         renderTableRows(currentModuleData);
     } catch (err) {
         showToast('Error cargando módulo: ' + err.message, 'error');
@@ -1621,13 +1649,17 @@ window.editRecord = function(id) {
 };
 
 window.deleteRecord = async function(id) {
-    if (!confirm('¿Estás seguro de eliminar este registro? Esta acción actualizará el archivo JSON y registrará el cambio en la bitácora.')) return;
+    if (!confirm('¿Estás seguro de eliminar este registro? Esta acción actualizará los datos y registrará el cambio en la bitácora.')) return;
     try {
-        const res = await fetch(`${getApiBase()}/${currentModule}/${id}`, {
-            method: 'DELETE',
-            headers: getHeaders()
-        });
-        if (!res.ok) throw new Error('Error al eliminar');
+        if (window.PiaDataEngine) {
+            await window.PiaDataEngine.deleteRecord(currentModule, id);
+        } else {
+            const res = await fetch(`${getApiBase()}/${currentModule}/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            if (!res.ok) throw new Error('Error al eliminar');
+        }
         showToast('Registro eliminado y auditado correctamente', 'success');
         await fetchAndRenderTable(currentModule);
     } catch (err) {
@@ -2360,23 +2392,24 @@ async function saveCrudRecord(e) {
         });
 
         try {
-            let url = `${getApiBase()}/vehiculos_instituciones`;
-            let method = 'POST';
-
-            if (editingRecordId) {
-                url += `/${encodeURIComponent(editingRecordId)}`;
-                method = 'PUT';
-            }
-
-            const res = await fetch(url, {
-                method,
-                headers: getHeaders(),
-                body: JSON.stringify(recordObj)
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Error al guardar');
+            if (window.PiaDataEngine) {
+                await window.PiaDataEngine.saveRecord('vehiculos_instituciones', recordObj, editingRecordId);
+            } else {
+                let url = `${getApiBase()}/vehiculos_instituciones`;
+                let method = 'POST';
+                if (editingRecordId) {
+                    url += `/${encodeURIComponent(editingRecordId)}`;
+                    method = 'PUT';
+                }
+                const res = await fetch(url, {
+                    method,
+                    headers: getHeaders(),
+                    body: JSON.stringify(recordObj)
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Error al guardar');
+                }
             }
 
             showToast('Criterios institucionales actualizados', 'success');
@@ -2416,24 +2449,25 @@ async function saveCrudRecord(e) {
         }
 
         try {
-            let url = `${getApiBase()}/vehiculos`;
-            let method = 'POST';
-
-            if (editingRecordId) {
-                url += `/${editingRecordId}`;
-                method = 'PUT';
-                recordObj.id = Number(editingRecordId);
-            }
-
-            const res = await fetch(url, {
-                method,
-                headers: getHeaders(),
-                body: JSON.stringify(recordObj)
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Error al guardar');
+            if (window.PiaDataEngine) {
+                await window.PiaDataEngine.saveRecord('vehiculos', recordObj, editingRecordId);
+            } else {
+                let url = `${getApiBase()}/vehiculos`;
+                let method = 'POST';
+                if (editingRecordId) {
+                    url += `/${editingRecordId}`;
+                    method = 'PUT';
+                    recordObj.id = Number(editingRecordId);
+                }
+                const res = await fetch(url, {
+                    method,
+                    headers: getHeaders(),
+                    body: JSON.stringify(recordObj)
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Error al guardar');
+                }
             }
 
             showToast(editingRecordId ? 'Vehículo actualizado y guardado en bitácora' : 'Vehículo registrado y guardado en bitácora', 'success');
@@ -2487,24 +2521,25 @@ async function saveCrudRecord(e) {
         }
 
         try {
-            let url = `${getApiBase()}/directorio`;
-            let method = 'POST';
-
-            if (editingRecordId) {
-                url += `/${editingRecordId}`;
-                method = 'PUT';
-                recordObj.id = Number(editingRecordId);
-            }
-
-            const res = await fetch(url, {
-                method,
-                headers: getHeaders(),
-                body: JSON.stringify(recordObj)
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Error al guardar');
+            if (window.PiaDataEngine) {
+                await window.PiaDataEngine.saveRecord('directorio', recordObj, editingRecordId);
+            } else {
+                let url = `${getApiBase()}/directorio`;
+                let method = 'POST';
+                if (editingRecordId) {
+                    url += `/${editingRecordId}`;
+                    method = 'PUT';
+                    recordObj.id = Number(editingRecordId);
+                }
+                const res = await fetch(url, {
+                    method,
+                    headers: getHeaders(),
+                    body: JSON.stringify(recordObj)
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Error al guardar');
+                }
             }
 
             showToast(editingRecordId ? 'Institución actualizada y guardada en bitácora' : 'Institución registrada y guardada en bitácora', 'success');
@@ -2551,24 +2586,25 @@ async function saveCrudRecord(e) {
         }
 
         try {
-            let url = `${getApiBase()}/canales`;
-            let method = 'POST';
-
-            if (editingRecordId) {
-                url += `/${editingRecordId}`;
-                method = 'PUT';
-                recordObj.id = Number(editingRecordId);
-            }
-
-            const res = await fetch(url, {
-                method,
-                headers: getHeaders(),
-                body: JSON.stringify(recordObj)
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Error al guardar');
+            if (window.PiaDataEngine) {
+                await window.PiaDataEngine.saveRecord('canales', recordObj, editingRecordId);
+            } else {
+                let url = `${getApiBase()}/canales`;
+                let method = 'POST';
+                if (editingRecordId) {
+                    url += `/${editingRecordId}`;
+                    method = 'PUT';
+                    recordObj.id = Number(editingRecordId);
+                }
+                const res = await fetch(url, {
+                    method,
+                    headers: getHeaders(),
+                    body: JSON.stringify(recordObj)
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Error al guardar');
+                }
             }
 
             showToast(editingRecordId ? 'Canal de integridad actualizado y auditado' : 'Canal de integridad registrado y auditado', 'success');
@@ -2601,24 +2637,25 @@ async function saveCrudRecord(e) {
         }
 
         try {
-            let url = `${getApiBase()}/tableros`;
-            let method = 'POST';
-
-            if (editingRecordId) {
-                url += `/${editingRecordId}`;
-                method = 'PUT';
-                recordObj.id = Number(editingRecordId);
-            }
-
-            const res = await fetch(url, {
-                method,
-                headers: getHeaders(),
-                body: JSON.stringify(recordObj)
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Error al guardar');
+            if (window.PiaDataEngine) {
+                await window.PiaDataEngine.saveRecord('tableros', recordObj, editingRecordId);
+            } else {
+                let url = `${getApiBase()}/tableros`;
+                let method = 'POST';
+                if (editingRecordId) {
+                    url += `/${editingRecordId}`;
+                    method = 'PUT';
+                    recordObj.id = Number(editingRecordId);
+                }
+                const res = await fetch(url, {
+                    method,
+                    headers: getHeaders(),
+                    body: JSON.stringify(recordObj)
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Error al guardar');
+                }
             }
 
             showToast(editingRecordId ? 'Tablero de gobierno actualizado y auditado' : 'Tablero de gobierno registrado y auditado', 'success');
@@ -2655,23 +2692,24 @@ async function saveCrudRecord(e) {
     }
 
     try {
-        let url = `${getApiBase()}/${currentModule}`;
-        let method = 'POST';
-
-        if (editingRecordId) {
-            url += `/${editingRecordId}`;
-            method = 'PUT';
-        }
-
-        const res = await fetch(url, {
-            method,
-            headers: getHeaders(),
-            body: JSON.stringify(bodyObj)
-        });
-
-        if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.error || 'Error al guardar');
+        if (window.PiaDataEngine) {
+            await window.PiaDataEngine.saveRecord(currentModule, bodyObj, editingRecordId);
+        } else {
+            let url = `${getApiBase()}/${currentModule}`;
+            let method = 'POST';
+            if (editingRecordId) {
+                url += `/${editingRecordId}`;
+                method = 'PUT';
+            }
+            const res = await fetch(url, {
+                method,
+                headers: getHeaders(),
+                body: JSON.stringify(bodyObj)
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Error al guardar');
+            }
         }
 
         showToast(editingRecordId ? 'Registro actualizado y guardado en bitácora' : 'Registro creado y guardado en bitácora', 'success');
@@ -2683,11 +2721,15 @@ async function saveCrudRecord(e) {
 }
 
 function exportModuleJson() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentModuleData, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `${currentModule}_pia_export.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    if (window.PiaDataEngine && window.PiaDataEngine.downloadModuleJson) {
+        window.PiaDataEngine.downloadModuleJson(currentModule);
+    } else {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentModuleData, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `${currentModule}_pia_export.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
 }

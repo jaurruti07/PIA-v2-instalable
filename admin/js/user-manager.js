@@ -37,9 +37,12 @@ async function fetchUsersAndStatus() {
     if (resUsers.ok) {
       const data = await resUsers.json();
       cachedUsers = data.users || [];
+    } else {
+      cachedUsers = window.PiaDataEngine ? window.PiaDataEngine.getFallbackUsers() : [];
     }
   } catch (err) {
     console.warn('Error cargando usuarios:', err);
+    cachedUsers = window.PiaDataEngine ? window.PiaDataEngine.getFallbackUsers() : [];
   }
 
   try {
@@ -125,10 +128,13 @@ export function renderUserManagerView() {
             Gestión de Usuarios, Roles y Permisos
           </h1>
           <p style="color: #5E7A8E; font-size: 0.95rem; max-width: 820px;">
-            Administración centralizada de identidades autorizadas, permisos por módulo y actualización de contraseñas encriptadas (PBKDF2 con sal criptográfica). Actualmente ambas cuentas poseen acceso pleno a todos los módulos.
+            Administración centralizada de identidades autorizadas, permisos por módulo y actualización de contraseñas encriptadas (PBKDF2 con sal criptográfica). Puedes agregar nuevos usuarios y asignarles permisos específicos o acceso total.
           </p>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+          <button id="btnOpenCreateUserModal" style="padding: 0.65rem 1.25rem; background: linear-gradient(135deg, #00C2E0, #2B82C9); color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,194,224,0.25); transition: all 0.2s;">
+            <i class="fas fa-user-plus"></i> Agregar Nuevo Usuario
+          </button>
           <button id="btnRefreshStatus" style="padding: 0.65rem 1.1rem; background: #fff; border: 1px solid var(--border); border-radius: 10px; color: var(--navy); font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
             <i class="fas fa-sync-alt"></i> Actualizar Datos
           </button>
@@ -147,6 +153,93 @@ export function renderUserManagerView() {
 
       <!-- CONTENIDO DE PESTAÑA -->
       ${activeTab === 'operators' ? renderOperatorsTab(users) : renderSecurityTab(sec)}
+    </div>
+
+    <!-- MODAL DE CREACIÓN DE NUEVO USUARIO -->
+    <div id="modalCreateUser" style="display:none; position:fixed; inset:0; background:rgba(5,17,31,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1.5rem; overflow-y:auto;">
+      <div style="background:#fff; border-radius:18px; max-width:540px; width:100%; box-shadow:0 20px 40px rgba(0,0,0,0.25); overflow:hidden; border:1px solid rgba(0,194,224,0.3); margin:auto;">
+        <div style="background:var(--navy); color:#fff; padding:1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-user-plus" style="color:var(--cyan); font-size:1.2rem;"></i>
+            <h3 style="margin:0; font-size:1.15rem; font-weight:800;">Agregar Nuevo Usuario Institucional</h3>
+          </div>
+          <button id="btnCloseModalCreateUser" style="background:none; border:none; color:rgba(255,255,255,0.7); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="padding:1.5rem; max-height:calc(85vh - 70px); overflow-y:auto;">
+          <p style="font-size:0.88rem; color:#5E7A8E; margin-bottom:1.25rem; line-height:1.45;">
+            Crea una nueva identidad con contraseña cifrada (PBKDF2/SHA-512) y asigna sus módulos con la misma lógica de seguridad existente.
+          </p>
+
+          <div style="margin-bottom:1.15rem;">
+            <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
+              Correo Institucional <span style="color:#DC2626;">*</span>:
+            </label>
+            <input type="email" id="inputCreateUserEmail" placeholder="usuario@cnc.gob.gt" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.92rem; box-sizing:border-box;">
+          </div>
+
+          <div style="margin-bottom:1.15rem;">
+            <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
+              Nombre Completo o Dependencia <span style="color:#DC2626;">*</span>:
+            </label>
+            <input type="text" id="inputCreateUserName" placeholder="Ej. Analista de Auditoría e Integridad" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.92rem; box-sizing:border-box;">
+          </div>
+
+          <div style="margin-bottom:1.15rem;">
+            <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
+              Rol Asignado:
+            </label>
+            <select id="selectCreateUserRole" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.92rem; box-sizing:border-box; background:#fff; font-weight:700; color:var(--navy);">
+              <option value="admin">Administrador Pleno (Acceso y control total)</option>
+              <option value="data_operator">Operador de Datos (Edición y consulta)</option>
+            </select>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1.25rem;">
+            <div>
+              <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
+                Contraseña Inicial <span style="color:#DC2626;">*</span>:
+              </label>
+              <input type="password" id="inputCreateUserPwd" placeholder="Mínimo 4 caracteres" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.92rem; box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="display:block; font-size:0.8rem; font-weight:700; color:var(--navy); margin-bottom:0.4rem;">
+                Confirmar Contraseña <span style="color:#DC2626;">*</span>:
+              </label>
+              <input type="password" id="inputCreateUserPwdConfirm" placeholder="Repetir contraseña" style="width:100%; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:10px; font-size:0.92rem; box-sizing:border-box;">
+            </div>
+          </div>
+
+          <!-- ASIGNACIÓN DE MÓDULOS -->
+          <div style="margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+              <label style="font-size:0.8rem; font-weight:700; color:var(--navy); margin:0;">
+                Permisos de Acceso a Módulos:
+              </label>
+              <button type="button" id="btnToggleAllCreateModules" style="background:none; border:none; color:var(--cyan); font-size:0.8rem; font-weight:700; cursor:pointer; text-decoration:underline;">
+                Todos tienen permiso a todo
+              </button>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap:0.5rem; background:#FAFBFD; padding:0.85rem; border-radius:12px; border:1px solid var(--border); max-height:170px; overflow-y:auto;">
+              ${AVAILABLE_MODULES.map(m => `
+                <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--navy); font-weight:600; cursor:pointer; padding:3px 5px;">
+                  <input type="checkbox" class="create-mod-checkbox" value="${m.id}" checked style="width:15px; height:15px; accent-color:var(--cyan); cursor:pointer;">
+                  <i class="fas ${m.icon}" style="color:var(--cyan); width:14px; text-align:center;"></i>
+                  <span>${m.label}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+
+          <div id="modalCreateUserError" style="display:none; padding:0.65rem 0.85rem; border-radius:8px; background:rgba(239,68,68,0.12); color:#DC2626; font-size:0.82rem; margin-bottom:1.25rem;"></div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+            <button id="btnCancelCreateUser" style="padding:0.65rem 1.15rem; border:1px solid var(--border); background:#fff; border-radius:10px; font-weight:700; cursor:pointer;">Cancelar</button>
+            <button id="btnSaveCreateUser" style="padding:0.65rem 1.35rem; background:linear-gradient(135deg, #00C2E0, #2B82C9); color:#fff; border:none; border-radius:10px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(0,194,224,0.25);">
+              <i class="fas fa-lock"></i> Guardar y Encriptar Usuario
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- MODAL DE CAMBIO DE CONTRASEÑA -->
@@ -201,6 +294,7 @@ export function renderUserManagerView() {
 
   // Attach modal events
   setupModalPasswordEvents();
+  setupModalCreateUserEvents();
 
   // Attach card events
   users.forEach(user => {
@@ -217,10 +311,10 @@ function renderOperatorsTab(users) {
       </div>
       <div>
         <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--navy); margin-bottom: 0.25rem;">
-          Control de Acceso y Gestión de Contraseñas desde el Administrador
+          Control de Acceso y Gestión de Identidades Institucionales
         </h3>
         <p style="font-size: 0.88rem; color: #5E7A8E; line-height: 1.45; margin: 0;">
-          Puedes otorgar roles, cambiar contraseñas y habilitar o restringir módulos de forma individual para cada uno de los dos operadores autorizados. Las contraseñas quedan almacenadas de manera cifrada e inmutable con <strong>PBKDF2/SHA-512</strong>.
+          Puedes agregar nuevos usuarios institucionales, otorgar roles, cambiar contraseñas y habilitar o restringir módulos de forma individual para cada operador. Todas las contraseñas quedan almacenadas de manera cifrada e inmutable con <strong>PBKDF2/SHA-512</strong>.
         </p>
       </div>
     </div>
@@ -234,6 +328,7 @@ function renderOperatorsTab(users) {
 
 function renderUserCard(user, slotNumber) {
   const email = user.email || user.upn;
+  const isSeed = ['deteccionydenuncia@cnc.gob.gt', 'apoyogi@cnc.gob.gt'].includes(email.toLowerCase());
   const userModules = user.modules || AVAILABLE_MODULES.map(m => m.id);
   const isAllSelected = AVAILABLE_MODULES.every(m => userModules.includes(m.id));
 
@@ -256,9 +351,20 @@ function renderUserCard(user, slotNumber) {
             </span>
           </div>
         </div>
-        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(34,197,94,0.15); color: #16A34A; font-weight: 700; font-size: 0.78rem;">
-          <i class="fas fa-check-circle"></i> Activo
-        </span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(34,197,94,0.15); color: #16A34A; font-weight: 700; font-size: 0.78rem;">
+            <i class="fas fa-check-circle"></i> Activo
+          </span>
+          ${isSeed ? `
+            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 0.3rem 0.65rem; border-radius: 20px; background: rgba(0,194,224,0.1); color: var(--cyan); font-weight: 700; font-size: 0.74rem;">
+              <i class="fas fa-shield-alt"></i> Cuenta Base
+            </span>
+          ` : `
+            <button class="btn-delete-user" data-email="${email}" style="padding: 0.3rem 0.65rem; background: rgba(239,68,68,0.1); color: #DC2626; border: 1px solid rgba(239,68,68,0.25); border-radius: 20px; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;" title="Eliminar este usuario institucional">
+              <i class="fas fa-trash-alt"></i> Eliminar
+            </button>
+          `}
+        </div>
       </div>
 
       <!-- DETALLES DE ROL Y CONTRASEÑA -->
@@ -413,6 +519,42 @@ function attachUserCardEvents(user) {
       openPasswordModal(email);
     });
   }
+
+  // Eliminar usuario personalizado
+  const deleteBtn = document.querySelector(`.btn-delete-user[data-email="${email}"]`);
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm(`¿Confirma que desea eliminar permanentemente al usuario '${email}'?`)) {
+        return;
+      }
+      deleteBtn.disabled = true;
+      deleteBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+      try {
+        if (window.PiaDataEngine) {
+          await window.PiaDataEngine.deleteUser(email);
+        } else {
+          const res = await fetch(`/api/admin/users/${encodeURIComponent(email)}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Error al eliminar usuario');
+          }
+        }
+        if (window.showToast) window.showToast(`Usuario ${email} eliminado correctamente`, 'success');
+        await fetchUsersAndStatus();
+        renderUserManagerView();
+      } catch (err) {
+        alert(err.message || 'Error al eliminar usuario');
+        deleteBtn.disabled = false;
+        deleteBtn.innerHTML = `<i class="fas fa-trash-alt"></i> Eliminar`;
+      }
+    });
+  }
 }
 
 let targetEmailForPassword = '';
@@ -509,6 +651,148 @@ function setupModalPasswordEvents() {
       } finally {
         btnSave.disabled = false;
         btnSave.innerHTML = `<i class="fas fa-lock"></i> Guardar y Encriptar`;
+      }
+    });
+  }
+}
+
+function setupModalCreateUserEvents() {
+  const modal = document.getElementById('modalCreateUser');
+  const btnOpen = document.getElementById('btnOpenCreateUserModal');
+  const btnClose = document.getElementById('btnCloseModalCreateUser');
+  const btnCancel = document.getElementById('btnCancelCreateUser');
+  const btnSave = document.getElementById('btnSaveCreateUser');
+  const btnToggleMods = document.getElementById('btnToggleAllCreateModules');
+
+  const openCreateModal = () => {
+    const inputEmail = document.getElementById('inputCreateUserEmail');
+    const inputName = document.getElementById('inputCreateUserName');
+    const inputPwd = document.getElementById('inputCreateUserPwd');
+    const inputPwdConf = document.getElementById('inputCreateUserPwdConfirm');
+    const selectRole = document.getElementById('selectCreateUserRole');
+    const errDiv = document.getElementById('modalCreateUserError');
+
+    if (inputEmail) inputEmail.value = '';
+    if (inputName) inputName.value = '';
+    if (inputPwd) inputPwd.value = '';
+    if (inputPwdConf) inputPwdConf.value = '';
+    if (selectRole) selectRole.value = 'admin';
+    if (errDiv) { errDiv.style.display = 'none'; errDiv.textContent = ''; }
+
+    document.querySelectorAll('.create-mod-checkbox').forEach(cb => { cb.checked = true; });
+    if (btnToggleMods) btnToggleMods.textContent = 'Desmarcar todos';
+
+    if (modal) modal.style.display = 'flex';
+  };
+
+  const closeCreateModal = () => {
+    if (modal) modal.style.display = 'none';
+  };
+
+  if (btnOpen) btnOpen.addEventListener('click', openCreateModal);
+  if (btnClose) btnClose.addEventListener('click', closeCreateModal);
+  if (btnCancel) btnCancel.addEventListener('click', closeCreateModal);
+
+  if (btnToggleMods) {
+    btnToggleMods.addEventListener('click', () => {
+      const cbs = document.querySelectorAll('.create-mod-checkbox');
+      const allChecked = Array.from(cbs).every(cb => cb.checked);
+      cbs.forEach(cb => { cb.checked = !allChecked; });
+      btnToggleMods.textContent = !allChecked ? 'Desmarcar todos' : 'Todos tienen permiso a todo';
+    });
+  }
+
+  if (btnSave) {
+    btnSave.addEventListener('click', async () => {
+      const inputEmail = document.getElementById('inputCreateUserEmail');
+      const inputName = document.getElementById('inputCreateUserName');
+      const inputPwd = document.getElementById('inputCreateUserPwd');
+      const inputPwdConf = document.getElementById('inputCreateUserPwdConfirm');
+      const selectRole = document.getElementById('selectCreateUserRole');
+      const errDiv = document.getElementById('modalCreateUserError');
+
+      const email = (inputEmail?.value || '').trim();
+      const displayName = (inputName?.value || '').trim();
+      const p1 = (inputPwd?.value || '').trim();
+      const p2 = (inputPwdConf?.value || '').trim();
+      const role = selectRole?.value || 'admin';
+
+      const showErr = (msg) => {
+        if (errDiv) {
+          errDiv.textContent = msg;
+          errDiv.style.display = 'block';
+        }
+      };
+
+      if (!email || !email.includes('@')) {
+        showErr('Por favor ingrese un correo electrónico institucional válido.');
+        return;
+      }
+
+      if (!displayName) {
+        showErr('Por favor ingrese el nombre completo o cargo del usuario.');
+        return;
+      }
+
+      if (!p1 || p1.length < 4) {
+        showErr('La contraseña debe tener al menos 4 caracteres.');
+        return;
+      }
+
+      if (p1 !== p2) {
+        showErr('Las contraseñas no coinciden.');
+        return;
+      }
+
+      const checkedMods = Array.from(document.querySelectorAll('.create-mod-checkbox:checked')).map(cb => cb.value);
+      if (checkedMods.length === 0) {
+        showErr('Debe habilitar al menos un módulo para el usuario.');
+        return;
+      }
+
+      btnSave.disabled = true;
+      btnSave.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Guardando y Encriptando...`;
+
+      try {
+        const payload = {
+          email,
+          displayName,
+          password: p1,
+          role,
+          modules: checkedMods
+        };
+
+        if (window.PiaDataEngine) {
+          await window.PiaDataEngine.createUser(payload);
+        } else {
+          const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+          const res = await fetch('/api/admin/users', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Error al registrar el usuario en el servidor');
+          }
+        }
+
+        closeCreateModal();
+        if (window.showToast) {
+          window.showToast(`Usuario ${email} creado y encriptado exitosamente`, 'success');
+        } else {
+          alert(`Usuario ${email} creado exitosamente.`);
+        }
+        await fetchUsersAndStatus();
+        renderUserManagerView();
+      } catch (err) {
+        showErr(err.message || 'Error de conexión con el servidor.');
+      } finally {
+        btnSave.disabled = false;
+        btnSave.innerHTML = `<i class="fas fa-lock"></i> Guardar y Encriptar Usuario`;
       }
     });
   }

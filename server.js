@@ -328,10 +328,23 @@ function getFirebaseJWKS() {
 }
 
 // Cuentas restringidas oficialmente autorizadas para administrar el Portal PIA
-const ALLOWED_OPERATOR_EMAILS = [
+const SEED_OPERATOR_EMAILS = [
   'deteccionydenuncia@cnc.gob.gt',
   'apoyogi@cnc.gob.gt'
 ];
+
+function getAllowedOperatorEmails() {
+  try {
+    const users = getUsersRoles();
+    const emails = users.filter(u => u.status !== 'inactive').map(u => (u.email || '').toLowerCase().trim()).filter(Boolean);
+    SEED_OPERATOR_EMAILS.forEach(em => {
+      if (!emails.includes(em)) emails.push(em);
+    });
+    return emails;
+  } catch (e) {
+    return SEED_OPERATOR_EMAILS;
+  }
+}
 
 // Carga las dos identidades operativas de la CNC (vía variables de entorno o archivo de configuración privado)
 function getAuthorizedOperators() {
@@ -381,7 +394,7 @@ function getAuthorizedOperators() {
     }
   }
 
-  return operators.slice(0, 2);
+  return operators;
 }
 
 // Guarda actualización de operadores en authorized_operators.json con escritura atómica
@@ -564,7 +577,7 @@ async function requireAuth(req, res, next) {
       return res.status(401).json({ error: 'Sesión inválida o expirada.' });
     }
     const userEmail = (localSession.email || '').toLowerCase();
-    if (!ALLOWED_OPERATOR_EMAILS.includes(userEmail)) {
+    if (!getAllowedOperatorEmails().includes(userEmail)) {
       return res.status(403).json({ error: 'Usuario no autorizado en el portal.' });
     }
     const allUsers = getUsersRoles();
@@ -589,8 +602,8 @@ async function requireAuth(req, res, next) {
     const userUid = verified.uid;
     const userEmail = verified.email;
 
-    // Verificar si el correo pertenece estrictamente a las 2 cuentas autorizadas
-    if (!ALLOWED_OPERATOR_EMAILS.includes(userEmail)) {
+    // Verificar si el correo pertenece a las cuentas autorizadas
+    if (!getAllowedOperatorEmails().includes(userEmail)) {
       logAudit({
         user: userEmail,
         userUid,
@@ -599,7 +612,7 @@ async function requireAuth(req, res, next) {
         action: 'ACCESO DENEGADO (CORREO NO AUTORIZADO)',
         module: 'auth',
         target: 'admin',
-        details: `Intento de acceso denegado: ${userEmail} (UID: ${userUid}) no figura entre las 2 cuentas autorizadas de la CNC.`,
+        details: `Intento de acceso denegado: ${userEmail} (UID: ${userUid}) no figura entre las cuentas autorizadas de la CNC.`,
         ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
       });
 
@@ -715,7 +728,7 @@ app.get('/api/auth/firebase-config', (req, res) => {
     authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
     appId: firebaseConfig.appId || '',
     storageBucket: firebaseConfig.storageBucket || `${FIREBASE_PROJECT_ID}.firebasestorage.app`,
-    authorizedEmails: ALLOWED_OPERATOR_EMAILS
+    authorizedEmails: getAllowedOperatorEmails()
   });
 });
 
@@ -739,8 +752,8 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ error: 'Credenciales incompletas. Debe ingresar correo y contraseña.' });
   }
 
-  // Verificar si es uno de los 2 usuarios autorizados
-  if (!ALLOWED_OPERATOR_EMAILS.includes(userIdentifier)) {
+  // Verificar si es uno de los usuarios autorizados
+  if (!getAllowedOperatorEmails().includes(userIdentifier)) {
     logAudit({
       user: userIdentifier,
       action: 'LOGIN FALLIDO (USUARIO NO AUTORIZADO)',
@@ -817,44 +830,27 @@ app.get('/api/auth/verify', requireAuth, (req, res) => {
   });
 });
 
-// Estado de configuración institucional de los dos operadores y políticas de seguridad
+// Estado de configuración institucional de usuarios y políticas de seguridad
 app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) => {
   const users = getUsersRoles();
-  const op1 = users.find(o => o.operatorIndex === 1) || users[0];
-  const op2 = users.find(o => o.operatorIndex === 2) || users[1];
+  const slots = users.map((u, i) => ({
+    slot: i + 1,
+    configured: u.status === 'active',
+    displayName: u.displayName || `Operador ${i + 1}`,
+    email: u.email,
+    upn: u.email,
+    uidMasked: u.id,
+    source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
+    role: u.role || 'admin',
+    modules: u.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+    status: u.status || 'active',
+    lastPasswordChange: u.lastPasswordChange
+  }));
 
   res.json({
-    model: 'two_operators_exclusive',
-    maxAllowed: 2,
+    model: 'multi_operators_role_based',
     configuredCount: users.length,
-    slots: [
-      {
-        slot: 1,
-        configured: !!(op1 && op1.status === 'active'),
-        displayName: op1?.displayName || 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI',
-        email: 'deteccionydenuncia@cnc.gob.gt',
-        upn: 'deteccionydenuncia@cnc.gob.gt',
-        uidMasked: op1?.id || 'usr_cnc_01',
-        source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
-        role: op1?.role || 'admin',
-        modules: op1?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
-        status: op1?.status || 'active',
-        lastPasswordChange: op1?.lastPasswordChange
-      },
-      {
-        slot: 2,
-        configured: !!(op2 && op2.status === 'active'),
-        displayName: op2?.displayName || 'Apoyo a la Gestión de Irregularidades (CNC)',
-        email: 'apoyogi@cnc.gob.gt',
-        upn: 'apoyogi@cnc.gob.gt',
-        uidMasked: op2?.id || 'usr_cnc_02',
-        source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
-        role: op2?.role || 'admin',
-        modules: op2?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
-        status: op2?.status || 'active',
-        lastPasswordChange: op2?.lastPasswordChange
-      }
-    ],
+    slots,
     security: {
       authProvider: 'Autenticación Criptográfica (PBKDF2/SHA-512) + Firebase Auth',
       projectId: FIREBASE_PROJECT_ID,
@@ -878,23 +874,155 @@ app.get('/api/admin/operators-status', requireAuth, requireOperator, (req, res) 
 // Obtener lista autorizada de usuarios (sanitizada sin hashes de contraseña)
 app.get('/api/users', requireAuth, requireOperator, (req, res) => {
   const users = getUsersRoles();
-  const sanitized = users.map(u => ({
-    id: u.id,
+  const sanitized = users.map((u, i) => ({
+    id: u.id || `usr_cnc_${i + 1}`,
     email: u.email,
     displayName: u.displayName,
     role: u.role || 'admin',
     modules: u.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
     status: u.status || 'active',
-    operatorIndex: u.operatorIndex,
+    operatorIndex: u.operatorIndex || (i + 1),
     lastPasswordChange: u.lastPasswordChange,
     updatedAt: u.updatedAt
   }));
 
   res.json({
-    model: 'two_operators_exclusive',
+    model: 'multi_operators_role_based',
     authorizedCount: sanitized.length,
-    maxAllowed: 2,
     users: sanitized
+  });
+});
+
+// Crear nuevo usuario institucional con contraseña encriptada (PBKDF2/SHA-512) y permisos personalizados
+app.post('/api/admin/users', requireAuth, requireOperator, (req, res) => {
+  const { email, displayName, password, role, modules, status } = req.body || {};
+
+  const cleanEmail = (email || '').trim().toLowerCase();
+  if (!cleanEmail || !cleanEmail.includes('@')) {
+    return res.status(400).json({ error: 'Debe ingresar un correo electrónico institucional válido.' });
+  }
+
+  const cleanName = (displayName || '').trim();
+  if (!cleanName) {
+    return res.status(400).json({ error: 'Debe ingresar el nombre del usuario o cargo oficial.' });
+  }
+
+  if (!password || typeof password !== 'string' || password.trim().length < 4) {
+    return res.status(400).json({ error: 'La contraseña inicial debe contener al menos 4 caracteres.' });
+  }
+
+  const validRoles = ['admin', 'data_operator'];
+  const assignedRole = validRoles.includes(role) ? role : 'admin';
+
+  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
+  const assignedModules = Array.isArray(modules) && modules.length > 0
+    ? modules.filter(m => validModules.includes(m))
+    : validModules;
+
+  const users = getUsersRoles();
+  if (users.some(u => (u.email || '').toLowerCase() === cleanEmail)) {
+    return res.status(409).json({ error: `El usuario '${cleanEmail}' ya se encuentra registrado en el sistema.` });
+  }
+
+  const nowIso = new Date().toISOString();
+  const newUser = {
+    id: `usr_cnc_${Date.now()}`,
+    email: cleanEmail,
+    displayName: cleanName,
+    role: assignedRole,
+    passwordHash: hashPassword(password.trim()),
+    modules: assignedModules,
+    status: status || 'active',
+    operatorIndex: users.length + 1,
+    lastPasswordChange: nowIso,
+    updatedAt: nowIso,
+    createdAt: nowIso
+  };
+
+  users.push(newUser);
+  saveUsersRoles(users);
+
+  // Sincronizar authorized_operators.json
+  try {
+    const ops = getAuthorizedOperators();
+    ops.push({
+      slot: users.length,
+      configured: true,
+      displayName: cleanName,
+      email: cleanEmail,
+      upn: cleanEmail,
+      source: 'users_roles.json (Cifrado PBKDF2/SHA-512)',
+      role: assignedRole,
+      modules: assignedModules,
+      status: 'active'
+    });
+    saveAuthorizedOperators(ops);
+  } catch (e) {}
+
+  logAudit({
+    user: req.user.email,
+    userUid: req.user.uid,
+    action: 'CREACIÓN DE NUEVO USUARIO',
+    module: 'users',
+    target: cleanEmail,
+    details: `Nuevo usuario creado con rol '${assignedRole}' y ${assignedModules.length} módulos asignados.`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.status(201).json({
+    success: true,
+    message: `Usuario ${cleanEmail} creado y encriptado exitosamente`,
+    user: {
+      id: newUser.id,
+      email: newUser.email,
+      displayName: newUser.displayName,
+      role: newUser.role,
+      modules: newUser.modules,
+      status: newUser.status,
+      operatorIndex: newUser.operatorIndex
+    }
+  });
+});
+
+// Eliminar un usuario creado (protege cuentas base y usuario en sesión)
+app.delete('/api/admin/users/:email', requireAuth, requireOperator, (req, res) => {
+  const targetEmail = (req.params.email || '').trim().toLowerCase();
+
+  if (SEED_OPERATOR_EMAILS.includes(targetEmail)) {
+    return res.status(403).json({ error: 'No está permitido eliminar las cuentas maestras institucionales de la CNC.' });
+  }
+
+  if (req.user && req.user.email && req.user.email.toLowerCase() === targetEmail) {
+    return res.status(400).json({ error: 'No puedes eliminar tu propio usuario mientras mantienes la sesión activa.' });
+  }
+
+  const users = getUsersRoles();
+  const idx = users.findIndex(u => (u.email || '').toLowerCase() === targetEmail);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Usuario no encontrado.' });
+  }
+
+  const removedUser = users.splice(idx, 1)[0];
+  saveUsersRoles(users);
+
+  try {
+    const ops = getAuthorizedOperators().filter(o => (o.email || '').toLowerCase() !== targetEmail);
+    saveAuthorizedOperators(ops);
+  } catch (e) {}
+
+  logAudit({
+    user: req.user.email,
+    userUid: req.user.uid,
+    action: 'ELIMINACIÓN DE USUARIO',
+    module: 'users',
+    target: targetEmail,
+    details: `Usuario institucional ${targetEmail} eliminado del sistema.`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json({
+    success: true,
+    message: `Usuario ${targetEmail} eliminado exitosamente`
   });
 });
 
@@ -903,7 +1031,7 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (re
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { modules } = req.body || {};
 
-  if (!ALLOWED_OPERATOR_EMAILS.includes(targetEmail)) {
+  if (!getAllowedOperatorEmails().includes(targetEmail)) {
     return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
   }
 
@@ -953,7 +1081,7 @@ app.put('/api/admin/users/:email/password', requireAuth, requireOperator, (req, 
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { newPassword } = req.body || {};
 
-  if (!ALLOWED_OPERATOR_EMAILS.includes(targetEmail)) {
+  if (!getAllowedOperatorEmails().includes(targetEmail)) {
     return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
   }
 
@@ -995,7 +1123,7 @@ app.put('/api/admin/users/:email/role', requireAuth, requireOperator, (req, res)
   const targetEmail = (req.params.email || '').trim().toLowerCase();
   const { role } = req.body || {};
 
-  if (!ALLOWED_OPERATOR_EMAILS.includes(targetEmail)) {
+  if (!getAllowedOperatorEmails().includes(targetEmail)) {
     return res.status(404).json({ error: 'Usuario no encontrado entre los operadores autorizados.' });
   }
 

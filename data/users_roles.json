@@ -1,0 +1,50 @@
+[
+  {
+    "id": "usr_cnc_01",
+    "email": "deteccionydenuncia@cnc.gob.gt",
+    "displayName": "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
+    "role": "admin",
+    "passwordHash": "f929ebd07fd2c63da7eb3004213bd3d2:9d5f0b3dc9c5e3160bcd726cfd0104c4b310ba6369d64914435c4de8c1ad5d6fb3723aa263cdcaf84f57ef6160b3634442819a3e43f657c0eeb088fbd317ef59",
+    "modules": [
+      "canales",
+      "directorio",
+      "tableros",
+      "riesgo",
+      "portal",
+      "visits",
+      "chatbot",
+      "users",
+      "audit",
+      "database",
+      "guide"
+    ],
+    "status": "active",
+    "operatorIndex": 1,
+    "lastPasswordChange": "2026-03-30T10:00:00.000Z",
+    "updatedAt": "2026-03-30T10:00:00.000Z"
+  },
+  {
+    "id": "usr_cnc_02",
+    "email": "apoyogi@cnc.gob.gt",
+    "displayName": "Apoyo a la Gestión de Irregularidades (CNC)",
+    "role": "admin",
+    "passwordHash": "29af97fbdcade6df44a7d6fb84022548:b3e638225077f1c21b848b5bc32b9cf95d4b7f083dd3eb246d389a042475d86dd8002e0bb7fa0e47234b7a8164304e5a784af86ba8575357e361c93a5a33137e",
+    "modules": [
+      "canales",
+      "directorio",
+      "tableros",
+      "riesgo",
+      "portal",
+      "visits",
+      "chatbot",
+      "users",
+      "audit",
+      "database",
+      "guide"
+    ],
+    "status": "active",
+    "operatorIndex": 2,
+    "lastPasswordChange": "2026-03-30T10:00:00.000Z",
+    "updatedAt": "2026-03-30T10:00:00.000Z"
+  }
+]

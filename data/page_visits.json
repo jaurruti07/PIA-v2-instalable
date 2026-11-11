@@ -1,0 +1,106 @@
+{
+  "totalVisits": 9,
+  "createdAt": "2026-11-11T13:22:54.419Z",
+  "lastUpdated": "2026-11-11T14:14:22.429Z",
+  "pages": {
+    "/": {
+      "name": "Portal Principal / Inicio",
+      "visits": 4,
+      "lastVisit": "2026-11-11T14:13:26.148Z"
+    },
+    "/directorio": {
+      "name": "Directorio Acceso al Ejecutivo",
+      "visits": 4,
+      "lastVisit": "2026-11-11T14:14:22.429Z"
+    },
+    "/canales-por-la-integridad": {
+      "name": "Canales por la Integridad",
+      "visits": 1,
+      "lastVisit": "2026-11-11T13:24:52.677Z"
+    },
+    "/gobierno_en_numeros": {
+      "name": "Tu Gobierno en Números",
+      "visits": 0,
+      "lastVisit": null
+    },
+    "/riesgo": {
+      "name": "Riesgo en la Mira",
+      "visits": 0,
+      "lastVisit": null
+    }
+  },
+  "recentVisits": [
+    {
+      "id": "fa6e751d",
+      "path": "/directorio",
+      "pageName": "Directorio Acceso al Ejecutivo",
+      "timestamp": "2026-11-11T14:14:22.430Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "26fd4d05",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-11T14:13:26.148Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    },
+    {
+      "id": "fd12bb75",
+      "path": "/directorio",
+      "pageName": "Directorio Acceso al Ejecutivo",
+      "timestamp": "2026-11-11T13:37:54.848Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "1ad46b32",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-11T13:35:33.477Z",
+      "maskedIp": "190.56.***.***",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15"
+    },
+    {
+      "id": "973c3288",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-11T13:32:52.085Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    },
+    {
+      "id": "ae969e80",
+      "path": "/directorio",
+      "pageName": "Directorio Acceso al Ejecutivo",
+      "timestamp": "2026-11-11T13:29:20.199Z",
+      "maskedIp": "190.56.***.***",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15"
+    },
+    {
+      "id": "2471eb6a",
+      "path": "/directorio",
+      "pageName": "Directorio Acceso al Ejecutivo",
+      "timestamp": "2026-11-11T13:25:40.885Z",
+      "maskedIp": "190.56.***.***",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15"
+    },
+    {
+      "id": "2307f112",
+      "path": "/canales-por-la-integridad",
+      "pageName": "Canales por la Integridad",
+      "timestamp": "2026-11-11T13:24:52.677Z",
+      "maskedIp": "190.56.***.***",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15"
+    },
+    {
+      "id": "229459d3",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-11T13:22:54.420Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    }
+  ]
+}

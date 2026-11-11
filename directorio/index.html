@@ -2504,7 +2504,11 @@ let currentFilters = {
     oficio: false
 };
 let currentTheme = localStorage.getItem('dir_theme') || 'light';
-let currentView = localStorage.getItem('dir_view') || 'cards';
+// La vista tarjeta es la predeterminada oficial
+let currentView = 'cards';
+try {
+    localStorage.removeItem('dir_view');
+} catch (e) {}
 let currentCardsPage = 1;
 let currentListPage = 1;
 const ITEMS_PER_PAGE = 15;
@@ -2652,20 +2656,14 @@ function sumTelefono(list) { return list.filter(i => i.telefono && i.telefono.tr
 /* ============================================================
    RENDER TARJETAS
 ============================================================ */
-function renderCards(list, append = false) {
-    if (!append) {
-        $cards.innerHTML = '';
-        currentCardsPage = 1;
-    }
-    const start = (currentCardsPage - 1) * ITEMS_PER_PAGE;
-    const pageList = list.slice(start, start + ITEMS_PER_PAGE);
-
+function renderCards(list) {
     $cards.innerHTML = '';
+    currentCardsPage = 1;
 
     if (!list.length) {
         $cards.innerHTML = `<div class="swiper-slide"><div style="background:#fff;border-radius:var(--radius-xl);padding:3rem;text-align:center;color:var(--text-muted);width:100%;">No se encontraron instituciones.</div></div>`;
     } else {
-        pageList.forEach(inst => {
+        list.forEach(inst => {
             const phone = cleanPhone(inst.telefono);
             const addr  = encodeURIComponent(inst.direccion || '');
             const safe  = inst.nombre_institucion.replace(/'/g,"\\'");
@@ -3282,8 +3280,7 @@ window._exportFichaPdf = async function(nombreParam) {
 };
 
 function switchView(view) {
-    currentView = view;
-    localStorage.setItem('dir_view', currentView);
+    currentView = view || 'cards';
 
     const $cardsWrapper = document.getElementById('cardsViewWrapper');
     const $listWrapper  = document.getElementById('listViewWrapper');
@@ -3297,12 +3294,16 @@ function switchView(view) {
         if ($btnList)  $btnList.classList.add('active');
         if (swiperDir && swiperDir.autoplay && swiperDir.autoplay.running) swiperDir.autoplay.stop();
     } else {
+        currentView = 'cards';
         if ($cardsWrapper) $cardsWrapper.style.display = 'block';
         if ($listWrapper)  $listWrapper.style.display  = 'none';
         if ($btnCards) $btnCards.classList.add('active');
         if ($btnList)  $btnList.classList.remove('active');
-        if (swiperDir && swiperDir.autoplay && !swiperDir.autoplay.running && !$cards.querySelector('.flip-card.flipped')) {
-            swiperDir.autoplay.start();
+        if (swiperDir) {
+            try { swiperDir.update(); } catch(e) {}
+            if (swiperDir.autoplay && !swiperDir.autoplay.running && !$cards.querySelector('.flip-card.flipped')) {
+                swiperDir.autoplay.start();
+            }
         }
     }
 }
@@ -3663,7 +3664,9 @@ async function cargarDatosYIniciar() {
         instituciones.sort((a,b) => a.nombre_institucion.localeCompare(b.nombre_institucion));
         populateFilters();
         applyTheme();
+        currentView = 'cards';
         readFilters();
+        switchView('cards');
         showToast('Directorio cargado correctamente ✅');
     } catch (error) {
         console.error('Error al cargar los datos:', error);

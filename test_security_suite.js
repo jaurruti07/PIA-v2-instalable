@@ -204,6 +204,60 @@ async function runTests() {
     recordTest('9. Protección de secretos', false, err.message);
   }
 
+  // Test 10: Gestión dinámica de usuarios, encriptación PBKDF2 y protección de cuentas base
+  try {
+    const resLoginAdmin = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const adminData = await resLoginAdmin.json();
+    const adminToken = adminData.token;
+
+    // 10.1 Crear nuevo usuario dinámico
+    const testEmail = 'auditoria_ci@cnc.gob.gt';
+    const resCreateUser = await fetch(`${BASE_URL}/api/admin/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        email: testEmail,
+        displayName: 'Auditoría Control Interno CNC',
+        role: 'data_operator',
+        permissions: ['directorio', 'canales'],
+        password: 'ControlInterno2026!'
+      })
+    });
+    recordTest('10.1 Creación de nuevo usuario con permisos y encriptación (201 Created)', resCreateUser.status === 201);
+
+    // 10.2 Autenticación con el nuevo usuario
+    const resLoginNewUser = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testEmail, password: 'ControlInterno2026!' })
+    });
+    const newUserData = await resLoginNewUser.json();
+    recordTest('10.2 Autenticación del nuevo usuario con contraseña encriptada (200 OK)', resLoginNewUser.status === 200 && newUserData.user && newUserData.user.email === testEmail);
+
+    // 10.3 Protección de cuentas base seed contra eliminación
+    const resDeleteSeed = await fetch(`${BASE_URL}/api/admin/users/apoyogi@cnc.gob.gt`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    recordTest('10.3 Bloqueo de eliminación de cuentas base institucionales protegidas (403 Forbidden)', resDeleteSeed.status === 403);
+
+    // 10.4 Eliminación del usuario creado
+    const resDeleteNew = await fetch(`${BASE_URL}/api/admin/users/${testEmail}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    recordTest('10.4 Eliminación autorizada de usuario creado (200 OK)', resDeleteNew.status === 200);
+  } catch (err) {
+    recordTest('10. Gestión dinámica de usuarios y permisos', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(` RESUMEN DE PRUEBAS: ${results.passed} SUPERADAS / ${results.failed} FALLIDAS`);
   console.log('=============================================================\n');

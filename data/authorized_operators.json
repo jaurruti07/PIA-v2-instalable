@@ -1,0 +1,22 @@
+[
+  {
+    "operatorIndex": 1,
+    "uid": "",
+    "email": "deteccionydenuncia@cnc.gob.gt",
+    "upn": "deteccionydenuncia@cnc.gob.gt",
+    "displayName": "deteccionydenuncia@cnc.gob.gt",
+    "role": "data_operator",
+    "status": "pending_first_login",
+    "notes": "Operador 1 de la CNC autorizado para administración del Portal PIA mediante Firebase Auth."
+  },
+  {
+    "operatorIndex": 2,
+    "uid": "",
+    "email": "apoyogi@cnc.gob.gt",
+    "upn": "apoyogi@cnc.gob.gt",
+    "displayName": "apoyogi@cnc.gob.gt",
+    "role": "data_operator",
+    "status": "pending_first_login",
+    "notes": "Operador 2 de la CNC autorizado para administración del Portal PIA mediante Firebase Auth."
+  }
+]
