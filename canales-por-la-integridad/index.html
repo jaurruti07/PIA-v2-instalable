@@ -3415,7 +3415,7 @@
                         <span><i class="fas fa-layer-group"></i> Tipo institución</span>
                         <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
                             <i class="fas fa-question"></i>
-                            <span class="tooltip-text">Filtra las instituciones según su clasificación gubernamental: Ministerios, Secretarías, Gobernaciones u Otras dependencias del Organismo Ejecutivo.</span>
+                            <span class="tooltip-text">Filtra las instituciones según su clasificación gubernamental: Ministerios, Secretarías, Gobernaciones Departamentales u Otras dependencias.</span>
                         </span>
                     </span>
                     <select id="tipoFilter" aria-label="Filtrar por tipo de institución">
@@ -3885,7 +3885,13 @@ function populateInstFilter(selectedTipo = '') {
     const prevVal = $instFilter ? $instFilter.value : '';
     let list = instituciones;
     if (selectedTipo) {
-        list = list.filter(i => i.tipo === selectedTipo);
+        const filterNorm = selectedTipo.trim().toLowerCase();
+        list = list.filter(i => {
+            const instTipoNorm = (i.tipo || '').trim().toLowerCase();
+            return instTipoNorm === filterNorm ||
+                (filterNorm.includes('gobernacion') && instTipoNorm.includes('gobernacion')) ||
+                (filterNorm.includes('descentralizada') && instTipoNorm.includes('descentralizada'));
+        });
     }
     const unique = [...new Set(list.map(i => i.institucion))].sort();
     $instFilter.innerHTML = '<option value="">Todas las instituciones</option>';
@@ -3902,14 +3908,23 @@ function populateInstFilter(selectedTipo = '') {
 }
 
 function populateTipoFilter() {
+    // Catálogo unificado y sincronizado con el Módulo Administrativo y estructura institucional
     const catalogOrder = [
         'Ministerios',
         'Secretarías',
+        'Gobernaciones Departamentales',
         'Otras dependencias',
-        'Dependencias temporales',
-        'Gobernaciones Departamentales'
+        'Dependencias temporales'
     ];
-    const uniqueFromData = [...new Set(instituciones.map(i => i.tipo).filter(Boolean))];
+    // Excluir tipos retirados del catálogo oficial
+    const excludedTypes = ['presidencia', 'entidades descentralizadas', 'entidades descentralizada'];
+    // Normalizar tipos extraídos del dataset actual
+    const uniqueFromData = [...new Set(instituciones.map(i => {
+        const raw = (i.tipo || '').trim();
+        if (raw === 'Gobernaciones') return 'Gobernaciones Departamentales';
+        if (excludedTypes.includes(raw.toLowerCase())) return 'Otras dependencias';
+        return raw;
+    }).filter(t => t && !excludedTypes.includes(t.toLowerCase())))];
     const allOptions = [...new Set([...catalogOrder, ...uniqueFromData])];
     allOptions.sort((a, b) => {
         let ia = catalogOrder.findIndex(c => c.toLowerCase() === a.toLowerCase());
@@ -3932,7 +3947,14 @@ function populateTipoFilter() {
 ============================================================ */
 function filtrar() {
     return instituciones.filter(i => {
-        if (currentFilters.tipo && i.tipo !== currentFilters.tipo) return false;
+        if (currentFilters.tipo) {
+            const filterNorm = currentFilters.tipo.trim().toLowerCase();
+            const instTipoNorm = (i.tipo || '').trim().toLowerCase();
+            const isMatch = instTipoNorm === filterNorm ||
+                (filterNorm.includes('gobernacion') && instTipoNorm.includes('gobernacion')) ||
+                (filterNorm.includes('descentralizada') && instTipoNorm.includes('descentralizada'));
+            if (!isMatch) return false;
+        }
         if (currentFilters.institucion && i.institucion !== currentFilters.institucion) return false;
         if (currentFilters.favOnly && !favorites.has(i.institucion)) return false;
         if (currentFilters.search) {

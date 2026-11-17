@@ -265,12 +265,22 @@ def create_backup(file_path: Path, user: str = 'sistema') -> str:
         sys.stderr.write(f"Error generando respaldo: {e}\n")
         return None
 
+def clean_etag(etag: str) -> str:
+    if not etag:
+        return None
+    val = str(etag).strip()
+    if val.startswith('W/') or val.startswith('w/'):
+        val = val[2:]
+    return val.strip('"').strip("'").strip()
+
 def atomic_write_json(file_path: Path, data: any, expected_hash: str = None) -> bool:
     """Escritura atómica con validación de concurrencia y copia previa."""
     if expected_hash and file_path.exists():
-        current_hash = compute_file_hash(file_path)
-        if current_hash and current_hash != expected_hash:
-            raise ValueError('Conflicto de concurrencia optimista (ETag desactualizado).')
+        clean_exp = clean_etag(expected_hash)
+        if clean_exp and clean_exp != '*' and len(clean_exp) == 64 and all(c in '0123456789abcdefABCDEF' for c in clean_exp):
+            current_hash = compute_file_hash(file_path)
+            if current_hash and current_hash.lower() != clean_exp.lower():
+                raise ValueError('Conflicto de concurrencia optimista (ETag desactualizado).')
 
     create_backup(file_path)
     temp_file = file_path.parent / f".tmp_{int(time.time()*1000)}_{binascii.hexlify(os.urandom(4)).decode('utf-8')}"

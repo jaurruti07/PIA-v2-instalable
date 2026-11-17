@@ -180,12 +180,12 @@ $envExample = Join-Path $currentDir ".env.example"
 if (-not (Test-Path $envFile)) {
     if (Test-Path $envExample) {
         Copy-Item -Path $envExample -Destination $envFile
-        Write-WarnMsg "Se generó .env a partir de .env.example. Por favor complete los identificadores institucionales provistos por TI:"
-        Write-Host "  - ENTRA_TENANT_ID (Tenant ID de Microsoft Azure / Entra ID)"
-        Write-Host "  - ENTRA_CLIENT_ID (Client ID de la SPA registrada)"
-        Write-Host "  - PIA_OPERATOR_1_OID (Object ID de apoyogi@cnc.gob.gt)"
-        Write-Host "  - PIA_OPERATOR_2_OID (Object ID de deteccionydenuncia@cnc.gob.gt)"
-        Write-Host "  - GEMINI_API_KEY (Opcional: Si falta, Lupita funciona con motor heurístico local)"
+        Write-WarnMsg "Se generó .env a partir de .env.example. Complete los parámetros institucionales requeridos:"
+        Write-Host "  - PIA_SESSION_SECRET (Llave aleatoria de 64+ caracteres)"
+        Write-Host "  - PIA_DATA_DIR (Por defecto: C:\PIA_Data)"
+        Write-Host "  - PIA_STORAGE_MODE (json | sql | hybrid - por defecto: json)"
+        Write-Host "  - MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE (Opcional para MySQL/MariaDB)"
+        Write-Host "  - GEMINI_API_KEY (Opcional: si falta, Lupita opera con motor heurístico local)"
     }
 } else {
     Write-Success "Archivo .env existente detectado. Conservando configuración actual."

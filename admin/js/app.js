@@ -4,7 +4,7 @@ import { initUserManager } from './user-manager.js';
 import { initChatbotManager } from './chatbot-manager.js';
 import { initTechnicalGuide } from './technical-guide.js';
 import { validateModuleRecord } from './schema-validator.js';
-import { loginWithFirebase, sendFirebasePasswordReset, verifyToken, logout as authLogout } from './auth.js';
+import { loginWithFirebase, sendFirebasePasswordReset, verifyToken, logout as authLogout, validateInstitutionalEmail } from './auth.js';
 
 // Session Inactivity Timer Configuration (30 minutos)
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
@@ -51,6 +51,93 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Helper reutilizable de validación en tiempo real para correos institucionales (@cnc.gob.gt)
+    function updateInstitutionalEmailFieldState(inputEl, feedbackEl, { forceShowError = false } = {}) {
+        if (!inputEl) return { valid: false, cleanEmail: '', error: 'Campo no disponible.' };
+        const rawValue = (inputEl.value || '').trim();
+        const result = validateInstitutionalEmail(rawValue);
+
+        if (typeof inputEl.setCustomValidity === 'function') {
+            inputEl.setCustomValidity(result.valid ? '' : result.error);
+        }
+
+        if (!rawValue && !forceShowError) {
+            inputEl.classList.remove('input-invalid', 'input-valid');
+            if (feedbackEl) {
+                feedbackEl.className = 'field-feedback';
+                feedbackEl.textContent = '';
+            }
+            return result;
+        }
+
+        if (result.valid) {
+            inputEl.classList.remove('input-invalid');
+            inputEl.classList.add('input-valid');
+            if (feedbackEl) {
+                feedbackEl.className = 'field-feedback valid';
+                feedbackEl.innerHTML = '<i class="fas fa-check-circle"></i><span>Formato institucional @cnc.gob.gt válido.</span>';
+            }
+            return result;
+        }
+
+        const shouldDisplayError = forceShowError || rawValue.includes('@') || inputEl.classList.contains('input-invalid');
+        if (shouldDisplayError) {
+            inputEl.classList.remove('input-valid');
+            inputEl.classList.add('input-invalid');
+            if (feedbackEl) {
+                feedbackEl.className = 'field-feedback error';
+                feedbackEl.innerHTML = '<i class="fas fa-exclamation-circle"></i><span></span>';
+                const span = feedbackEl.querySelector('span');
+                if (span) span.textContent = result.error;
+            }
+        } else {
+            inputEl.classList.remove('input-invalid', 'input-valid');
+            if (feedbackEl) {
+                feedbackEl.className = 'field-feedback';
+                feedbackEl.textContent = '';
+            }
+        }
+        return result;
+    }
+
+    function setAlertMessage(container, iconClass, message) {
+        if (!container) return;
+        container.innerHTML = `<i class="${iconClass}" style="margin-right:6px;"></i><span></span>`;
+        const span = container.querySelector('span');
+        if (span) span.textContent = message;
+        container.style.display = 'block';
+    }
+
+    const loginEmailInput = document.getElementById('loginEmail');
+    const loginEmailFeedback = document.getElementById('loginEmailFeedback');
+    const resetEmailInput = document.getElementById('resetEmail');
+    const resetEmailFeedback = document.getElementById('resetEmailFeedback');
+    const errorDiv = document.getElementById('loginError');
+
+    if (loginEmailInput) {
+        loginEmailInput.addEventListener('input', () => {
+            const state = updateInstitutionalEmailFieldState(loginEmailInput, loginEmailFeedback);
+            if (state.valid && errorDiv && errorDiv.style.display !== 'none') {
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+            }
+        });
+        loginEmailInput.addEventListener('blur', () => {
+            const hasVal = (loginEmailInput.value || '').trim().length > 0;
+            updateInstitutionalEmailFieldState(loginEmailInput, loginEmailFeedback, { forceShowError: hasVal });
+        });
+    }
+
+    if (resetEmailInput) {
+        resetEmailInput.addEventListener('input', () => {
+            updateInstitutionalEmailFieldState(resetEmailInput, resetEmailFeedback);
+        });
+        resetEmailInput.addEventListener('blur', () => {
+            const hasVal = (resetEmailInput.value || '').trim().length > 0;
+            updateInstitutionalEmailFieldState(resetEmailInput, resetEmailFeedback, { forceShowError: hasVal });
+        });
+    }
+
     // Toggle para panel de recuperación de contraseña
     const btnToggleForgotView = document.getElementById('btnToggleForgotView');
     const forgotPasswordPanel = document.getElementById('forgotPasswordPanel');
@@ -60,9 +147,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isHidden = forgotPasswordPanel.style.display === 'none' || !forgotPasswordPanel.style.display;
             forgotPasswordPanel.style.display = isHidden ? 'block' : 'none';
             if (isHidden) {
-                const emailVal = document.getElementById('loginEmail')?.value;
-                if (emailVal && document.getElementById('resetEmail')) {
-                    document.getElementById('resetEmail').value = emailVal;
+                const emailVal = loginEmailInput?.value;
+                if (emailVal && resetEmailInput) {
+                    resetEmailInput.value = emailVal;
+                    updateInstitutionalEmailFieldState(resetEmailInput, resetEmailFeedback, { forceShowError: emailVal.trim().length > 0 });
                 }
             }
         });
@@ -78,20 +166,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resetFeedback = document.getElementById('resetFeedback');
     if (btnSendPasswordReset) {
         btnSendPasswordReset.addEventListener('click', async () => {
-            const resetEmail = (document.getElementById('resetEmail')?.value || '').trim();
-            if (!resetEmail) {
+            const resetValidation = updateInstitutionalEmailFieldState(resetEmailInput, resetEmailFeedback, { forceShowError: true });
+            if (!resetValidation.valid) {
                 if (resetFeedback) {
                     resetFeedback.style.display = 'block';
                     resetFeedback.style.background = 'rgba(239, 68, 68, 0.2)';
                     resetFeedback.style.color = '#fca5a5';
-                    resetFeedback.textContent = 'Ingrese el correo institucional registrado.';
+                    resetFeedback.textContent = resetValidation.error;
                 }
+                if (resetEmailInput) resetEmailInput.focus();
                 return;
             }
+
             btnSendPasswordReset.disabled = true;
             btnSendPasswordReset.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando enlace...';
             try {
-                const res = await sendFirebasePasswordReset(resetEmail);
+                const res = await sendFirebasePasswordReset(resetValidation.cleanEmail);
                 if (resetFeedback) {
                     resetFeedback.style.display = 'block';
                     resetFeedback.style.background = 'rgba(34, 197, 94, 0.2)';
@@ -112,31 +202,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Inicio de Sesión Oficial con Firebase Auth
+    // Inicio de Sesión Oficial con Validación Institucional (@cnc.gob.gt)
     const loginForm = document.getElementById('firebaseLoginForm');
     const btnLoginSubmit = document.getElementById('btnLoginSubmit');
-    const errorDiv = document.getElementById('loginError');
+    let isLoginSubmitting = false;
 
     async function handleLoginSubmit(e) {
         if (e && e.preventDefault) e.preventDefault();
+        if (isLoginSubmitting) return;
+
         if (errorDiv) {
             errorDiv.style.display = 'none';
             errorDiv.textContent = '';
         }
 
-        const emailInput = document.getElementById('loginEmail');
-        const passInput = document.getElementById('loginPassword');
-        const email = (emailInput?.value || '').trim();
-        const password = (passInput?.value || '').trim();
-
-        if (!email || !password) {
-            if (errorDiv) {
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i> Ingrese su correo institucional y su contraseña.';
-                errorDiv.style.display = 'block';
-            }
+        const emailCheck = updateInstitutionalEmailFieldState(loginEmailInput, loginEmailFeedback, { forceShowError: true });
+        if (!emailCheck.valid) {
+            setAlertMessage(errorDiv, 'fas fa-exclamation-triangle', emailCheck.error);
+            if (loginEmailInput) loginEmailInput.focus();
             return;
         }
 
+        const passInput = document.getElementById('loginPassword');
+        const password = (passInput?.value || '').trim();
+
+        if (!password) {
+            setAlertMessage(errorDiv, 'fas fa-exclamation-triangle', 'Debe ingresar su contraseña de acceso.');
+            if (passInput) passInput.focus();
+            return;
+        }
+
+        isLoginSubmitting = true;
         const originalBtnHtml = btnLoginSubmit ? btnLoginSubmit.innerHTML : '';
         if (btnLoginSubmit) {
             btnLoginSubmit.disabled = true;
@@ -144,18 +240,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            const { user } = await loginWithFirebase(email, password);
+            const { user } = await loginWithFirebase(emailCheck.cleanEmail, password);
             showToast(`¡Bienvenido! Sesión iniciada como ${user.displayName || user.upn}`, 'success');
             showDashboard(user);
             resetInactivityTimer();
         } catch (err) {
             console.error('Login error:', err);
-            if (errorDiv) {
-                errorDiv.innerHTML = `<i class="fas fa-shield-alt" style="margin-right:6px;"></i> ${err.message || 'Error de autenticación'}`;
-                errorDiv.style.display = 'block';
-            }
+            setAlertMessage(errorDiv, 'fas fa-shield-alt', err.message || 'Error de autenticación');
             showToast(err.message || 'Acceso institucional denegado', 'error');
         } finally {
+            isLoginSubmitting = false;
             if (btnLoginSubmit) {
                 btnLoginSubmit.disabled = false;
                 btnLoginSubmit.innerHTML = originalBtnHtml;
@@ -165,9 +259,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (loginForm) {
         loginForm.addEventListener('submit', handleLoginSubmit);
-    }
-    if (btnLoginSubmit) {
-        btnLoginSubmit.addEventListener('click', handleLoginSubmit);
     }
 
     // Verificar token guardado
@@ -1641,8 +1732,11 @@ function filterTable(query) {
 // Global Edit/Delete Functions
 let editingRecordId = null;
 
-window.editRecord = function(id) {
+window.editRecord = async function(id) {
     editingRecordId = id;
+    if (window.PiaDataEngine && typeof window.PiaDataEngine.refreshModuleEtag === 'function') {
+        try { await window.PiaDataEngine.refreshModuleEtag(currentModule); } catch (_) {}
+    }
     const record = currentModuleData.find(r => String(r.id) === String(id));
     if (!record) return;
     openCrudModal(record);
@@ -1969,8 +2063,8 @@ function openCrudModal(record = null) {
             { name: "Ministerio de Trabajo y Previsión Social - MINTRAB", tipo: "Ministerios", correo: "probidad@mintrabajo.gob.gt", tel: "1511", dir: "7ª Avenida 3-33, Zona 9, Edificio Torre Empresarial, Ciudad de Guatemala", web: "https://mintrabajo.gob.gt" },
             { name: "Secretaría General de la Presidencia - SGP", tipo: "Secretarías", correo: "probidad@sgp.gob.gt", tel: "2269-8000", dir: "6ª Avenida y 6ª Calle, Zona 1, Palacio Nacional, Ciudad de Guatemala", web: "https://sgp.gob.gt" },
             { name: "Secretaría de Planificación y Programación de la Presidencia - SEGEPLAN", tipo: "Secretarías", correo: "probidad@segeplan.gob.gt", tel: "2504-4444", dir: "9a Calle 10-44, Zona 1, Ciudad de Guatemala", web: "https://segeplan.gob.gt" },
-            { name: "Comisión Nacional contra la Corrupción - CNC", tipo: "Presidencia", correo: "denuncias@cnc.gob.gt", tel: "2269-8000", dir: "Casa Presidencial, Zona 1, Ciudad de Guatemala", web: "https://cnc.gob.gt" },
-            { name: "Superintendencia de Administración Tributaria - SAT", tipo: "Entidades descentralizadas", correo: "denuncias@sat.gob.gt", tel: "1570", dir: "7a Avenida 3-73, Zona 9, Edificio Torre SAT, Ciudad de Guatemala", web: "https://sat.gob.gt" }
+            { name: "Comisión Nacional contra la Corrupción - CNC", tipo: "Otras dependencias", correo: "denuncias@cnc.gob.gt", tel: "2269-8000", dir: "Casa Presidencial, Zona 1, Ciudad de Guatemala", web: "https://cnc.gob.gt" },
+            { name: "Superintendencia de Administración Tributaria - SAT", tipo: "Otras dependencias", correo: "denuncias@sat.gob.gt", tel: "1570", dir: "7a Avenida 3-73, Zona 9, Edificio Torre SAT, Ciudad de Guatemala", web: "https://sat.gob.gt" }
         ];
 
         let catalogOptionsHtml = defaultInstList.map((inst, idx) => `
@@ -2029,10 +2123,10 @@ function openCrudModal(record = null) {
                     <select id="canales_tipo" name="tipo" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
                         <option value="Ministerios" ${record?.tipo === 'Ministerios' ? 'selected' : ''}>Ministerios</option>
                         <option value="Secretarías" ${record?.tipo === 'Secretarías' ? 'selected' : ''}>Secretarías</option>
-                        <option value="Gobernaciones" ${record?.tipo === 'Gobernaciones' ? 'selected' : ''}>Gobernaciones</option>
-                        <option value="Presidencia" ${record?.tipo === 'Presidencia' ? 'selected' : ''}>Presidencia</option>
-                        <option value="Entidades descentralizadas" ${record?.tipo === 'Entidades descentralizadas' ? 'selected' : ''}>Entidades Descentralizadas</option>
-                        <option value="Otras dependencias" ${record?.tipo === 'Otras dependencias' ? 'selected' : ''}>Otras dependencias</option>
+                        <option value="Gobernaciones Departamentales" ${(record?.tipo === 'Gobernaciones Departamentales' || record?.tipo === 'Gobernaciones') ? 'selected' : ''}>Gobernaciones Departamentales</option>
+                        <option value="Otras dependencias" ${(record?.tipo === 'Otras dependencias' || record?.tipo === 'Presidencia' || record?.tipo === 'Entidades Descentralizadas' || record?.tipo === 'Entidades descentralizadas') ? 'selected' : ''}>Otras dependencias</option>
+                        <option value="Dependencias temporales" ${record?.tipo === 'Dependencias temporales' ? 'selected' : ''}>Dependencias temporales</option>
+                        ${(record?.tipo && !['Ministerios','Secretarías','Gobernaciones Departamentales','Gobernaciones','Otras dependencias','Dependencias temporales','Presidencia','Entidades Descentralizadas','Entidades descentralizadas'].includes(record.tipo)) ? `<option value="${escapeHtml(record.tipo)}" selected>${escapeHtml(record.tipo)}</option>` : ''}
                     </select>
                 </div>
                 <div>

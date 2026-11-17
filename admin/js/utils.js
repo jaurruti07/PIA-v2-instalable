@@ -229,6 +229,16 @@ window.PiaDataEngine = {
         return parsedRecords;
     },
 
+    async refreshModuleEtag(module) {
+        try {
+            const res = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders(), cache: 'no-store' });
+            if (res.ok) {
+                const etag = res.headers.get('ETag');
+                if (etag) this.moduleETags[module] = etag;
+            }
+        } catch (_) {}
+    },
+
     async saveRecord(module, recordData, id = null) {
         const isServer = await this.checkServerHealth();
 
@@ -255,8 +265,32 @@ window.PiaDataEngine = {
                 localStorage.removeItem('pia_offline_records_' + module);
                 return saved;
             } else if (res.status === 409) {
-                const err = await res.json();
-                throw new Error(err.error || 'Conflicto de concurrencia: Los datos fueron modificados por otra persona operadora.');
+                // Auto-recuperación: resincronizar ETag fresco y reintentar inmediatamente
+                try {
+                    const freshRes = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders(), cache: 'no-store' });
+                    if (freshRes.ok) {
+                        const freshEtag = freshRes.headers.get('ETag');
+                        if (freshEtag) {
+                            this.moduleETags[module] = freshEtag;
+                            const retryHeaders = getHeaders();
+                            retryHeaders['If-Match'] = freshEtag;
+                            const retryRes = await fetch(url, {
+                                method,
+                                headers: retryHeaders,
+                                body: JSON.stringify(recordData)
+                            });
+                            if (retryRes.ok) {
+                                const newEtag = retryRes.headers.get('ETag');
+                                if (newEtag) this.moduleETags[module] = newEtag;
+                                const saved = await retryRes.json();
+                                localStorage.removeItem('pia_offline_records_' + module);
+                                return saved;
+                            }
+                        }
+                    }
+                } catch (_) {}
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || 'Conflicto de concurrencia: Los datos fueron modificados. Por favor intente guardar de nuevo.');
             }
         }
 

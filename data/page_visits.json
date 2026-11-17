@@ -1,35 +1,83 @@
 {
-  "totalVisits": 9,
+  "totalVisits": 15,
   "createdAt": "2026-11-11T13:22:54.419Z",
-  "lastUpdated": "2026-11-11T14:14:22.429Z",
+  "lastUpdated": "2026-11-17T18:56:56.426Z",
   "pages": {
     "/": {
       "name": "Portal Principal / Inicio",
-      "visits": 4,
-      "lastVisit": "2026-11-11T14:13:26.148Z"
+      "visits": 6,
+      "lastVisit": "2026-11-17T18:56:56.327Z"
     },
     "/directorio": {
       "name": "Directorio Acceso al Ejecutivo",
-      "visits": 4,
-      "lastVisit": "2026-11-11T14:14:22.429Z"
+      "visits": 5,
+      "lastVisit": "2026-11-17T18:56:56.371Z"
     },
     "/canales-por-la-integridad": {
       "name": "Canales por la Integridad",
-      "visits": 1,
-      "lastVisit": "2026-11-11T13:24:52.677Z"
+      "visits": 2,
+      "lastVisit": "2026-11-17T18:56:56.364Z"
     },
     "/gobierno_en_numeros": {
       "name": "Tu Gobierno en Números",
-      "visits": 0,
-      "lastVisit": null
+      "visits": 1,
+      "lastVisit": "2026-11-17T18:56:56.418Z"
     },
     "/riesgo": {
       "name": "Riesgo en la Mira",
-      "visits": 0,
-      "lastVisit": null
+      "visits": 1,
+      "lastVisit": "2026-11-17T18:56:56.426Z"
     }
   },
   "recentVisits": [
+    {
+      "id": "63271784",
+      "path": "/riesgo",
+      "pageName": "Riesgo en la Mira",
+      "timestamp": "2026-11-17T18:56:56.426Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "node"
+    },
+    {
+      "id": "86683027",
+      "path": "/gobierno_en_numeros",
+      "pageName": "Tu Gobierno en Números",
+      "timestamp": "2026-11-17T18:56:56.418Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "node"
+    },
+    {
+      "id": "b1e8e3ca",
+      "path": "/directorio",
+      "pageName": "Directorio Acceso al Ejecutivo",
+      "timestamp": "2026-11-17T18:56:56.371Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "node"
+    },
+    {
+      "id": "fea235f6",
+      "path": "/canales-por-la-integridad",
+      "pageName": "Canales por la Integridad",
+      "timestamp": "2026-11-17T18:56:56.364Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "node"
+    },
+    {
+      "id": "102d2fce",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-17T18:56:56.327Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "node"
+    },
+    {
+      "id": "3e083041",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-17T18:48:01.108Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    },
     {
       "id": "fa6e751d",
       "path": "/directorio",

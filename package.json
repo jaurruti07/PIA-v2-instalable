@@ -5,14 +5,16 @@
   "scripts": {
     "dev": "node server.js",
     "build": "echo 'Build complete'",
-    "lint": "node --check server.js && node --check test_security_suite.js",
+    "lint": "node --check server.js && node --check db/sqlClient.js && node --check db/schemaInit.js && node --check db/storageConfig.js && node --check db/sqlRepository.js && node --check db/hybridStorage.js && node --check db/migrationService.js && node --check admin/js/database-manager.js && node --check test_security_suite.js",
     "test": "node test_security_suite.js",
     "start": "node server.js"
   },
   "dependencies": {
     "@google/genai": "^2.14.0",
+    "dotenv": "^18.0.10",
     "express": "^4.19.2",
     "firebase": "^13.0.0",
-    "jose": "^6.2.12"
+    "jose": "^6.2.12",
+    "mysql2": "^3.24.6"
   }
 }

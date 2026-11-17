@@ -258,6 +258,135 @@ async function runTests() {
     recordTest('10. Gestión dinámica de usuarios y permisos', false, err.message);
   }
 
+  // Test 11: Arquitectura Híbrida JSON + SQL, Seguridad de Endpoints y Mappers
+  try {
+    // 11.1 Bloqueo sin autenticación en endpoints de almacenamiento
+    const resStorageNoAuth = await fetch(`${BASE_URL}/api/admin/storage/status`);
+    recordTest('11.1 Bloqueo de GET /api/admin/storage/status sin autenticación (401)', resStorageNoAuth.status === 401);
+
+    const resInitNoAuth = await fetch(`${BASE_URL}/api/admin/storage/sql/init`, { method: 'POST' });
+    recordTest('11.2 Bloqueo de POST /api/admin/storage/sql/init sin autenticación (401)', resInitNoAuth.status === 401);
+
+    const resLoginAdmin = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: adminToken } = await resLoginAdmin.json();
+
+    // 11.3 Consulta autorizada de estado de almacenamiento (sin exposición de credenciales SQL)
+    const resStatus = await fetch(`${BASE_URL}/api/admin/storage/status`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const statusData = await resStatus.json();
+    const rawStatusStr = JSON.stringify(statusData);
+    const hasNoSecrets = !rawStatusStr.includes('MYSQL_PASSWORD') && !statusData?.schema?.connection?.password;
+    const validStructure = resStatus.status === 200 &&
+      statusData?.config?.mode === 'json' &&
+      Array.isArray(statusData?.modules) && statusData.modules.length === 6 &&
+      Array.isArray(statusData?.schema?.tables) && statusData.schema.tables.length === 14 &&
+      hasNoSecrets;
+    recordTest('11.3 Consulta autorizada de /api/admin/storage/status sin credenciales expuestas (200 OK)', validStructure);
+
+    // 11.4 Control de permisos: operador sin permiso 'database' recibe 403 Forbidden
+    const limitedEmail = 'operador_limitado_sql@cnc.gob.gt';
+    await fetch(`${BASE_URL}/api/admin/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        email: limitedEmail,
+        displayName: 'Operador Limitado Test',
+        role: 'data_operator',
+        modules: ['canales'],
+        password: 'TestSqlPermiso2026!'
+      })
+    });
+    const resLoginLimited = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: limitedEmail, password: 'TestSqlPermiso2026!' })
+    });
+    const { token: limitedToken } = await resLoginLimited.json();
+
+    const resStorageForbidden = await fetch(`${BASE_URL}/api/admin/storage/status`, {
+      headers: { 'Authorization': `Bearer ${limitedToken}` }
+    });
+    recordTest('11.4 Bloqueo a operador sin permiso database en /api/admin/storage/status (403)', resStorageForbidden.status === 403);
+
+    await fetch(`${BASE_URL}/api/admin/users/${limitedEmail}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+
+    // 11.5 Rechazo controlado de modo SQL cuando no hay servidor MySQL activo + raw-json autorizado vs traversal
+    const resEnableSqlWithoutDb = await fetch(`${BASE_URL}/api/admin/storage/config`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({ mode: 'sql' })
+    });
+    recordTest('11.5 Rechazo controlado al activar modo SQL sin tablas/conexión activa (400)', resEnableSqlWithoutDb.status === 400);
+
+    const resRawOk = await fetch(`${BASE_URL}/api/raw-json?path=${encodeURIComponent('/data_portal.json')}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const resRawTraversal = await fetch(`${BASE_URL}/api/raw-json?path=${encodeURIComponent('../../package.json')}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    recordTest('11.6 Editor JSON autorizado funciona en lista blanca (200) y bloquea traversal (403)', resRawOk.status === 200 && resRawTraversal.status === 403);
+
+    // 11.7 Validación de DDL SQL y mappers fieles a los archivos JSON reales
+    const { parseSchemaStatements } = await import('./db/schemaInit.js');
+    const { mapCanalRowToJson, mapDirectorioRowToJson, mapRiesgoInstRowToJson, mapVehiculoRowToJson } = await import('./db/sqlRepository.js');
+    const sqlRaw = fs.readFileSync(path.join(process.cwd(), 'sql', '01_schema_mysql.sql'), 'utf8');
+    const stmts = parseSchemaStatements(sqlRaw);
+
+    const canalMapped = mapCanalRowToJson({
+      id: 1, institucion: 'MAGA', tipo: 'Ministerios', canales: 4,
+      correo: 'a@maga.gob.gt', telefono: '2354-4125', formulario: 'https://x',
+      tipocom: 'Escrita', otro: '', direccion: 'Z13', ubicacion: 'Z13', horario: '8-16',
+      protocolo_actuacion: 1
+    });
+    const dirMapped = mapDirectorioRowToJson(
+      { id: 1, nombre_institucion: 'VICE', siglas: 'VICE', solicitud_en_linea: 1, informacion_publica_oficio: 1, latitud: 14.6, longitud: -90.5 },
+      [{ tipo_enlace: 'solicitud', url: 'https://s1' }, { tipo_enlace: 'oficio', url: 'https://o1' }]
+    );
+    const riesgoMapped = mapRiesgoInstRowToJson({
+      id: 1, siglas: 'MAGA', nombre: 'MAGA', sector: 'Ministerios', estado: 'cumple', nivel: 'Avanzado',
+      check_identificacion: 1, check_analisis: 1, check_presentacion: 1, buenas_practicas: 0, verificacion_cgc: '', fecha_actualizacion: '2026-05-29'
+    });
+    const vehMapped = mapVehiculoRowToJson(
+      { id: 101, plate: 'O-123ABC', iscv_moroso: 1, multas: 2 },
+      [{ fecha: '2025-01-01', status: 'Activo', multas: 0, iscv_moroso: 0 }]
+    );
+
+    const mappersOk = stmts.length === 14 &&
+      canalMapped['Protocolo de actuación'] === true &&
+      dirMapped.enlaces_solicitud[0] === 'https://s1' &&
+      dirMapped.enlaces_oficio[0] === 'https://o1' &&
+      riesgoMapped.checks.identificacion === true &&
+      vehMapped.iscvMoroso === true &&
+      vehMapped.history.length === 1;
+    recordTest('11.7 Script DDL (14 tablas) y mappers SQL<->JSON validados sin pérdida de campos', mappersOk);
+
+    // 11.8 Endpoint seguro de guía de instalación y script SQL en módulo de almacenamiento
+    const resAssetsNoAuth = await fetch(`${BASE_URL}/api/admin/storage/install-assets`);
+    const resAssetsAuth = await fetch(`${BASE_URL}/api/admin/storage/install-assets`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const assetsData = await resAssetsAuth.json().catch(() => ({}));
+    const assetsOk = resAssetsNoAuth.status === 401 &&
+      resAssetsAuth.status === 200 &&
+      assetsData.success === true &&
+      typeof assetsData.sqlScript === 'string' &&
+      assetsData.sqlScript.includes('CREATE TABLE IF NOT EXISTS `pia_canales_integridad`') &&
+      typeof assetsData.envTemplate === 'string' &&
+      assetsData.envTemplate.includes('PIA_STORAGE_MODE=json') &&
+      !assetsData.envTemplate.includes('MYSQL_PASSWORD=CONTRASEÑA_REAL');
+    recordTest('11.8 Guía de instalación y script SQL servidos de forma segura al administrador (200 / 401)', assetsOk);
+  } catch (err) {
+    recordTest('11. Arquitectura Híbrida JSON + SQL', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(` RESUMEN DE PRUEBAS: ${results.passed} SUPERADAS / ${results.failed} FALLIDAS`);
   console.log('=============================================================\n');

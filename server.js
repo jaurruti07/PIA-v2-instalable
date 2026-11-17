@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -5,12 +6,17 @@ import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { testSqlConnection, isSqlConfigured, getSqlPool } from './db/sqlClient.js';
+import { initializeDatabaseSchema, inspectSchemaStatus, isModuleSqlReady } from './db/schemaInit.js';
+import { StorageConfigManager, CONFIGURABLE_MODULES, VALID_STORAGE_MODES, VALID_SOURCES, normalizeModuleKey } from './db/storageConfig.js';
+import { createHybridStorage } from './db/hybridStorage.js';
+import { importJsonToSql, exportSqlToJson } from './db/migrationService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = Number(process.env.DEFAULT_APP_PORT) || 3000;
+const PORT = Number(process.env.PORT || process.env.DEFAULT_APP_PORT) || 3000;
 
 // Body Parsers con límites institucionales controlados
 app.use(express.json({ limit: '20mb' }));
@@ -68,6 +74,12 @@ function computeFileHash(filePath) {
   }
 }
 
+// Normalización estricta de ETag (remueve prefijos W/, comillas y espacios)
+function cleanEtag(etag) {
+  if (!etag) return null;
+  return String(etag).replace(/^W\//i, '').replace(/["']/g, '').trim();
+}
+
 // Respaldo automático previo a toda modificación
 function createBackup(filePath, user = 'sistema') {
   try {
@@ -106,11 +118,15 @@ function atomicWriteJson(filePath, data, expectedHash = null, user = 'sistema') 
 
   // Control de concurrencia optimista
   if (expectedHash && fs.existsSync(filePath)) {
-    const currentHash = computeFileHash(filePath);
-    if (currentHash && currentHash !== expectedHash) {
-      const err = new Error('Conflicto de concurrencia: El archivo fue modificado por la otra persona operadora. Recargue los datos.');
-      err.code = 'CONCURRENCY_CONFLICT';
-      throw err;
+    const cleanExpected = cleanEtag(expectedHash);
+    // Solo verificar si es un hash SHA-256 legítimo (64 caracteres hexadecimales) y no un wildcard
+    if (cleanExpected && cleanExpected !== '*' && /^[a-f0-9]{64}$/i.test(cleanExpected)) {
+      const currentHash = computeFileHash(filePath);
+      if (currentHash && currentHash !== cleanExpected) {
+        const err = new Error('Conflicto de concurrencia: El archivo fue modificado por la otra persona operadora. Recargue los datos.');
+        err.code = 'CONCURRENCY_CONFLICT';
+        throw err;
+      }
     }
   }
 
@@ -700,6 +716,18 @@ function requireOperator(req, res, next) {
   next();
 }
 
+// Middleware de verificación de permiso al módulo de almacenamiento y base de datos
+function requireDatabaseAccess(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Acceso no autorizado.' });
+  }
+  const modules = Array.isArray(req.user.modules) ? req.user.modules : [];
+  if (req.user.role !== 'admin' && !modules.includes('database')) {
+    return res.status(403).json({ error: 'No posee permisos asignados para gestionar almacenamiento y bases de datos.' });
+  }
+  next();
+}
+
 // Cabeceras de seguridad HTTP
 app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -707,7 +735,8 @@ app.use((req, res, next) => {
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(self), geolocation=()');
-  if (req.url.endsWith('.json')) {
+  res.setHeader('Access-Control-Expose-Headers', 'ETag');
+  if (req.url.endsWith('.json') || req.url.startsWith('/api/')) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
@@ -895,7 +924,7 @@ app.get('/api/users', requireAuth, requireOperator, (req, res) => {
 
 // Crear nuevo usuario institucional con contraseña encriptada (PBKDF2/SHA-512) y permisos personalizados
 app.post('/api/admin/users', requireAuth, requireOperator, (req, res) => {
-  const { email, displayName, password, role, modules, status } = req.body || {};
+  const { email, displayName, password, role, modules, permissions, status } = req.body || {};
 
   const cleanEmail = (email || '').trim().toLowerCase();
   if (!cleanEmail || !cleanEmail.includes('@')) {
@@ -915,8 +944,9 @@ app.post('/api/admin/users', requireAuth, requireOperator, (req, res) => {
   const assignedRole = validRoles.includes(role) ? role : 'admin';
 
   const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
-  const assignedModules = Array.isArray(modules) && modules.length > 0
-    ? modules.filter(m => validModules.includes(m))
+  const requestedModules = Array.isArray(modules) ? modules : permissions;
+  const assignedModules = Array.isArray(requestedModules) && requestedModules.length > 0
+    ? requestedModules.filter(m => validModules.includes(m))
     : validModules;
 
   const users = getUsersRoles();
@@ -1275,63 +1305,327 @@ function saveModuleRecords(module, records, user = 'sistema', expectedHash = nul
   return atomicWriteJson(filePath, records, expectedHash, user);
 }
 
+const storageConfig = new StorageConfigManager(DATA_DIR);
+
+const hybridStorage = createHybridStorage({
+  storageConfig,
+  whitelistJsonMap: WHITELIST_JSON_MAP,
+  readJsonFile,
+  computeFileHash,
+  getJsonModuleRecords: getModuleRecords,
+  saveJsonModuleRecords: saveModuleRecords
+});
+
 const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin'];
 
 app.get('/api/modules', (req, res) => {
   res.json(['canales', 'directorio', 'tableros', 'riesgo', 'portal']);
 });
 
-// Lectura de módulos (Público y Operadores) con ETag para control de concurrencia
-app.get('/api/:module', (req, res, next) => {
-  const { module } = req.params;
-  if (RESERVED_MODULES.includes(module)) return next();
-  try {
-    const filePath = WHITELIST_JSON_MAP[module];
-    if (filePath) {
-      const hash = computeFileHash(filePath);
-      if (hash) res.setHeader('ETag', `"${hash}"`);
+// ========================================================
+// 5.B GESTIÓN DE ALMACENAMIENTO HÍBRIDO (JSON + SQL MYSQL/MARIADB)
+// ========================================================
+
+async function buildStorageStatusPayload() {
+  const config = storageConfig.getConfig();
+  const schemaStatus = await inspectSchemaStatus();
+  const sqlCountsByTable = {};
+  for (const t of schemaStatus.tables || []) {
+    sqlCountsByTable[t.table] = t;
+  }
+
+  const modules = CONFIGURABLE_MODULES.map(mod => {
+    const activeSource = storageConfig.resolveModuleSource(mod.key);
+    const jsonCount = hybridStorage.countJsonRecords(mod.key);
+    const sqlReady = isModuleSqlReady(schemaStatus, mod.key);
+
+    let sqlCount = 0;
+    if (mod.key === 'riesgo') {
+      sqlCount = sqlCountsByTable['pia_riesgo_instituciones']?.rowCount || 0;
+    } else if (mod.key === 'vehiculos') {
+      sqlCount = sqlCountsByTable['pia_vehiculos']?.rowCount || 0;
+    } else {
+      const primaryTable = mod.sqlTables[0];
+      sqlCount = sqlCountsByTable[primaryTable]?.rowCount || 0;
     }
-    const records = getModuleRecords(module);
-    res.json(records);
+
+    return {
+      key: mod.key,
+      label: mod.label,
+      jsonFile: `/${mod.jsonFile}`,
+      sqlTables: mod.sqlTables,
+      activeSource,
+      configuredSource: config.modules[mod.key] || 'json',
+      jsonCount,
+      sqlCount,
+      sqlReady
+    };
+  });
+
+  return {
+    config,
+    sqlConfigured: isSqlConfigured(),
+    schema: schemaStatus,
+    modules
+  };
+}
+
+app.get('/api/admin/storage/status', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    const payload = await buildStorageStatusPayload();
+    res.json(payload);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message || 'Error consultando el estado de almacenamiento.' });
   }
 });
 
-app.get('/api/:module/:id', (req, res, next) => {
+app.post('/api/admin/storage/sql/test', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    const connection = await testSqlConnection();
+    const schema = await inspectSchemaStatus();
+    res.json({ success: connection.connected, connection, schema });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message || 'Error al probar conexión SQL.' });
+  }
+});
+
+app.post('/api/admin/storage/sql/init', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    const result = await initializeDatabaseSchema();
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    logAudit({
+      user: req.user.email,
+      userOid: req.user.uid,
+      userRole: req.user.role,
+      action: 'INICIALIZACIÓN DE BASE DE DATOS SQL',
+      module: 'database',
+      target: result.database || 'pia_db',
+      details: `Estructura SQL inicializada/verificada (${result.tablesFound}/${result.totalTables} tablas listas).`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    const fullStatus = await buildStorageStatusPayload();
+    res.json({
+      success: true,
+      message: `Base de datos '${result.database}' verificada e inicializada (${result.tablesFound}/${result.totalTables} tablas listas).`,
+      ...fullStatus
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message || 'Error inicializando estructura SQL.' });
+  }
+});
+
+app.put('/api/admin/storage/config', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    const { mode, modules } = req.body || {};
+    if (!VALID_STORAGE_MODES.includes(mode)) {
+      return res.status(400).json({ error: 'Modalidad inválida. Valores permitidos: json, sql, hybrid.' });
+    }
+
+    const currentConfig = storageConfig.getConfig();
+    const targetModules = {};
+    for (const mod of CONFIGURABLE_MODULES) {
+      if (mode === 'json') {
+        targetModules[mod.key] = 'json';
+      } else if (mode === 'sql') {
+        targetModules[mod.key] = 'sql';
+      } else {
+        const candidate = modules && modules[mod.key] ? String(modules[mod.key]).toLowerCase() : (currentConfig.modules[mod.key] || 'json');
+        if (!VALID_SOURCES.includes(candidate)) {
+          return res.status(400).json({ error: `Fuente inválida para '${mod.key}'. Permitido: json o sql.` });
+        }
+        targetModules[mod.key] = candidate;
+      }
+    }
+
+    const sqlModulesRequested = Object.entries(targetModules)
+      .filter(([, src]) => src === 'sql')
+      .map(([k]) => k);
+
+    if (sqlModulesRequested.length > 0) {
+      const schemaStatus = await inspectSchemaStatus();
+      if (!schemaStatus.connection?.connected) {
+        return res.status(400).json({
+          error: schemaStatus.connection?.error || 'No se puede activar almacenamiento SQL sin conexión activa a MySQL/MariaDB.'
+        });
+      }
+      const missingForModules = sqlModulesRequested.filter(m => !isModuleSqlReady(schemaStatus, m));
+      if (missingForModules.length > 0) {
+        return res.status(400).json({
+          error: `Debe inicializar primero las tablas SQL antes de activar SQL en: ${missingForModules.join(', ')}.`
+        });
+      }
+    }
+
+    const saved = storageConfig.saveConfig({ mode, modules: targetModules }, req.user.email);
+
+    logAudit({
+      user: req.user.email,
+      userOid: req.user.uid,
+      userRole: req.user.role,
+      action: 'CAMBIO MODALIDAD DE ALMACENAMIENTO',
+      module: 'database',
+      target: 'storage_config.json',
+      details: `Modalidad: ${saved.mode.toUpperCase()} | Módulos SQL: ${sqlModulesRequested.length > 0 ? sqlModulesRequested.join(', ') : 'ninguno'}`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    const fullStatus = await buildStorageStatusPayload();
+    res.json({
+      success: true,
+      message: `Modalidad de almacenamiento actualizada a '${saved.mode.toUpperCase()}'.`,
+      ...fullStatus
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Error actualizando la configuración de almacenamiento.' });
+  }
+});
+
+app.post('/api/admin/storage/migrate/json-to-sql', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    const { modules, conflictMode, confirmOverwrite } = req.body || {};
+    const report = await importJsonToSql({
+      modules,
+      conflictMode,
+      confirmOverwrite: confirmOverwrite === true,
+      executedBy: req.user.email,
+      backupsDir: BACKUPS_DIR,
+      whitelistJsonMap: WHITELIST_JSON_MAP,
+      readJsonFile
+    });
+
+    logAudit({
+      user: req.user.email,
+      userOid: req.user.uid,
+      userRole: req.user.role,
+      action: 'IMPORTACIÓN JSON A SQL',
+      module: 'database',
+      target: (report.modules || []).map(m => m.module).join(','),
+      details: `Insertados: ${report.summary.inserted}, Actualizados: ${report.summary.updated}, Omitidos: ${report.summary.skipped}, Errores: ${report.summary.errors}`,
+      backupCreated: report.backupFolder,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    res.json(report);
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/admin/storage/migrate/sql-to-json', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    const { modules, exportMode, confirmOverwrite } = req.body || {};
+    const report = await exportSqlToJson({
+      modules,
+      exportMode,
+      confirmOverwrite: confirmOverwrite === true,
+      executedBy: req.user.email,
+      backupsDir: BACKUPS_DIR,
+      whitelistJsonMap: WHITELIST_JSON_MAP,
+      atomicWriteJson
+    });
+
+    logAudit({
+      user: req.user.email,
+      userOid: req.user.uid,
+      userRole: req.user.role,
+      action: 'EXPORTACIÓN SQL A JSON',
+      module: 'database',
+      target: (report.modules || []).map(m => m.module).join(','),
+      details: `Modo: ${report.exportMode}, Registros exportados: ${report.summary.exportedRecords}, Archivos escritos: ${report.summary.writtenFiles}`,
+      backupCreated: report.backupFolder,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    res.json(report);
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/admin/storage/migrations', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    if (!isSqlConfigured()) return res.json([]);
+    const pool = getSqlPool();
+    const [rows] = await pool.execute(
+      'SELECT id, direction, module_name, conflict_mode, inserted_count, updated_count, skipped_count, error_count, backup_ref, executed_by, details, executed_at FROM pia_storage_migrations ORDER BY id DESC LIMIT 30'
+    );
+    res.json(rows || []);
+  } catch (_) {
+    res.json([]);
+  }
+});
+
+app.get('/api/admin/storage/install-assets', requireAuth, requireOperator, requireDatabaseAccess, (req, res) => {
+  try {
+    const sqlPath = path.join(__dirname, 'sql', '01_schema_mysql.sql');
+    const envExamplePath = path.join(__dirname, '.env.example');
+    const guidePath = path.join(__dirname, 'docs', 'GUIA_INSTALACION_WINDOWS_SQL.md');
+
+    const sqlScript = fs.existsSync(sqlPath) ? fs.readFileSync(sqlPath, 'utf8') : '';
+    const envTemplate = fs.existsSync(envExamplePath) ? fs.readFileSync(envExamplePath, 'utf8') : '';
+    const guideMarkdown = fs.existsSync(guidePath) ? fs.readFileSync(guidePath, 'utf8') : '';
+
+    res.json({
+      success: true,
+      tableCount: 14,
+      sqlScript,
+      envTemplate,
+      guideMarkdown,
+      fileNames: {
+        sql: '01_schema_mysql.sql',
+        env: '.env.example',
+        guide: 'GUIA_INSTALACION_WINDOWS_SQL.md'
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'No fue posible cargar los artefactos de instalación del servidor.' });
+  }
+});
+
+// Lectura de módulos (Público y Operadores) con ETag y soporte híbrido JSON / SQL
+app.get('/api/:module', async (req, res, next) => {
+  const { module } = req.params;
+  if (RESERVED_MODULES.includes(module)) return next();
+  try {
+    const { source, records, etag } = await hybridStorage.readModule(module);
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.setHeader('X-PIA-Storage-Source', source);
+    res.json(records);
+  } catch (err) {
+    res.status(err.code === 'SQL_NOT_CONFIGURED' ? 503 : 400).json({ error: err.message });
+  }
+});
+
+app.get('/api/:module/:id', async (req, res, next) => {
   const { module, id } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
   try {
-    const filePath = WHITELIST_JSON_MAP[module];
-    if (filePath) {
-      const hash = computeFileHash(filePath);
-      if (hash) res.setHeader('ETag', `"${hash}"`);
-    }
-    const records = getModuleRecords(module);
-    const item = records.find(r => String(r.id) === String(id));
+    const { source, item, etag } = await hybridStorage.readRecordById(module, id);
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.setHeader('X-PIA-Storage-Source', source);
     if (!item) return res.status(404).json({ error: 'Registro no encontrado' });
     res.json(item);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(err.code === 'SQL_NOT_CONFIGURED' ? 503 : 400).json({ error: err.message });
   }
 });
 
-// POST: Creación de registros (Exclusivo para los dos operadores autorizados)
-app.post('/api/:module', requireAuth, requireOperator, (req, res, next) => {
+// POST: Creación de registros (Exclusivo para operadores autorizados)
+app.post('/api/:module', requireAuth, requireOperator, async (req, res, next) => {
   const { module } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
   try {
-    const ifMatch = req.headers['if-match'] ? req.headers['if-match'].replace(/"/g, '').trim() : null;
+    const ifMatch = cleanEtag(req.headers['if-match']);
     const expectedHash = ifMatch || req.body?._expectedHash || null;
     if (req.body && req.body._expectedHash) delete req.body._expectedHash;
 
-    const records = getModuleRecords(module);
-    const newId = records.length > 0 ? Math.max(...records.map(r => Number(r.id) || 0)) + 1 : 1;
-    const newRecord = { id: newId, ...req.body };
-    records.push(newRecord);
-
-    const result = saveModuleRecords(module, records, req.user.upn, expectedHash);
+    const result = await hybridStorage.createRecord(module, req.body, req.user.upn, expectedHash);
+    const createdId = result.record?.id;
 
     logAudit({
       user: req.user.upn,
@@ -1339,15 +1633,16 @@ app.post('/api/:module', requireAuth, requireOperator, (req, res, next) => {
       userRole: `data_operator_${req.user.operatorIndex}`,
       action: 'CREACIÓN',
       module,
-      target: module,
-      recordId: newId,
-      details: `Registro ID ${newId} creado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
+      target: `${module} (${result.source.toUpperCase()})`,
+      recordId: createdId,
+      details: `Registro ID ${createdId} creado en ${result.source.toUpperCase()} por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
       ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
-    res.status(201).json(newRecord);
+    res.setHeader('X-PIA-Storage-Source', result.source);
+    res.status(201).json(result.record);
   } catch (err) {
     if (err.code === 'CONCURRENCY_CONFLICT') {
       return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
@@ -1356,22 +1651,18 @@ app.post('/api/:module', requireAuth, requireOperator, (req, res, next) => {
   }
 });
 
-// PUT: Modificación de registros (Exclusivo para los dos operadores autorizados)
-app.put('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
+// PUT: Modificación de registros (Exclusivo para operadores autorizados)
+app.put('/api/:module/:id', requireAuth, requireOperator, async (req, res, next) => {
   const { module, id } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
   try {
-    const ifMatch = req.headers['if-match'] ? req.headers['if-match'].replace(/"/g, '').trim() : null;
+    const ifMatch = cleanEtag(req.headers['if-match']);
     const expectedHash = ifMatch || req.body?._expectedHash || null;
     if (req.body && req.body._expectedHash) delete req.body._expectedHash;
 
-    const records = getModuleRecords(module);
-    const index = records.findIndex(r => String(r.id) === String(id));
-    if (index === -1) return res.status(404).json({ error: 'Registro no encontrado' });
-
-    records[index] = { ...records[index], ...req.body, id: Number(id) || id };
-    const result = saveModuleRecords(module, records, req.user.upn, expectedHash);
+    const result = await hybridStorage.updateRecord(module, id, req.body, req.user.upn, expectedHash);
+    if (!result) return res.status(404).json({ error: 'Registro no encontrado' });
 
     logAudit({
       user: req.user.upn,
@@ -1379,15 +1670,16 @@ app.put('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
       userRole: `data_operator_${req.user.operatorIndex}`,
       action: 'ACTUALIZACIÓN',
       module,
-      target: module,
+      target: `${module} (${result.source.toUpperCase()})`,
       recordId: id,
-      details: `Registro ID ${id} actualizado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
+      details: `Registro ID ${id} actualizado en ${result.source.toUpperCase()} por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
       ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
-    res.json(records[index]);
+    res.setHeader('X-PIA-Storage-Source', result.source);
+    res.json(result.record);
   } catch (err) {
     if (err.code === 'CONCURRENCY_CONFLICT') {
       return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
@@ -1396,21 +1688,17 @@ app.put('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
   }
 });
 
-// DELETE: Eliminación de registros (Exclusivo para los dos operadores autorizados)
-app.delete('/api/:module/:id', requireAuth, requireOperator, (req, res, next) => {
+// DELETE: Eliminación de registros (Exclusivo para operadores autorizados)
+app.delete('/api/:module/:id', requireAuth, requireOperator, async (req, res, next) => {
   const { module, id } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
 
   try {
-    const ifMatch = req.headers['if-match'] ? req.headers['if-match'].replace(/"/g, '').trim() : null;
+    const ifMatch = cleanEtag(req.headers['if-match']);
     const expectedHash = ifMatch || null;
 
-    let records = getModuleRecords(module);
-    const index = records.findIndex(r => String(r.id) === String(id));
-    if (index === -1) return res.status(404).json({ error: 'Registro no encontrado' });
-
-    records.splice(index, 1);
-    const result = saveModuleRecords(module, records, req.user.upn, expectedHash);
+    const result = await hybridStorage.deleteRecord(module, id, req.user.upn, expectedHash);
+    if (!result) return res.status(404).json({ error: 'Registro no encontrado' });
 
     logAudit({
       user: req.user.upn,
@@ -1418,14 +1706,15 @@ app.delete('/api/:module/:id', requireAuth, requireOperator, (req, res, next) =>
       userRole: `data_operator_${req.user.operatorIndex}`,
       action: 'ELIMINACIÓN',
       module,
-      target: module,
+      target: `${module} (${result.source.toUpperCase()})`,
       recordId: id,
-      details: `Registro ID ${id} eliminado por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
+      details: `Registro ID ${id} eliminado en ${result.source.toUpperCase()} por Operador ${req.user.operatorIndex} (${req.user.displayName})`,
       backupCreated: result.backupCreated,
       ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
     });
 
     if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
+    res.setHeader('X-PIA-Storage-Source', result.source);
     res.json({ message: 'Registro eliminado correctamente', success: true });
   } catch (err) {
     if (err.code === 'CONCURRENCY_CONFLICT') {
@@ -1443,28 +1732,45 @@ app.get('/api/audit', requireAuth, requireOperator, (req, res) => {
   res.json(getAuditLogs());
 });
 
-app.get('/api/dashboard/stats', requireAuth, requireOperator, (req, res) => {
+app.get('/api/dashboard/stats', requireAuth, requireOperator, async (req, res) => {
   try {
-    const canales = getModuleRecords('canales');
-    const directorio = getModuleRecords('directorio');
-    const tableros = getModuleRecords('tableros');
-    const riesgo = getModuleRecords('riesgo');
-    const vehiculos = getModuleRecords('vehiculos');
+    const [canalesRes, directorioRes, tablerosRes, riesgoRes, vehiculosRes] = await Promise.all([
+      hybridStorage.readModule('canales'),
+      hybridStorage.readModule('directorio'),
+      hybridStorage.readModule('tableros'),
+      hybridStorage.readModule('riesgo'),
+      hybridStorage.readModule('vehiculos')
+    ]);
     const auditLog = getAuditLogs();
 
-    const totalRegs = canales.length + directorio.length + tableros.length + riesgo.length + vehiculos.length;
+    const totalRegs =
+      canalesRes.records.length +
+      directorioRes.records.length +
+      tablerosRes.records.length +
+      riesgoRes.records.length +
+      vehiculosRes.records.length;
+
+    const currentStorage = storageConfig.getConfig();
 
     res.json({
       modulos: 6,
       registros: totalRegs,
       operadoresAutorizados: getAuthorizedOperators().length,
       instituciones: 68,
-      tableros: tableros.length,
-      vehiculos: vehiculos.length,
+      tableros: tablerosRes.records.length,
+      vehiculos: vehiculosRes.records.length,
       visitasTotales: getVisitsData().totalVisits || 0,
       creados: auditLog.filter(a => a.action === 'CREACIÓN').length,
       actualizados: auditLog.filter(a => a.action === 'ACTUALIZACIÓN').length,
-      eliminados: auditLog.filter(a => a.action === 'ELIMINACIÓN').length
+      eliminados: auditLog.filter(a => a.action === 'ELIMINACIÓN').length,
+      storageMode: currentStorage.mode,
+      storageSources: {
+        canales: canalesRes.source,
+        directorio: directorioRes.source,
+        tableros: tablerosRes.source,
+        riesgo: riesgoRes.source,
+        vehiculos: vehiculosRes.source
+      }
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1792,16 +2098,117 @@ app.post('/api/files/upload', requireAuth, requireOperator, (req, res) => {
   res.json({ url: '/uploads/sample.png', filename: 'sample.png' });
 });
 
-// Raw-JSON endpoints: Deshabilitados para el frontend cotidiano de operadores
-app.all(['/api/raw-json', '/api/raw-json/*'], requireAuth, requireOperator, (req, res) => {
-  res.status(403).json({
-    error: 'La edición directa de JSON crudo está deshabilitada en la interfaz ordinaria. Las actualizaciones se realizan exclusivamente mediante los formularios validados de cada módulo.'
-  });
+// Edición controlada de ficheros JSON institucionales (solo operadores autorizados en lista blanca)
+const RAW_JSON_ALLOWLIST = {
+  '/data_portal.json': WHITELIST_JSON_MAP['data_portal.json'],
+  'data_portal.json': WHITELIST_JSON_MAP['data_portal.json'],
+  'portal': WHITELIST_JSON_MAP['data_portal.json'],
+  '/canales-por-la-integridad/data_directorio.json': WHITELIST_JSON_MAP['data_directorio.json'],
+  'canales-por-la-integridad/data_directorio.json': WHITELIST_JSON_MAP['data_directorio.json'],
+  'data_directorio.json': WHITELIST_JSON_MAP['data_directorio.json'],
+  'canales': WHITELIST_JSON_MAP['data_directorio.json'],
+  '/directorio/data_acceso.json': WHITELIST_JSON_MAP['data_acceso.json'],
+  'directorio/data_acceso.json': WHITELIST_JSON_MAP['data_acceso.json'],
+  'data_acceso.json': WHITELIST_JSON_MAP['data_acceso.json'],
+  'directorio': WHITELIST_JSON_MAP['data_acceso.json'],
+  '/gobierno_en_numeros/data_tableros.json': WHITELIST_JSON_MAP['data_tableros.json'],
+  'gobierno_en_numeros/data_tableros.json': WHITELIST_JSON_MAP['data_tableros.json'],
+  'data_tableros.json': WHITELIST_JSON_MAP['data_tableros.json'],
+  'tableros': WHITELIST_JSON_MAP['data_tableros.json'],
+  '/riesgo/datos.json': WHITELIST_JSON_MAP['datos.json'],
+  'riesgo/datos.json': WHITELIST_JSON_MAP['datos.json'],
+  'datos.json': WHITELIST_JSON_MAP['datos.json'],
+  'riesgo': WHITELIST_JSON_MAP['datos.json'],
+  '/vehiculos/vehiculos.json': WHITELIST_JSON_MAP['vehiculos.json'],
+  'vehiculos/vehiculos.json': WHITELIST_JSON_MAP['vehiculos.json'],
+  'vehiculos.json': WHITELIST_JSON_MAP['vehiculos.json'],
+  'vehiculos': WHITELIST_JSON_MAP['vehiculos.json']
+};
+
+function resolveWhitelistedJsonPath(rawPath) {
+  const candidate = String(rawPath || '').trim();
+  if (!candidate || candidate.includes('..') || candidate.includes('\\')) return null;
+  return RAW_JSON_ALLOWLIST[candidate] || null;
+}
+
+app.get('/api/raw-json', requireAuth, requireOperator, requireDatabaseAccess, (req, res) => {
+  const targetFile = resolveWhitelistedJsonPath(req.query.path);
+  if (!targetFile) {
+    return res.status(403).json({ error: 'Ruta JSON no permitida o fuera de la lista blanca institucional.' });
+  }
+  const data = readJsonFile(targetFile);
+  if (data === null) {
+    return res.status(404).json({ error: 'Archivo JSON no encontrado.' });
+  }
+  const hash = computeFileHash(targetFile);
+  if (hash) res.setHeader('ETag', `"${hash}"`);
+  res.json(data);
+});
+
+app.post('/api/raw-json', requireAuth, requireOperator, requireDatabaseAccess, (req, res) => {
+  const { path: reqPath, data } = req.body || {};
+  const targetFile = resolveWhitelistedJsonPath(reqPath);
+  if (!targetFile) {
+    return res.status(403).json({ error: 'Ruta JSON no permitida o fuera de la lista blanca institucional.' });
+  }
+  if (typeof data !== 'object' || data === null) {
+    return res.status(400).json({ error: 'El contenido JSON debe ser un objeto o arreglo válido.' });
+  }
+  try {
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const result = atomicWriteJson(targetFile, data, ifMatch || null, req.user.email);
+    logAudit({
+      user: req.user.email,
+      userOid: req.user.uid,
+      userRole: req.user.role,
+      action: 'EDICIÓN DIRECTA JSON',
+      module: 'database',
+      target: path.basename(targetFile),
+      details: `Archivo JSON '${path.basename(targetFile)}' actualizado desde el Editor Directo JSON.`,
+      backupCreated: result.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+    if (result.newHash) res.setHeader('ETag', `"${result.newHash}"`);
+    res.json({ success: true, backupCreated: result.backupCreated, newHash: result.newHash });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // ========================================================
 // 8. SERVICIO DE ARCHIVOS ESTÁTICOS Y PÁGINAS DEL PORTAL
 // ========================================================
+
+// Interceptor transparente: si un módulo usa SQL o modo híbrido con SQL, sus rutas JSON públicas
+// responden directamente desde MySQL/MariaDB conservando exactamente la estructura esperada.
+const PUBLIC_JSON_ROUTE_MODULE_MAP = {
+  '/data_portal.json': 'portal',
+  '/canales-por-la-integridad/data_directorio.json': 'canales',
+  '/directorio/data_acceso.json': 'directorio',
+  '/gobierno_en_numeros/data_tableros.json': 'tableros',
+  '/riesgo/datos.json': 'riesgo',
+  '/vehiculos/vehiculos.json': 'vehiculos'
+};
+
+app.get(Object.keys(PUBLIC_JSON_ROUTE_MODULE_MAP), async (req, res, next) => {
+  const moduleKey = PUBLIC_JSON_ROUTE_MODULE_MAP[req.path];
+  if (!moduleKey) return next();
+  try {
+    const sqlDoc = await hybridStorage.getPublicDocumentIfSql(moduleKey);
+    if (sqlDoc === null) return next();
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('X-PIA-Storage-Source', 'sql');
+    return res.json(sqlDoc);
+  } catch (err) {
+    console.error(`[HybridStorage] Error sirviendo ${req.path} desde SQL:`, err.message);
+    return res.status(503).json({ error: 'Error consultando base de datos SQL para este módulo.' });
+  }
+});
 
 const sendFreshHtml = (filePath, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');

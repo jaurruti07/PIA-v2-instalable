@@ -59,41 +59,49 @@ El **Portal de Integridad Activa (PIA)** es la plataforma oficial del Organismo 
 
 ---
 
-## 3. Identidades Institucionales, Permisos y Contraseñas
+## 3. Identidades Institucionales, Creación de Usuarios, Permisos y Contraseñas
 
-Por directriz de seguridad de la CNC, el acceso administrativo está restringido exclusivamente a **dos identidades operativas institucionales**:
+### Cuentas Base Institucionales Protegidas
+Por directriz institucional de la CNC, el portal cuenta con dos identidades operativas maestras preconfiguradas que están blindadas contra eliminación accidental o no autorizada:
 
-| Usuario (Correo) | Rol por Defecto | Contraseña Inicial | Mecanismo de Seguridad |
-|---|---|---|---|
-| `deteccionydenuncia@cnc.gob.gt` | Administrador Pleno | `12345` | Sal PBKDF2/SHA-512 inmutable |
-| `apoyogi@cnc.gob.gt` | Administrador Pleno | `12345` | Sal PBKDF2/SHA-512 inmutable |
+| Usuario (Correo) | Rol Base | Contraseña Inicial | Mecanismo de Seguridad | Estado |
+|---|---|---|---|---|
+| `deteccionydenuncia@cnc.gob.gt` | Administrador Pleno | `12345` | Sal criptográfica PBKDF2/SHA-512 | Cuenta Base Protegida |
+| `apoyogi@cnc.gob.gt` | Administrador Pleno | `12345` | Sal criptográfica PBKDF2/SHA-512 | Cuenta Base Protegida |
 
-### Control de Permisos por Módulo desde el Administrador
-1. **Acceso a Todos los Módulos por Defecto:** Ambos usuarios disponen inicialmente de permisos completos para:
-   - Canales por la Integridad (`canales`)
-   - Directorio Acceso al Ejecutivo (`directorio`)
-   - Tu Gobierno en Números (`tableros`)
-   - Riesgo en la Mira (`riesgo`)
-   - Métricas y Estadísticas del Portal (`portal`)
-   - Contador de Visitas Reales (`visits`)
-   - Asistente Virtual Lupita (`chatbot`)
-   - Gestión de Usuarios y Permisos (`users`)
-   - Bitácora de Auditoría (`audit`)
-   - Mantenimiento de Base de Datos y Respaldos (`database`)
-   - Guía Técnica del Sistema (`guide`)
-2. **Personalización de Permisos:** Desde el módulo **Usuarios y Permisos**, el administrador puede marcar o desmarcar módulos específicos para cada usuario y guardar la configuración en tiempo real (`PUT /api/admin/users/:email/permissions`).
-3. **Cambio de Contraseña desde el Administrador:** El botón **Cambiar Contraseña** en la tarjeta de cada usuario abre el diálogo de actualización segura, encriptando la nueva contraseña en el backend con una nueva sal criptográfica de 128 bits (`PUT /api/admin/users/:email/password`).
+### Gestión Dinámica de Usuarios y Creación de Nuevas Cuentas
+Desde el módulo **Gestión de Usuarios, Roles y Permisos** (`/admin/`), los administradores pueden crear nuevos usuarios institucionales haciendo clic en **"+ Agregar Nuevo Usuario"**:
+1. **Validación y Encriptación Automática:** Se valida formato de correo institucional (`@cnc.gob.gt` o similar), nombre del funcionario y contraseña mínima de 4 caracteres. La contraseña es encriptada en el backend mediante derivación de clave **PBKDF2 con HMAC-SHA512** y sal aleatoria única de 16 bytes.
+2. **Asignación Granular de Módulos:** El administrador puede seleccionar uno a uno los módulos a los que el usuario tendrá acceso (Canales, Directorio, Tableros, Riesgo, Métricas, Visitas, Usuarios, Auditoría, Base de Datos, Guía Técnica) o marcar **"Todos tienen permiso a todo"** por defecto.
+3. **Roles Soportados:** `admin` (Administrador con privilegios completos) y `data_operator` (Operador de datos institucional con acceso restringido a los módulos autorizados).
+4. **Protección de Cuentas Base:** Los nuevos usuarios pueden ser eliminados cuando concluya su gestión, mientras que las dos cuentas maestras institucionales cuentan con salvaguarda permanente a nivel de código y API.
+5. **Cambio de Contraseña:** Cualquier usuario puede actualizar su clave desde el panel administrativo, regenerando la sal y hash en el almacenamiento persistente.
 
 ---
 
-## 4. Estado de Características Especiales
+## 4. Catálogo Institucional Unificado (Canales por la Integridad)
+
+El filtro por tipo de institución en la página pública de **Canales por la Integridad** (`/canales-por-la-integridad/`), el formulario de edición en el **Módulo Administrativo** (`/admin/`) y el archivo de datos (`data_directorio.json`) se encuentran **100% sincronizados**:
+
+- **Catálogo Oficial:**
+  1. `Ministerios` (14 instituciones ministeriales)
+  2. `Secretarías` (15 secretarías y dependencias de apoyo presidencial)
+  3. `Gobernaciones Departamentales` (22 gobernaciones departamentales de la República)
+  4. `Otras dependencias` (Fondos sociales, comisiones ejecutivas y comités, ej. CNC, SAT)
+  5. `Dependencias temporales` (Comisiones temporales y unidades transitorias)
+
+- **Sincronización Bidireccional y Resiliencia:** El motor de filtrado detecta automáticamente cualquier variante histórica o institucional (ej. `Gobernaciones` ↔ `Gobernaciones Departamentales`), mapeándolos al catálogo oficial sin pérdida de datos ni discrepancias de filtrado.
+
+---
+
+## 5. Estado de Características Especiales
 
 - **Chatbot (Asistente Virtual Lupita):** Inactivado de la interfaz visual del portal público por solicitud institucional (`CHATBOT_UI_ACTIVE = false`), manteniendo todo el código, componentes e integración con Gemini listos para reactivarse instantáneamente cuando la dirección lo disponga.
 - **Guía Multilingüe de Denuncia Segura:** Inactivada y retirada de los elementos visibles de la interfaz (`#heroGuiaCTA`, selector en barra de accesibilidad y enlaces directos), preservando en el código todas las traducciones en idiomas mayas (K'iche', Q'eqchi', Kaqchikel, Mam), síntesis de voz y estructura para cuando deba volver a mostrarse.
 
 ---
 
-## 5. Instrucciones de Despliegue para el Departamento de TI
+## 6. Instrucciones de Despliegue para el Departamento de TI
 
 ### Opción A: Despliegue con Docker (Recomendado)
 
@@ -186,19 +194,50 @@ Por directriz de seguridad de la CNC, el acceso administrativo está restringido
 
 ---
 
-## 6. Verificación de Seguridad y Pruebas Automatizadas
+### Opción C: Despliegue con Node.js + PM2 (Servidor Express)
 
-El proyecto incluye la suite completa de 24 pruebas de regresión y seguridad en `test_security_suite.js`.
+1. **Instalar dependencias:**
+   ```bash
+   npm install --production
+   ```
+
+2. **Iniciar servicio en segundo plano con PM2:**
+   ```bash
+   npx pm2 start server.js --name "pia-portal" -i max
+   npx pm2 save
+   npx pm2 startup
+   ```
+
+### Opción D: Despliegue en Windows Server con IIS
+
+1. Utilizar el script automatizado PowerShell provisto en la raíz:
+   ```powershell
+   .\deploy-iis.ps1
+   ```
+2. El archivo `web.config` preconfigurado en la raíz establece la reescritura de URLs hacia `http://localhost:3000` con compresión gzip y cabeceras de seguridad activas.
+
+### Opción E: Modo Fuera de Línea / Descargado (Sin Backend)
+
+El sistema cuenta con el motor de persistencia resiliente **PiaDataEngine**:
+1. Si el portal se descarga o se ejecuta abriendo directamente `index.html` en un navegador (o mediante cualquier servidor estático liviano como `python3 -m http.server 8080`), el módulo administrativo detecta automáticamente el entorno estático.
+2. Los datos se leen directamente de los archivos JSON locales y los cambios se almacenan en `localStorage` con bitácora de auditoría local.
+3. No requiere Firebase ni dependencias externas para operar de forma completa.
+
+---
+
+## 7. Verificación de Seguridad y Pruebas Automatizadas
+
+El proyecto incluye la suite completa de 28 pruebas de regresión y seguridad en `test_security_suite.js`.
 
 Para verificar la integridad del portal:
 ```bash
 node test_security_suite.js
 ```
 
-**Resultado esperado:**
+**Resultado oficial:**
 ```text
 =============================================================
-RESUMEN DE PRUEBAS: 24 SUPERADAS / 0 FALLIDAS
+RESUMEN DE PRUEBAS: 28 SUPERADAS / 0 FALLIDAS
 =============================================================
 ```
 
@@ -207,4 +246,19 @@ Pruebas cubiertas:
 - Bloqueo de path traversal (`../../`).
 - Eliminación de credenciales genéricas/maestras no admitidas.
 - Validación de persistencia, rotación de respaldos a 30 versiones y escrituras atómicas.
-- Comprobación de endpoints públicos para visualización ciudadana.
+- Comprobación de endpoints públicos para visualización ciudadana (Canales, Directorio, Tableros, Riesgo, Vehículos).
+- Creación dinámica de usuarios con encriptación PBKDF2/SHA-512 y asignación granular de módulos.
+- Salvaguarda permanente de cuentas base institucionales contra borrado no autorizado.
+
+---
+
+## 8. Arquitectura Híbrida JSON + SQL (MySQL / MariaDB)
+
+El Portal PIA soporta tres modalidades configurables sin modificar código fuente desde el panel administrativo (**Gestión de almacenamiento y base de datos**) o mediante `.env` (`PIA_STORAGE_MODE`):
+
+1. **JSON (Predeterminado):** Mantiene la operación íntegra sobre los 5 archivos JSON del portal (`data_directorio.json`, `data_acceso.json`, `data_tableros.json`, `riesgo/datos.json`, `vehiculos/vehiculos.json`) y `data_portal.json`, totalmente funcional incluso sin motor SQL instalado.
+2. **SQL (MySQL / MariaDB):** Persistencia relacional con transacciones ACID, consultas parametrizadas, llaves foráneas e índices definidos en `sql/01_schema_mysql.sql`.
+3. **HÍBRIDO:** Selección por módulo (`json` o `sql`), manteniendo una única fuente autoritativa por módulo para evitar escrituras simultáneas conflictivas.
+
+Para despliegue paso a paso en Windows Server + Node.js + MySQL/MariaDB, consulte `docs/GUIA_INSTALACION_WINDOWS_SQL.md`.
+

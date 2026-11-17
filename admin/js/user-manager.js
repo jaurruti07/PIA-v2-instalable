@@ -15,7 +15,7 @@ const AVAILABLE_MODULES = [
   { id: 'chatbot', label: 'Configuración Asistente Lupita', icon: 'fa-robot' },
   { id: 'users', label: 'Gestión de Usuarios y Permisos', icon: 'fa-users-cog' },
   { id: 'audit', label: 'Bitácora de Auditoría Inmutable', icon: 'fa-history' },
-  { id: 'database', label: 'Mantenimiento BD y Respaldos', icon: 'fa-database' },
+  { id: 'database', label: 'Gestión de almacenamiento y base de datos', icon: 'fa-database' },
   { id: 'guide', label: 'Guía Técnica del Sistema', icon: 'fa-book-open' }
 ];
 

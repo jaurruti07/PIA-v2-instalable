@@ -103,6 +103,37 @@
             border-color: var(--cyan);
             box-shadow: 0 0 12px rgba(0,194,224,0.3);
         }
+        .login-form-group input.input-invalid {
+            border-color: var(--red);
+            background: rgba(239, 68, 68, 0.1);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.22);
+        }
+        .login-form-group input.input-valid {
+            border-color: var(--green);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.18);
+        }
+        .field-hint {
+            font-size: 0.76rem;
+            color: rgba(255, 255, 255, 0.58);
+            margin-top: 0.35rem;
+        }
+        .field-feedback {
+            display: none;
+            font-size: 0.78rem;
+            margin-top: 0.4rem;
+            line-height: 1.35;
+            font-weight: 500;
+            align-items: center;
+            gap: 6px;
+        }
+        .field-feedback.error {
+            display: flex;
+            color: #fca5a5;
+        }
+        .field-feedback.valid {
+            display: flex;
+            color: #86efac;
+        }
         .btn-login {
             width: 100%;
             padding: 1rem;
@@ -273,7 +304,20 @@
                 <form id="firebaseLoginForm" onsubmit="return false;" novalidate>
                     <div class="login-form-group">
                         <label for="loginEmail"><i class="fas fa-envelope" style="color:var(--cyan); margin-right:4px;"></i> Correo Institucional</label>
-                        <input type="email" id="loginEmail" placeholder="cuenta@cnc.gob.gt" autocomplete="email" required>
+                        <input
+                            type="email"
+                            id="loginEmail"
+                            placeholder="usuario@cnc.gob.gt"
+                            autocomplete="email"
+                            pattern="^[a-zA-Z0-9._%+\-]+@[cC][nN][cC]\.[gG][oO][bB]\.[gG][tT]$"
+                            title="Debe ingresar un correo institucional con dominio @cnc.gob.gt"
+                            aria-describedby="loginEmailHint loginEmailFeedback"
+                            required
+                        >
+                        <div id="loginEmailHint" class="field-hint">
+                            <i class="fas fa-id-badge" style="color:var(--cyan); margin-right:4px;"></i> Formato requerido: <code>usuario@cnc.gob.gt</code>
+                        </div>
+                        <div id="loginEmailFeedback" class="field-feedback" aria-live="polite"></div>
                     </div>
 
                     <div class="login-form-group">
@@ -310,7 +354,17 @@
                         Ingresa tu cuenta institucional registrada. Se enviará directamente a tu buzón oficial el enlace seguro de restablecimiento de contraseña.
                     </p>
                     <div class="login-form-group" style="margin-bottom:0.75rem;">
-                        <input type="email" id="resetEmail" placeholder="cuenta@cnc.gob.gt" autocomplete="email">
+                        <input
+                            type="email"
+                            id="resetEmail"
+                            placeholder="usuario@cnc.gob.gt"
+                            autocomplete="email"
+                            pattern="^[a-zA-Z0-9._%+\-]+@[cC][nN][cC]\.[gG][oO][bB]\.[gG][tT]$"
+                            title="Debe ingresar un correo institucional con dominio @cnc.gob.gt"
+                            aria-describedby="resetEmailFeedback"
+                            required
+                        >
+                        <div id="resetEmailFeedback" class="field-feedback" aria-live="polite"></div>
                     </div>
                     <button type="button" id="btnSendPasswordReset" style="width:100%; padding:0.8rem; background:linear-gradient(135deg, var(--blue-bright), var(--cyan)); color:var(--navy); font-weight:700; border-radius:var(--radius-sm); font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
                         <i class="fas fa-paper-plane"></i> Enviar Enlace de Restablecimiento
@@ -426,7 +480,7 @@
                 </li>
                 <li>
                     <button data-module="database">
-                        <i class="fas fa-database"></i> Motores de Datos JSON
+                        <i class="fas fa-database"></i> Almacenamiento y BD
                     </button>
                 </li>
                 <li>

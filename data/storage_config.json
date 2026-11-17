@@ -1,0 +1,13 @@
+{
+  "mode": "json",
+  "modules": {
+    "canales": "json",
+    "directorio": "json",
+    "tableros": "json",
+    "riesgo": "json",
+    "vehiculos": "json",
+    "portal": "json"
+  },
+  "updatedAt": "2026-11-17T18:56:56.431Z",
+  "updatedBy": "sistema"
+}

@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "institucion": "Ministerio de Agricultura, Ganadería y Alimentación - MAGA",
     "tipo": "Ministerios",
     "canales": 4,
@@ -14,6 +15,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 2,
     "institucion": "Ministerio de Economía - MINECO",
     "tipo": "Ministerios",
     "canales": 4,
@@ -28,6 +30,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 3,
     "institucion": "Ministerio de Comunicaciones, Infraestructura y Vivienda - MICIVI",
     "tipo": "Ministerios",
     "canales": 3,
@@ -42,6 +45,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 4,
     "institucion": "Ministerio de Cultura y Deportes - MICUDE",
     "tipo": "Ministerios",
     "canales": 4,
@@ -56,6 +60,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 5,
     "institucion": "Ministerio de Desarrollo Social - MIDES",
     "tipo": "Ministerios",
     "canales": 4,
@@ -70,6 +75,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 6,
     "institucion": "Ministerio de la Defensa Nacional - MINDEF",
     "tipo": "Ministerios",
     "canales": 3,
@@ -84,6 +90,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 7,
     "institucion": "Ministerio de Educación - MINEDUC",
     "tipo": "Ministerios",
     "canales": 5,
@@ -98,6 +105,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 8,
     "institucion": "Ministerio de Energía y Minas - MEM",
     "tipo": "Ministerios",
     "canales": 4,
@@ -112,6 +120,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 9,
     "institucion": "Ministerio de Finanzas Públicas - MINFIN",
     "tipo": "Ministerios",
     "canales": 3,
@@ -126,6 +135,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 10,
     "institucion": "Ministerio de Gobernación - MINGOB",
     "tipo": "Ministerios",
     "canales": 4,
@@ -140,6 +150,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 11,
     "institucion": "Ministerio de Relaciones Exteriores - MINEX",
     "tipo": "Ministerios",
     "canales": 3,
@@ -154,6 +165,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 12,
     "institucion": "Ministerio de Salud Pública y Asistencia Social - MSPAS",
     "tipo": "Ministerios",
     "canales": 5,
@@ -168,6 +180,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 13,
     "institucion": "Ministerio de Trabajo y Previsión Social - MINTRAB",
     "tipo": "Ministerios",
     "canales": 4,
@@ -182,6 +195,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 14,
     "institucion": "Ministerio de Ambiente y Recursos Naturales - MARN",
     "tipo": "Ministerios",
     "canales": 4,
@@ -196,9 +210,10 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 15,
     "institucion": "Secretaría de Asuntos Administrativos y de Seguridad de la Presidencia - SAAS",
     "tipo": "Secretarías",
-    "canales": 2,
+    "canales": 3,
     "correo": "instanciadeprobidad@saas.gob.gt",
     "telefono": "4016-2775",
     "formulario": "",
@@ -210,6 +225,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 16,
     "institucion": "Secretaría de Bienestar Social de la Presidencia - SBS",
     "tipo": "Secretarías",
     "canales": 3,
@@ -224,6 +240,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 17,
     "institucion": "Secretaría de Coordinación Ejecutiva de la Presidencia - SCEP",
     "tipo": "Secretarías",
     "canales": 4,
@@ -238,6 +255,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 18,
     "institucion": "Secretaría contra la Violencia Sexual, Explotación y Trata de Personas - SVET",
     "tipo": "Secretarías",
     "canales": 5,
@@ -252,6 +270,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 19,
     "institucion": "Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas - SECCATID",
     "tipo": "Secretarías",
     "canales": 4,
@@ -266,6 +285,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 20,
     "institucion": "Secretaría General de la Presidencia - SGP",
     "tipo": "Secretarías",
     "canales": 4,
@@ -280,6 +300,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 21,
     "institucion": "Secretaría Nacional de Administración de Bienes en Extinción de Dominio - SENABED",
     "tipo": "Secretarías",
     "canales": 5,
@@ -294,6 +315,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 22,
     "institucion": "Secretaría Nacional de Ciencia y Tecnología - SENACYT",
     "tipo": "Secretarías",
     "canales": 4,
@@ -308,6 +330,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 23,
     "institucion": "Secretaría de Obras Sociales de la Esposa del Presidente - SOSEP",
     "tipo": "Secretarías",
     "canales": 5,
@@ -322,6 +345,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 24,
     "institucion": "Secretaría Presidencial de la Mujer - SEPREM",
     "tipo": "Secretarías",
     "canales": 2,
@@ -336,9 +360,10 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 25,
     "institucion": "Secretaría de Seguridad Alimentaria y Nutricional - SESAN",
     "tipo": "Secretarías",
-    "canales": 2,
+    "canales": 3,
     "correo": "denuncias@sesan.gob.gt",
     "telefono": "",
     "formulario": "",
@@ -350,6 +375,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 26,
     "institucion": "Secretaría Técnica del Consejo Nacional de Seguridad - STCNS",
     "tipo": "Secretarías",
     "canales": 4,
@@ -364,6 +390,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 27,
     "institucion": "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno - AMSCLAE",
     "tipo": "Otras dependencias",
     "canales": 3,
@@ -378,12 +405,13 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 28,
     "institucion": "Comisión Presidencial contra la Discriminación y el Racismo - CODISRA",
     "tipo": "Otras dependencias",
     "canales": 3,
     "correo": "probidad.comiteetica@codisra.gob.gt",
     "telefono": "24945300",
-    "formulario":"",
+    "formulario": "",
     "tipocom": "Verbal y escrita",
     "otro": "",
     "direccion": "14 Calle 9 - 64, zona 1, Guatemala, Guatemala",
@@ -392,9 +420,10 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 29,
     "institucion": "Comisión Presidencial por la Paz y los Derechos Humanos - COPADEH",
     "tipo": "Otras dependencias",
-    "canales": 2,
+    "canales": 3,
     "correo": "comitedeetica@copadeh.gob.gt",
     "telefono": "",
     "formulario": "https://forms.office.com/r/S5fibcSEmG",
@@ -406,6 +435,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 30,
     "institucion": "Consejo Nacional de la Juventud - CONJUVE",
     "tipo": "Otras dependencias",
     "canales": 3,
@@ -420,6 +450,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 31,
     "institucion": "Inspectoria General del Sistema Nacional de Seguridad - IGSNS",
     "tipo": "Otras dependencias",
     "canales": 3,
@@ -434,6 +465,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 32,
     "institucion": "Instituto Nacional de Estudios Estratégicos en Seguridad - INEES",
     "tipo": "Otras dependencias",
     "canales": 5,
@@ -448,6 +480,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 33,
     "institucion": "Vicepresidencia de la República de Guatemala - VPRG",
     "tipo": "Otras dependencias",
     "canales": 4,
@@ -462,9 +495,10 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 34,
     "institucion": "Gobernación Departamental de Baja Verapaz ",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 5,
+    "canales": 4,
     "correo": "asuntosdeprobidad@gobernacionbajaverapaz.gob.gt",
     "telefono": "77254594, 79400060, 79400213",
     "formulario": "",
@@ -476,6 +510,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 35,
     "institucion": "Gobernación Departamental de Chimaltenango",
     "tipo": "Gobernaciones Departamentales",
     "canales": 3,
@@ -490,6 +525,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 36,
     "institucion": "Gobernación Departamental de El Progreso",
     "tipo": "Gobernaciones Departamentales",
     "canales": 3,
@@ -504,6 +540,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 37,
     "institucion": "Gobernación Departamental de Escuintla",
     "tipo": "Gobernaciones Departamentales",
     "canales": 2,
@@ -518,6 +555,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 38,
     "institucion": "Gobernación Departamental de Guatemala",
     "tipo": "Gobernaciones Departamentales",
     "canales": 1,
@@ -532,6 +570,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 39,
     "institucion": "Gobernación Departamental de Jalapa",
     "tipo": "Gobernaciones Departamentales",
     "canales": 3,
@@ -546,6 +585,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 40,
     "institucion": "Gobernación Departamental de Jutiapa",
     "tipo": "Gobernaciones Departamentales",
     "canales": 3,
@@ -560,6 +600,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 41,
     "institucion": "Gobernación Departamental de Petén",
     "tipo": "Gobernaciones Departamentales",
     "canales": 4,
@@ -574,6 +615,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 42,
     "institucion": "Gobernación Departamental de Quetzaltenango",
     "tipo": "Gobernaciones Departamentales",
     "canales": 3,
@@ -588,6 +630,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 43,
     "institucion": "Gobernación Departamental de Quiché",
     "tipo": "Gobernaciones Departamentales",
     "canales": 3,
@@ -602,6 +645,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 44,
     "institucion": "Gobernación Departamental de Sacatepéquez",
     "tipo": "Gobernaciones Departamentales",
     "canales": 3,
@@ -616,9 +660,10 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 45,
     "institucion": "Gobernación Departamental de San Marcos",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 3,
+    "canales": 4,
     "correo": "gobsanmarcos@mingob.gob.gt",
     "telefono": "77601523 y 77908900",
     "formulario": "https://gobernacionsanmarcos.gob.gt/wp/denuncias/",
@@ -630,6 +675,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 46,
     "institucion": "Gobernación Departamental de Suchitepéquez",
     "tipo": "Gobernaciones Departamentales",
     "canales": 1,
@@ -644,6 +690,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 47,
     "institucion": "Gobernación Departamental de Zacapa",
     "tipo": "Gobernaciones Departamentales",
     "canales": 5,
@@ -658,6 +705,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 48,
     "institucion": "Gobernación Departamental de Huehuetenango",
     "tipo": "Gobernaciones Departamentales",
     "canales": 2,
@@ -672,6 +720,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 49,
     "institucion": "Gobernación Departamental de Alta Verapaz",
     "tipo": "Gobernaciones Departamentales",
     "canales": 5,
@@ -686,9 +735,10 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 50,
     "institucion": "Gobernación Departamental de Chiquimula",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 3,
+    "canales": 4,
     "correo": "gobdenunciaschiquimula@gmail.com",
     "telefono": "49096412",
     "formulario": "https://gobernacionchiquimula.gob.gt/denuncia-administrativa/ ",
@@ -700,6 +750,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 51,
     "institucion": "Gobernación Departamental de Santa Rosa",
     "tipo": "Gobernaciones Departamentales",
     "canales": 3,
@@ -714,6 +765,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 52,
     "institucion": "Secretaría de Inteligencia Estratégica del Estado (SIE)",
     "tipo": "Secretarías",
     "canales": 3,
@@ -728,9 +780,10 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 53,
     "institucion": "Gobernación Departamental de Retalhuleu",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 3,
+    "canales": 4,
     "correo": "denuncias@gobernacionretalhuleu.gob.gt",
     "telefono": "",
     "formulario": "https://www.gobernacionretalhuleu.gob.gt/denuncias.php",
@@ -742,9 +795,10 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 54,
     "institucion": "Secretaría de Comunicación Social de la Presidencia - SCSPR",
     "tipo": "Secretarías",
-    "canales": 3,
+    "canales": 4,
     "correo": "unidaddeprobidad@scspr.gob.gt",
     "telefono": "24614990",
     "formulario": "https://denuncias.scspr.gob.gt/home",
@@ -756,6 +810,7 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 55,
     "institucion": "Gobernación Departamental de Izabal",
     "tipo": "Gobernaciones Departamentales",
     "canales": 4,
@@ -770,6 +825,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 56,
     "institucion": "Comisión Presidencial de Gobierno Abierto y Electrónico - GAE",
     "tipo": "Otras dependencias",
     "canales": 4,
@@ -784,9 +840,10 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 57,
     "institucion": "Gobernación Departamental de Sololá",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 2,
+    "canales": 3,
     "correo": "denuncias@gobernaciondesolola.gob.gt",
     "telefono": "",
     "formulario": "",
@@ -798,9 +855,10 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 58,
     "institucion": "Gobernación Departamental de Totonicapán",
     "tipo": "Gobernaciones Departamentales",
-    "canales": 4,
+    "canales": 5,
     "correo": "probidad@gobernaciontotonicapan.gob.gt",
     "telefono": "7766 1366 o 7766 7187, extensión 111",
     "formulario": "https://gobernaciontotonicapan.gob.gt/probidad/denunciasprob",
@@ -812,9 +870,10 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 59,
     "institucion": "Secretaría de Planificación y Programación de la Presidencia - SEGEPLAN",
     "tipo": "Secretarías",
-    "canales": 3,
+    "canales": 4,
     "correo": "probidad@segeplan.gob.gt",
     "telefono": "2504 4473",
     "formulario": "https://portal.segeplan.gob.gt/segeplan/?page_id=14952 ",
@@ -826,6 +885,7 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 60,
     "institucion": "Autoridad para el Manejo Sustentable de la cuenca del lago de Amatitlán - AMSA",
     "tipo": "Otras dependencias",
     "canales": 3,
@@ -840,9 +900,10 @@
     "Protocolo de actuación": false
   },
   {
+    "id": 61,
     "institucion": "Comisión Nacional Contra la Corrupción - CNC",
     "tipo": "Otras dependencias",
-    "canales": 2,
+    "canales": 3,
     "correo": "probidad@cnc.gob.gt",
     "telefono": "",
     "formulario": "https://l1nk.dev/1fang5b",
@@ -854,9 +915,10 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 62,
     "institucion": "Defensoría de la Mujer Indígena - DEMI",
     "tipo": "Otras dependencias",
-    "canales": 3,
+    "canales": 4,
     "correo": "auditoriainterna@demi.gob.gt",
     "telefono": "",
     "formulario": "https://docs.google.com/forms/d/e/1FAIpQLScCAaDemIJ-Xs3Pu25iEGbF6CPWj92boXhRdEhoU37Rr5gcwg/viewform",
@@ -868,9 +930,10 @@
     "Protocolo de actuación": true
   },
   {
+    "id": 63,
     "institucion": "Oficina Nacional de Servicio Civil - ONSEC",
     "tipo": "Otras dependencias",
-    "canales": 2,
+    "canales": 3,
     "correo": "",
     "telefono": "",
     "formulario": "https://tramitesdpc.onsec.gob.gt/denunciaprob_onsec/",
@@ -880,11 +943,12 @@
     "ubicacion": "13 calle 6-77 zona 1, Guatemala, Guatemala",
     "horario": "Lunes a viernes, de 8:00 a 16:00",
     "Protocolo de actuación": true
-    },
-    {
+  },
+  {
+    "id": 64,
     "institucion": "Consejo Nacional de Áreas Protegidas - CONAP",
     "tipo": "Otras dependencias",
-    "canales": 1,
+    "canales": 2,
     "correo": "denuncias.codigoetica@conap.gob.gt",
     "telefono": "",
     "formulario": "",
@@ -894,11 +958,12 @@
     "ubicacion": "5ta. Avenida 6-06, Zona 1, Edificio IPM, 5to, 6to y 7mo Nivel, Guatemala, Guatemala",
     "horario": "Lunes a viernes, de 8:00 a 16:30",
     "Protocolo de actuación": false
-    },
-      {
+  },
+  {
+    "id": 65,
     "institucion": "Comisión Presidencial de Atención a la Conflictividad - COPRECOM",
     "tipo": "Otras dependencias",
-    "canales": 2,
+    "canales": 3,
     "correo": "asuntosdeprobidad@coprecon.gob.gt",
     "telefono": "",
     "formulario": "https://coprecon.gob.gt/denuncia-administrativa/",
@@ -908,5 +973,5 @@
     "ubicacion": "6.ª avenida 1-49, zona 1, Guatemala, Guatemala",
     "horario": "Lunes a viernes, de 9:00 a 17:00",
     "Protocolo de actuación": false
-    }
+  }
 ]

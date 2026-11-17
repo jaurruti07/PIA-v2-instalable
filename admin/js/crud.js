@@ -56,10 +56,32 @@ async function updateRecord(module, id, data) {
         body: JSON.stringify(data)
     });
     if (!res.ok) {
-        const err = await res.json();
         if (res.status === 409) {
-            throw new Error(err.error || 'Conflicto de concurrencia: Los datos fueron modificados por la otra persona operadora. Por favor recargue la tabla.');
+            try {
+                const freshRes = await fetch(`${API_BASE}/${module}`, { headers: getHeaders(), cache: 'no-store' });
+                if (freshRes.ok) {
+                    const freshEtag = freshRes.headers.get('ETag');
+                    if (freshEtag) {
+                        moduleETags[module] = freshEtag;
+                        const retryHeaders = getHeaders();
+                        retryHeaders['If-Match'] = freshEtag;
+                        const retryRes = await fetch(`${API_BASE}/${module}/${id}`, {
+                            method: 'PUT',
+                            headers: retryHeaders,
+                            body: JSON.stringify(data)
+                        });
+                        if (retryRes.ok) {
+                            const newEtag = retryRes.headers.get('ETag');
+                            if (newEtag) moduleETags[module] = newEtag;
+                            return retryRes.json();
+                        }
+                    }
+                }
+            } catch (_) {}
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Conflicto de concurrencia: Los datos fueron modificados. Por favor intente guardar de nuevo.');
         }
+        const err = await res.json().catch(() => ({}));
         throw new Error(err.error || 'Error al actualizar');
     }
     const newEtag = res.headers.get('ETag');
