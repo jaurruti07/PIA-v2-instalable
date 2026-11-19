@@ -1150,6 +1150,121 @@
         }
 
         /* ============================================================
+           PAGINACIÓN VISTA DE LISTA
+        ============================================================ */
+        .dir-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding: 1rem 1.4rem;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow-sm);
+        }
+        .dir-pagination-info {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .dir-pagination-info strong {
+            color: var(--navy);
+            font-weight: 700;
+        }
+        .dir-pagination-controls {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .dir-page-btn {
+            min-width: 38px;
+            height: 38px;
+            padding: 0 0.75rem;
+            border-radius: 50px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-main);
+            font-family: var(--font-head);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .dir-page-btn:hover:not(:disabled):not(.active) {
+            border-color: var(--blue-bright);
+            color: var(--blue-bright);
+            background: #fff;
+        }
+        .dir-page-btn.active {
+            background: var(--navy);
+            border-color: var(--navy);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(5, 17, 31, 0.2);
+        }
+        .dir-page-btn:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .dir-page-ellipsis {
+            padding: 0 0.35rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            user-select: none;
+        }
+        #directorio.theme-dark .dir-pagination {
+            background: #0F1E2E;
+            border-color: rgba(0, 194, 224, 0.16);
+        }
+        #directorio.theme-dark .dir-pagination-info {
+            color: rgba(255, 255, 255, 0.65);
+        }
+        #directorio.theme-dark .dir-pagination-info strong {
+            color: #fff;
+        }
+        #directorio.theme-dark .dir-page-btn {
+            background: var(--navy-light);
+            border-color: rgba(0, 194, 224, 0.22);
+            color: rgba(255, 255, 255, 0.85);
+        }
+        #directorio.theme-dark .dir-page-btn:hover:not(:disabled):not(.active) {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(0, 194, 224, 0.1);
+        }
+        #directorio.theme-dark .dir-page-btn.active {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            color: var(--navy);
+        }
+        @media (max-width: 640px) {
+            .dir-pagination {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 1rem;
+            }
+            .dir-pagination-controls {
+                justify-content: center;
+            }
+            .dir-page-btn {
+                min-width: 34px;
+                height: 34px;
+                padding: 0 0.6rem;
+                font-size: 0.76rem;
+            }
+        }
+
+        /* ============================================================
            DIRECTORY CARDS
         ============================================================ */
         .dir-swiper { padding: 1rem 0.5rem 3rem !important; }
@@ -2210,11 +2325,11 @@
             </div>
             <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
                 <div class="view-toggle-group" id="viewToggleGroup" role="group" aria-label="Modo de visualización">
-                    <button id="viewCardsBtn" class="view-btn active" type="button" title="Vista de Tarjetas">
-                        <i class="fas fa-th-large"></i> <span>Tarjetas</span>
-                    </button>
-                    <button id="viewListBtn" class="view-btn" type="button" title="Vista de Lista">
+                    <button id="viewListBtn" class="view-btn active" type="button" title="Vista de Lista">
                         <i class="fas fa-list"></i> <span>Lista</span>
+                    </button>
+                    <button id="viewCardsBtn" class="view-btn" type="button" title="Vista de Tarjetas">
+                        <i class="fas fa-th-large"></i> <span>Tarjetas</span>
                     </button>
                 </div>
                 <button id="themeToggleBtn" style="display:inline-flex; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--border); border-radius:50px; padding:0.55rem 1.2rem; font-family:var(--font-head); font-size:0.78rem; font-weight:600; color:var(--text-muted); transition:all 0.2s;" onmouseover="this.style.borderColor='var(--blue-bright)'; this.style.color='var(--blue-bright)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
@@ -2306,7 +2421,7 @@
         </div>
 
         <!-- SWIPER TARJETAS -->
-        <div id="cardsViewWrapper" style="position:relative; padding: 0 30px;">
+        <div id="cardsViewWrapper" style="position:relative; padding: 0 30px; display:none;">
             <div class="swiper dir-swiper" id="dirSwiper">
                 <div class="swiper-wrapper" id="cardsContainer"></div>
             </div>
@@ -2315,8 +2430,9 @@
         </div>
 
         <!-- VISTA DE LISTA -->
-        <div id="listViewWrapper" style="display:none; margin-bottom:2rem;">
+        <div id="listViewWrapper" style="margin-bottom:2rem;">
             <div class="dir-list-container" id="listContainer"></div>
+            <nav class="dir-pagination" id="listPagination" aria-label="Paginación del directorio" style="display:none;"></nav>
         </div>
 
         <div class="export-row">
@@ -2504,14 +2620,14 @@ let currentFilters = {
     oficio: false
 };
 let currentTheme = localStorage.getItem('dir_theme') || 'light';
-// La vista tarjeta es la predeterminada oficial
-let currentView = 'cards';
+// La vista de lista es la predeterminada oficial con paginación de 10 registros por página
+let currentView = 'list';
 try {
     localStorage.removeItem('dir_view');
 } catch (e) {}
 let currentCardsPage = 1;
 let currentListPage = 1;
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 10;
 let recognition = null;
 
 /* ============================================================
@@ -2964,22 +3080,110 @@ document.querySelectorAll('.modal-tabs').forEach(container => {
 });
 
 /* ============================================================
-   RENDER VISTA DE LISTA
+   RENDER VISTA DE LISTA CON PAGINACIÓN (10 POR PÁGINA)
 ============================================================ */
-function renderList(list, append = false) {
+function buildPaginationPages(current, total) {
+    if (total <= 7) {
+        return Array.from({ length: total }, (_, idx) => idx + 1);
+    }
+    const pages = [1];
+    const start = Math.max(2, current - 1);
+    const end = Math.min(total - 1, current + 1);
+    if (start > 2) pages.push('...');
+    for (let p = start; p <= end; p++) pages.push(p);
+    if (end < total - 1) pages.push('...');
+    pages.push(total);
+    return pages;
+}
+
+function renderListPagination(list, totalPages, startIdx, endIdx) {
+    const $pagination = document.getElementById('listPagination');
+    if (!$pagination) return;
+
+    if (!list.length) {
+        $pagination.innerHTML = '';
+        $pagination.style.display = 'none';
+        return;
+    }
+
+    const totalItems = list.length;
+    const pages = buildPaginationPages(currentListPage, totalPages);
+
+    const buttonsHtml = pages.map(p => {
+        if (p === '...') {
+            return `<span class="dir-page-ellipsis" aria-hidden="true">…</span>`;
+        }
+        const activeCls = p === currentListPage ? ' active' : '';
+        return `<button type="button" class="dir-page-btn${activeCls}" data-page="${p}" aria-label="Página ${p}" ${p === currentListPage ? 'aria-current="page"' : ''}>${p}</button>`;
+    }).join('');
+
+    $pagination.style.display = 'flex';
+    $pagination.innerHTML = `
+        <div class="dir-pagination-info">
+            Mostrando <strong>${startIdx + 1}–${endIdx}</strong> de <strong>${totalItems}</strong> instituciones · Página <strong>${currentListPage}</strong> de <strong>${totalPages}</strong>
+        </div>
+        <div class="dir-pagination-controls">
+            <button type="button" class="dir-page-btn" id="dirPagePrev" ${currentListPage <= 1 ? 'disabled' : ''} aria-label="Página anterior">
+                <i class="fas fa-chevron-left"></i> <span>Anterior</span>
+            </button>
+            ${buttonsHtml}
+            <button type="button" class="dir-page-btn" id="dirPageNext" ${currentListPage >= totalPages ? 'disabled' : ''} aria-label="Página siguiente">
+                <span>Siguiente</span> <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    `;
+
+    const goToPage = (targetPage) => {
+        const clamped = Math.max(1, Math.min(totalPages, targetPage));
+        if (clamped === currentListPage) return;
+        currentListPage = clamped;
+        renderList(list, false);
+        const $listWrapper = document.getElementById('listViewWrapper');
+        if ($listWrapper) {
+            const rect = $listWrapper.getBoundingClientRect();
+            if (rect.top < 80 || rect.top > window.innerHeight * 0.65) {
+                $listWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    };
+
+    $pagination.querySelectorAll('.dir-page-btn[data-page]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pageNum = Number(btn.dataset.page);
+            if (Number.isInteger(pageNum)) goToPage(pageNum);
+        });
+    });
+
+    const prevBtn = document.getElementById('dirPagePrev');
+    if (prevBtn) prevBtn.addEventListener('click', () => goToPage(currentListPage - 1));
+
+    const nextBtn = document.getElementById('dirPageNext');
+    if (nextBtn) nextBtn.addEventListener('click', () => goToPage(currentListPage + 1));
+}
+
+function renderList(list, resetPage = false) {
     const $list = document.getElementById('listContainer');
     if (!$list) return;
-    if (!append) {
-        $list.innerHTML = '';
+
+    if (resetPage) {
         currentListPage = 1;
     }
-    const start = (currentListPage - 1) * ITEMS_PER_PAGE;
-    const pageList = list.slice(start, start + ITEMS_PER_PAGE);
+
+    $list.innerHTML = '';
 
     if (!list.length) {
         $list.innerHTML = `<div style="background:#fff; border-radius:var(--radius-xl); padding:3rem; text-align:center; color:var(--text-muted); width:100%; border:1px solid var(--border);">No se encontraron instituciones.</div>`;
+        renderListPagination(list, 0, 0, 0);
         return;
     }
+
+    const totalPages = Math.max(1, Math.ceil(list.length / ITEMS_PER_PAGE));
+    if (currentListPage > totalPages) currentListPage = totalPages;
+    if (currentListPage < 1) currentListPage = 1;
+
+    const start = (currentListPage - 1) * ITEMS_PER_PAGE;
+    const end = Math.min(start + ITEMS_PER_PAGE, list.length);
+    const pageList = list.slice(start, end);
 
     pageList.forEach(inst => {
         const phone = cleanPhone(inst.telefono);
@@ -3014,23 +3218,7 @@ function renderList(list, append = false) {
         $list.appendChild(row);
     });
 
-    if (start + ITEMS_PER_PAGE < list.length) {
-        const trigger = document.createElement('div');
-        trigger.className = 'load-more-trigger';
-        trigger.style = 'width:100%;text-align:center;padding:1rem;color:var(--text-muted);font-weight:bold;';
-        trigger.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando más...';
-        $list.appendChild(trigger);
-        
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                observer.disconnect();
-                trigger.remove();
-                currentListPage++;
-                renderList(list, true);
-            }
-        });
-        observer.observe(trigger);
-    }
+    renderListPagination(list, totalPages, start, end);
 }
 
 /* ============================================================
@@ -3280,7 +3468,7 @@ window._exportFichaPdf = async function(nombreParam) {
 };
 
 function switchView(view) {
-    currentView = view || 'cards';
+    currentView = view || 'list';
 
     const $cardsWrapper = document.getElementById('cardsViewWrapper');
     const $listWrapper  = document.getElementById('listViewWrapper');
@@ -3329,7 +3517,7 @@ function applyFilters() {
     $statsOficio.textContent = nOficio;
 
     renderCards(filtered);
-    renderList(filtered);
+    renderList(filtered, true);
     switchView(currentView);
 }
 
@@ -3664,9 +3852,9 @@ async function cargarDatosYIniciar() {
         instituciones.sort((a,b) => a.nombre_institucion.localeCompare(b.nombre_institucion));
         populateFilters();
         applyTheme();
-        currentView = 'cards';
+        currentView = 'list';
         readFilters();
-        switchView('cards');
+        switchView('list');
         showToast('Directorio cargado correctamente ✅');
     } catch (error) {
         console.error('Error al cargar los datos:', error);
