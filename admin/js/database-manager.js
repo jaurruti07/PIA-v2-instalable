@@ -160,7 +160,12 @@ async function fetchStorageStatus() {
   }
 }
 
-export async function initDatabaseManager() {
+let activeScriptTab = 'sql';
+
+export async function initDatabaseManager(initialTab = null) {
+  if (initialTab) {
+    currentTab = initialTab;
+  }
   await fetchStorageStatus();
   renderDatabaseManager();
 }
@@ -264,6 +269,9 @@ function renderHybridSqlTab() {
 
   const schema = storageStatus.schema || {};
   const conn = schema.connection || {};
+  const envConfig = storageStatus.envConfig || {};
+  const envConn = envConfig.connection || {};
+  const envParams = envConfig.envParameters || {};
   const modules = storageStatus.modules || [];
   const tables = schema.tables || [];
   const activeMode = storageStatus.config?.mode || 'json';
@@ -337,6 +345,9 @@ function renderHybridSqlTab() {
         <button type="button" class="btn btn-info-alt" id="btnTestSqlConn" ${isBusy ? 'disabled' : ''}>
           <i class="fas fa-stethoscope"></i> Probar Conexión SQL
         </button>
+        <button type="button" class="btn btn-secondary" id="btnReloadSqlEnv" ${isBusy ? 'disabled' : ''} title="Recargar variables .env de MySQL/MariaDB en el servidor">
+          <i class="fas fa-redo"></i> Recargar .env
+        </button>
         <button type="button" class="btn btn-primary" id="btnOpenInitSqlModal" ${isBusy || !conn.connected ? 'disabled' : ''} title="${!conn.connected ? 'Requiere conexión activa a MySQL/MariaDB' : 'Crear base de datos y tablas si no existen'}">
           <i class="fas fa-database"></i> Inicializar / Verificar Tablas SQL
         </button>
@@ -351,6 +362,43 @@ function renderHybridSqlTab() {
         </button>
       </div>
       ${!conn.configured ? `<p style="margin:0.75rem 0 0; font-size:0.82rem; color:#b45309;"><i class="fas fa-info-circle"></i> Nota: Configure las variables <code>MYSQL_HOST</code>, <code>MYSQL_USER</code>, <code>MYSQL_PASSWORD</code> y <code>MYSQL_DATABASE</code> en el archivo <code>.env</code> del servidor para habilitar las operaciones SQL. Consulte la pestaña <strong>Guía de Instalación en Servidor</strong> para obtener el script y los pasos completos.</p>` : ''}
+    </div>
+
+    <!-- Configuración de Conexión MySQL / MariaDB (.env - Solo Lectura Segura) -->
+    <div class="storage-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.85rem;">
+        <div>
+          <h3 style="margin:0; color:var(--navy);"><i class="fas fa-server" style="color:var(--cyan);"></i> Configuración de Conexión MySQL / MariaDB (Variables <code>.env</code>)</h3>
+          <p class="text-muted" style="margin:0.2rem 0 0;">Parámetros cargados exclusivamente en el servidor mediante <code>admin/database-manager.js</code>. Las credenciales nunca se exponen al navegador.</p>
+        </div>
+        <span class="pill-source ${envConfig.envFileExists ? 'pill-source-sql' : 'pill-source-warn'}">
+          <i class="fas ${envConfig.envFileExists ? 'fa-file-shield' : 'fa-file-circle-exclamation'}"></i>
+          ${envConfig.envFileExists ? 'Archivo .env detectado' : 'Sin archivo .env (solo variables de entorno)'}
+        </span>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem;">
+          <div style="font-size:0.74rem; color:var(--text-muted); font-weight:700;">HOST (MYSQL_HOST)</div>
+          <div style="font-family:monospace; font-weight:700; color:var(--navy); margin-top:0.2rem;">${escapeHtml(envConn.hostMasked || conn.hostMasked || 'No configurado')}</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem;">
+          <div style="font-size:0.74rem; color:var(--text-muted); font-weight:700;">PUERTO (MYSQL_PORT)</div>
+          <div style="font-family:monospace; font-weight:700; color:var(--navy); margin-top:0.2rem;">${Number(envConn.port || conn.port || 3306)}</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem;">
+          <div style="font-size:0.74rem; color:var(--text-muted); font-weight:700;">BASE DE DATOS</div>
+          <div style="font-family:monospace; font-weight:700; color:var(--navy); margin-top:0.2rem;">${escapeHtml(envConn.database || conn.database || 'pia_db')}</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem;">
+          <div style="font-size:0.74rem; color:var(--text-muted); font-weight:700;">USUARIO / CREDENCIAL</div>
+          <div style="font-family:monospace; font-weight:700; color:var(--navy); margin-top:0.2rem;">${escapeHtml(envConn.userMasked || 'No configurado')} · ${envParams.credentialsConfigured ? '<span style="color:#15803D;">Clave en .env</span>' : '<span style="color:#b45309;">Sin clave</span>'}</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem;">
+          <div style="font-size:0.74rem; color:var(--text-muted); font-weight:700;">TLS/SSL · POOL LIMIT</div>
+          <div style="font-family:monospace; font-weight:700; color:var(--navy); margin-top:0.2rem;">${envConn.sslEnabled ? 'SSL Activo' : 'SSL Inactivo'} · Máx ${Number(envConn.connectionLimit || 10)}</div>
+        </div>
+      </div>
+      ${Array.isArray(envConfig.validationErrors) && envConfig.validationErrors.length > 0 ? `<div style="margin-top:0.75rem; font-size:0.82rem; color:#b91c1c;"><i class="fas fa-exclamation-triangle"></i> ${escapeHtml(envConfig.validationErrors.join(' '))}</div>` : ''}
     </div>
 
     <!-- Selector de Modalidad y Matriz por Módulo -->
@@ -508,34 +556,94 @@ function renderHybridSqlTab() {
 function renderInstallGuideTab() {
   const sqlScript = (installAssets && installAssets.sqlScript) ? installAssets.sqlScript : FALLBACK_SQL_NOTICE;
   const envTemplate = (installAssets && installAssets.envTemplate) ? installAssets.envTemplate : FALLBACK_ENV_TEMPLATE;
-  const hasLiveScript = Boolean(installAssets && installAssets.sqlScript);
-  const sqlLineCount = sqlScript.split(/\r?\n/).length;
+  const deployPs1 = (installAssets && installAssets.deployPs1) ? installAssets.deployPs1 : '-- Ejecuta el servidor Node.js activo para cargar deploy-iis.ps1 o ábrelo en la raíz del proyecto.';
+  const webConfig = (installAssets && installAssets.webConfig) ? installAssets.webConfig : '<!-- Ejecuta el servidor Node.js activo para cargar web.config o ábrelo en la raíz del proyecto. -->';
+  const migrateScript = (installAssets && installAssets.migrateScript) ? installAssets.migrateScript : '// Ejecuta el servidor Node.js activo para cargar admin/scripts/migrate_json_to_sql.js.';
 
-  const cmdInstall = `cd C:\\inetpub\\wwwroot\\PIA\nnpm install --omit=dev`;
+  const hasLiveSql = Boolean(installAssets && installAssets.sqlScript);
+  const hasLivePs1 = Boolean(installAssets && installAssets.deployPs1);
+  const hasLiveWebConfig = Boolean(installAssets && installAssets.webConfig);
+  const hasLiveMigrate = Boolean(installAssets && installAssets.migrateScript);
+
+  const scriptMeta = {
+    sql: {
+      title: 'sql/01_schema_mysql.sql',
+      subtitle: 'MySQL 8.0+ / MariaDB 10.6+ · InnoDB · utf8mb4_unicode_ci · 14 tablas',
+      content: sqlScript,
+      fileName: '01_schema_mysql.sql',
+      mime: 'application/sql;charset=utf-8'
+    },
+    migrate: {
+      title: 'admin/scripts/migrate_json_to_sql.js',
+      subtitle: 'Migración masiva CLI de los 5 JSON a SQL con validación de esquema y log por registro',
+      content: migrateScript,
+      fileName: 'migrate_json_to_sql.js',
+      mime: 'application/javascript;charset=utf-8'
+    },
+    ps1: {
+      title: 'deploy-iis.ps1',
+      subtitle: 'PowerShell Administrador · ACLs NTFS en C:\\PIA_Data, AppPool IIS y Healthcheck',
+      content: deployPs1,
+      fileName: 'deploy-iis.ps1',
+      mime: 'text/plain;charset=utf-8'
+    },
+    webconfig: {
+      title: 'web.config',
+      subtitle: 'IIS Reverse Proxy (URL Rewrite + ARR), bloqueo de .env/.sql/data y MIME',
+      content: webConfig,
+      fileName: 'web.config',
+      mime: 'application/xml;charset=utf-8'
+    },
+    env: {
+      title: '.env.example',
+      subtitle: 'Plantilla institucional de variables de entorno (solo backend)',
+      content: envTemplate,
+      fileName: '.env.example',
+      mime: 'text/plain;charset=utf-8'
+    }
+  };
+  const activeScript = scriptMeta[activeScriptTab] || scriptMeta.sql;
+  const activeLineCount = activeScript.content.split(/\r?\n/).length;
+
+  const cmdInstall = `cd C:\\inetpub\\wwwroot\\PIA\nnpm install --omit=dev\n\n# Despliegue automatizado IIS + C:\\PIA_Data (PowerShell Administrador):\n.\\deploy-iis.ps1`;
+  const cmdSessionSecret = `# Generar llave criptográfica segura de 96 caracteres hexadecimales para PIA_SESSION_SECRET:\nnode -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`;
   const cmdCreateDbUser = `CREATE DATABASE IF NOT EXISTS \`pia_db\`\n  CHARACTER SET utf8mb4\n  COLLATE utf8mb4_unicode_ci;\n\nCREATE USER IF NOT EXISTS 'pia_app_user'@'localhost' IDENTIFIED BY 'CONTRASEÑA_SEGURA_AQUI';\nGRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER\n  ON \`pia_db\`.* TO 'pia_app_user'@'localhost';\nFLUSH PRIVILEGES;`;
   const cmdRunSqlCli = `mysql -u pia_app_user -p < sql\\01_schema_mysql.sql`;
-  const cmdService = `# Con PM2 como servicio de Windows:\nnpm install -g pm2 pm2-windows-service\npm2-service-install -n PIA_Portal\npm2 start server.js --name pia-backend\npm2 save\n\n# O con NSSM:\nnssm install PIA_Service "C:\\Program Files\\nodejs\\node.exe" "C:\\inetpub\\wwwroot\\PIA\\server.js"\nnssm set PIA_Service AppDirectory "C:\\inetpub\\wwwroot\\PIA"\nnssm start PIA_Service`;
-  const cmdVerify = `npm test\n# Verificar endpoint público:\ncurl http://127.0.0.1:3000/api/modules`;
+  const cmdMigrateCli = `# 1. Simular y validar los 5 JSON contra el esquema SQL sin escribir en BD:\nnpm run migrate:sql:dry-run\n\n# 2. Ejecutar inserción masiva hacia MySQL/MariaDB (crea bitácora por registro en data/migration_logs/):\nnode admin/scripts/migrate_json_to_sql.js --init-schema`;
+  const cmdService = `# Opción A — PM2 como servicio de Windows:\nnpm install -g pm2 pm2-windows-service\npm2-service-install -n PIA_Portal\npm2 start server.js --name pia-backend --env production\npm2 save\n\n# Opción B — NSSM (Servicio nativo Windows):\nnssm install PIA_Service "C:\\Program Files\\nodejs\\node.exe" "C:\\inetpub\\wwwroot\\PIA\\server.js"\nnssm set PIA_Service AppDirectory "C:\\inetpub\\wwwroot\\PIA"\nnssm start PIA_Service`;
+  const cmdLinuxSystemd = `# 1. Crear /etc/systemd/system/pia.service\n[Unit]\nDescription=Portal de Integridad Activa (PIA) - CNC\nAfter=network.target mysql.service\n\n[Service]\nType=simple\nUser=www-data\nWorkingDirectory=/var/www/pia\nExecStart=/usr/bin/node /var/www/pia/server.js\nRestart=always\nRestartSec=5\nEnvironment=NODE_ENV=production\n\n[Install]\nWantedBy=multi-user.target\n\n# 2. Habilitar servicio:\nsudo systemctl daemon-reload && sudo systemctl enable --now pia`;
+  const cmdLinuxNginx = `# /etc/nginx/sites-available/pia (Proxy Inverso + Bloqueo de archivos sensibles)\nserver {\n    listen 80;\n    server_name pia.cnc.gob.gt;\n\n    location ~* \\.(env|sql|bak|tmp)$ { deny all; return 404; }\n    location ^~ /data/ { deny all; return 404; }\n\n    location / {\n        proxy_pass http://127.0.0.1:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }\n}`;
+  const cmdBackupRestore = `# Respaldo diario programado de MySQL/MariaDB (PowerShell):\n$fecha = Get-Date -Format "yyyyMMdd_HHmm"\nmysqldump -u pia_app_user -p --single-transaction --routines --triggers pia_db > "C:\\PIA_Backups\\pia_db_$fecha.sql"\n\n# Restauración de emergencia desde respaldo SQL:\nmysql -u pia_app_user -p pia_db < C:\\PIA_Backups\\pia_db_20261118_0200.sql`;
+  const cmdVerify = `npm test\n# Verificar módulos y salud del servicio:\ncurl http://127.0.0.1:3000/api/modules`;
 
   return `
-    <!-- Encabezado y descargas rápidas -->
+    <!-- Encabezado y paquete completo de descargas -->
     <div class="storage-panel">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
         <div>
-          <h3 style="margin:0; color:var(--navy);"><i class="fas fa-server" style="color:var(--cyan);"></i> Guía Institucional de Instalación en Servidor (Windows Server + Node.js + MySQL/MariaDB)</h3>
+          <h3 style="margin:0; color:var(--navy);"><i class="fas fa-server" style="color:var(--cyan);"></i> Guía Completa de Instalación en Servidor (Windows Server / Linux + Node.js + SQL)</h3>
           <p class="text-muted" style="margin:0.35rem 0 0;">
-            Instrucciones paso a paso y script SQL oficial de 14 tablas para desplegar el Portal de Integridad Activa (PIA) en infraestructura institucional con almacenamiento Híbrido, JSON o SQL.
+            Procedimiento integral, scripts oficiales de despliegue e infraestructura, configuración de proxy inverso y respaldos para operar PIA en servidor institucional con almacenamiento JSON, SQL o Híbrido.
           </p>
         </div>
         <div class="storage-btn-toolbar">
-          <button type="button" class="btn btn-primary" id="btnDownloadSqlScript" ${!hasLiveScript ? 'disabled' : ''}>
-            <i class="fas fa-download"></i> Descargar 01_schema_mysql.sql
+          <button type="button" class="btn btn-primary" id="btnDownloadSqlScript" ${!hasLiveSql ? 'disabled' : ''}>
+            <i class="fas fa-database"></i> 01_schema_mysql.sql
           </button>
-          <button type="button" class="btn btn-info-alt" id="btnDownloadEnvTemplate">
-            <i class="fas fa-file-alt"></i> Descargar .env.example
+          <button type="button" class="btn btn-info-alt" id="btnDownloadMigrateScript" ${!hasLiveMigrate ? 'disabled' : ''}>
+            <i class="fas fa-file-import"></i> migrate_json_to_sql.js
+          </button>
+          <button type="button" class="btn btn-info-alt" id="btnDownloadDeployPs1" ${!hasLivePs1 ? 'disabled' : ''}>
+            <i class="fas fa-terminal"></i> deploy-iis.ps1
+          </button>
+          <button type="button" class="btn btn-success-alt" id="btnDownloadWebConfig" ${!hasLiveWebConfig ? 'disabled' : ''}>
+            <i class="fas fa-file-code"></i> web.config
+          </button>
+          <button type="button" class="btn btn-warning-alt" id="btnDownloadEnvTemplate">
+            <i class="fas fa-file-alt"></i> .env.example
           </button>
           <button type="button" class="btn btn-secondary" id="btnDownloadFullGuide" ${!(installAssets && installAssets.guideMarkdown) ? 'disabled' : ''}>
-            <i class="fas fa-book"></i> Descargar Guía (.md)
+            <i class="fas fa-book"></i> Guía (.md)
           </button>
         </div>
       </div>
@@ -543,35 +651,35 @@ function renderInstallGuideTab() {
       <div class="install-guide-grid">
         <div class="install-req-card">
           <strong style="color:var(--navy); display:flex; align-items:center; gap:7px; margin-bottom:0.3rem;"><i class="fab fa-windows" style="color:var(--cyan);"></i> Sistema Operativo</strong>
-          <span class="text-muted" style="font-size:0.82rem;">Windows Server 2019 / 2022 (o Linux / Windows 10-11 para pruebas locales).</span>
+          <span class="text-muted" style="font-size:0.82rem;">Windows Server 2019 / 2022 (IIS + ARR) o Linux (Ubuntu/Debian/RHEL con Nginx + Systemd).</span>
         </div>
         <div class="install-req-card">
           <strong style="color:var(--navy); display:flex; align-items:center; gap:7px; margin-bottom:0.3rem;"><i class="fab fa-node-js" style="color:#16a34a;"></i> Node.js LTS</strong>
-          <span class="text-muted" style="font-size:0.82rem;">Versión 18.x, 20.x o 22.x con Express, <code>mysql2</code> y <code>dotenv</code>.</span>
+          <span class="text-muted" style="font-size:0.82rem;">Versión 18.x, 20.x o 22.x ejecutando <code>server.js</code> en <code>127.0.0.1:3000</code>.</span>
         </div>
         <div class="install-req-card">
           <strong style="color:var(--navy); display:flex; align-items:center; gap:7px; margin-bottom:0.3rem;"><i class="fas fa-database" style="color:#2B82C9;"></i> Motor SQL Relacional</strong>
-          <span class="text-muted" style="font-size:0.82rem;">MySQL Server 8.0+ o MariaDB 10.6+ (<code>InnoDB</code> + <code>utf8mb4_unicode_ci</code>).</span>
+          <span class="text-muted" style="font-size:0.82rem;">MySQL 8.0+ o MariaDB 10.6+ (<code>InnoDB</code> + <code>utf8mb4_unicode_ci</code>). Opcional si opera en modo JSON.</span>
         </div>
         <div class="install-req-card">
-          <strong style="color:var(--navy); display:flex; align-items:center; gap:7px; margin-bottom:0.3rem;"><i class="fas fa-network-wired" style="color:#d97706;"></i> Proxy / Servicio</strong>
-          <span class="text-muted" style="font-size:0.82rem;">IIS (URL Rewrite + ARR usando <code>web.config</code>) y PM2 o NSSM en puerto <code>3000</code>.</span>
+          <strong style="color:var(--navy); display:flex; align-items:center; gap:7px; margin-bottom:0.3rem;"><i class="fas fa-shield-alt" style="color:#d97706;"></i> Seguridad & Proxy</strong>
+          <span class="text-muted" style="font-size:0.82rem;">HTTPS/TLS en puerto <code>443</code>, bloqueo de <code>.env/.sql/data</code> y firewall restringiendo puertos internos.</span>
         </div>
       </div>
     </div>
 
-    <!-- Pasos de Instalación -->
+    <!-- Pasos de Instalación (1 al 9) -->
     <div class="storage-panel">
-      <h3 style="margin:0 0 0.25rem; color:var(--navy);"><i class="fas fa-tasks" style="color:var(--cyan);"></i> Procedimiento de Instalación Paso a Paso</h3>
-      <p class="text-muted" style="margin:0;">Siga este orden para instalar el sistema en el servidor institucional sin exponer credenciales ni afectar los archivos JSON originales.</p>
+      <h3 style="margin:0 0 0.25rem; color:var(--navy);"><i class="fas fa-tasks" style="color:var(--cyan);"></i> Procedimiento Completo de Instalación y Puesta en Producción</h3>
+      <p class="text-muted" style="margin:0;">Siga los pasos en orden para desplegar la aplicación de forma segura, auditable y sin exposición de credenciales.</p>
 
       <div class="install-step-list">
         <!-- Paso 1 -->
         <div class="install-step-card">
           <div class="install-step-num">1</div>
           <div class="install-step-body">
-            <h4>Ubicar el proyecto en el servidor e instalar dependencias</h4>
-            <p class="text-muted" style="margin:0;">Copie el paquete completo en la carpeta institucional (ej. <code>C:\\inetpub\\wwwroot\\PIA</code>) e instale las dependencias de producción. Si usa IIS, también puede ejecutar <code>.\\deploy-iis.ps1</code> como Administrador.</p>
+            <h4>Ubicar el proyecto, instalar dependencias y preparar carpeta protegida de datos</h4>
+            <p class="text-muted" style="margin:0;">Copie el proyecto en <code>C:\\inetpub\\wwwroot\\PIA</code> (Windows) o <code>/var/www/pia</code> (Linux). En Windows Server, el script <code>deploy-iis.ps1</code> automatiza dependencias, creación de <code>C:\\PIA_Data\\backups</code> con permisos NTFS restringidos y el Application Pool <code>PiaAppPool</code>.</p>
             <div class="install-code-wrap">
               <div class="install-code-header">
                 <span>PowerShell (Administrador)</span>
@@ -586,14 +694,21 @@ function renderInstallGuideTab() {
         <div class="install-step-card">
           <div class="install-step-num">2</div>
           <div class="install-step-body">
-            <h4>Configurar variables de entorno en <code>.env</code> (Solo Backend)</h4>
-            <p class="text-muted" style="margin:0;">Copie <code>.env.example</code> hacia <code>.env</code> en la raíz del proyecto y asigne la clave de sesión segura, ruta de datos (<code>PIA_DATA_DIR=C:\\PIA_Data</code>) y credenciales de MySQL/MariaDB. <strong>Nunca guarde contraseñas en archivos del navegador o JSON públicos.</strong></p>
+            <h4>Generar <code>PIA_SESSION_SECRET</code> y configurar <code>.env</code> (Solo Backend)</h4>
+            <p class="text-muted" style="margin:0;">Copie <code>.env.example</code> hacia <code>.env</code>, genere una llave secreta única de sesión y configure <code>PIA_DATA_DIR</code>, <code>PIA_STORAGE_MODE</code> y las credenciales MySQL/MariaDB. <strong>Nunca guarde contraseñas en el navegador ni en archivos JSON públicos.</strong></p>
             <div class="install-code-wrap">
               <div class="install-code-header">
-                <span>Plantilla .env.example (extracto de configuración)</span>
+                <span>Generador seguro de llave criptográfica (Node.js)</span>
+                <button type="button" class="btn-copy-mini" data-copy-id="codeInstallStep2a"><i class="fas fa-copy"></i> Copiar comando</button>
+              </div>
+              <pre class="install-code-pre" id="codeInstallStep2a">${escapeHtml(cmdSessionSecret)}</pre>
+            </div>
+            <div class="install-code-wrap">
+              <div class="install-code-header">
+                <span>Plantilla .env.example (variables de servidor)</span>
                 <button type="button" class="btn-copy-mini" data-copy-id="codeInstallStep2"><i class="fas fa-copy"></i> Copiar plantilla .env</button>
               </div>
-              <pre class="install-code-pre" id="codeInstallStep2" style="max-height:220px; overflow-y:auto;">${escapeHtml(envTemplate)}</pre>
+              <pre class="install-code-pre" id="codeInstallStep2" style="max-height:200px; overflow-y:auto;">${escapeHtml(envTemplate)}</pre>
             </div>
           </div>
         </div>
@@ -603,7 +718,7 @@ function renderInstallGuideTab() {
           <div class="install-step-num">3</div>
           <div class="install-step-body">
             <h4>Crear base de datos y usuario SQL con privilegios mínimos</h4>
-            <p class="text-muted" style="margin:0;">Ejecute en MySQL/MariaDB (como administrador DBA) para crear la base <code>pia_db</code> y una cuenta dedicada exclusivamente para el Portal PIA.</p>
+            <p class="text-muted" style="margin:0;">Ejecute en MySQL/MariaDB como DBA para crear <code>pia_db</code> y la cuenta dedicada <code>pia_app_user</code> restringida únicamente a los privilegios requeridos por PIA.</p>
             <div class="install-code-wrap">
               <div class="install-code-header">
                 <span>SQL (MySQL 8.0+ / MariaDB 10.6+)</span>
@@ -619,7 +734,7 @@ function renderInstallGuideTab() {
           <div class="install-step-num">4</div>
           <div class="install-step-body">
             <h4>Ejecutar el Script de Creación de Tablas (14 tablas relacionales)</h4>
-            <p class="text-muted" style="margin:0;">Puede ejecutar el script directamente desde consola MySQL o bien iniciar Node.js, ir a la pestaña <strong>Almacenamiento Híbrido y SQL</strong> y presionar <strong>Probar Conexión SQL → Inicializar / Verificar Tablas SQL</strong> (proceso idempotente con <code>CREATE TABLE IF NOT EXISTS</code>).</p>
+            <p class="text-muted" style="margin:0;">Ejecute <code>sql/01_schema_mysql.sql</code> desde consola MySQL o utilice el botón <strong>Inicializar / Verificar Tablas SQL</strong> en la pestaña <strong>Almacenamiento Híbrido y SQL</strong> (proceso idempotente con <code>CREATE TABLE IF NOT EXISTS</code>).</p>
             <div class="install-code-wrap">
               <div class="install-code-header">
                 <span>Consola MySQL / PowerShell</span>
@@ -634,8 +749,15 @@ function renderInstallGuideTab() {
         <div class="install-step-card">
           <div class="install-step-num">5</div>
           <div class="install-step-body">
-            <h4>Importar los archivos JSON hacia SQL y elegir modalidad de convivencia</h4>
-            <p class="text-muted" style="margin:0;">Desde la pestaña <strong>Almacenamiento Híbrido y SQL</strong>: (1) presione <strong>Importar JSON → SQL</strong> (conservando la política segura de omitir duplicados o respaldando automáticamente en <code>data/backups/</code>), (2) verifique el conteo de filas por tabla, y (3) elija modalidad <strong>Solo SQL</strong> o <strong>Híbrido</strong> por módulo.</p>
+            <h4>Importar datos iniciales JSON → SQL (Panel Web o Script CLI en <code>admin/scripts</code>)</h4>
+            <p class="text-muted" style="margin:0;">Desde <strong>Almacenamiento Híbrido y SQL</strong> (botón <strong>Importar JSON → SQL</strong>) o desde consola mediante el script masivo <code>admin/scripts/migrate_json_to_sql.js</code>, el cual valida los 5 archivos JSON contra las columnas SQL e inserta en lote generando logs detallados por registro.</p>
+            <div class="install-code-wrap">
+              <div class="install-code-header">
+                <span>Script CLI de Migración Masiva (admin/scripts/migrate_json_to_sql.js)</span>
+                <button type="button" class="btn-copy-mini" data-copy-id="codeInstallStep5"><i class="fas fa-copy"></i> Copiar comandos</button>
+              </div>
+              <pre class="install-code-pre" id="codeInstallStep5">${escapeHtml(cmdMigrateCli)}</pre>
+            </div>
             <div style="margin-top:0.65rem;">
               <button type="button" class="btn btn-primary" id="btnBackToHybridFromGuide" style="font-size:0.84rem; padding:0.5rem 0.95rem;">
                 <i class="fas fa-sliders-h"></i> Ir a Almacenamiento Híbrido y SQL
@@ -648,8 +770,13 @@ function renderInstallGuideTab() {
         <div class="install-step-card">
           <div class="install-step-num">6</div>
           <div class="install-step-body">
-            <h4>Registrar ejecución permanente en Windows Server y verificar</h4>
-            <p class="text-muted" style="margin:0;">Configure el proceso Node.js en segundo plano mediante <strong>PM2</strong> o <strong>NSSM</strong> escuchando en el puerto <code>3000</code> (el archivo <code>web.config</code> incluido enruta IIS hacia Node.js) y valide la batería de pruebas.</p>
+            <h4>Windows Server: Proxy Inverso IIS (URL Rewrite + ARR), SSL/HTTPS y Servicio Permanente</h4>
+            <p class="text-muted" style="margin:0;">
+              1) Instale <strong>URL Rewrite 2.1</strong> y <strong>Application Request Routing (ARR 3.0)</strong>.<br>
+              2) En IIS → nodo del servidor → <em>Application Request Routing Cache → Server Proxy Settings</em> → marque <strong>Enable proxy</strong>.<br>
+              3) Use el archivo <code>web.config</code> incluido (enruta <code>/api/*</code>, <code>/admin/*</code> y los 6 JSON hacia <code>127.0.0.1:3000</code> y bloquea <code>.env</code>, <code>.sql</code>, <code>.bak</code> y <code>data/</code>).<br>
+              4) Instale el certificado SSL/TLS en el puerto 443 y registre el servicio permanente con PM2 o NSSM:
+            </p>
             <div class="install-code-wrap">
               <div class="install-code-header">
                 <span>Servicio Permanente Windows (PM2 / NSSM)</span>
@@ -657,40 +784,111 @@ function renderInstallGuideTab() {
               </div>
               <pre class="install-code-pre" id="codeInstallStep6a">${escapeHtml(cmdService)}</pre>
             </div>
+          </div>
+        </div>
+
+        <!-- Paso 7 -->
+        <div class="install-step-card">
+          <div class="install-step-num">7</div>
+          <div class="install-step-body">
+            <h4>Alternativa Linux Server (Ubuntu / Debian / RHEL): Systemd + Nginx</h4>
+            <p class="text-muted" style="margin:0;">Si el servidor institucional utiliza Linux en lugar de Windows/IIS, configure la unidad <code>systemd</code> y el proxy inverso Nginx bloqueando archivos sensibles:</p>
+            <div class="install-code-wrap">
+              <div class="install-code-header">
+                <span>Unidad Systemd (/etc/systemd/system/pia.service)</span>
+                <button type="button" class="btn-copy-mini" data-copy-id="codeInstallStep7a"><i class="fas fa-copy"></i> Copiar unidad</button>
+              </div>
+              <pre class="install-code-pre" id="codeInstallStep7a">${escapeHtml(cmdLinuxSystemd)}</pre>
+            </div>
+            <div class="install-code-wrap">
+              <div class="install-code-header">
+                <span>Nginx Reverse Proxy (/etc/nginx/sites-available/pia)</span>
+                <button type="button" class="btn-copy-mini" data-copy-id="codeInstallStep7b"><i class="fas fa-copy"></i> Copiar Nginx</button>
+              </div>
+              <pre class="install-code-pre" id="codeInstallStep7b">${escapeHtml(cmdLinuxNginx)}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 8 -->
+        <div class="install-step-card">
+          <div class="install-step-num">8</div>
+          <div class="install-step-body">
+            <h4>Endurecimiento de Red (Firewall), Cambio de Claves Iniciales y Respaldos Programados</h4>
+            <p class="text-muted" style="margin:0;">
+              • <strong>Firewall:</strong> Permitir únicamente <code>80/TCP</code> y <code>443/TCP</code> desde el exterior. Bloquear acceso externo a <code>3000/TCP</code> (Node.js) y <code>3306/TCP</code> (MySQL/MariaDB).<br>
+              • <strong>Cuentas iniciales:</strong> Al finalizar la instalación, ingrese a <strong>Usuarios</strong> en este panel y actualice las contraseñas iniciales de las cuentas <code>@cnc.gob.gt</code>.<br>
+              • <strong>Respaldos programados:</strong> Programe respaldo diario de MySQL (<code>mysqldump</code>) y de la carpeta <code>PIA_DATA_DIR</code> (<code>C:\\PIA_Data</code>):
+            </p>
+            <div class="install-code-wrap">
+              <div class="install-code-header">
+                <span>Respaldo y Restauración SQL (mysqldump / mysql)</span>
+                <button type="button" class="btn-copy-mini" data-copy-id="codeInstallStep8"><i class="fas fa-copy"></i> Copiar script</button>
+              </div>
+              <pre class="install-code-pre" id="codeInstallStep8">${escapeHtml(cmdBackupRestore)}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 9 -->
+        <div class="install-step-card">
+          <div class="install-step-num">9</div>
+          <div class="install-step-body">
+            <h4>Verificación Integral Post-Instalación</h4>
+            <p class="text-muted" style="margin:0;">Ejecute la suite automatizada de seguridad y regresión para validar autenticación, protección de rutas, mappers SQL/JSON, endpoints públicos y ausencia de secretos expuestos:</p>
             <div class="install-code-wrap">
               <div class="install-code-header">
                 <span>Verificación post-instalación</span>
-                <button type="button" class="btn-copy-mini" data-copy-id="codeInstallStep6b"><i class="fas fa-copy"></i> Copiar verificación</button>
+                <button type="button" class="btn-copy-mini" data-copy-id="codeInstallStep9"><i class="fas fa-copy"></i> Copiar verificación</button>
               </div>
-              <pre class="install-code-pre" id="codeInstallStep6b">${escapeHtml(cmdVerify)}</pre>
+              <pre class="install-code-pre" id="codeInstallStep9">${escapeHtml(cmdVerify)}</pre>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Script SQL Completo en Vivo -->
+    <!-- Visor Interactivo de Todos los Scripts Oficiales del Servidor -->
     <div class="storage-panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:0.75rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:0.85rem;">
         <div>
-          <h3 style="margin:0; color:var(--navy);"><i class="fas fa-file-code" style="color:var(--cyan);"></i> Script SQL Oficial Completo (<code>sql/01_schema_mysql.sql</code>)</h3>
-          <p class="text-muted" style="margin:0.2rem 0 0;">Incluye las 14 tablas relacionales, llaves foráneas (<code>ON DELETE CASCADE</code>) e índices fieles a los JSON originales (${sqlLineCount} líneas).</p>
+          <h3 style="margin:0; color:var(--navy);"><i class="fas fa-code" style="color:var(--cyan);"></i> Visor Oficial de Scripts y Plantillas de Servidor</h3>
+          <p class="text-muted" style="margin:0.2rem 0 0;">Inspeccione, copie o descargue cualquiera de los 5 archivos críticos de instalación, migración masiva y despliegue en servidor.</p>
         </div>
         <div class="storage-btn-toolbar">
-          <button type="button" class="btn btn-info-alt" data-copy-id="codeFullSqlSchema">
-            <i class="fas fa-copy"></i> Copiar Script SQL
+          <button type="button" class="btn btn-info-alt" data-copy-id="codeActiveServerScript">
+            <i class="fas fa-copy"></i> Copiar ${escapeHtml(activeScript.fileName)}
           </button>
-          <button type="button" class="btn btn-primary" id="btnDownloadSqlScriptAlt" ${!hasLiveScript ? 'disabled' : ''}>
-            <i class="fas fa-download"></i> Descargar .sql
+          <button type="button" class="btn btn-primary" id="btnDownloadActiveScript">
+            <i class="fas fa-download"></i> Descargar ${escapeHtml(activeScript.fileName)}
           </button>
         </div>
       </div>
+
+      <div class="script-subtabs" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+        <button type="button" class="btn ${activeScriptTab === 'sql' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="sql" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
+          <i class="fas fa-database"></i> 01_schema_mysql.sql
+        </button>
+        <button type="button" class="btn ${activeScriptTab === 'migrate' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="migrate" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
+          <i class="fas fa-file-import"></i> migrate_json_to_sql.js
+        </button>
+        <button type="button" class="btn ${activeScriptTab === 'ps1' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="ps1" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
+          <i class="fas fa-terminal"></i> deploy-iis.ps1
+        </button>
+        <button type="button" class="btn ${activeScriptTab === 'webconfig' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="webconfig" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
+          <i class="fas fa-server"></i> web.config (IIS)
+        </button>
+        <button type="button" class="btn ${activeScriptTab === 'env' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="env" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
+          <i class="fas fa-key"></i> .env.example
+        </button>
+      </div>
+
       <div class="install-code-wrap">
         <div class="install-code-header">
-          <span>sql/01_schema_mysql.sql · MySQL 8.0+ / MariaDB 10.6+ · InnoDB · utf8mb4_unicode_ci</span>
-          <span>14 tablas · ${sqlLineCount} líneas</span>
+          <span>${escapeHtml(activeScript.title)} · ${escapeHtml(activeScript.subtitle)}</span>
+          <span>${activeLineCount} líneas</span>
         </div>
-        <pre class="install-code-pre install-sql-viewer" id="codeFullSqlSchema">${escapeHtml(sqlScript)}</pre>
+        <pre class="install-code-pre install-sql-viewer" id="codeActiveServerScript">${escapeHtml(activeScript.content)}</pre>
       </div>
     </div>
   `;
@@ -1076,6 +1274,47 @@ async function handleTestSqlConnection() {
   }
 }
 
+async function handleReloadSqlEnv() {
+  if (isBusy) return;
+  isBusy = true;
+  renderDatabaseManager();
+  try {
+    const res = await fetch('/api/admin/storage/sql/reload-env', {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+    const data = await res.json().catch(() => ({}));
+    await fetchStorageStatus();
+    if (res.ok && data.success) {
+      lastOpReport = {
+        success: Boolean(data.connected),
+        title: data.reloaded ? 'Variables .env recargadas en el servidor' : 'Estado de entorno .env verificado',
+        message: data.connected
+          ? `Conexión activa con ${data.connection?.engine || 'MySQL'} (${data.connection?.hostMasked}:${data.connection?.port}).`
+          : (data.connection?.error || 'Variables recargadas; servidor MySQL/MariaDB no configurado o sin conexión.')
+      };
+      showToast(data.connected ? 'Variables .env recargadas y conexión activa' : 'Variables de entorno verificadas', data.connected ? 'success' : 'info');
+    } else {
+      lastOpReport = {
+        success: false,
+        title: 'Error recargando variables .env',
+        message: data.error || 'No fue posible recargar la configuración de entorno SQL.'
+      };
+      showToast(lastOpReport.message, 'error');
+    }
+  } catch (err) {
+    lastOpReport = {
+      success: false,
+      title: 'Error recargando variables .env',
+      message: err.message
+    };
+    showToast(err.message, 'error');
+  } finally {
+    isBusy = false;
+    renderDatabaseManager();
+  }
+}
+
 function handleOpenInitSqlModal() {
   const dbName = storageStatus?.schema?.connection?.database || 'pia_db';
   openSqlActionModal({
@@ -1408,6 +1647,7 @@ function setupEventListeners() {
   });
 
   document.getElementById('btnTestSqlConn')?.addEventListener('click', handleTestSqlConnection);
+  document.getElementById('btnReloadSqlEnv')?.addEventListener('click', handleReloadSqlEnv);
   document.getElementById('btnOpenInitSqlModal')?.addEventListener('click', handleOpenInitSqlModal);
   document.getElementById('btnOpenImportModal')?.addEventListener('click', handleOpenImportModal);
   document.getElementById('btnOpenExportModal')?.addEventListener('click', handleOpenExportModal);
@@ -1421,7 +1661,24 @@ function setupEventListeners() {
     }
   };
   document.getElementById('btnDownloadSqlScript')?.addEventListener('click', handleDownloadSql);
-  document.getElementById('btnDownloadSqlScriptAlt')?.addEventListener('click', handleDownloadSql);
+
+  document.getElementById('btnDownloadMigrateScript')?.addEventListener('click', () => {
+    if (installAssets && installAssets.migrateScript) {
+      downloadTextFile('migrate_json_to_sql.js', installAssets.migrateScript, 'application/javascript;charset=utf-8');
+    }
+  });
+
+  document.getElementById('btnDownloadDeployPs1')?.addEventListener('click', () => {
+    if (installAssets && installAssets.deployPs1) {
+      downloadTextFile('deploy-iis.ps1', installAssets.deployPs1, 'text/plain;charset=utf-8');
+    }
+  });
+
+  document.getElementById('btnDownloadWebConfig')?.addEventListener('click', () => {
+    if (installAssets && installAssets.webConfig) {
+      downloadTextFile('web.config', installAssets.webConfig, 'application/xml;charset=utf-8');
+    }
+  });
 
   document.getElementById('btnDownloadEnvTemplate')?.addEventListener('click', () => {
     const content = (installAssets && installAssets.envTemplate) ? installAssets.envTemplate : FALLBACK_ENV_TEMPLATE;
@@ -1431,6 +1688,30 @@ function setupEventListeners() {
   document.getElementById('btnDownloadFullGuide')?.addEventListener('click', () => {
     if (installAssets && installAssets.guideMarkdown) {
       downloadTextFile('GUIA_INSTALACION_WINDOWS_SQL.md', installAssets.guideMarkdown, 'text/markdown;charset=utf-8');
+    }
+  });
+
+  document.querySelectorAll('.script-subtab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = btn.dataset.scriptTab;
+      if (next) {
+        activeScriptTab = next;
+        renderDatabaseManager();
+      }
+    });
+  });
+
+  document.getElementById('btnDownloadActiveScript')?.addEventListener('click', () => {
+    const map = {
+      sql: { file: '01_schema_mysql.sql', content: installAssets?.sqlScript || FALLBACK_SQL_NOTICE, mime: 'application/sql;charset=utf-8' },
+      migrate: { file: 'migrate_json_to_sql.js', content: installAssets?.migrateScript || '', mime: 'application/javascript;charset=utf-8' },
+      ps1: { file: 'deploy-iis.ps1', content: installAssets?.deployPs1 || '', mime: 'text/plain;charset=utf-8' },
+      webconfig: { file: 'web.config', content: installAssets?.webConfig || '', mime: 'application/xml;charset=utf-8' },
+      env: { file: '.env.example', content: installAssets?.envTemplate || FALLBACK_ENV_TEMPLATE, mime: 'text/plain;charset=utf-8' }
+    };
+    const chosen = map[activeScriptTab] || map.sql;
+    if (chosen.content) {
+      downloadTextFile(chosen.file, chosen.content, chosen.mime);
     }
   });
 

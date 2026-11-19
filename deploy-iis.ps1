@@ -261,5 +261,10 @@ if ($healthResult) {
 }
 
 Write-Host "`n=============================================================" -ForegroundColor Green
-Write-Host " INSTALACIÓN Y PREPARACIÓN DE VERSIÓN 1 COMPLETADA CON ÉXITO" -ForegroundColor Green
-Write-Host "=============================================================`n"
+Write-Host " INSTALACIÓN Y PREPARACIÓN PIA (JSON + SQL) COMPLETADA" -ForegroundColor Green
+Write-Host "=============================================================" -ForegroundColor Green
+Write-Host " Próximos pasos recomendados en el servidor:" -ForegroundColor Cyan
+Write-Host "  1. En IIS -> Application Request Routing Cache -> Server Proxy Settings: habilitar 'Enable proxy'."
+Write-Host "  2. Completar PIA_SESSION_SECRET y credenciales MYSQL_* en .env si usará SQL."
+Write-Host "  3. Inicializar tablas SQL con 'mysql -u pia_app_user -p < sql\01_schema_mysql.sql' o desde /admin/."
+Write-Host "  4. Ejecutar 'npm test' para verificar seguridad y funcionamiento general.`n"

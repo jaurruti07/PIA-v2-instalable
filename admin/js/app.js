@@ -410,7 +410,7 @@ window.logout = async function(reason) {
     await authLogout(reason);
 };
 
-window.navigateTo = async function(module) {
+window.navigateTo = async function(module, options = {}) {
     if (!hasAccessToModule(module)) {
         showToast(`El módulo '${module}' ha sido sustituido en el modelo exclusivo de dos operadores.`, 'info');
         navigateTo('security');
@@ -436,7 +436,7 @@ window.navigateTo = async function(module) {
     }
 
     if (module === 'database') {
-        await initDatabaseManager();
+        await initDatabaseManager(options?.tab || null);
         return;
     }
 

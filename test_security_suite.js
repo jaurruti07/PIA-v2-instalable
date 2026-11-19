@@ -381,8 +381,82 @@ async function runTests() {
       assetsData.sqlScript.includes('CREATE TABLE IF NOT EXISTS `pia_canales_integridad`') &&
       typeof assetsData.envTemplate === 'string' &&
       assetsData.envTemplate.includes('PIA_STORAGE_MODE=json') &&
-      !assetsData.envTemplate.includes('MYSQL_PASSWORD=CONTRASEÑA_REAL');
-    recordTest('11.8 Guía de instalación y script SQL servidos de forma segura al administrador (200 / 401)', assetsOk);
+      !assetsData.envTemplate.includes('MYSQL_PASSWORD=CONTRASEÑA_REAL') &&
+      typeof assetsData.deployPs1 === 'string' &&
+      assetsData.deployPs1.includes('PIA_DATA_DIR') &&
+      typeof assetsData.webConfig === 'string' &&
+      assetsData.webConfig.includes('ReverseProxyToNodeService') &&
+      typeof assetsData.guideMarkdown === 'string' &&
+      assetsData.guideMarkdown.includes('URL Rewrite') &&
+      typeof assetsData.migrateScript === 'string' &&
+      assetsData.migrateScript.includes('FIVE_JSON_MODULES');
+    recordTest('11.8 Guía de instalación, scripts (SQL, migración CLI, PowerShell, web.config) y plantilla servidos de forma segura (200 / 401)', assetsOk);
+
+    // 11.9 Script de migración masiva (admin/scripts/migrate_json_to_sql.js): bloqueado en web público y validación masiva de los 5 JSON
+    const resCliPublic = await fetch(`${BASE_URL}/admin/scripts/migrate_json_to_sql.js`);
+    const { runBulkJsonToSqlMigration } = await import('./admin/scripts/migrate_json_to_sql.js');
+    const dryRunRes = await runBulkJsonToSqlMigration({
+      dryRun: true,
+      quiet: true,
+      logDir: null
+    });
+    const cliMigrationOk = resCliPublic.status === 403 &&
+      dryRunRes.success === true &&
+      dryRunRes.modules.length === 5 &&
+      dryRunRes.summary.errors === 0 &&
+      dryRunRes.summary.validated > 0 &&
+      Array.isArray(dryRunRes.recordLogs) &&
+      dryRunRes.recordLogs.length === dryRunRes.summary.totalSource;
+    recordTest('11.9 Script CLI admin/scripts protegido (403) y validación masiva de los 5 JSON contra esquema SQL con log por registro', cliMigrationOk);
+
+    // 11.10 Módulo admin/database-manager.js: protegido en HTTP público (403), endpoints seguros sin credenciales y validación .env
+    const resDbManagerPublic = await fetch(`${BASE_URL}/admin/database-manager.js`);
+    const resConnNoAuth = await fetch(`${BASE_URL}/api/admin/storage/connection`);
+    const resConnAuth = await fetch(`${BASE_URL}/api/admin/storage/connection`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const connData = await resConnAuth.json().catch(() => ({}));
+    const resReloadNoAuth = await fetch(`${BASE_URL}/api/admin/storage/sql/reload-env`, { method: 'POST' });
+    const resReloadAuth = await fetch(`${BASE_URL}/api/admin/storage/sql/reload-env`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const reloadData = await resReloadAuth.json().catch(() => ({}));
+
+    const { validateMysqlEnvConfig, getSanitizedConnectionConfig } = await import('./admin/database-manager.js');
+    const validSample = validateMysqlEnvConfig({
+      host: '127.0.0.1',
+      port: 3306,
+      user: 'pia_app_user',
+      password: 'secret_value',
+      database: 'pia_db',
+      sslEnabled: false,
+      connectionLimit: 10
+    });
+    const invalidSample = validateMysqlEnvConfig({
+      host: '',
+      port: 99999,
+      user: '',
+      database: 'pia-db;DROP',
+      connectionLimit: 0
+    });
+    const sanitizedCfg = getSanitizedConnectionConfig();
+    const dbManagerRaw = JSON.stringify({ connData, reloadData, sanitizedCfg });
+    const dbManagerOk = resDbManagerPublic.status === 403 &&
+      resConnNoAuth.status === 401 &&
+      resConnAuth.status === 200 &&
+      connData.success === true &&
+      resReloadNoAuth.status === 401 &&
+      resReloadAuth.status === 200 &&
+      reloadData.success === true &&
+      validSample.valid === true &&
+      invalidSample.valid === false &&
+      invalidSample.errors.length >= 4 &&
+      !dbManagerRaw.includes('MYSQL_PASSWORD') &&
+      !dbManagerRaw.includes('secret_value') &&
+      !connData?.connection?.password &&
+      !connData?.envConfig?.connection?.password;
+    recordTest('11.10 Módulo admin/database-manager.js protegido (403), endpoints .env seguros (200/401) y validación sin exponer secretos', dbManagerOk);
   } catch (err) {
     recordTest('11. Arquitectura Híbrida JSON + SQL', false, err.message);
   }

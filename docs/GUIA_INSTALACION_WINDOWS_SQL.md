@@ -116,6 +116,7 @@ Todas las tablas conservan íntegros los campos, llaves, relaciones e índices d
 
 ## 5. Migración Inicial de los Archivos JSON a SQL
 
+### Opción A: Desde el Panel Administrativo (`/admin/`)
 1. En `/admin/` → **Almacenamiento y BD** → **Almacenamiento Híbrido y SQL**, verifique que las 14 tablas aparezcan con estado **Verificada**.
 2. Haga clic en **Importar JSON → SQL**.
 3. Seleccione todos los módulos (o los deseados) y elija la política de duplicados:
@@ -123,6 +124,17 @@ Todas las tablas conservan íntegros los campos, llaves, relaciones e índices d
    - **Sobrescribir registros existentes:** requiere marcar la casilla de autorización explícita; genera respaldo previo automático en `data/backups/migration_.../`.
 4. Revise el reporte de resultados (`Insertados`, `Actualizados`, `Omitidos`, `Errores`) y verifique que el conteo de filas SQL coincida con los archivos JSON.
 5. En la sección **Modalidad de Convivencia**, seleccione `Solo SQL` o `Híbrido` (escogiendo qué módulos usan SQL y cuáles JSON) y presione **Aplicar Configuración**.
+
+### Opción B: Script CLI de Inserción Masiva (`admin/scripts/migrate_json_to_sql.js`)
+Para migraciones masivas automatizadas desde consola del servidor con validación por columna y bitácora detallada por cada registro en `data/migration_logs/`:
+
+```powershell
+# 1. Validar los 5 archivos JSON actuales contra el esquema SQL sin escribir en BD:
+node admin/scripts/migrate_json_to_sql.js --dry-run
+
+# 2. Ejecutar inserción masiva (opcional --init-schema para crear tablas si faltan):
+node admin/scripts/migrate_json_to_sql.js --init-schema
+```
 
 ---
 
@@ -159,3 +171,89 @@ Checklist rápido tras instalar:
 - [ ] El módulo **Almacenamiento y BD** en `/admin/` muestra conexión SQL, conteo por tabla y modalidad activa.
 - [ ] No existen credenciales SQL en respuestas HTTP ni en archivos del frontend.
 - [ ] Las operaciones mutativas crean respaldo en `C:\PIA_Data\backups` y registro en `audit_logs.json`.
+
+---
+
+## 8. Configuración de IIS (URL Rewrite + ARR) y HTTPS/SSL
+
+1. Instale **Microsoft URL Rewrite 2.1** y **Application Request Routing (ARR) 3.0** en el servidor Windows.
+2. En **Administrador de IIS** → seleccione el nodo raíz del servidor → **Application Request Routing Cache** → **Server Proxy Settings...** → marque **Enable proxy** y aplique cambios.
+3. Verifique que el sitio apunte a `C:\inetpub\wwwroot\PIA` (donde reside `web.config`), que bloquea automáticamente el acceso HTTP a `.env`, `.sql`, `.bak`, `data/` y enruta `/api/*`, `/admin/*` y los JSON híbridos hacia `http://127.0.0.1:3000`.
+4. Instale el certificado TLS/SSL en el enlace HTTPS (`443`) del sitio y, en `web.config`, descomente la regla `Redirect to HTTPS`.
+
+---
+
+## 9. Seguridad de Red, Llave de Sesión y Credenciales Iniciales
+
+- **Generar `PIA_SESSION_SECRET` criptográficamente seguro:**
+  ```powershell
+  node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+  ```
+- **Reglas de Firewall recomendadas:**
+  - Abrir al exterior únicamente `80/TCP` (HTTP → redirección HTTPS) y `443/TCP` (HTTPS).
+  - Mantener bloqueados desde redes externas los puertos `3000/TCP` (Node.js interno) y `3306/TCP` (MySQL/MariaDB).
+- **Cambio de contraseñas iniciales:** Al ingresar por primera vez a `/admin/` → **Gestión de Usuarios**, actualice las contraseñas iniciales de las cuentas institucionales `@cnc.gob.gt`.
+
+---
+
+## 10. Alternativa para Servidores Linux (Ubuntu / Debian / RHEL)
+
+Si se instala en infraestructura Linux con **Systemd + Nginx**:
+
+1. Crear unidad Systemd `/etc/systemd/system/pia.service`:
+   ```ini
+   [Unit]
+   Description=Portal de Integridad Activa (PIA) - CNC
+   After=network.target mysql.service
+
+   [Service]
+   Type=simple
+   User=www-data
+   WorkingDirectory=/var/www/pia
+   ExecStart=/usr/bin/node /var/www/pia/server.js
+   Restart=always
+   RestartSec=5
+   Environment=NODE_ENV=production
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+   ```bash
+   sudo systemctl daemon-reload && sudo systemctl enable --now pia
+   ```
+2. Configurar Proxy Inverso en **Nginx** (`/etc/nginx/sites-available/pia`):
+   ```nginx
+   server {
+       listen 80;
+       server_name pia.cnc.gob.gt;
+
+       location ~* \.(env|sql|bak|tmp)$ { deny all; return 404; }
+       location ^~ /data/ { deny all; return 404; }
+
+       location / {
+           proxy_pass http://127.0.0.1:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }
+   ```
+
+---
+
+## 11. Respaldos Programados y Restauración de Base de Datos
+
+- **Respaldo de MySQL/MariaDB (`mysqldump`):**
+  ```powershell
+  # PowerShell (Programador de Tareas diario)
+  $fecha = Get-Date -Format "yyyyMMdd_HHmm"
+  mysqldump -u pia_app_user -p --single-transaction --routines --triggers pia_db > "C:\PIA_Backups\pia_db_$fecha.sql"
+  ```
+- **Restauración de emergencia desde respaldo SQL:**
+  ```powershell
+  mysql -u pia_app_user -p pia_db < C:\PIA_Backups\pia_db_20261118_0200.sql
+  ```
+- **Respaldo integral JSON + Bitácoras:** Respaldar periódicamente la carpeta configurada en `PIA_DATA_DIR` (`C:\PIA_Data` o `./data`) junto con los cinco archivos JSON de módulos.
+

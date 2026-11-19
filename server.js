@@ -11,9 +11,11 @@ import { initializeDatabaseSchema, inspectSchemaStatus, isModuleSqlReady } from 
 import { StorageConfigManager, CONFIGURABLE_MODULES, VALID_STORAGE_MODES, VALID_SOURCES, normalizeModuleKey } from './db/storageConfig.js';
 import { createHybridStorage } from './db/hybridStorage.js';
 import { importJsonToSql, exportSqlToJson } from './db/migrationService.js';
+import { createDatabaseManager } from './admin/database-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const dbManager = createDatabaseManager();
 
 const app = express();
 const PORT = Number(process.env.PORT || process.env.DEFAULT_APP_PORT) || 3000;
@@ -1365,6 +1367,7 @@ async function buildStorageStatusPayload() {
   return {
     config,
     sqlConfigured: isSqlConfigured(),
+    envConfig: dbManager.getSanitizedConfig(),
     schema: schemaStatus,
     modules
   };
@@ -1379,11 +1382,62 @@ app.get('/api/admin/storage/status', requireAuth, requireOperator, requireDataba
   }
 });
 
+app.get('/api/admin/storage/connection', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    const diagnostics = await dbManager.testConnection({ reloadEnv: false });
+    res.json({
+      success: true,
+      configured: diagnostics.envConfig.configured,
+      connected: diagnostics.success,
+      connection: diagnostics.connection,
+      envConfig: diagnostics.envConfig
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message || 'Error consultando configuración de conexión SQL.' });
+  }
+});
+
+app.post('/api/admin/storage/sql/reload-env', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
+  try {
+    const diagnostics = await dbManager.testConnection({ reloadEnv: true });
+    const fullStatus = await buildStorageStatusPayload();
+
+    logAudit({
+      user: req.user.email,
+      userOid: req.user.uid,
+      userRole: req.user.role,
+      action: 'RECARGA CONFIGURACIÓN SQL (.ENV)',
+      module: 'database',
+      target: diagnostics.envConfig.envFileName || '.env',
+      details: `Variables .env recargadas. Configurada: ${diagnostics.envConfig.configured ? 'Sí' : 'No'} | Conexión activa: ${diagnostics.success ? 'Sí' : 'No'}`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    res.json({
+      success: true,
+      reloaded: diagnostics.reloaded,
+      connected: diagnostics.success,
+      connection: diagnostics.connection,
+      envConfig: diagnostics.envConfig,
+      ...fullStatus
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message || 'Error recargando variables .env de conexión SQL.' });
+  }
+});
+
 app.post('/api/admin/storage/sql/test', requireAuth, requireOperator, requireDatabaseAccess, async (req, res) => {
   try {
-    const connection = await testSqlConnection();
+    const reloadEnv = Boolean(req.body?.reloadEnv);
+    const diagnostics = await dbManager.testConnection({ reloadEnv });
     const schema = await inspectSchemaStatus();
-    res.json({ success: connection.connected, connection, schema });
+    res.json({
+      success: diagnostics.connection.connected,
+      reloaded: diagnostics.reloaded,
+      connection: diagnostics.connection,
+      envConfig: diagnostics.envConfig,
+      schema
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message || 'Error al probar conexión SQL.' });
   }
@@ -1564,10 +1618,16 @@ app.get('/api/admin/storage/install-assets', requireAuth, requireOperator, requi
     const sqlPath = path.join(__dirname, 'sql', '01_schema_mysql.sql');
     const envExamplePath = path.join(__dirname, '.env.example');
     const guidePath = path.join(__dirname, 'docs', 'GUIA_INSTALACION_WINDOWS_SQL.md');
+    const deployPs1Path = path.join(__dirname, 'deploy-iis.ps1');
+    const webConfigPath = path.join(__dirname, 'web.config');
+    const migrateScriptPath = path.join(__dirname, 'admin', 'scripts', 'migrate_json_to_sql.js');
 
     const sqlScript = fs.existsSync(sqlPath) ? fs.readFileSync(sqlPath, 'utf8') : '';
     const envTemplate = fs.existsSync(envExamplePath) ? fs.readFileSync(envExamplePath, 'utf8') : '';
     const guideMarkdown = fs.existsSync(guidePath) ? fs.readFileSync(guidePath, 'utf8') : '';
+    const deployPs1 = fs.existsSync(deployPs1Path) ? fs.readFileSync(deployPs1Path, 'utf8') : '';
+    const webConfig = fs.existsSync(webConfigPath) ? fs.readFileSync(webConfigPath, 'utf8') : '';
+    const migrateScript = fs.existsSync(migrateScriptPath) ? fs.readFileSync(migrateScriptPath, 'utf8') : '';
 
     res.json({
       success: true,
@@ -1575,10 +1635,16 @@ app.get('/api/admin/storage/install-assets', requireAuth, requireOperator, requi
       sqlScript,
       envTemplate,
       guideMarkdown,
+      deployPs1,
+      webConfig,
+      migrateScript,
       fileNames: {
         sql: '01_schema_mysql.sql',
         env: '.env.example',
-        guide: 'GUIA_INSTALACION_WINDOWS_SQL.md'
+        guide: 'GUIA_INSTALACION_WINDOWS_SQL.md',
+        deployPs1: 'deploy-iis.ps1',
+        webConfig: 'web.config',
+        migrateScript: 'migrate_json_to_sql.js'
       }
     });
   } catch (err) {
@@ -2248,6 +2314,15 @@ app.get(['/riesgo', '/riesgo/'], (req, res) => {
 app.get('/', (req, res) => {
   recordPageVisit('/', req);
   sendFreshHtml(path.join(__dirname, 'index.html'), res);
+});
+
+// Bloquear acceso público HTTP directo a scripts CLI y módulos servidor internos de administración
+app.use('/admin/scripts', (req, res) => {
+  res.status(403).json({ error: 'Acceso denegado: los scripts administrativos CLI solo pueden ejecutarse desde consola del servidor.' });
+});
+
+app.use('/admin/database-manager.js', (req, res) => {
+  res.status(403).json({ error: 'Acceso denegado: el módulo servidor database-manager.js solo puede ejecutarse en el backend.' });
 });
 
 app.use(express.static(__dirname, {

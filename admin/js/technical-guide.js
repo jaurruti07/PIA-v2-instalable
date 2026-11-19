@@ -21,6 +21,9 @@ export function initTechnicalGuide() {
                 </div>
                 
                 <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button id="btnGoToServerInstallGuide" class="btn-guide-action" style="padding: 0.65rem 1.1rem; background: var(--cyan, #00C2E0); color: var(--navy, #05111F); border: none; border-radius: 12px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;">
+                        <i class="fas fa-server"></i> Scripts e Instalación en Servidor
+                    </button>
                     <button id="btnPrintGuide" class="btn-guide-action" style="padding: 0.65rem 1.1rem; background: var(--surface, #F0F5FB); color: var(--navy, #05111F); border: 1px solid var(--border); border-radius: 12px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;">
                         <i class="fas fa-print" style="color: var(--blue-bright);"></i> Imprimir / PDF
                     </button>
@@ -34,14 +37,14 @@ export function initTechnicalGuide() {
             <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 1rem;">
                 <div style="position: relative; width: 100%;">
                     <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.95rem;"></i>
-                    <input type="text" id="guideSearchInput" placeholder="Buscar en la guía técnica (ej. 'express', 'JWT', 'Lupita', 'backup', 'schema', 'push', 'json')..." style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.75rem; background: var(--surface, #F0F5FB); border: 1px solid var(--border); border-radius: 12px; font-size: 0.92rem; color: var(--text-main); font-family: var(--font-body); transition: all 0.2s;">
+                    <input type="text" id="guideSearchInput" placeholder="Buscar en la guía técnica (ej. 'mysql', 'deploy-iis', 'web.config', 'Lupita', 'backup', 'hybrid', 'etag')..." style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.75rem; background: var(--surface, #F0F5FB); border: 1px solid var(--border); border-radius: 12px; font-size: 0.92rem; color: var(--text-main); font-family: var(--font-body); transition: all 0.2s;">
                 </div>
 
                 <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.25rem; scrollbar-width: thin;" id="guideTabContainer">
                     <button class="guide-tab-btn active" data-category="all"><i class="fas fa-th-large"></i> Todo (Visión General)</button>
                     <button class="guide-tab-btn" data-category="arch"><i class="fas fa-cubes"></i> Arquitectura & Stack</button>
                     <button class="guide-tab-btn" data-category="structure"><i class="fas fa-folder-tree"></i> Estructura de Proyecto</button>
-                    <button class="guide-tab-btn" data-category="json"><i class="fas fa-database"></i> Motores de Datos JSON</button>
+                    <button class="guide-tab-btn" data-category="json"><i class="fas fa-database"></i> Almacenamiento Híbrido JSON + SQL</button>
                     <button class="guide-tab-btn" data-category="api"><i class="fas fa-plug"></i> Catálogo API REST</button>
                     <button class="guide-tab-btn" data-category="security"><i class="fas fa-shield-alt"></i> Seguridad & RBAC</button>
                     <button class="guide-tab-btn" data-category="ai"><i class="fas fa-robot"></i> Asistente Lupita (IA)</button>
@@ -57,32 +60,32 @@ export function initTechnicalGuide() {
                 <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;">
                     <i class="fab fa-node-js" style="color: #68a063; margin-right: 4px;"></i> Entorno de Ejecución
                 </div>
-                <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">Node.js v20+ ESM</div>
-                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-check-circle"></i> Express 4.19 / REST API</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">Node.js LTS 18-22+ ESM</div>
+                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-check-circle"></i> Express 4.19 · Puerto 3000</div>
             </div>
 
             <div style="background: #fff; padding: 1.25rem 1.5rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
                 <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;">
-                    <i class="fas fa-database" style="color: var(--blue-bright); margin-right: 4px;"></i> Motor de Datos
+                    <i class="fas fa-database" style="color: var(--blue-bright); margin-right: 4px;"></i> Motor de Datos Híbrido
                 </div>
-                <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">Flat-File JSON</div>
-                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-lock"></i> Escritura Atómica & Auditada</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">JSON + MySQL/MariaDB</div>
+                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-lock"></i> 3 Modalidades · 14 Tablas SQL</div>
             </div>
 
             <div style="background: #fff; padding: 1.25rem 1.5rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
                 <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;">
                     <i class="fas fa-brain" style="color: #8b5cf6; margin-right: 4px;"></i> IA Generativa (Lupita)
                 </div>
-                <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">@google/genai 2.14</div>
-                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-check-circle"></i> Gemini 2.5 / RAG Context</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">@google/genai</div>
+                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-check-circle"></i> Gemini 2.5 + Fallback Local</div>
             </div>
 
             <div style="background: #fff; padding: 1.25rem 1.5rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
                 <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;">
                     <i class="fas fa-shield-alt" style="color: var(--cyan); margin-right: 4px;"></i> Seguridad & Control
                 </div>
-                <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">Entra ID (RS256)</div>
-                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-shield-check"></i> 2 Operadores + Audit Log</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">PBKDF2 + HMAC-SHA256</div>
+                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-shield-check"></i> @cnc.gob.gt · OCC ETag · Audit</div>
             </div>
         </div>
 
@@ -117,25 +120,27 @@ export function initTechnicalGuide() {
 
                     <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
                         <h3 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-server" style="color: var(--cyan);"></i> Capa Servidora & Servicios (Backend)
+                            <i class="fas fa-server" style="color: var(--cyan);"></i> Capa Servidora & Persistencia (Backend)
                         </h3>
                         <ul style="list-style: none; font-size: 0.88rem; color: var(--text-main); display: flex; flex-direction: column; gap: 0.5rem; padding: 0;">
-                            <li><strong>• Node.js v20+ ESM:</strong> Ejecución nativa de JavaScript moderno con sintaxis de <code>import/export</code>.</li>
-                            <li><strong>• Express.js 4.19:</strong> Ruteo RESTful, parseo JSON/URLencoded de hasta 50MB y gestión de archivos estáticos.</li>
-                            <li><strong>• Persistence Engine:</strong> Persistencia plana en archivos JSON en disco con manejo seguro de concurrencia y respaldos.</li>
-                            <li><strong>• SDK Gemini AI (@google/genai):</strong> Conexión nativa de servidor con modelos Gemini para asistente ciudadano Lupita.</li>
-                            <li><strong>• Contenedor Cloud Run:</strong> Despliegue en contenedor con puerto expuesto **3000** detrás de proxy inverso Nginx.</li>
+                            <li><strong>• Node.js LTS (18-22+) ESM:</strong> Ejecución nativa con <code>import/export</code> y <code>dotenv</code>.</li>
+                            <li><strong>• Express.js 4.19:</strong> Ruteo RESTful, interceptores transparentes JSON/SQL y servicio estático seguro.</li>
+                            <li><strong>• Capa Híbrida JSON + SQL (<code>db/</code>):</strong> Conmutación sin cambios de código entre <em>Solo JSON</em>, <em>Solo SQL</em> (MySQL 8.0+ / MariaDB 10.6+ con <code>mysql2</code>) e <em>Híbrido</em> por módulo.</li>
+                            <li><strong>• SDK Gemini AI (@google/genai):</strong> Proxy backend protegido para el asistente ciudadano Lupita con fallback heurístico offline.</li>
+                            <li><strong>• Despliegue On-Premise / Cloud:</strong> Listo para Windows Server (IIS ARR + PM2/NSSM), Linux (Nginx + Systemd) o contenedor en puerto <strong>3000</strong>.</li>
                         </ul>
                     </div>
                 </div>
 
                 <div style="background: #05111F; color: #E8EDF5; padding: 1.25rem; border-radius: 14px; border: 1px solid rgba(0,194,224,0.25);">
                     <div style="font-weight: 700; font-size: 0.9rem; color: var(--cyan); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-terminal"></i> Comando de Inicio y Scripts de Producción (<code>package.json</code>)
+                        <i class="fas fa-terminal"></i> Comandos de Ejecución, Lint y Pruebas (<code>package.json</code>)
                     </div>
                     <pre style="margin: 0; background: rgba(0,0,0,0.4); padding: 0.85rem 1rem; border-radius: 8px; font-family: monospace; font-size: 0.85rem; color: #38d6f0; overflow-x: auto;">
-npm run dev    # Inicia el servidor de desarrollo en Node.js (server.js) en puerto 3000
-npm start      # Comando estándar de producción para Cloud Run / Servidor
+npm run dev    # Servidor Express en puerto 3000
+npm start      # Arranque de producción (node server.js)
+npm run lint   # Verificación sintáctica de servidor, DAL híbrida y panel
+npm test       # Suite integral de seguridad, permisos, JSON y mappers SQL
                     </pre>
                 </div>
             </section>
@@ -154,53 +159,38 @@ npm start      # Comando estándar de producción para Cloud Run / Servidor
 
                 <div style="background: #0C2033; color: #F0F5FB; padding: 1.5rem; border-radius: 14px; font-family: monospace; font-size: 0.88rem; line-height: 1.6; overflow-x: auto; border: 1px solid rgba(0,194,224,0.2);">
 <span style="color: #00C2E0;">/ (Raíz del Proyecto)</span>
-├── <span style="color: #22C55E;">server.js</span>                        <span style="color: #94A3B8;"># Servidor Express, API REST, Auth JWT, Gemini AI, Bitácoras y Push</span>
-├── <span style="color: #22C55E;">package.json</span>                     <span style="color: #94A3B8;"># Configuración de dependencias (Express, @google/genai) y scripts</span>
-├── <span style="color: #22C55E;">index.html</span>                       <span style="color: #94A3B8;"># Portal Público Principal (Carrusel WebGL, Buscador y Asistente Lupita)</span>
-├── <span style="color: #22C55E;">users.json</span>                       <span style="color: #94A3B8;"># Base de datos de Usuarios Administradores (Contraseñas cifradas + Roles)</span>
-├── <span style="color: #22C55E;">security_policies.json</span>           <span style="color: #94A3B8;"># Políticas de seguridad (Complejidad clave, Rate limits, Inactividad)</span>
-├── <span style="color: #22C55E;">audit_logs.json</span>                  <span style="color: #94A3B8;"># Bitácora oficial de auditoría con IP, acción, timestamp y prev/new values</span>
-├── <span style="color: #22C55E;">chatbot_knowledge.json</span>           <span style="color: #94A3B8;"># Base de Conocimiento entrenable del Asistente Virtual Lupita</span>
-├── <span style="color: #22C55E;">chatbot_settings.json</span>            <span style="color: #94A3B8;"># Configuración del bot (Nombre, prompt del sistema, tono y modelo AI)</span>
-├── <span style="color: #22C55E;">data_portal.json</span>                 <span style="color: #94A3B8;"># Métricas globales de uso y tráfico del portal</span>
+├── <span style="color: #22C55E;">server.js</span>                        <span style="color: #94A3B8;"># Servidor Express, API REST, Auth, DAL Híbrida, Gemini AI y Auditoría</span>
+├── <span style="color: #22C55E;">package.json</span>                     <span style="color: #94A3B8;"># Dependencias (express, mysql2, dotenv, @google/genai, jose)</span>
+├── <span style="color: #22C55E;">.env.example</span>                     <span style="color: #94A3B8;"># Plantilla segura de variables de entorno (Puerto, Sesión, MySQL)</span>
+├── <span style="color: #22C55E;">deploy-iis.ps1</span>                   <span style="color: #94A3B8;"># Script PowerShell automatizado de despliegue Windows + IIS + ACLs</span>
+├── <span style="color: #22C55E;">web.config</span>                       <span style="color: #94A3B8;"># Configuración IIS (URL Rewrite + ARR, MIME y bloqueo de .env/.sql/data)</span>
+├── <span style="color: #22C55E;">test_security_suite.js</span>           <span style="color: #94A3B8;"># Suite automatizada de seguridad, RBAC, JSON y SQL (36 pruebas)</span>
 │
-├── <span style="color: #38BDF8;">/admin/</span>                          <span style="color: #94A3B8;"># Panel de Administración de Datos (SPA Autenticada)</span>
-│   ├── <span style="color: #22C55E;">index.html</span>                   <span style="color: #94A3B8;"># Vista SPA del Administrador con layout responsive y menú de módulos</span>
-│   ├── <span style="color: #38BDF8;">/css/</span>                        <span style="color: #94A3B8;"># Estilos del panel (admin.css, database-manager.css)</span>
-│   └── <span style="color: #38BDF8;">/js/</span>                         <span style="color: #94A3B8;"># Lógica modular JS del administrador:</span>
-│       ├── <span style="color: #F97316;">app.js</span>                   <span style="color: #94A3B8;"># Controlador central, ruteo SPA, gestión de inactividad y menú</span>
-│       ├── <span style="color: #F97316;">auth.js</span>                  <span style="color: #94A3B8;"># Verificación de tokens JWT y envío de credenciales</span>
-│       ├── <span style="color: #F97316;">crud.js</span>                  <span style="color: #94A3B8;"># Motor dinámico de tablas CRUD para edición de registros</span>
-│       ├── <span style="color: #F97316;">form-builder.js</span>          <span style="color: #94A3B8;"># Generador dinámico de formularios según esquemas</span>
-│       ├── <span style="color: #F97316;">user-manager.js</span>          <span style="color: #94A3B8;"># Gestor de usuarios, roles y políticas de seguridad</span>
-│       ├── <span style="color: #F97316;">chatbot-manager.js</span>       <span style="color: #94A3B8;"># Panel de administración de Lupita (Entrenamiento RAG y Logs)</span>
-│       ├── <span style="color: #F97316;">database-manager.js</span>      <span style="color: #94A3B8;"># Gestor de respaldos JSON, restauración y visor raw</span>
-│       └── <span style="color: #F97316;">technical-guide.js</span>      <span style="color: #94A3B8;"># Módulo de Guía Técnica para Administradores y Desarrolladores</span>
+├── <span style="color: #38BDF8;">/sql/</span>                            <span style="color: #94A3B8;"># Scripts DDL para base de datos relacional</span>
+│   └── <span style="color: #22C55E;">01_schema_mysql.sql</span>          <span style="color: #94A3B8;"># Esquema oficial MySQL/MariaDB de 14 tablas, FKs e índices</span>
 │
-├── <span style="color: #38BDF8;">/canales-por-la-integridad/</span>      <span style="color: #94A3B8;"># Módulo de Canales de Integridad y Denuncias</span>
-│   ├── <span style="color: #22C55E;">index.html</span>                   <span style="color: #94A3B8;"># Interfaz de consulta de mecanismos de integridad</span>
-│   └── <span style="color: #22C55E;">data_directorio.json</span>         <span style="color: #94A3B8;"># Base de datos de canales institucionales y contactos</span>
+├── <span style="color: #38BDF8;">/db/</span>                             <span style="color: #94A3B8;"># Capa de Acceso a Datos Híbrida (JSON + SQL)</span>
+│   ├── <span style="color: #F97316;">sqlClient.js</span>                 <span style="color: #94A3B8;"># Pool de conexiones MySQL2 parametrizado y manejo de transacciones</span>
+│   ├── <span style="color: #F97316;">schemaInit.js</span>                <span style="color: #94A3B8;"># Inicialización idempotente e inspección en INFORMATION_SCHEMA</span>
+│   ├── <span style="color: #F97316;">storageConfig.js</span>             <span style="color: #94A3B8;"># Gestor de modalidad (json | sql | hybrid) por módulo</span>
+│   ├── <span style="color: #F97316;">sqlRepository.js</span>             <span style="color: #94A3B8;"># CRUD parametrizado, ETag OCC y mappers SQL <-> JSON exactos</span>
+│   ├── <span style="color: #F97316;">hybridStorage.js</span>             <span style="color: #94A3B8;"># Enrutador de fuente única por módulo</span>
+│   └── <span style="color: #F97316;">migrationService.js</span>          <span style="color: #94A3B8;"># Importación JSON -> SQL y Exportación SQL -> JSON con respaldos</span>
 │
-├── <span style="color: #38BDF8;">/directorio/</span>                     <span style="color: #94A3B8;"># Módulo Directorio Acceso al Ejecutivo</span>
-│   ├── <span style="color: #22C55E;">index.html</span>                   <span style="color: #94A3B8;"># Buscador de autoridades y fichas de funcionarios</span>
-│   └── <span style="color: #22C55E;">data_acceso.json</span>             <span style="color: #94A3B8;"># Base de datos de ministerios, secretarías y autoridades</span>
+├── <span style="color: #38BDF8;">/data/</span>                           <span style="color: #94A3B8;"># Directorio protegido (configurable con PIA_DATA_DIR=C:\PIA_Data)</span>
+│   ├── <span style="color: #22C55E;">users_roles.json</span>             <span style="color: #94A3B8;"># Identidades institucionales con hash PBKDF2/SHA-512 y módulos</span>
+│   ├── <span style="color: #22C55E;">storage_config.json</span>          <span style="color: #94A3B8;"># Modalidad activa (JSON / SQL / Híbrido) por módulo</span>
+│   ├── <span style="color: #22C55E;">audit_logs.json</span>              <span style="color: #94A3B8;"># Bitácora oficial inmutable de auditoría con IP y cambios</span>
+│   └── <span style="color: #38BDF8;">/backups/</span>                    <span style="color: #94A3B8;"># Respaldos automáticos rotativos previos a cada mutación/migración</span>
 │
-├── <span style="color: #38BDF8;">/gobierno_en_numeros/</span>            <span style="color: #94A3B8;"># Módulo Tu Gobierno en Números</span>
-│   ├── <span style="color: #22C55E;">index.html</span>                   <span style="color: #94A3B8;"># Visualizador de tableros estadísticos y glosario</span>
-│   └── <span style="color: #22C55E;">data_tableros.json</span>           <span style="color: #94A3B8;"># Base de datos de indicadores presupuestarios y proyectos</span>
+├── <span style="color: #38BDF8;">/docs/</span>                           <span style="color: #94A3B8;"># Documentación oficial de instalación y arquitectura</span>
+│   ├── <span style="color: #22C55E;">GUIA_INSTALACION_WINDOWS_SQL.md</span>
+│   └── <span style="color: #22C55E;">ARQUITECTURA_V2_Y_MIGRACION_SQL.md</span>
 │
-├── <span style="color: #38BDF8;">/riesgo/</span>                         <span style="color: #94A3B8;"># Módulo Riesgo en la Mira</span>
-│   ├── <span style="color: #22C55E;">index.html</span>                   <span style="color: #94A3B8;"># Portal de análisis de riesgos de corrupción</span>
-│   └── <span style="color: #22C55E;">datos.json</span>                   <span style="color: #94A3B8;"># Matriz de riesgos, semáforos e instituciones monitoreadas</span>
+├── <span style="color: #38BDF8;">/admin/</span>                          <span style="color: #94A3B8;"># Panel Administrativo SPA Autenticado (/admin/)</span>
+│   └── <span style="color: #38BDF8;">/js/</span>                         <span style="color: #94A3B8;"># app.js, auth.js, crud.js, user-manager.js, database-manager.js, technical-guide.js</span>
 │
-├── <span style="color: #38BDF8;">/vehiculos/</span>                      <span style="color: #94A3B8;"># Módulo Transparencia Vehicular</span>
-│   ├── <span style="color: #22C55E;">index.html</span>                   <span style="color: #94A3B8;"># Buscador de placa vehicular oficial y parque público</span>
-│   └── <span style="color: #22C55E;">vehiculos.json</span>               <span style="color: #94A3B8;"># Registro oficial del parque vehicular del Estado</span>
-│
-├── <span style="color: #38BDF8;">/js/</span>                             <span style="color: #94A3B8;"># Scripts compartidos en portal público</span>
-│   ├── <span style="color: #22C55E;">pia-chatbot.js</span>               <span style="color: #94A3B8;"># Widget flotante del asistente virtual Lupita</span>
-│   └── <span style="color: #22C55E;">sw-register.js</span>               <span style="color: #94A3B8;"># Registro e integración con Service Worker Push</span>
-└── <span style="color: #22C55E;">data-service-worker.js</span>           <span style="color: #94A3B8;"># Service Worker para notificaciones push en segundo plano</span>
+└── <span style="color: #38BDF8;">Módulos Públicos</span>                 <span style="color: #94A3B8;"># /canales-por-la-integridad/, /directorio/, /gobierno_en_numeros/, /riesgo/, /vehiculos/</span>
                 </div>
             </section>
 
@@ -211,13 +201,13 @@ npm start      # Comando estándar de producción para Cloud Run / Servidor
                         <i class="fas fa-database"></i>
                     </div>
                     <div>
-                        <h2 style="font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--navy); margin: 0;">3. Motores de Datos JSON (Mapeo de Tablas Planas)</h2>
-                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Persistencia plana estructurada en archivos JSON de alta velocidad</p>
+                        <h2 style="font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--navy); margin: 0;">3. Arquitectura Híbrida de Datos (JSON + MySQL/MariaDB)</h2>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Convivencia de los 5 archivos JSON institucionales + métricas con 14 tablas relacionales SQL</p>
                     </div>
                 </div>
 
                 <p style="font-size: 0.92rem; color: var(--text-main); margin-bottom: 1.25rem;">
-                    El Portal de Integridad Activa utiliza un motor de almacenamiento en archivos plana **JSON** respaldado por <code>fs</code> en Node.js. Esto garantiza independencia de bases de datos relacionales externas, facilísima migración y respaldos instantáneos mediante copia física o snapshots.
+                    El sistema opera por defecto con escrituras atómicas sobre archivos <strong>JSON</strong> (sin requerir motor SQL instalado) y permite activar por módulo la persistencia en <strong>MySQL 8.0+ / MariaDB 10.6+</strong> desde <em>Almacenamiento y BD</em> con una única fuente autoritativa por módulo.
                 </p>
 
                 <div style="overflow-x: auto; margin-bottom: 1.5rem;">
@@ -225,47 +215,47 @@ npm start      # Comando estándar de producción para Cloud Run / Servidor
                         <thead>
                             <tr style="background: var(--navy); color: #fff; font-family: var(--font-head);">
                                 <th style="padding: 0.85rem 1rem; border-radius: 8px 0 0 0;">Módulo en Panel</th>
-                                <th style="padding: 0.85rem 1rem;">Ruta del Archivo JSON</th>
-                                <th style="padding: 0.85rem 1rem;">Campos Clave del Registro</th>
-                                <th style="padding: 0.85rem 1rem; border-radius: 0 8px 0 0;">Acciones Auditadas</th>
+                                <th style="padding: 0.85rem 1rem;">Archivo JSON Oficial</th>
+                                <th style="padding: 0.85rem 1rem;">Tabla(s) SQL Relacional(es)</th>
+                                <th style="padding: 0.85rem 1rem; border-radius: 0 8px 0 0;">Seguridad / Concurrencia</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr style="border-bottom: 1px solid var(--border);">
                                 <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-comments" style="color: var(--cyan);"></i> Canales x Integridad</td>
                                 <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/canales-por-la-integridad/data_directorio.json</td>
-                                <td style="padding: 0.85rem 1rem;"><code>id</code>, <code>institucion</code>, <code>mecanismo</code>, <code>telefono</code>, <code>email</code>, <code>url</code></td>
-                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Alta, Edición, Baja</span></td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace;"><code>pia_canales_integridad</code></td>
+                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">ETag OCC + Audit Log</span></td>
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border); background: var(--surface);">
                                 <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-address-book" style="color: var(--blue-bright);"></i> Directorio Ejecutivo</td>
                                 <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/directorio/data_acceso.json</td>
-                                <td style="padding: 0.85rem 1rem;"><code>id</code>, <code>nombre</code>, <code>cargo</code>, <code>entidad</code>, <code>contacto</code>, <code>direccion</code></td>
-                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Alta, Edición, Baja</span></td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace;"><code>pia_directorio_acceso</code>, <code>pia_directorio_enlaces</code></td>
+                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">FK CASCADE + ETag</span></td>
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border);">
                                 <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-chart-bar" style="color: #22C55E;"></i> Gobierno en Números</td>
                                 <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/gobierno_en_numeros/data_tableros.json</td>
-                                <td style="padding: 0.85rem 1rem;"><code>id</code>, <code>titulo</code>, <code>categoria</code>, <code>monto</code>, <code>estado</code>, <code>avance</code></td>
-                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Alta, Edición, Baja</span></td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace;"><code>pia_tableros_gobierno</code></td>
+                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">ETag OCC + Audit Log</span></td>
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border); background: var(--surface);">
                                 <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-bullseye" style="color: var(--orange);"></i> Riesgo en la Mira</td>
                                 <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/riesgo/datos.json</td>
-                                <td style="padding: 0.85rem 1rem;"><code>id</code>, <code>entidad</code>, <code>nivel_riesgo</code>, <code>indicadores</code>, <code>hallazgos</code></td>
-                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Alta, Edición, Baja</span></td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace;"><code>pia_riesgo_ciclos</code>, <code>pia_riesgo_instituciones</code>, <code>pia_riesgo_frecuentes</code></td>
+                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Transacción ACID</span></td>
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border);">
                                 <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-car" style="color: var(--cyan);"></i> Transparencia Vehicular</td>
                                 <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/vehiculos/vehiculos.json</td>
-                                <td style="padding: 0.85rem 1rem;"><code>id</code>, <code>placa</code>, <code>marca</code>, <code>modelo</code>, <code>institucion</code>, <code>estado</code></td>
-                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Alta, Edición, Baja</span></td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace;"><code>pia_vehiculos*</code> (5 tablas relacionales)</td>
+                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Transacción ACID</span></td>
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border); background: var(--surface);">
-                                <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-users-cog" style="color: #8b5cf6;"></i> Usuarios Administradores</td>
-                                <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/users.json</td>
-                                <td style="padding: 0.85rem 1rem;"><code>id</code>, <code>username</code>, <code>email</code>, <code>passwordHash</code>, <code>salt</code>, <code>role</code>, <code>modules</code></td>
-                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(239,68,68,0.12); color: var(--red); padding: 2px 8px; border-radius: 6px; font-weight: 700;">Superadmin Solamente</span></td>
+                                <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-globe" style="color: #8b5cf6;"></i> Portal & Usuarios</td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/data_portal.json · /data/users_roles.json</td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace;"><code>pia_portal_metricas</code>, <code>pia_storage_migrations</code></td>
+                                <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(239,68,68,0.12); color: var(--red); padding: 2px 8px; border-radius: 6px; font-weight: 700;">Fuera de wwwroot</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -291,7 +281,7 @@ npm start      # Comando estándar de producción para Cloud Run / Servidor
                             <span style="background: #22C55E; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">POST</span>
                             <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/auth/login</code>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Autentica usuario con credenciales en <code>users.json</code> y genera token JWT de sesión.</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Autentica cuentas <code>@cnc.gob.gt</code> contra <code>users_roles.json</code> y emite token HMAC-SHA256.</div>
                         <span style="font-size: 0.75rem; background: rgba(0,194,224,0.15); color: var(--blue-bright); padding: 3px 8px; border-radius: 6px; font-weight: 600;">Público</span>
                     </div>
 
@@ -299,60 +289,50 @@ npm start      # Comando estándar de producción para Cloud Run / Servidor
                     <div style="background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="background: var(--blue-bright); color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">GET</span>
-                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/data/:module</code>
+                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/:module</code>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Retorna la colección completa de registros formateada en JSON del módulo especificado.</div>
-                        <span style="font-size: 0.75rem; background: rgba(0,194,224,0.15); color: var(--blue-bright); padding: 3px 8px; border-radius: 6px; font-weight: 600;">Público / Autenticado</span>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Lee registros desde la fuente activa (JSON o MySQL) con encabezado <code>ETag</code>.</div>
+                        <span style="font-size: 0.75rem; background: rgba(0,194,224,0.15); color: var(--blue-bright); padding: 3px 8px; border-radius: 6px; font-weight: 600;">Público</span>
                     </div>
 
                     <!-- Endpoint 3 -->
                     <div style="background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="background: #22C55E; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">POST</span>
-                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/data/:module</code>
+                            <span style="background: #22C55E; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">POST / PUT / DELETE</span>
+                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/:module(/:id)</code>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Agrega un nuevo registro al módulo especificado y genera evento de auditoría.</div>
-                        <span style="font-size: 0.75rem; background: rgba(239,68,68,0.15); color: var(--red); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Requiere Auth JWT</span>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Operaciones CRUD con concurrencia optimista <code>If-Match</code>, respaldo previo y auditoría.</div>
+                        <span style="font-size: 0.75rem; background: rgba(239,68,68,0.15); color: var(--red); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Bearer Auth + Permiso</span>
                     </div>
 
                     <!-- Endpoint 4 -->
                     <div style="background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="background: var(--orange); color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">PUT</span>
-                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/data/:module/:id</code>
+                            <span style="background: #0ea5e9; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">GET / POST / PUT</span>
+                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/admin/storage/*</code>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Actualiza un registro por ID y guarda los valores anteriores y nuevos en la bitácora.</div>
-                        <span style="font-size: 0.75rem; background: rgba(239,68,68,0.15); color: var(--red); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Requiere Auth JWT</span>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Estado SQL, inicialización de tablas, cambio de modalidad (JSON/SQL/Híbrido), migración JSON↔SQL y guías/scripts.</div>
+                        <span style="font-size: 0.75rem; background: rgba(239,68,68,0.15); color: var(--red); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Permiso database</span>
                     </div>
 
                     <!-- Endpoint 5 -->
                     <div style="background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="background: var(--red); color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">DELETE</span>
-                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/data/:module/:id</code>
+                            <span style="background: #8b5cf6; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">POST</span>
+                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/chatbot/ask</code>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Elimina de forma permanente un registro del archivo JSON asignado con registro de baja.</div>
-                        <span style="font-size: 0.75rem; background: rgba(239,68,68,0.15); color: var(--red); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Requiere Auth JWT</span>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Procesa consultas ciudadanas usando Gemini AI + base RAG con fallback heurístico local.</div>
+                        <span style="font-size: 0.75rem; background: rgba(0,194,224,0.15); color: var(--blue-bright); padding: 3px 8px; border-radius: 6px; font-weight: 600;">Público (Rate Limited)</span>
                     </div>
 
                     <!-- Endpoint 6 -->
                     <div style="background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="background: #8b5cf6; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">POST</span>
-                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/chatbot/ask</code>
+                            <span style="background: var(--blue-bright); color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">GET / POST / DELETE</span>
+                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/admin/users · /api/audit</code>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Procesa preguntas de la ciudadanía usando Gemini AI + Contexto RAG del Portal.</div>
-                        <span style="font-size: 0.75rem; background: rgba(0,194,224,0.15); color: var(--blue-bright); padding: 3px 8px; border-radius: 6px; font-weight: 600;">Público</span>
-                    </div>
-
-                    <!-- Endpoint 7 -->
-                    <div style="background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="background: var(--blue-bright); color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">GET</span>
-                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/audit</code>
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Retorna el historial filtrado de la bitácora oficial de auditoría de seguridad.</div>
-                        <span style="font-size: 0.75rem; background: rgba(239,68,68,0.15); color: var(--red); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Auditor / Admin</span>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Gestión dinámica de usuarios institucionales y consulta de bitácora de auditoría.</div>
+                        <span style="font-size: 0.75rem; background: rgba(239,68,68,0.15); color: var(--red); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Admin / Operador</span>
                     </div>
                 </div>
             </section>
@@ -364,45 +344,31 @@ npm start      # Comando estándar de producción para Cloud Run / Servidor
                         <i class="fas fa-shield-alt"></i>
                     </div>
                     <div>
-                        <h2 style="font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--navy); margin: 0;">5. Sistema de Seguridad Institucional y Modelo de 2 Operadores</h2>
-                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Autenticación Microsoft Entra ID (RS256/JWKS), concurrencia optimista y modelo cerrado</p>
+                        <h2 style="font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--navy); margin: 0;">5. Seguridad Institucional, RBAC y Protección SQL</h2>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Cuentas institucionales @cnc.gob.gt, PBKDF2/SHA-512, tokens HMAC-SHA256, OCC ETag y aislamiento de credenciales</p>
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
                     <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
-                        <div style="font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fab fa-microsoft" style="color: #2B82C9;"></i> Validación Criptográfica Entra ID</div>
+                        <div style="font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-key" style="color: #2B82C9;"></i> Contraseñas Cifradas y Sesiones HMAC</div>
                         <p style="font-size: 0.88rem; color: var(--text-main); margin: 0; line-height: 1.5;">
-                            El backend valida tokens JWT mediante la librería <code>jose</code> consultando el conjunto de llaves públicas remotas (JWKS) del tenant autorizado. Se verifica firma, vigencia, emisor, audiencia y concordancia de Tenant ID.
+                            Las contraseñas se almacenan fuera de <code>wwwroot</code> (<code>data/users_roles.json</code>) con sal aleatoria + <code>PBKDF2-HMAC-SHA512</code> y expiración por inactividad de 30 minutos. Solo se admiten correos institucionales <code>@cnc.gob.gt</code>.
                         </p>
                     </div>
 
                     <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
-                        <div style="font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-exchange-alt" style="color: #22C55E;"></i> Concurrencia Optimista (ETag)</div>
+                        <div style="font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-exchange-alt" style="color: #22C55E;"></i> Concurrencia Optimista (ETag) & SQL</div>
                         <p style="font-size: 0.88rem; color: var(--text-main); margin: 0; line-height: 1.5;">
-                            Protección contra sobreescrituras simultáneas entre los dos operadores mediante hash SHA-256. Si un operador intenta guardar sobre una versión modificada por el otro, el servidor responde HTTP 409 y solicita recarga.
+                            Tanto en JSON como en SQL, cada lectura entrega un <code>ETag</code> SHA-256. Si otro operador modifica datos previamente, el backend devuelve <code>409 Conflict</code> evitando sobrescrituras accidentales. Todas las consultas SQL usan parámetros preparados (<code>?</code>).
                         </p>
                     </div>
 
                     <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
-                        <div style="font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-fingerprint" style="color: #F59E0B;"></i> Trazabilidad por OID Inmutable</div>
+                        <div style="font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-fingerprint" style="color: #F59E0B;"></i> Credenciales & Bitácora Inmutable</div>
                         <p style="font-size: 0.88rem; color: var(--text-main); margin: 0; line-height: 1.5;">
-                            Toda acción de creación, actualización o eliminación en cualquier JSON queda registrada en <code>audit_logs.json</code> con el <code>userOid</code> del funcionario, IP, timestamp exacto y respaldo generado.
+                            Las credenciales SQL (<code>MYSQL_*</code>) y llaves de sesión residen exclusivamente en variables de entorno (<code>.env</code>) del servidor; nunca se envían al frontend. Toda acción mutativa queda registrada en <code>audit_logs.json</code>.
                         </p>
-                    </div>
-                </div>
-
-                <div style="background: rgba(12,32,51,0.03); border: 1px solid var(--border); padding: 1.25rem; border-radius: 14px;">
-                    <h3 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem;"><i class="fas fa-id-badge"></i> Modelo de Acceso para DOS Operadores Exclusivos</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
-                        <div style="background: #fff; padding: 1rem; border-radius: 10px; border: 1px solid var(--border);">
-                            <div style="font-weight: 800; color: var(--navy); font-size: 0.92rem;"><i class="fas fa-user-shield" style="color: var(--cyan);"></i> Operador Institucional 1</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Asignado vía <code>PIA_OPERATOR_1_OID</code> en servidor. Facultades plenas sobre los módulos de información, auditoría y conocimiento del asistente virtual.</div>
-                        </div>
-                        <div style="background: #fff; padding: 1rem; border-radius: 10px; border: 1px solid var(--border);">
-                            <div style="font-weight: 800; color: var(--navy); font-size: 0.92rem;"><i class="fas fa-user-shield" style="color: #22C55E;"></i> Operador Institucional 2</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Asignado vía <code>PIA_OPERATOR_2_OID</code> en servidor. Facultades idénticas para actualización colaborativa segura y balance de carga operativo.</div>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -496,28 +462,40 @@ app.post('/api/chatbot/ask', async (req, res) => {
                         <i class="fas fa-server"></i>
                     </div>
                     <div>
-                        <h2 style="font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--navy); margin: 0;">8. Despliegue, Mantenimiento y Procedimientos de Respaldo</h2>
-                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Guía operativa para administradores de infraestructura y mantenimiento continuo</p>
+                        <h2 style="font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--navy); margin: 0;">8. Despliegue en Servidor, Instalación SQL y Respaldos</h2>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Procedimiento para Windows Server (IIS + ARR + PM2/NSSM) o Linux (Nginx + Systemd) y recuperación ante desastres</p>
                     </div>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                     <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
-                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-download" style="color: var(--blue-bright);"></i> Procedimiento de Copia de Seguridad (Backup Snapshot)</h3>
+                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-server" style="color: var(--cyan);"></i> Paquete de Instalación en Servidor (Scripts Disponibles)</h3>
+                        <ul style="font-size: 0.88rem; color: var(--text-main); padding-left: 1.2rem; margin: 0 0 0.85rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                            <li><strong><code>deploy-iis.ps1</code>:</strong> Script PowerShell para Windows Server que crea <code>C:\PIA_Data\backups</code> con ACLs NTFS estrictas, instala dependencias y crea el Application Pool <code>PiaAppPool</code>.</li>
+                            <li><strong><code>web.config</code>:</strong> Reglas IIS (URL Rewrite + ARR) que enrutan <code>/api/*</code>, <code>/admin/*</code> y los JSON híbridos hacia <code>127.0.0.1:3000</code>, bloqueando acceso HTTP a <code>.env</code>, <code>.sql</code>, <code>.bak</code> y <code>data/</code>.</li>
+                            <li><strong><code>sql/01_schema_mysql.sql</code>:</strong> Script DDL idempotente con las 14 tablas relacionales para MySQL 8.0+ / MariaDB 10.6+.</li>
+                            <li><strong><code>.env.example</code>:</strong> Plantilla de variables para puerto, <code>PIA_SESSION_SECRET</code>, <code>PIA_DATA_DIR</code>, <code>PIA_STORAGE_MODE</code> y credenciales SQL.</li>
+                        </ul>
+                        <button type="button" id="btnJumpToInstallGuideCard" style="padding: 0.6rem 1.05rem; background: var(--navy); color: #fff; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-external-link-alt" style="color: var(--cyan);"></i> Ver Scripts Completos y Paso a Paso en Almacenamiento y BD
+                        </button>
+                    </div>
+
+                    <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
+                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-download" style="color: var(--blue-bright);"></i> Copias de Seguridad (JSON + SQL)</h3>
                         <ol style="font-size: 0.88rem; color: var(--text-main); padding-left: 1.2rem; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;">
-                            <li>Navegue al módulo <strong>"Motores de Datos JSON"</strong> en el menú lateral.</li>
-                            <li>Haga clic en el botón <strong>"Descargar Respaldo JSON Completo"</strong>.</li>
-                            <li>El sistema empaquetará la totalidad de los archivos de datos (<code>.json</code>) con marca de tiempo.</li>
-                            <li>Conserve la copia descargada en un almacenamiento seguro o bóveda institucional.</li>
+                            <li><strong>JSON Automático:</strong> Cada modificación o migración genera snapshot en <code>PIA_DATA_DIR/backups/</code>.</li>
+                            <li><strong>Exportación SQL → JSON:</strong> Desde <em>Almacenamiento y BD</em>, utilice <strong>Exportar SQL → JSON</strong> para descargar copias íntegras en formato JSON estándar.</li>
+                            <li><strong>Respaldo SQL Programado:</strong> Ejecute <code>mysqldump --single-transaction --routines --triggers pia_db &gt; respaldo.sql</code> mediante Programador de Tareas o cron.</li>
                         </ol>
                     </div>
 
                     <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
-                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-upload" style="color: #22C55E;"></i> Procedimiento de Restauración de Emergencia</h3>
+                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-upload" style="color: #22C55E;"></i> Restauración y Verificación Post-Despliegue</h3>
                         <ol style="font-size: 0.88rem; color: var(--text-main); padding-left: 1.2rem; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;">
-                            <li>Acceda al módulo <strong>"Motores de Datos JSON"</strong> con rol de Super Administrador.</li>
-                            <li>Seleccione la opción <strong>"Restaurar desde Respaldo"</strong> e ingrese el archivo JSON.</li>
-                            <li>Confirme la operación; la bitácora registrará el evento de restauración de emergencia con timestamp e IP del administrador responsable.</li>
+                            <li>Para restaurar SQL ejecute <code>mysql -u pia_app_user -p pia_db &lt; respaldo.sql</code> o importe desde los archivos JSON en <em>Almacenamiento y BD</em>.</li>
+                            <li>Para restaurar un módulo JSON utilice el <strong>Editor Directo JSON</strong> (validado por esquema) o los snapshots en <code>backups/</code>.</li>
+                            <li>Valide la instalación ejecutando <code>npm test</code> y confirmando HTTP <code>200 OK</code> en <code>/api/modules</code> y <code>/admin/</code>.</li>
                         </ol>
                     </div>
                 </div>
@@ -627,6 +605,15 @@ app.post('/api/chatbot/ask', async (req, res) => {
         });
     }
 
+    // BOTÓN SALTO DIRECTO A GUÍA Y SCRIPTS DE SERVIDOR EN ALMACENAMIENTO Y BD
+    const jumpToServerInstall = () => {
+        if (typeof window.navigateTo === 'function') {
+            window.navigateTo('database', { tab: 'installguide' });
+        }
+    };
+    document.getElementById('btnGoToServerInstallGuide')?.addEventListener('click', jumpToServerInstall);
+    document.getElementById('btnJumpToInstallGuideCard')?.addEventListener('click', jumpToServerInstall);
+
     // BOTÓN COPIAR FICHA TÉCNICA
     const btnCopy = document.getElementById('btnCopySysInfo');
     if (btnCopy) {
@@ -634,24 +621,26 @@ app.post('/api/chatbot/ask', async (req, res) => {
             const summaryText = `
 PORTAL DE INTEGRIDAD ACTIVA (PIA) — FICHA TÉCNICA
 ==================================================
-Stack Tecnológico: Node.js v20+ ESM, Express 4.19, @google/genai 2.14
-Frontend: Vanilla JS ES Modules, HTML5, CSS3 Custom Properties, WebGL2 Shader Engine
-Servidor HTTP: Node.js Express expuesto en Puerto 3000 (Cloud Run Container)
-Almacenamiento: Motores de Datos JSON (Flat-Files) con Auditoría
-Seguridad: Auth JWT, Hash SHA-256 + Salt PBKDF2, Temporizador Inactividad 30min, RBAC
-IA Generativa: Asistente Virtual Lupita con Gemini 2.5 Flash + Contexto RAG
-Servicios Adicionales: Web Push API + Service Worker (data-service-worker.js)
+Stack Tecnológico: Node.js LTS ESM, Express 4.19, mysql2, dotenv, @google/genai
+Frontend: Vanilla JS ES Modules, HTML5, CSS3 Custom Properties, WebGL2
+Servidor HTTP: Node.js Express en puerto 3000 detrás de IIS (ARR + web.config) o Nginx
+Almacenamiento: Arquitectura Híbrida JSON + MySQL/MariaDB (3 modalidades: json, sql, hybrid)
+Seguridad: PBKDF2/SHA-512, HMAC-SHA256, OCC ETag, Bitácora Audit Log, @cnc.gob.gt
+IA Generativa: Asistente Virtual Lupita (Gemini + Fallback Heurístico)
+Instalación Servidor: deploy-iis.ps1, web.config, sql/01_schema_mysql.sql, .env.example
             `.trim();
 
-            navigator.clipboard.writeText(summaryText).then(() => {
-                if (typeof window.showToast === 'function') {
-                    window.showToast('Ficha técnica copiada al portapapeles', 'success');
-                } else {
-                    alert('Ficha técnica copiada al portapapeles.');
-                }
-            }).catch(() => {
-                alert('No se pudo copiar la ficha técnica.');
-            });
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(summaryText).then(() => {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Ficha técnica copiada al portapapeles', 'success');
+                    }
+                }).catch(() => {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('No fue posible copiar automáticamente la ficha técnica.', 'error');
+                    }
+                });
+            }
         });
     }
 }

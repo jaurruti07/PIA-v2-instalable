@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "node server.js",
     "build": "echo 'Build complete'",
-    "lint": "node --check server.js && node --check db/sqlClient.js && node --check db/schemaInit.js && node --check db/storageConfig.js && node --check db/sqlRepository.js && node --check db/hybridStorage.js && node --check db/migrationService.js && node --check admin/js/database-manager.js && node --check test_security_suite.js",
+    "lint": "node --check server.js && node --check db/sqlClient.js && node --check db/schemaInit.js && node --check db/storageConfig.js && node --check db/sqlRepository.js && node --check db/hybridStorage.js && node --check db/migrationService.js && node --check admin/database-manager.js && node --check admin/scripts/migrate_json_to_sql.js && node --check admin/js/database-manager.js && node --check admin/js/technical-guide.js && node --check admin/js/app.js && node --check test_security_suite.js",
     "test": "node test_security_suite.js",
+    "migrate:sql": "node admin/scripts/migrate_json_to_sql.js",
+    "migrate:sql:dry-run": "node admin/scripts/migrate_json_to_sql.js --dry-run",
     "start": "node server.js"
   },
   "dependencies": {

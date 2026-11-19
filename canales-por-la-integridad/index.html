@@ -1586,9 +1586,9 @@
     .map-embed { margin-top: 0.8rem; border-radius: 14px; overflow: hidden; height: 130px; }
     .map-embed iframe { width: 100%; height: 100%; border: 0; }
 
-    .back-foot { padding: 0 1.4rem 1.4rem; display: flex; gap: 0.6rem; }
+    .back-foot { padding: 0 1.25rem 1.25rem; display: flex; flex-wrap: wrap; gap: 0.55rem; }
     .btn-share {
-        flex: 1; padding: 0.7rem;
+        flex: 1 1 auto; min-width: 0; padding: 0.7rem 0.85rem;
         background: #25D366; color: #fff;
         font-family: var(--font-head); font-weight: 700; font-size: 0.82rem;
         border: none; border-radius: 50px;
@@ -1597,7 +1597,7 @@
     }
     .btn-share:hover { background: #1DBE5A; transform: translateY(-1px); }
     .btn-back-card {
-        flex: 1; padding: 0.7rem;
+        flex: 1 1 auto; min-width: 0; padding: 0.7rem 0.85rem;
         background: var(--surface); color: var(--text-main);
         font-family: var(--font-head); font-weight: 700; font-size: 0.82rem;
         border: 1px solid var(--border); border-radius: 50px;
@@ -1605,6 +1605,15 @@
         transition: all 0.2s;
     }
     .btn-back-card:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+    @media (max-width: 680px) {
+        .back-foot { padding: 0 1rem 1.15rem; gap: 0.5rem; }
+        .back-foot .btn-share,
+        .back-foot .btn-back-card {
+            font-size: 0.78rem;
+            padding: 0.65rem 0.75rem;
+            white-space: nowrap;
+        }
+    }
 
     .flip-back .card-strip {
         min-height: unset;
@@ -1619,6 +1628,32 @@
         white-space: normal;
         word-break: break-word;
         margin-bottom: 0.5rem;
+    }
+
+    /* Modo simplificado (inhabilita temporalmente frente y volteo sin eliminar código) */
+    .flip-card.flip-disabled {
+        min-height: 500px;
+        height: auto;
+    }
+    .flip-card.flip-disabled .flip-inner {
+        transform: none !important;
+        transition: none !important;
+        transform-style: flat !important;
+        height: 100%;
+    }
+    .flip-card.flip-disabled .flip-front {
+        display: none !important;
+    }
+    .flip-card.flip-disabled .flip-back {
+        position: relative;
+        transform: none !important;
+        backface-visibility: visible;
+        height: 100%;
+        min-height: 500px;
+        overflow: visible;
+    }
+    .flip-card.flip-disabled .btn-back-card {
+        display: none !important;
     }
 
     /* ============================================================
@@ -3971,7 +4006,11 @@ function sumProtocolos(list) { return list.filter(i => i['Protocolo de actuació
 
 /* ============================================================
    RENDER TARJETAS (flip cards)
+   Nota: ENABLE_CARD_FLIP = false deja por defecto visible la cara de datos
+   e inhabilita temporalmente el frente y la función de volteo (sin eliminar código).
 ============================================================ */
+const ENABLE_CARD_FLIP = false;
+
 function renderCards(list) {
     $cards.innerHTML = '';
 
@@ -3989,7 +4028,7 @@ function renderCards(list) {
             const slide = document.createElement('div');
             slide.className = 'swiper-slide';
             slide.innerHTML = `
-            <div class="flip-card">
+            <div class="flip-card ${ENABLE_CARD_FLIP ? '' : 'flipped flip-disabled'}">
               <div class="flip-inner">
                 <!-- FRONT -->
                 <div class="flip-front">
@@ -4014,7 +4053,7 @@ function renderCards(list) {
                     <div class="channel-row"><div class="channel-row-left"><i class="fas fa-comment"></i> Otro canal</div>${badge(inst.otro)}</div>
                   </div>
                   <div class="card-foot-row">
-                    <button class="btn-flip-card" style="flex:2;" onclick="this.closest('.flip-card').classList.add('flipped')">
+                    <button class="btn-flip-card" style="flex:2;" onclick="if (${ENABLE_CARD_FLIP}) this.closest('.flip-card').classList.add('flipped')">
                       Ver detalles <i class="fas fa-arrow-right"></i>
                     </button>
                     <button class="btn-expand-card-foot" onclick="window._openModal('${safe}')">
@@ -4022,12 +4061,13 @@ function renderCards(list) {
                     </button>
                   </div>
                 </div>
-                <!-- BACK (sin cambios funcionales) -->
+                <!-- BACK (cara de datos visible por defecto cuando ENABLE_CARD_FLIP = false) -->
                 <div class="flip-back">
                   <div class="card-strip">
                     <div class="card-name">${inst.institucion}</div>
                     <div class="card-meta">
                       <span class="card-channels-badge">${inst.canales} canal(es)</span>
+                      <span class="protocolo-badge ${protClass}"><i class="fas ${protIcon}"></i> Protocolo de actuación</span>
                       <button class="fav-btn" onclick="window._toggleFav('${safe}')">
                         <i class="fas fa-star ${isFav?'active':''}"></i>
                       </button>
@@ -4050,7 +4090,7 @@ function renderCards(list) {
                   <div class="back-foot">
                     <button class="btn-share" onclick="window._shareCard('${safe}')"><i class="fab fa-whatsapp"></i> Compartir</button>
                     <button class="btn-share" style="background:var(--cyan); color:var(--navy);" onclick="window._exportFichaPdf('${safe}')"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button class="btn-back-card" onclick="this.closest('.flip-card').classList.remove('flipped')"><i class="fas fa-arrow-left"></i> Regresar</button>
+                    <button class="btn-back-card" onclick="if (${ENABLE_CARD_FLIP}) this.closest('.flip-card').classList.remove('flipped')"><i class="fas fa-arrow-left"></i> Regresar</button>
                   </div>
                 </div>
               </div>
@@ -4073,11 +4113,12 @@ function renderCards(list) {
     });
     if (swiperDir && swiperDir.autoplay) {
         $cards.addEventListener('click', (e) => {
+            if (!ENABLE_CARD_FLIP) return;
             const flipBtn  = e.target.closest('.btn-flip-card');
             const backBtn  = e.target.closest('.btn-back-card');
             if (!flipBtn && !backBtn) return;
             setTimeout(() => {
-                const anyFlipped = !!$cards.querySelector('.flip-card.flipped');
+                const anyFlipped = !!$cards.querySelector('.flip-card.flipped:not(.flip-disabled)');
                 if (anyFlipped) { if (swiperDir.autoplay.running) swiperDir.autoplay.stop(); }
                 else { if (!swiperDir.autoplay.running) swiperDir.autoplay.start(); }
             }, 50);
@@ -4195,7 +4236,7 @@ function closeModal() {
     document.getElementById('cardModal').classList.remove('active');
     document.body.style.overflow = '';
     setTimeout(() => {
-        if (swiperDir && swiperDir.autoplay && !$cards.querySelector('.flip-card.flipped')) swiperDir.autoplay.start();
+        if (swiperDir && swiperDir.autoplay && !$cards.querySelector('.flip-card.flipped:not(.flip-disabled)')) swiperDir.autoplay.start();
     }, 350);
 }
 document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
@@ -4445,7 +4486,7 @@ function switchView(view) {
         if ($listWrapper)  $listWrapper.style.display  = 'none';
         if ($btnCards) $btnCards.classList.add('active');
         if ($btnList)  $btnList.classList.remove('active');
-        if (swiperDir && swiperDir.autoplay && !swiperDir.autoplay.running && !$cards.querySelector('.flip-card.flipped')) {
+        if (swiperDir && swiperDir.autoplay && !swiperDir.autoplay.running && !$cards.querySelector('.flip-card.flipped:not(.flip-disabled)')) {
             swiperDir.autoplay.start();
         }
     }
