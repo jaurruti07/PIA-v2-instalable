@@ -303,16 +303,6 @@ export async function verifyToken(token) {
         throw new Error('Token no proporcionado.');
     }
 
-    // Modo offline / standalone
-    if (token.startsWith('pia_sess_offline_')) {
-        const stored = localStorage.getItem('user') || sessionStorage.getItem('user');
-        if (stored) {
-            try {
-                return { user: JSON.parse(stored) };
-            } catch (_) {}
-        }
-    }
-
     try {
         const res = await fetch(`${API_BASE}/auth/verify`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -320,17 +310,27 @@ export async function verifyToken(token) {
 
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            throw new Error(err.error || 'Token inválido o expirado.');
+            const authErr = new Error(err.error || 'Token inválido o expirado.');
+            authErr.isAuthRejected = (res.status === 401 || res.status === 403);
+            throw authErr;
         }
 
         const data = await res.json();
         if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user));
+            sessionStorage.setItem('user', JSON.stringify(data.user));
         }
         return data;
     } catch (e) {
-        // Respaldo en caso de caída temporal de red si el token es local
-        if (token.startsWith('pia_sess_')) {
+        if (e && e.isAuthRejected) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            throw e;
+        }
+        // Respaldo únicamente en caso de caída de red / modo standalone sin servidor activo
+        if (token.startsWith('pia_sess_offline_')) {
             const stored = localStorage.getItem('user') || sessionStorage.getItem('user');
             if (stored) {
                 try {

@@ -337,23 +337,22 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
-        background: linear-gradient(135deg, var(--cyan) 0%, #00e5ff 100%);
+        gap: 8px;
+        background: var(--cyan);
         color: var(--navy);
         font-family: var(--font-head);
-        font-weight: 800;
-        font-size: 1.2rem;
-        padding: 1.25rem 3.4rem;
+        font-weight: 700;
+        font-size: 0.92rem;
+        padding: 0.85rem 2rem;
         border-radius: 50px;
-        border: 2px solid rgba(255,255,255,0.55);
+        border: none;
         transition: all 0.25s ease;
-        box-shadow: 0 12px 36px rgba(0, 194, 224, 0.55);
-        letter-spacing: 0.02em;
+        box-shadow: 0 0 28px rgba(0, 194, 224, 0.35);
     }
     .btn-hero-main:hover {
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 16px 48px rgba(0, 194, 224, 0.7);
-        background: linear-gradient(135deg, #00f0ff 0%, #3fe0f5 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 40px rgba(0, 194, 224, 0.5);
+        background: #00ddf7;
         color: var(--navy);
     }
     .btn-hero-sub {
@@ -441,12 +440,119 @@
     .stat-cell:hover { background: rgba(0,194,224,0.06); }
     .stat-icon { font-size: 1.3rem; color: var(--cyan); margin-bottom: 0.4rem; }
     .stat-num { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1; }
-    .stat-lbl { font-size: 0.72rem; font-weight: 500; color: var(--text-light); margin-top: 0.2rem; letter-spacing: 0.03em; text-transform: uppercase; }
+    .stat-lbl { font-size: 0.72rem; font-weight: 500; color: var(--text-light); margin-top: 0.25rem; letter-spacing: 0.03em; text-transform: uppercase; }
+    .kpi-label-with-tip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        flex-wrap: wrap;
+        line-height: 1.3;
+    }
+    .kpi-tip-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        border: none;
+        padding: 0;
+        font-size: 0.58rem;
+        font-weight: 700;
+        cursor: help;
+        flex-shrink: 0;
+        transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+    }
+    .stats-ribbon .kpi-tip-btn {
+        background: rgba(0, 194, 224, 0.16);
+        color: var(--cyan);
+    }
+    .stats-ribbon .kpi-tip-btn:hover,
+    .stats-ribbon .kpi-tip-btn:focus-visible {
+        background: var(--cyan);
+        color: var(--navy);
+        transform: scale(1.1);
+        outline: none;
+    }
+    .counter-row .kpi-tip-btn {
+        background: rgba(43, 130, 201, 0.12);
+        color: var(--blue-bright, #2B82C9);
+    }
+    .counter-row .kpi-tip-btn:hover,
+    .counter-row .kpi-tip-btn:focus-visible {
+        background: var(--blue-bright, #2B82C9);
+        color: #fff;
+        transform: scale(1.1);
+        outline: none;
+    }
+    .counter-badge.protocolo .kpi-tip-btn {
+        background: rgba(22, 163, 74, 0.14);
+        color: #16A34A;
+    }
+    .counter-badge.protocolo .kpi-tip-btn:hover,
+    .counter-badge.protocolo .kpi-tip-btn:focus-visible {
+        background: #16A34A;
+        color: #fff;
+    }
+    #directorio.theme-dark .counter-row .kpi-tip-btn {
+        background: rgba(0, 194, 224, 0.18);
+        color: var(--cyan);
+    }
+    #directorio.theme-dark .counter-row .kpi-tip-btn:hover,
+    #directorio.theme-dark .counter-row .kpi-tip-btn:focus-visible {
+        background: var(--cyan);
+        color: var(--navy);
+    }
+    .kpi-floating-tooltip {
+        position: fixed;
+        z-index: 9999;
+        width: max-content;
+        max-width: min(260px, calc(100vw - 24px));
+        background: #05111F;
+        color: #F8FAFC;
+        border: 1px solid rgba(0, 194, 224, 0.35);
+        border-radius: 10px;
+        padding: 0.65rem 0.85rem;
+        font-family: var(--font-body);
+        font-size: 0.74rem;
+        font-weight: 400;
+        line-height: 1.45;
+        text-align: left;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(4px);
+        transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+    }
+    .kpi-floating-tooltip.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .kpi-floating-tooltip::after {
+        content: "";
+        position: absolute;
+        left: var(--arrow-left, 50%);
+        margin-left: -6px;
+        border-width: 6px;
+        border-style: solid;
+    }
+    .kpi-floating-tooltip[data-placement="top"]::after {
+        top: 100%;
+        border-color: #05111F transparent transparent transparent;
+    }
+    .kpi-floating-tooltip[data-placement="bottom"]::after {
+        bottom: 100%;
+        border-color: transparent transparent #05111F transparent;
+    }
 
     /* ============================================================
        SECTION SHELL 
     ============================================================ */
     .section { padding: 4rem 0; }
+    #directorio.section { padding-top: 2.75rem; }
     .section-tag {
         display: inline-flex; align-items: center; gap: 8px;
         font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
@@ -465,6 +571,48 @@
     }
     h2.section-title.on-dark { color: #fff; }
     .section-sub { font-size: 1rem; color: var(--text-muted); max-width: 850px; line-height: 1.6; }
+    #directorio .section-sub {
+        max-width: 100%;
+        width: 100%;
+        margin: 0.45rem 0 0;
+        text-align: justify;
+    }
+    .dir-controls-bar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+        margin-top: 1.25rem;
+    }
+    .dir-control-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .dir-control-tip {
+        width: 18px;
+        height: 18px;
+        font-size: 0.65rem;
+        background: rgba(43, 130, 201, 0.12);
+        color: var(--blue-bright, #2B82C9);
+    }
+    .dir-control-tip:hover,
+    .dir-control-tip:focus-visible {
+        background: var(--blue-bright, #2B82C9);
+        color: #fff;
+        transform: scale(1.08);
+        outline: none;
+    }
+    #directorio.theme-dark .dir-control-tip {
+        background: rgba(0, 194, 224, 0.18);
+        color: var(--cyan);
+    }
+    #directorio.theme-dark .dir-control-tip:hover,
+    #directorio.theme-dark .dir-control-tip:focus-visible {
+        background: var(--cyan);
+        color: var(--navy);
+    }
     .section-header { margin-bottom: 2.5rem; }
     .section-header.center { text-align: center; }
     .section-header.center .section-sub { margin: 0 auto; }
@@ -688,7 +836,10 @@
         padding: 0.2rem 0.65rem;
         border-radius: 50px;
     }
-    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.25rem; align-items: end; }
+    .filter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; align-items: end; }
+    @media (max-width: 960px) {
+        .filter-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    }
     .filter-group { display: flex; flex-direction: column; gap: 0.4rem; }
     .filter-label {
         font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
@@ -915,13 +1066,22 @@
     .toggle-sw input:checked + .toggle-track { background: var(--blue-bright); }
     .toggle-sw input:checked + .toggle-track::before { transform: translateX(24px); }
 
-    .filter-actions { display:flex; justify-content:flex-end; margin-top:1.5rem; }
+    .filter-actions { display:flex; justify-content:flex-end; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-top:1.5rem; }
+    .btn-search-filters {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: linear-gradient(135deg, var(--cyan), #00a8c6); color: var(--navy);
+        font-family: var(--font-head); font-weight: 700; font-size: 0.85rem;
+        padding: 0.68rem 1.75rem; border-radius: 50px; border: none;
+        cursor: pointer; transition: all 0.2s;
+        box-shadow: 0 4px 14px rgba(0, 194, 224, 0.28);
+    }
+    .btn-search-filters:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0, 194, 224, 0.4); filter: brightness(1.04); }
     .btn-reset {
         display: inline-flex; align-items: center; gap: 8px;
         background: var(--navy); color: #fff;
         font-family: var(--font-head); font-weight: 600; font-size: 0.82rem;
         padding: 0.65rem 1.5rem; border-radius: 50px; border: none;
-        transition: all 0.2s;
+        cursor: pointer; transition: all 0.2s;
     }
     .btn-reset:hover { background: var(--navy-light); transform: translateY(-1px); }
 
@@ -939,6 +1099,9 @@
         margin-top: 1.25rem;
         margin-bottom: 2rem;
         box-shadow: var(--shadow-sm);
+    }
+    .counter-row.no-protocolo {
+        grid-template-columns: repeat(2, 1fr);
     }
     .counter-badge {
         display: flex;
@@ -1088,6 +1251,9 @@
         align-items: flex-start;
         box-shadow: var(--shadow-sm);
         transition: all 0.25s;
+    }
+    .dir-list-container.no-protocolo .dir-list-item {
+        grid-template-columns: 1.6fr 2.8fr auto;
     }
     .dir-list-item:hover {
         border-color: var(--blue-bright);
@@ -1377,7 +1543,8 @@
     }
 
     @media (max-width: 1024px) {
-        .dir-list-item {
+        .dir-list-item,
+        .dir-list-container.no-protocolo .dir-list-item {
             grid-template-columns: 1fr 1fr;
             gap: 1.25rem;
         }
@@ -1386,7 +1553,8 @@
         }
     }
     @media (max-width: 640px) {
-        .dir-list-item {
+        .dir-list-item,
+        .dir-list-container.no-protocolo .dir-list-item {
             grid-template-columns: 1fr;
             gap: 1rem;
             padding: 1.15rem;
@@ -1571,6 +1739,13 @@
     .detail-val { font-size: 0.82rem; color: var(--text-main); word-break: break-word; }
     .detail-val a { color: var(--blue-bright); text-decoration: underline; }
     .detail-val a:hover { color: var(--cyan); }
+    .detail-row.is-unavailable .detail-label { color: #94A3B8; }
+    .detail-row.is-unavailable .detail-val,
+    .channel-unavailable-text {
+        color: #94A3B8;
+        font-style: italic;
+        font-weight: 400;
+    }
 
     .map-links { display: flex; gap: 8px; margin-top: 0.8rem; }
     .map-link {
@@ -2008,6 +2183,9 @@
     #directorio.theme-dark .card-name { color: #fff; }
     #directorio.theme-dark .channel-row-left { color: rgba(255,255,255,0.55); }
     #directorio.theme-dark .detail-val { color: rgba(255,255,255,0.8); }
+    #directorio.theme-dark .detail-row.is-unavailable .detail-label { color: rgba(148,163,184,0.5); }
+    #directorio.theme-dark .detail-row.is-unavailable .detail-val,
+    #directorio.theme-dark .channel-unavailable-text { color: rgba(148,163,184,0.55); }
     #directorio.theme-dark .counter-badge { background: var(--navy-mid); border-color: rgba(0,194,224,0.15); }
     #directorio.theme-dark .counter-val { color: #fff; }
     #directorio.theme-dark .filter-bar { background: var(--navy-mid); border-color: rgba(0,194,224,0.12); }
@@ -2162,17 +2340,23 @@
         box-shadow: 0 4px 20px rgba(43,130,201,0.15);
         transform: translateY(-2px);
     }
-    .modal-channel-card.no-channel { background: #FAFAFA; opacity: 0.55; }
+    .modal-channel-card.no-channel {
+        background: #F8FAFC;
+        border-color: #E2E8F0;
+        opacity: 1;
+    }
     .modal-channel-icon {
         width: 44px; height: 44px; border-radius: 12px;
         display: flex; align-items: center; justify-content: center;
         font-size: 1.1rem; flex-shrink: 0;
     }
     .modal-channel-card.has-channel .modal-channel-icon { background: linear-gradient(135deg, #EBF5FF, #D2EAFF); color: var(--blue-bright); }
-    .modal-channel-card.no-channel .modal-channel-icon { background: #F0F0F0; color: #CBD5E1; }
+    .modal-channel-card.no-channel .modal-channel-icon { background: #F1F5F9; color: #CBD5E1; }
     .modal-channel-info { flex: 1; min-width: 0; }
     .modal-channel-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px; }
     .modal-channel-val { font-size: 0.85rem; font-weight: 500; color: var(--text-main); word-break: break-word; }
+    .modal-channel-card.no-channel .modal-channel-label { color: #94A3B8; }
+    .modal-channel-card.no-channel .modal-channel-val { color: #94A3B8; font-weight: 400; font-style: italic; }
     .modal-channel-val a { color: var(--blue-bright); text-decoration: underline; }
     .modal-channel-val a:hover { color: var(--cyan-dim); }
     .modal-channel-status {
@@ -2203,6 +2387,16 @@
     }
     .modal-detail-item .lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
     .modal-detail-item .val { font-size: 0.88rem; color: var(--text-main); font-weight: 500; line-height: 1.5; }
+    .modal-detail-item.is-unavailable {
+        background: #F8FAFC;
+        border-color: #E2E8F0;
+    }
+    .modal-detail-item.is-unavailable .lbl { color: #94A3B8; }
+    .modal-detail-item.is-unavailable .val {
+        color: #94A3B8;
+        font-weight: 400;
+        font-style: italic;
+    }
     .modal-detail-item .val a { color: var(--blue-bright); text-decoration: underline; }
     .modal-detail-item .val a:hover { color: var(--cyan-dim); }
     .modal-detail-item.full { grid-column: 1 / -1; }
@@ -2231,12 +2425,18 @@
     #directorio.theme-dark .modal-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); background: rgba(0,194,224,0.06); }
     #directorio.theme-dark .modal-tab:hover { color: var(--cyan); background: rgba(0,194,224,0.06); }
     #directorio.theme-dark .modal-channel-card.has-channel { background: rgba(43,130,201,0.08); border-color: rgba(43,130,201,0.2); }
-    #directorio.theme-dark .modal-channel-card.no-channel { background: rgba(255,255,255,0.03); }
+    #directorio.theme-dark .modal-channel-card.no-channel { background: rgba(255,255,255,0.02); border-color: rgba(148,163,184,0.12); }
+    #directorio.theme-dark .modal-channel-card.no-channel .modal-channel-icon { background: rgba(255,255,255,0.04); color: rgba(148,163,184,0.35); }
     #directorio.theme-dark .modal-channel-label { color: rgba(255,255,255,0.4); }
     #directorio.theme-dark .modal-channel-val { color: rgba(255,255,255,0.85); }
+    #directorio.theme-dark .modal-channel-card.no-channel .modal-channel-label { color: rgba(148,163,184,0.45); }
+    #directorio.theme-dark .modal-channel-card.no-channel .modal-channel-val { color: rgba(148,163,184,0.55); }
     #directorio.theme-dark .modal-detail-item { background: rgba(255,255,255,0.04); border-color: rgba(0,194,224,0.1); }
     #directorio.theme-dark .modal-detail-item .lbl { color: rgba(255,255,255,0.4); }
     #directorio.theme-dark .modal-detail-item .val { color: rgba(255,255,255,0.85); }
+    #directorio.theme-dark .modal-detail-item.is-unavailable { background: rgba(255,255,255,0.02); border-color: rgba(148,163,184,0.1); }
+    #directorio.theme-dark .modal-detail-item.is-unavailable .lbl { color: rgba(148,163,184,0.45); }
+    #directorio.theme-dark .modal-detail-item.is-unavailable .val { color: rgba(148,163,184,0.55); }
     #directorio.theme-dark .modal-map-area { border-color: rgba(0,194,224,0.12); }
     #directorio.theme-dark .modal-detail-section-title { color: var(--cyan); }
     #directorio.theme-dark .modal-detail-section-title::after { background: rgba(0,194,224,0.15); }
@@ -3199,6 +3399,7 @@
                     <i class="fas fa-search"></i> Consultar canales
                 </a>
             </div>
+            <div class="hero-actions-secondary">
                 <!-- Guía Multilingüe: Inactivada de la interfaz visible por solicitud, preservada a nivel de código lista para reactivación -->
                 <a href="#guiaMultilingue" class="btn-hero-sub" id="heroGuiaCTA" role="button" aria-expanded="false" title="Mostrar u ocultar Guía Multilingüe de Denuncia Segura" style="display:none !important;" data-status="inactive">
                     <i class="fas fa-shield-alt" style="color:var(--cyan);"></i> Guía de Denuncia Segura
@@ -3221,18 +3422,185 @@
 <div class="stats-ribbon">
     <div class="container">
         <div class="stats-grid">
-            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-phone-alt"></i></div><div class="stat-num" id="totalCanalesStats">0</div><div class="stat-lbl">Canales disponibles</div></div>
-            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-building"></i></div><div class="stat-num" id="totalInstitucionesStats">0</div><div class="stat-lbl">Instituciones</div></div>
-                        <div class="stat-cell"><div class="stat-icon"><i class="fas fa-file-contract"></i></div><div class="stat-num" id="totalProtocolosStats">0</div><div class="stat-lbl">Instituciones con protocolo de actuación</div></div>
-            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-num">24/7</div><div class="stat-lbl">Acceso continuo</div></div>
-            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-shield-alt"></i></div><div class="stat-num">100%</div><div class="stat-lbl">Segura</div></div>
-            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-sync-alt"></i></div><div class="stat-num">100%</div><div class="stat-lbl">Actualizada</div></div>
-            <div class="stat-cell"><div class="stat-icon"><i class="fas fa-user-secret"></i></div><div class="stat-num">Validada</div><div class="stat-lbl">Datos validados por CNC</div></div>
+            <div class="stat-cell">
+                <div class="stat-icon"><i class="fas fa-phone-alt"></i></div>
+                <div class="stat-num" id="totalCanalesStats">0</div>
+                <div class="stat-lbl"><span class="kpi-label-with-tip"><span>Canales disponibles</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre canales disponibles" data-kpi-tooltip="Total de canales habilitados por las instituciones del Organismo Ejecutivo para recepcionar denuncias administrativas."><i class="fas fa-question"></i></button></span></div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-icon"><i class="fas fa-building"></i></div>
+                <div class="stat-num" id="totalInstitucionesStats">0</div>
+                <div class="stat-lbl"><span class="kpi-label-with-tip"><span>Instituciones</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre instituciones" data-kpi-tooltip="Cantidad total de dependencias e instituciones del Organismo Ejecutivo registradas en este directorio."><i class="fas fa-question"></i></button></span></div>
+            </div>
+            <div class="stat-cell" id="statsProtocoloCell" style="display:none;">
+                <div class="stat-icon"><i class="fas fa-file-contract"></i></div>
+                <div class="stat-num" id="totalProtocolosStats">0</div>
+                <div class="stat-lbl"><span class="kpi-label-with-tip"><span>Instituciones con protocolo de actuación</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre protocolo de actuación" data-kpi-tooltip="Instituciones del Organismo Ejecutivo que cuentan con un protocolo interno formalizado para tramitar denuncias administrativas."><i class="fas fa-question"></i></button></span></div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-num">24/7</div>
+                <div class="stat-lbl"><span class="kpi-label-with-tip"><span>Acceso continuo</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre acceso continuo" data-kpi-tooltip="Portal disponible en línea las 24 horas del día, los 7 días de la semana, para consultar los medios oficiales de denuncia."><i class="fas fa-question"></i></button></span></div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="stat-num">100%</div>
+                <div class="stat-lbl"><span class="kpi-label-with-tip"><span>Segura</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre seguridad" data-kpi-tooltip="Consulta pública sin registro previo y acceso directo a los canales oficiales de cada entidad bajo resguardo confidencial."><i class="fas fa-question"></i></button></span></div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-icon"><i class="fas fa-sync-alt"></i></div>
+                <div class="stat-num">100%</div>
+                <div class="stat-lbl"><span class="kpi-label-with-tip"><span>Actualizada</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre actualización" data-kpi-tooltip="Directorio en revisión continua conforme las instituciones reportan cambios en sus puntos y medios de atención."><i class="fas fa-question"></i></button></span></div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-icon"><i class="fas fa-user-secret"></i></div>
+                <div class="stat-num">Validada</div>
+                <div class="stat-lbl"><span class="kpi-label-with-tip"><span>Datos validados por CNC</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre validación de datos" data-kpi-tooltip="Información verificada por la Comisión Nacional contra la Corrupción en coordinación con las Instancias de Asuntos de Probidad."><i class="fas fa-question"></i></button></span></div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="container">
+
+    <!-- DIRECTORIO (primer bloque de consulta justo debajo del banner) -->
+    <section class="section" id="directorio">
+        <div class="section-header" style="margin-bottom:1.5rem;">
+            <div>
+                <div class="section-tag">Canales de denuncia</div>
+                <h2 class="section-title">Listado de Canales de denuncia del Organismo Ejecutivo</h2>
+                <p class="section-sub">Cada institución puede tener uno o más de los siguientes canales habilitados para recepcionar únicamente <strong>denuncias administrativas del Organismo Ejecutivo</strong> (no aplica para denuncias penales ni para instituciones fuera del Organismo Ejecutivo).</p>
+            </div>
+            <div class="channels-row" aria-label="Canales de denuncia disponibles">
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-phone-alt"></i></div><span>Teléfono</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-envelope"></i></div><span>Correo electrónico</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-globe"></i></div><span>Formulario web</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-building"></i></div><span>Presencial</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-comment-dots"></i></div><span>Otro canal</span></div>
+            </div>
+            <div class="dir-controls-bar">
+                <div class="dir-control-group">
+                    <div class="view-toggle-group" id="viewToggleGroup" role="group" aria-label="Modo de visualización">
+                        <button id="viewCardsBtn" class="view-btn active" type="button" title="Vista de Tarjetas">
+                            <i class="fas fa-th-large"></i> <span>Tarjetas</span>
+                        </button>
+                        <button id="viewListBtn" class="view-btn" type="button" title="Vista de Lista">
+                            <i class="fas fa-list"></i> <span>Lista</span>
+                        </button>
+                    </div>
+                    <button type="button" class="kpi-tip-btn dir-control-tip" aria-label="Información sobre selección de vista" data-kpi-tooltip="Alterna entre la vista de Tarjetas (carrusel interactivo con ficha rápida) y la vista de Lista (formato tabular paginado de 10 instituciones por página)."><i class="fas fa-question"></i></button>
+                </div>
+                <div class="dir-control-group">
+                    <button id="themeToggleBtn" style="display:inline-flex; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--border); border-radius:50px; padding:0.55rem 1.2rem; font-family:var(--font-head); font-size:0.78rem; font-weight:600; color:var(--text-muted); transition:all 0.2s;" onmouseover="this.style.borderColor='var(--blue-bright)'; this.style.color='var(--blue-bright)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
+                        <i class="fas fa-palette"></i> Cambiar tema
+                    </button>
+                    <button type="button" class="kpi-tip-btn dir-control-tip" aria-label="Información sobre cambiar tema" data-kpi-tooltip="Cambia la apariencia visual del directorio entre el tema claro y el tema oscuro para facilitar la lectura según tu preferencia."><i class="fas fa-question"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTROS DE BÚSQUEDA -->
+        <div class="filter-bar">
+            <div class="filter-bar-header">
+                <div class="filter-bar-title">
+                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
+                </div>
+                <div class="filter-active-count" id="activeFilterBadge" style="display:none;">
+                    <i class="fas fa-filter"></i> <span id="activeFilterCountText">0 filtros activos</span>
+                </div>
+            </div>
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <span class="filter-label">
+                        <span><i class="fas fa-layer-group"></i> Tipo institución</span>
+                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
+                            <i class="fas fa-question"></i>
+                            <span class="tooltip-text">Filtra las instituciones según su clasificación gubernamental: Ministerios, Secretarías, Gobernaciones Departamentales u Otras dependencias.</span>
+                        </span>
+                    </span>
+                    <select id="tipoFilter" aria-label="Filtrar por tipo de institución">
+                        <option value="">Todos los tipos de institución</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">
+                        <span><i class="fas fa-building"></i> Nombre</span>
+                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
+                            <i class="fas fa-question"></i>
+                            <span class="tooltip-text">Selecciona una entidad específica del listado para consultar exclusivamente sus canales de contacto y denuncia oficiales.</span>
+                        </span>
+                    </span>
+                    <select id="institucionFilter" aria-label="Filtrar por nombre de institución"><option value="">Todas las instituciones</option></select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">
+                        <span><i class="fas fa-search"></i> Búsqueda libre</span>
+                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
+                            <i class="fas fa-question"></i>
+                            <span class="tooltip-text">Escribe palabras clave para localizar instituciones por nombre, dirección física, teléfono o correo de recepción.</span>
+                        </span>
+                    </span>
+                    <div class="voice-row">
+                        <div class="input-clear-wrapper" style="flex:1;">
+                            <input type="text" id="searchInput" placeholder="Nombre, correo, dirección…" aria-label="Buscar en canales">
+                            <button class="input-clear-btn" id="searchClearBtn" type="button" title="Limpiar texto" aria-label="Limpiar texto"><i class="fas fa-times"></i></button>
+                        </div>
+                        <button id="voiceSearchBtn" type="button" class="voice-btn" title="Buscar por voz" aria-label="Buscar por voz"><i class="fas fa-microphone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div id="activeChipsBar" class="active-chips-bar" style="display:none;"></div>
+            <div class="filter-actions" style="margin-top:1.1rem;">
+                <button id="resetFilters" type="button" class="btn-reset"><i class="fas fa-undo-alt"></i> Restablecer filtros</button>
+                <button id="applyFiltersBtn" type="button" class="btn-search-filters"><i class="fas fa-search"></i> Buscar</button>
+            </div>
+        </div>
+
+        <!-- CONTADORES -->
+        <div class="counter-row no-protocolo" id="counterRow">
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-building"></i></div>
+                <div>
+                    <div class="counter-val" id="totalInstituciones">0</div>
+                    <div class="counter-lbl"><span class="kpi-label-with-tip"><span>Instituciones</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre instituciones en el directorio" data-kpi-tooltip="Cantidad de instituciones del Organismo Ejecutivo que coinciden con los filtros seleccionados actualmente."><i class="fas fa-question"></i></button></span></div>
+                </div>
+            </div>
+            <div class="counter-badge">
+                <div class="counter-badge-icon"><i class="fas fa-bullhorn"></i></div>
+                <div>
+                    <div class="counter-val" id="totalCanalesCount">0</div>
+                    <div class="counter-lbl"><span class="kpi-label-with-tip"><span>Canales habilitados</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre canales habilitados" data-kpi-tooltip="Total de canales habilitados por las instituciones del Organismo Ejecutivo mostradas para recepcionar denuncias administrativas (teléfono, correo, formulario web, presencial u otro)."><i class="fas fa-question"></i></button></span></div>
+                </div>
+            </div>
+            <div class="counter-badge protocolo" id="protocoloCounterBadge" style="display:none;">
+                <div class="counter-badge-icon"><i class="fas fa-file-contract"></i></div>
+                <div>
+                    <div class="counter-val" id="totalProtocolosCount">0</div>
+                    <div class="counter-lbl"><span class="kpi-label-with-tip"><span>Con Protocolo de Actuación</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre protocolo de actuación en el directorio" data-kpi-tooltip="Cantidad de instituciones listadas que cuentan con protocolo de actuación aprobado para atender denuncias administrativas."><i class="fas fa-question"></i></button></span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SWIPER TARJETAS -->
+        <div id="cardsViewWrapper" style="display:block; position:relative; padding: 0 30px;">
+            <div class="swiper dir-swiper" id="dirSwiper">
+                <div class="swiper-wrapper" id="cardsContainer"></div>
+            </div>
+            <button class="swiper-nav-btn swiper-prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="swiper-nav-btn swiper-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- VISTA DE LISTA -->
+        <div id="listViewWrapper" style="display:none; margin-bottom:2rem;">
+            <div class="dir-list-container no-protocolo" id="listContainer"></div>
+            <div id="listPaginationContainer"></div>
+        </div>
+
+        <div class="export-row">
+            <button id="exportPdfBtn" class="btn-export"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+            <button id="exportXlsBtn" class="btn-export excel"><i class="fas fa-file-excel"></i> Exportar Excel</button>
+        </div>
+    </section>
 
     <!-- SOBRE LA PLATAFORMA -->
     <section class="section" id="sobre">
@@ -3393,170 +3761,11 @@
         </div>
     </section>
 
-    <!-- TIPOS DE CANALES (pills) -->
-    <section class="section" style="padding-top:0;">
-        <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Modalidades</div>
-            <h2 class="section-title">Canales de denuncia disponibles</h2>
-            <p class="section-sub">Cada institución puede tener uno o más de los siguientes canales habilitados.</p>
-        </div>
-        <div class="channels-row">
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-phone-alt"></i></div><span>Teléfono</span></div>
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-envelope"></i></div><span>Correo electrónico</span></div>
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-globe"></i></div><span>Formulario web</span></div>
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-building"></i></div><span>Presencial</span></div>
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-comment-dots"></i></div><span>Otro canal</span></div>
-        </div>
-    </section>
-
-    <!-- DIRECTORIO (datos cargados desde JSON) -->
-    <section class="section" id="directorio">
-        <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
-            <div>
-                <div class="section-tag">Canales de denuncia</div>
-                <h2 class="section-title">Listado de Canales de denuncia del Organismo Ejecutivo</h2>
-            </div>
-            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-                <div class="view-toggle-group" id="viewToggleGroup" role="group" aria-label="Modo de visualización">
-                    <button id="viewCardsBtn" class="view-btn" type="button" title="Vista de Tarjetas">
-                        <i class="fas fa-th-large"></i> <span>Tarjetas</span>
-                    </button>
-                    <button id="viewListBtn" class="view-btn active" type="button" title="Vista de Lista">
-                        <i class="fas fa-list"></i> <span>Lista</span>
-                    </button>
-                </div>
-                <button id="themeToggleBtn" style="display:inline-flex; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--border); border-radius:50px; padding:0.55rem 1.2rem; font-family:var(--font-head); font-size:0.78rem; font-weight:600; color:var(--text-muted); transition:all 0.2s;" onmouseover="this.style.borderColor='var(--blue-bright)'; this.style.color='var(--blue-bright)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
-                    <i class="fas fa-palette"></i> Cambiar tema
-                </button>
-            </div>
-        </div>
-
-        <!-- FILTROS DE BÚSQUEDA -->
-        
-            
-    
-<div class="filter-bar">
-            <div class="filter-bar-header">
-                <div class="filter-bar-title">
-                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
-                </div>
-                <div class="filter-active-count" id="activeFilterBadge" style="display:none;">
-                    <i class="fas fa-filter"></i> <span id="activeFilterCountText">0 filtros activos</span>
-                </div>
-            </div>
-            <div class="filter-grid">
-                <div class="filter-group">
-                    <span class="filter-label">
-                        <span><i class="fas fa-layer-group"></i> Tipo institución</span>
-                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
-                            <i class="fas fa-question"></i>
-                            <span class="tooltip-text">Filtra las instituciones según su clasificación gubernamental: Ministerios, Secretarías, Gobernaciones Departamentales u Otras dependencias.</span>
-                        </span>
-                    </span>
-                    <select id="tipoFilter" aria-label="Filtrar por tipo de institución">
-                        <option value="">Todos los tipos de institución</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <span class="filter-label">
-                        <span><i class="fas fa-building"></i> Nombre</span>
-                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
-                            <i class="fas fa-question"></i>
-                            <span class="tooltip-text">Selecciona una entidad específica del listado para consultar exclusivamente sus canales de contacto y denuncia oficiales.</span>
-                        </span>
-                    </span>
-                    <select id="institucionFilter" aria-label="Filtrar por nombre de institución"><option value="">Todas las instituciones</option></select>
-                </div>
-                <div class="filter-group">
-                    <span class="filter-label">
-                        <span><i class="fas fa-search"></i> Búsqueda libre</span>
-                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
-                            <i class="fas fa-question"></i>
-                            <span class="tooltip-text">Escribe palabras clave para localizar instituciones por nombre, dirección física, teléfono o correo de recepción.</span>
-                        </span>
-                    </span>
-                    <div class="voice-row">
-                        <div class="input-clear-wrapper" style="flex:1;">
-                            <input type="text" id="searchInput" placeholder="Nombre, correo, dirección…" aria-label="Buscar en canales">
-                            <button class="input-clear-btn" id="searchClearBtn" title="Limpiar texto" aria-label="Limpiar texto"><i class="fas fa-times"></i></button>
-                        </div>
-                        <button id="voiceSearchBtn" class="voice-btn" title="Buscar por voz" aria-label="Buscar por voz"><i class="fas fa-microphone"></i></button>
-                    </div>
-                </div>
-                <div class="filter-group">
-                    <span class="filter-label">
-                        <span><i class="fas fa-star"></i> Favoritos</span>
-                        <span class="filter-tooltip" tabindex="0" role="tooltip" aria-label="Información del filtro">
-                            <i class="fas fa-question"></i>
-                            <span class="tooltip-text">Activa esta casilla para visualizar únicamente aquellas dependencias que marcaste previamente con una estrella.</span>
-                        </span>
-                    </span>
-                    <div class="fav-row">
-                        <span>Todos</span>
-                        <label class="toggle-sw">
-                            <input type="checkbox" id="favToggleSwitch">
-                            <span class="toggle-track"></span>
-                        </label>
-                        <span>Solo favoritos</span>
-                    </div>
-                </div>
-            </div>
-            <div id="activeChipsBar" class="active-chips-bar" style="display:none;"></div>
-            <div class="filter-actions" style="margin-top:1rem;">
-                <button id="resetFilters" class="btn-reset"><i class="fas fa-undo-alt"></i> Restablecer filtros</button>
-            </div>
-        </div>
-
-        <!-- CONTADORES (con clase protocolo para estilo especial) -->
-        <div class="counter-row">
-            <div class="counter-badge">
-                <div class="counter-badge-icon"><i class="fas fa-building"></i></div>
-                <div>
-                    <div class="counter-val" id="totalInstituciones">0</div>
-                    <div class="counter-lbl">Instituciones</div>
-                </div>
-            </div>
-            <div class="counter-badge">
-                <div class="counter-badge-icon"><i class="fas fa-bullhorn"></i></div>
-                <div>
-                    <div class="counter-val" id="totalCanalesCount">0</div>
-                    <div class="counter-lbl">Canales habilitados</div>
-                </div>
-            </div>
-            <div class="counter-badge protocolo" id="protocoloCounterBadge">
-                <div class="counter-badge-icon"><i class="fas fa-file-contract"></i></div>
-                <div>
-                    <div class="counter-val" id="totalProtocolosCount">0</div>
-                    <div class="counter-lbl">Con Protocolo de Actuación</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SWIPER TARJETAS -->
-        <div id="cardsViewWrapper" style="display:none; position:relative; padding: 0 30px;">
-            <div class="swiper dir-swiper" id="dirSwiper">
-                <div class="swiper-wrapper" id="cardsContainer"></div>
-            </div>
-            <button class="swiper-nav-btn swiper-prev"><i class="fas fa-chevron-left"></i></button>
-            <button class="swiper-nav-btn swiper-next"><i class="fas fa-chevron-right"></i></button>
-        </div>
-
-        <!-- VISTA DE LISTA -->
-        <div id="listViewWrapper" style="display:block; margin-bottom:2rem;">
-            <div class="dir-list-container" id="listContainer"></div>
-            <div id="listPaginationContainer"></div>
-        </div>
-
-        <div class="export-row">
-            <button id="exportPdfBtn" class="btn-export"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
-            <button id="exportXlsBtn" class="btn-export excel"><i class="fas fa-file-excel"></i> Exportar Excel</button>
-        </div>
-    </section>
-
     <!-- ============================================================
          DASHBOARD DE ESTADÍSTICAS Y TRANSPARENCIA INSTITUCIONAL (CNC)
+         Nota: Oculto temporalmente y controlado desde el módulo administrativo
     ============================================================ -->
-    <section class="section" id="dashboardStats">
+    <section class="section" id="dashboardStats" style="display:none;" aria-hidden="true">
         <div class="section-header">
             <div class="section-tag"><i class="fas fa-chart-pie"></i> Transparencia e Indicadores</div>
             <h2 class="section-title">Dashboard de Cumplimiento del Protocolo CNC</h2>
@@ -3833,11 +4042,35 @@ let instituciones = [];
 ============================================================ */
 let swiperDir = null;
 let swiperDef = null;
+let CANALES_CONFIG = { showProtocolos: false, showDashboardCnc: false };
 let currentFilters = { tipo:'', institucion:'', search:'', favOnly:false };
 let favorites = new Set(JSON.parse(localStorage.getItem('fav_instituciones') || '[]'));
 let currentTheme = localStorage.getItem('dir_theme') || 'light';
-let currentView = localStorage.getItem('canales_view') || 'list';
+let currentView = localStorage.getItem('canales_view_mode') || 'cards';
 let recognition = null;
+
+function applyCanalesConfigVisibility() {
+    const showProt = Boolean(CANALES_CONFIG.showProtocolos);
+    const showDash = Boolean(CANALES_CONFIG.showDashboardCnc);
+
+    const statsProtCell = document.getElementById('statsProtocoloCell');
+    if (statsProtCell) statsProtCell.style.display = showProt ? '' : 'none';
+
+    const protCounterBadge = document.getElementById('protocoloCounterBadge');
+    if (protCounterBadge) protCounterBadge.style.display = showProt ? '' : 'none';
+
+    const counterRow = document.getElementById('counterRow') || document.querySelector('.counter-row');
+    if (counterRow) counterRow.classList.toggle('no-protocolo', !showProt);
+
+    const listContainer = document.getElementById('listContainer');
+    if (listContainer) listContainer.classList.toggle('no-protocolo', !showProt);
+
+    const dashSection = document.getElementById('dashboardStats');
+    if (dashSection) {
+        dashSection.style.display = showDash ? '' : 'none';
+        dashSection.setAttribute('aria-hidden', showDash ? 'false' : 'true');
+    }
+}
 
 /* ============================================================
    ELEMENTOS DOM
@@ -3866,13 +4099,25 @@ function showToast(msg) {
     setTimeout(() => t.remove(), 2400);
 }
 
+function isUnavailableChannelValue(v) {
+    if (v === null || v === undefined) return true;
+    const s = String(v).trim();
+    if (!s) return true;
+    return /^(no\s*disponible|n\s*\/\s*a|n\.a\.?|no\s*aplica|no\s*habilitado|sin\s*informaci[oó]n|ninguno|[-–—]+)$/i.test(s);
+}
+
+function getUnavailableLabel(v) {
+    const s = v !== null && v !== undefined ? String(v).trim() : '';
+    return s || 'No disponible';
+}
+
 function badge(v) {
-    return v && v.trim() ? '<span class="chip-active">Activo</span>' : '<span class="chip-inactive">—</span>';
+    return !isUnavailableChannelValue(v) ? '<span class="chip-active">Activo</span>' : '<span class="chip-inactive">—</span>';
 }
 
 function cleanPhone(p) { return p ? p.replace(/[^\d+]/g,'') : ''; }
 
-function fullVal(v) { return v && v.trim() ? v : 'No disponible'; }
+function fullVal(v) { return !isUnavailableChannelValue(v) ? v : getUnavailableLabel(v); }
 
 function shareCard(inst) {
     const line = (emoji, label, val) => (val && val.trim()) ? `${emoji} *${label}:* ${val}\n` : '';
@@ -3885,7 +4130,9 @@ function shareCard(inst) {
     text += line('💬','Otro canal',            inst.otro);
     text += line('🕐','Horario de atención',   inst.horario);
     text += line('📍','Dirección',             inst.direccion);
-    text += line('📄','Protocolo actuación',   inst['Protocolo de actuación'] ? 'Sí' : 'No');
+    if (CANALES_CONFIG.showProtocolos) {
+        text += line('📄','Protocolo actuación',   inst['Protocolo de actuación'] ? 'Sí' : 'No');
+    }
     text += `━━━━━━━━━━━━━━━━━━\n`;
     text += `🔗 Canales por la Integridad · pia.gob.gt`;
     if (navigator.share) navigator.share({ title: `Canal de denuncia — ${inst.institucion}`, text });
@@ -4025,6 +4272,9 @@ function renderCards(list) {
             const tieneProtocolo = inst['Protocolo de actuación'] === true;
             const protClass = tieneProtocolo ? '' : 'no';
             const protIcon = tieneProtocolo ? 'fa-check-circle' : 'fa-times-circle';
+            const protBadgeHtml = CANALES_CONFIG.showProtocolos
+                ? `<span class="protocolo-badge ${protClass}"><i class="fas ${protIcon}"></i> Protocolo de actuación</span>`
+                : '';
             const slide = document.createElement('div');
             slide.className = 'swiper-slide';
             slide.innerHTML = `
@@ -4036,7 +4286,7 @@ function renderCards(list) {
                     <div class="card-name">${inst.institucion}</div>
                     <div class="card-meta">
                       <span class="card-channels-badge">${inst.canales} canal(es)</span>
-                      <span class="protocolo-badge ${protClass}"><i class="fas ${protIcon}"></i> Protocolo de actuación</span>
+                      ${protBadgeHtml}
                       <button class="fav-btn" onclick="window._toggleFav('${safe}')">
                         <i class="fas fa-star ${isFav?'active':''}"></i>
                       </button>
@@ -4067,20 +4317,29 @@ function renderCards(list) {
                     <div class="card-name">${inst.institucion}</div>
                     <div class="card-meta">
                       <span class="card-channels-badge">${inst.canales} canal(es)</span>
-                      <span class="protocolo-badge ${protClass}"><i class="fas ${protIcon}"></i> Protocolo de actuación</span>
+                      ${protBadgeHtml}
                       <button class="fav-btn" onclick="window._toggleFav('${safe}')">
                         <i class="fas fa-star ${isFav?'active':''}"></i>
                       </button>
                     </div>
                   </div>
                   <div class="back-body">
-                    <div class="detail-row"><div class="detail-label">Teléfono</div><div class="detail-val">${inst.telefono?`<a href="tel:${phone}">${inst.telefono}</a>`:'No disponible'}</div></div>
-                    <div class="detail-row"><div class="detail-label">Correo electrónico</div><div class="detail-val">${inst.correo?`<a href="mailto:${inst.correo}">${inst.correo}</a>`:'No disponible'}</div></div>
-                    <div class="detail-row"><div class="detail-label">Formulario web</div><div class="detail-val">${inst.formulario?`<a href="${inst.formulario}" target="_blank" rel="noopener">Abrir formulario ↗</a>`:'No disponible'}</div></div>
-                    <div class="detail-row"><div class="detail-label">Atención presencial</div><div class="detail-val">${fullVal(inst.tipocom)}</div></div>
-                    <div class="detail-row"><div class="detail-label">Otro canal</div><div class="detail-val">${fullVal(inst.otro)}</div></div>
-                    <div class="detail-row"><div class="detail-label">Dirección</div><div class="detail-val">${fullVal(inst.direccion)}</div></div>
-                    <div class="detail-row"><div class="detail-label">Horario</div><div class="detail-val">${fullVal(inst.horario)}</div></div>
+                    ${(() => {
+                        const rowHtml = (label, rawVal, activeHtml) => {
+                            const unavailable = isUnavailableChannelValue(rawVal);
+                            const valHtml = unavailable
+                                ? `<span class="channel-unavailable-text">${getUnavailableLabel(rawVal)}</span>`
+                                : activeHtml;
+                            return `<div class="detail-row${unavailable ? ' is-unavailable' : ''}"><div class="detail-label">${label}</div><div class="detail-val">${valHtml}</div></div>`;
+                        };
+                        return rowHtml('Teléfono', inst.telefono, `<a href="tel:${phone}">${inst.telefono}</a>`)
+                            + rowHtml('Correo electrónico', inst.correo, `<a href="mailto:${inst.correo}">${inst.correo}</a>`)
+                            + rowHtml('Formulario web', inst.formulario, `<a href="${inst.formulario}" target="_blank" rel="noopener">Abrir formulario ↗</a>`)
+                            + rowHtml('Atención presencial', inst.tipocom, inst.tipocom)
+                            + rowHtml('Otro canal', inst.otro, inst.otro)
+                            + rowHtml('Dirección', inst.direccion, inst.direccion)
+                            + rowHtml('Horario', inst.horario, inst.horario);
+                    })()}
                     <div class="map-links">
                       <a href="https://waze.com/ul?q=${addr}&navigate=yes" target="_blank" class="map-link"><i class="fab fa-waze"></i> Waze</a>
                       <a href="https://maps.google.com/maps?q=${addr}" target="_blank" class="map-link"><i class="fas fa-map-marked-alt"></i> Google Maps</a>
@@ -4144,8 +4403,10 @@ window._shareCard = function(nombre) {
 // Modal functions (sin cambios relevantes, pero se incluyen para completar)
 function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function buildChannelCard(icon, label, value, isLink, linkHref) {
-    const has = value && String(value).trim();
-    const displayVal = has ? (isLink ? `<a href="${linkHref}" target="_blank" rel="noopener">${value.length > 48 ? 'Abrir enlace ↗' : value}</a>` : value) : 'No disponible';
+    const has = !isUnavailableChannelValue(value);
+    const displayVal = has
+        ? (isLink ? `<a href="${linkHref}" target="_blank" rel="noopener">${String(value).length > 48 ? 'Abrir enlace ↗' : value}</a>` : value)
+        : `<span class="channel-unavailable-text">${getUnavailableLabel(value)}</span>`;
     return `<div class="modal-channel-card ${has ? 'has-channel' : 'no-channel'}">
         <span class="modal-channel-status ${has ? 'status-active' : 'status-inactive'}">${has ? 'Activo' : 'N/D'}</span>
         <div class="modal-channel-icon"><i class="fas ${icon}"></i></div>
@@ -4156,14 +4417,20 @@ function buildChannelCard(icon, label, value, isLink, linkHref) {
     </div>`;
 }
 function buildDetailItem(label, value, full, isLink, href) {
-    const displayVal = value && String(value).trim() ? (isLink ? `<a href="${href}" target="_blank" rel="noopener">${value}</a>` : value) : 'No disponible';
-    return `<div class="modal-detail-item${full ? ' full' : ''}"><div class="lbl">${label}</div><div class="val">${displayVal}</div></div>`;
+    const has = !isUnavailableChannelValue(value);
+    const displayVal = has
+        ? (isLink ? `<a href="${href}" target="_blank" rel="noopener">${value}</a>` : value)
+        : `<span class="channel-unavailable-text">${getUnavailableLabel(value)}</span>`;
+    return `<div class="modal-detail-item${full ? ' full' : ''}${has ? '' : ' is-unavailable'}"><div class="lbl">${label}</div><div class="val">${displayVal}</div></div>`;
 }
 window._openModal = function(nombre) {
     const inst = instituciones.find(i => i.institucion === nombre);
     if (!inst) return;
     const isFav = favorites.has(inst.institucion);
-    const phone = cleanPhone(inst.telefono);
+    const hasTel = !isUnavailableChannelValue(inst.telefono);
+    const hasCorreo = !isUnavailableChannelValue(inst.correo);
+    const hasForm = !isUnavailableChannelValue(inst.formulario);
+    const phone = hasTel ? cleanPhone(inst.telefono) : '';
     const addr = encodeURIComponent(inst.ubicacion || inst.direccion || '');
     const safe = inst.institucion.replace(/'/g,"\\'");
     document.getElementById('modalInstName').textContent = inst.institucion;
@@ -4174,9 +4441,9 @@ window._openModal = function(nombre) {
             <i class="fas fa-star ${isFav ? 'active' : ''}"></i>
         </button>`;
     document.getElementById('modalChannelsGrid').innerHTML =
-        buildChannelCard('fa-phone-alt', 'Teléfono', inst.telefono, !!inst.telefono, `tel:${phone}`) +
-        buildChannelCard('fa-envelope', 'Correo electrónico', inst.correo, !!inst.correo, `mailto:${inst.correo}`) +
-        buildChannelCard('fa-globe', 'Formulario web', inst.formulario ? 'Abrir formulario ↗' : '', !!inst.formulario, inst.formulario) +
+        buildChannelCard('fa-phone-alt', 'Teléfono', inst.telefono, hasTel, `tel:${phone}`) +
+        buildChannelCard('fa-envelope', 'Correo electrónico', inst.correo, hasCorreo, `mailto:${inst.correo}`) +
+        buildChannelCard('fa-globe', 'Formulario web', hasForm ? 'Abrir formulario ↗' : inst.formulario, hasForm, inst.formulario) +
         buildChannelCard('fa-building', 'Atención presencial', inst.tipocom, false, '') +
         buildChannelCard('fa-comment-dots', 'Otro canal', inst.otro, false, '');
     document.getElementById('modalDetallesContent').innerHTML = `
@@ -4186,13 +4453,13 @@ window._openModal = function(nombre) {
             ${buildDetailItem('Canales habilitados', inst.canales, false, false, '')}
             ${buildDetailItem('Tipo de comunicación', inst.tipocom, false, false, '')}
             ${buildDetailItem('Horario de atención', inst.horario, false, false, '')}
-            ${buildDetailItem('Protocolo de actuación', inst['Protocolo de actuación'] ? 'Sí' : 'No', false, false, '')}
+            ${CANALES_CONFIG.showProtocolos ? buildDetailItem('Protocolo de actuación', inst['Protocolo de actuación'] ? 'Sí' : 'No', false, false, '') : ''}
         </div></div>
         <div class="modal-detail-section"><div class="modal-detail-section-title"><i class="fas fa-broadcast-tower"></i> Datos de contacto</div>
         <div class="modal-detail-grid">
-            ${buildDetailItem('Teléfono', inst.telefono, false, !!inst.telefono, `tel:${phone}`)}
-            ${buildDetailItem('Correo electrónico', inst.correo, false, !!inst.correo, `mailto:${inst.correo}`)}
-            ${buildDetailItem('Formulario web', inst.formulario ? 'Abrir formulario ↗' : '', false, !!inst.formulario, inst.formulario)}
+            ${buildDetailItem('Teléfono', inst.telefono, false, hasTel, `tel:${phone}`)}
+            ${buildDetailItem('Correo electrónico', inst.correo, false, hasCorreo, `mailto:${inst.correo}`)}
+            ${buildDetailItem('Formulario web', hasForm ? 'Abrir formulario ↗' : inst.formulario, false, hasForm, inst.formulario)}
             ${buildDetailItem('Otro canal', inst.otro, false, false, '')}
             ${buildDetailItem('Dirección', inst.direccion, true, false, '')}
         </div></div>
@@ -4313,7 +4580,7 @@ function renderList(list, page = 1) {
         // Construir listado completo de todos los canales disponibles
         let channelsListHtml = '';
 
-        if (inst.telefono && inst.telefono.trim()) {
+        if (!isUnavailableChannelValue(inst.telefono)) {
             channelsListHtml += `
                 <div class="dir-channel-row">
                     <span class="dir-channel-label"><i class="fas fa-phone-alt" style="color:var(--blue-bright);"></i> Teléfono:</span>
@@ -4322,7 +4589,7 @@ function renderList(list, page = 1) {
             `;
         }
 
-        if (inst.correo && inst.correo.trim()) {
+        if (!isUnavailableChannelValue(inst.correo)) {
             channelsListHtml += `
                 <div class="dir-channel-row">
                     <span class="dir-channel-label"><i class="fas fa-envelope" style="color:var(--blue-bright);"></i> Correo:</span>
@@ -4331,7 +4598,7 @@ function renderList(list, page = 1) {
             `;
         }
 
-        if (inst.formulario && inst.formulario.trim()) {
+        if (!isUnavailableChannelValue(inst.formulario)) {
             channelsListHtml += `
                 <div class="dir-channel-row">
                     <span class="dir-channel-label"><i class="fas fa-globe" style="color:var(--cyan);"></i> Formulario web:</span>
@@ -4340,7 +4607,7 @@ function renderList(list, page = 1) {
             `;
         }
 
-        if (inst.tipocom && inst.tipocom.trim()) {
+        if (!isUnavailableChannelValue(inst.tipocom)) {
             channelsListHtml += `
                 <div class="dir-channel-row">
                     <span class="dir-channel-label"><i class="fas fa-building" style="color:#0ea5e9;"></i> Presencial:</span>
@@ -4349,7 +4616,7 @@ function renderList(list, page = 1) {
             `;
         }
 
-        if (inst.direccion && inst.direccion.trim()) {
+        if (!isUnavailableChannelValue(inst.direccion)) {
             channelsListHtml += `
                 <div class="dir-channel-row">
                     <span class="dir-channel-label"><i class="fas fa-map-marker-alt" style="color:#e11d48;"></i> Dirección:</span>
@@ -4358,7 +4625,7 @@ function renderList(list, page = 1) {
             `;
         }
 
-        if (inst.otro && inst.otro.trim()) {
+        if (!isUnavailableChannelValue(inst.otro)) {
             channelsListHtml += `
                 <div class="dir-channel-row">
                     <span class="dir-channel-label"><i class="fas fa-comment-dots" style="color:#8b5cf6;"></i> Otro canal:</span>
@@ -4367,7 +4634,7 @@ function renderList(list, page = 1) {
             `;
         }
 
-        if (inst.horario && inst.horario.trim()) {
+        if (!isUnavailableChannelValue(inst.horario)) {
             channelsListHtml += `
                 <div class="dir-channel-row">
                     <span class="dir-channel-label"><i class="fas fa-clock" style="color:var(--amber);"></i> Horario:</span>
@@ -4382,6 +4649,13 @@ function renderList(list, page = 1) {
 
         const row = document.createElement('div');
         row.className = 'dir-list-item';
+        const protCellHtml = CANALES_CONFIG.showProtocolos ? `
+            <div class="dir-list-avail">
+                <span class="protocolo-badge-list ${tieneProtocolo ? 'emitido' : 'en-proceso'}">
+                    <i class="fas ${tieneProtocolo ? 'fa-check-circle' : 'fa-clock'}"></i>
+                    ${tieneProtocolo ? 'Protocolo de actuación - Emitido' : 'Protocolo de actuación - En proceso'}
+                </span>
+            </div>` : '';
         row.innerHTML = `
             <div class="dir-list-col-main">
                 <div class="dir-list-title">${inst.institucion}</div>
@@ -4396,12 +4670,7 @@ function renderList(list, page = 1) {
                 </div>
                 ${channelsListHtml}
             </div>
-            <div class="dir-list-avail">
-                <span class="protocolo-badge-list ${tieneProtocolo ? 'emitido' : 'en-proceso'}">
-                    <i class="fas ${tieneProtocolo ? 'fa-check-circle' : 'fa-clock'}"></i>
-                    ${tieneProtocolo ? 'Protocolo de actuación - Emitido' : 'Protocolo de actuación - En proceso'}
-                </span>
-            </div>
+            ${protCellHtml}
             <div class="dir-list-actions">
                 <button class="btn-list-action btn-list-details" onclick="window._openModal('${safe}')"><i class="fas fa-info-circle"></i> Detalles</button>
                 <button class="btn-list-action btn-list-share" onclick="window._shareCard('${safe}')" title="Compartir"><i class="fab fa-whatsapp"></i></button>
@@ -4466,9 +4735,11 @@ window._goToDirListPage = function(p) {
    CAMBIO DE VISTA (TARJETAS / LISTA)
 ============================================================ */
 
-function switchView(view) {
+function switchView(view, persist = false) {
     currentView = view;
-    localStorage.setItem('canales_view', currentView);
+    if (persist) {
+        localStorage.setItem('canales_view_mode', currentView);
+    }
 
     const $cardsWrapper = document.getElementById('cardsViewWrapper');
     const $listWrapper  = document.getElementById('listViewWrapper');
@@ -4514,10 +4785,10 @@ function applyFilters() {
 }
 
 function readFilters() {
-    currentFilters.tipo       = $tipoFilter.value;
-    currentFilters.institucion = $instFilter.value;
-    currentFilters.search     = $searchInput.value;
-    currentFilters.favOnly    = $favSwitch.checked;
+    currentFilters.tipo        = $tipoFilter ? $tipoFilter.value : '';
+    currentFilters.institucion = $instFilter ? $instFilter.value : '';
+    currentFilters.search      = $searchInput ? $searchInput.value : '';
+    currentFilters.favOnly     = $favSwitch ? $favSwitch.checked : false;
 
     updateFilterStylesAndChips();
     applyFilters();
@@ -4532,7 +4803,7 @@ function updateFilterStylesAndChips() {
 
     const searchClearBtn = document.getElementById('searchClearBtn');
     if (searchClearBtn) {
-        searchClearBtn.style.display = ($searchInput.value && $searchInput.value.trim() !== '') ? 'flex' : 'none';
+        searchClearBtn.style.display = ($searchInput && $searchInput.value && $searchInput.value.trim() !== '') ? 'flex' : 'none';
     }
 
     const activeChipsBar = document.getElementById('activeChipsBar');
@@ -4553,10 +4824,6 @@ function updateFilterStylesAndChips() {
     if (currentFilters.search) {
         activeCount++;
         chipsHtml += `<span class="active-filter-chip"><i class="fas fa-search"></i> "${currentFilters.search}" <button onclick="clearFilterField('searchInput')"><i class="fas fa-times"></i></button></span>`;
-    }
-    if (currentFilters.favOnly) {
-        activeCount++;
-        chipsHtml += `<span class="active-filter-chip"><i class="fas fa-star"></i> Solo favoritos <button onclick="clearFilterField('favToggleSwitch')"><i class="fas fa-times"></i></button></span>`;
     }
 
     if (activeCount > 0) {
@@ -4638,11 +4905,12 @@ async function exportToPdf() {
         d.setDrawColor(150); d.line(margin, 22, pageWidth-margin, 22);
         d.setFontSize(8); d.text(`Pagina ${pg} de ${total}`, pageWidth-margin, 285, { align:'right' });
     };
+    const includeProtocolo = Boolean(CANALES_CONFIG.showProtocolos);
     const cols = [
         { header:'Institucion',       dataKey:'institucion', width:40 },
         { header:'Tipo dependencia',  dataKey:'tipo',        width:22 },
         { header:'Canales',           dataKey:'canales',     width:10 },
-        { header:'Protocolo',         dataKey:'protocolo',   width:10 },
+        ...(includeProtocolo ? [{ header:'Protocolo', dataKey:'protocolo', width:10 }] : []),
         { header:'Telefono',          dataKey:'telefono',    width:18 },
         { header:'Correo',            dataKey:'correo',      width:38 },
         { header:'Formulario Web',    dataKey:'formulario',  width:28 },
@@ -4655,7 +4923,7 @@ async function exportToPdf() {
         institucion: sanitizePdf(inst.institucion),
         tipo:        sanitizePdf(inst.tipo) || '',
         canales:     sanitizePdf(inst.canales),
-        protocolo:   inst['Protocolo de actuación'] === true ? 'Sí' : 'No',
+        ...(includeProtocolo ? { protocolo: inst['Protocolo de actuación'] === true ? 'Sí' : 'No' } : {}),
         telefono:    sanitizePdf(inst.telefono) || '-',
         correo:      sanitizePdf(inst.correo)   || '-',
         formulario:  inst.formulario ? (() => { const s = sanitizePdf(inst.formulario); return s.length > 35 ? s.substring(0,32)+'...' : s; })() : '-',
@@ -4664,6 +4932,13 @@ async function exportToPdf() {
         direccion:   sanitizePdf(inst.direccion)|| '-',
         horario:     sanitizePdf(inst.horario)  || '-'
     }));
+    const colStyles = {};
+    cols.forEach((c, idx) => {
+        colStyles[idx] = { cellWidth: c.width };
+        if (c.dataKey === 'canales' || c.dataKey === 'protocolo') {
+            colStyles[idx].halign = 'center';
+        }
+    });
     const finalDoc = new jsPDF({ orientation:'l', unit:'mm', format:'legal' });
     let pageCount = 0;
     finalDoc.autoTable({
@@ -4673,10 +4948,7 @@ async function exportToPdf() {
         theme: 'grid',
         headStyles: { fillColor:[5,17,31], textColor:255, fontStyle:'bold', halign:'center' },
         styles: { fontSize:7, cellPadding:1.5, valign:'middle', overflow:'linebreak', lineColor:[180,180,180] },
-        columnStyles: {
-            0:{ cellWidth:40 }, 1:{ cellWidth:16 }, 2:{ cellWidth:10, halign:'center' }, 3:{ cellWidth:10, halign:'center' },
-            4:{ cellWidth:18 }, 5:{ cellWidth:38 }, 6:{ cellWidth:28 }, 7:{ cellWidth:18 }, 8:{ cellWidth:22 }, 9:{ cellWidth:48 }, 10:{ cellWidth:24 }
-        },
+        columnStyles: colStyles,
         margin: { top:26, bottom:20, left:margin, right:margin },
         didDrawPage: () => { pageCount++; addHeader(finalDoc, pageCount, 0); }
     });
@@ -4690,12 +4962,25 @@ async function exportToPdf() {
 ============================================================ */
 function exportToExcel() {
     if (!instituciones.length) { alert('No hay datos para exportar.'); return; }
-    const headers = ['Institución','Tipo dependencia','Canales','Protocolo de actuación','Teléfono','Correo','Formulario Web','Otro Medio','Tipo Comunicación','Dirección','Horario'];
+    const includeProtocolo = Boolean(CANALES_CONFIG.showProtocolos);
+    const headers = [
+        'Institución',
+        'Tipo dependencia',
+        'Canales',
+        ...(includeProtocolo ? ['Protocolo de actuación'] : []),
+        'Teléfono',
+        'Correo',
+        'Formulario Web',
+        'Otro Medio',
+        'Tipo Comunicación',
+        'Dirección',
+        'Horario'
+    ];
     const rows = instituciones.map(i => [
         i.institucion,
         i.tipo || '',
         i.canales,
-        i['Protocolo de actuación'] === true ? 'Sí' : 'No',
+        ...(includeProtocolo ? [i['Protocolo de actuación'] === true ? 'Sí' : 'No'] : []),
         i.telefono || '',
         i.correo || '',
         i.formulario || '',
@@ -4707,8 +4992,9 @@ function exportToExcel() {
     const wsData = [headers, ...rows];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     ws['!cols'] = [
-        {wch:45},{wch:22},{wch:10},{wch:15},{wch:20},{wch:38},
-        {wch:40},{wch:20},{wch:22},{wch:45},{wch:25}
+        {wch:45},{wch:22},{wch:10},
+        ...(includeProtocolo ? [{wch:15}] : []),
+        {wch:20},{wch:38},{wch:40},{wch:20},{wch:22},{wch:45},{wch:25}
     ];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Directorio');
@@ -4774,17 +5060,34 @@ if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
 ============================================================ */
 $tipoFilter.addEventListener('change', () => {
     populateInstFilter($tipoFilter.value);
-    readFilters();
 });
-$instFilter.addEventListener('change', readFilters);
-$searchInput.addEventListener('input', readFilters);
-$favSwitch.addEventListener('change', readFilters);
+$searchInput.addEventListener('input', () => {
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    if (searchClearBtn) {
+        searchClearBtn.style.display = ($searchInput.value && $searchInput.value.trim() !== '') ? 'flex' : 'none';
+    }
+});
+$searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        readFilters();
+    }
+});
+if ($favSwitch) $favSwitch.addEventListener('change', readFilters);
+
+const applyFiltersBtnEl = document.getElementById('applyFiltersBtn');
+if (applyFiltersBtnEl) {
+    applyFiltersBtnEl.addEventListener('click', readFilters);
+}
 
 const searchClearBtnEl = document.getElementById('searchClearBtn');
 if (searchClearBtnEl) {
     searchClearBtnEl.addEventListener('click', () => {
         $searchInput.value = '';
-        readFilters();
+        searchClearBtnEl.style.display = 'none';
+        if (currentFilters.search) {
+            readFilters();
+        }
     });
 }
 
@@ -4799,13 +5102,13 @@ $themeBtn.addEventListener('click', () => {
 
 const $viewCardsBtn = document.getElementById('viewCardsBtn');
 const $viewListBtn = document.getElementById('viewListBtn');
-if ($viewCardsBtn) $viewCardsBtn.addEventListener('click', () => { switchView('cards'); showToast('Vista cambiada a Tarjetas 🎴'); });
-if ($viewListBtn) $viewListBtn.addEventListener('click', () => { switchView('list'); showToast('Vista cambiada a Lista 📋'); });
+if ($viewCardsBtn) $viewCardsBtn.addEventListener('click', () => { switchView('cards', true); showToast('Vista cambiada a Tarjetas 🎴'); });
+if ($viewListBtn) $viewListBtn.addEventListener('click', () => { switchView('list', true); showToast('Vista cambiada a Lista 📋'); });
 
 const $navCardsLink = document.getElementById('navViewCardsLink');
 const $navListLink = document.getElementById('navViewListLink');
-if ($navCardsLink) $navCardsLink.addEventListener('click', (e) => { e.preventDefault(); switchView('cards'); document.getElementById('directorio').scrollIntoView({ behavior:'smooth' }); });
-if ($navListLink) $navListLink.addEventListener('click', (e) => { e.preventDefault(); switchView('list'); document.getElementById('directorio').scrollIntoView({ behavior:'smooth' }); });
+if ($navCardsLink) $navCardsLink.addEventListener('click', (e) => { e.preventDefault(); switchView('cards', true); document.getElementById('directorio').scrollIntoView({ behavior:'smooth' }); });
+if ($navListLink) $navListLink.addEventListener('click', (e) => { e.preventDefault(); switchView('list', true); document.getElementById('directorio').scrollIntoView({ behavior:'smooth' }); });
 
 document.getElementById('mobileMenu').addEventListener('click', () => {
     document.getElementById('navMenu').classList.toggle('open');
@@ -4955,9 +5258,31 @@ function validarDirectorioCanales(rawData) {
 ============================================================ */
 async function cargarDatosYIniciar() {
     try {
-        const response = await fetch('data_directorio.json');
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+        const [dirRes, cfgRes] = await Promise.allSettled([
+            fetch('data_directorio.json'),
+            fetch('/api/canales/config')
+        ]);
+
+        if (cfgRes.status === 'fulfilled' && cfgRes.value.ok) {
+            try {
+                const cfgJson = await cfgRes.value.json();
+                CANALES_CONFIG = {
+                    showProtocolos: Boolean(cfgJson.showProtocolos),
+                    showDashboardCnc: Boolean(cfgJson.showDashboardCnc)
+                };
+            } catch (_) {
+                CANALES_CONFIG = { showProtocolos: false, showDashboardCnc: false };
+            }
+        } else {
+            CANALES_CONFIG = { showProtocolos: false, showDashboardCnc: false };
+        }
+        applyCanalesConfigVisibility();
+
+        if (dirRes.status !== 'fulfilled' || !dirRes.value.ok) {
+            const statusCode = dirRes.status === 'fulfilled' ? dirRes.value.status : 'red';
+            throw new Error(`HTTP ${statusCode}`);
+        }
+        const data = await dirRes.value.json();
 
         // Auditoría de datos y detección de errores de registro
         validarDirectorioCanales(data);
@@ -5716,16 +6041,17 @@ window._exportFichaPdf = async function(nombre) {
     doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
 
+    const showProt = Boolean(CANALES_CONFIG.showProtocolos);
     const tipoLines = doc.splitTextToSize(`Tipo de dependencia: ${inst.tipo || 'No especificada'}`, 82);
     const canalesLines = doc.splitTextToSize(`Canales habilitados: ${inst.canales || 1}`, 82);
     
     const protVal = inst['Protocolo de actuación'] ? 'Sí (Cuenta con protocolo)' : 'No registrado';
-    const protLines = doc.splitTextToSize(`Protocolo de actuación: ${protVal}`, 82);
+    const protLines = showProt ? doc.splitTextToSize(`Protocolo de actuación: ${protVal}`, 82) : [];
     const horTextVal = `Horario de atención: ${inst.horario || 'No especificado'}`;
     const fullHorLines = doc.splitTextToSize(horTextVal, contentWidth - 12);
 
     const leftColHeight = (tipoLines.length * 4.2) + (canalesLines.length * 4.2) + 2;
-    const rightColHeight = (protLines.length * 4.2);
+    const rightColHeight = showProt ? (protLines.length * 4.2) : 0;
     const topGridHeight = Math.max(leftColHeight, rightColHeight);
 
     const horHeight = fullHorLines.length * 4.2;
@@ -5740,7 +6066,7 @@ window._exportFichaPdf = async function(nombre) {
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(15, 30, 46);
-    doc.text("RESUMEN DE INTEGRIDAD Y PROTOCOLO DE ACTUACIÓN", margin + 6, yPos + 6.5);
+    doc.text(showProt ? "RESUMEN DE INTEGRIDAD Y PROTOCOLO DE ACTUACIÓN" : "RESUMEN DE INTEGRIDAD INSTITUCIONAL", margin + 6, yPos + 6.5);
 
     doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
@@ -5753,8 +6079,10 @@ window._exportFichaPdf = async function(nombre) {
     doc.text(canalesLines, margin + 6, leftY);
 
     // Renderizar Columna Derecha
-    let rightY = yPos + 12;
-    doc.text(protLines, margin + 95, rightY);
+    if (showProt && protLines.length) {
+        let rightY = yPos + 12;
+        doc.text(protLines, margin + 95, rightY);
+    }
 
     // Renderizar Horario de atención (Ancho completo para evitar desbordes)
     let horY = yPos + 12 + topGridHeight + 2;
@@ -5930,6 +6258,84 @@ document.addEventListener('DOMContentLoaded', () => {
         if (subBtn) subBtn.addEventListener('click', requestPushPermission);
         if (testBtn) testBtn.addEventListener('click', simularCambioEstadoPush);
     }, 500);
+
+    // Floating KPI tooltips (evita recorte por overflow:hidden en .stats-grid / .counter-row)
+    let kpiTooltipEl = document.getElementById('kpiFloatingTooltip');
+    if (!kpiTooltipEl) {
+        kpiTooltipEl = document.createElement('div');
+        kpiTooltipEl.id = 'kpiFloatingTooltip';
+        kpiTooltipEl.className = 'kpi-floating-tooltip';
+        kpiTooltipEl.setAttribute('role', 'tooltip');
+        document.body.appendChild(kpiTooltipEl);
+    }
+
+    let activeKpiTrigger = null;
+
+    function hideKpiTooltip() {
+        kpiTooltipEl.classList.remove('visible');
+        activeKpiTrigger = null;
+    }
+
+    function showKpiTooltip(trigger) {
+        const msg = trigger && trigger.getAttribute('data-kpi-tooltip');
+        if (!msg) return;
+        activeKpiTrigger = trigger;
+        kpiTooltipEl.textContent = msg;
+        kpiTooltipEl.setAttribute('data-placement', 'top');
+        kpiTooltipEl.classList.add('visible');
+
+        const rect = trigger.getBoundingClientRect();
+        const tipRect = kpiTooltipEl.getBoundingClientRect();
+        const margin = 12;
+
+        let top = rect.top - tipRect.height - 10;
+        let placement = 'top';
+        if (top < margin) {
+            top = rect.bottom + 10;
+            placement = 'bottom';
+        }
+
+        const centerX = rect.left + rect.width / 2;
+        let left = centerX - tipRect.width / 2;
+        left = Math.max(margin, Math.min(left, window.innerWidth - tipRect.width - margin));
+
+        const arrowLeft = Math.max(14, Math.min(centerX - left, tipRect.width - 14));
+        kpiTooltipEl.setAttribute('data-placement', placement);
+        kpiTooltipEl.style.top = `${Math.round(top)}px`;
+        kpiTooltipEl.style.left = `${Math.round(left)}px`;
+        kpiTooltipEl.style.setProperty('--arrow-left', `${Math.round(arrowLeft)}px`);
+    }
+
+    document.querySelectorAll('.kpi-tip-btn[data-kpi-tooltip]').forEach(btn => {
+        btn.addEventListener('mouseenter', () => showKpiTooltip(btn));
+        btn.addEventListener('mouseleave', () => {
+            if (activeKpiTrigger === btn) hideKpiTooltip();
+        });
+        btn.addEventListener('focus', () => showKpiTooltip(btn));
+        btn.addEventListener('blur', () => {
+            if (activeKpiTrigger === btn) hideKpiTooltip();
+        });
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (activeKpiTrigger === btn && kpiTooltipEl.classList.contains('visible')) {
+                hideKpiTooltip();
+            } else {
+                showKpiTooltip(btn);
+            }
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (activeKpiTrigger && !e.target.closest('.kpi-tip-btn')) {
+            hideKpiTooltip();
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') hideKpiTooltip();
+    });
+    window.addEventListener('scroll', hideKpiTooltip, { passive: true });
+    window.addEventListener('resize', hideKpiTooltip, { passive: true });
 });
 </script>
 <script src="/js/pia-chatbot.js" defer></script>

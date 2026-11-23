@@ -270,7 +270,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             resetInactivityTimer();
         } catch (err) {
             console.warn('Sesión no válida o expirada:', err);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
             showLogin();
+            if (errorDiv && err && err.isAuthRejected) {
+                setAlertMessage(errorDiv, 'fas fa-clock', 'Tu sesión anterior expiró o dejó de ser válida. Inicia sesión nuevamente.');
+            }
         }
     } else {
         showLogin();
@@ -1415,6 +1422,65 @@ function renderCrudView(module) {
         </div>
 
         ${module === 'canales' ? `
+        <!-- Configuración de Visibilidad Pública (Protocolos de Actuación y Dashboard CNC) -->
+        <div id="canalesVisibilityCard" style="margin-bottom: 1.5rem; background: #fff; border: 1px solid rgba(26,92,143,0.16); border-left: 5px solid #00C2E0; border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 4px 16px rgba(5,17,31,0.05);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
+                <div>
+                    <h3 style="margin:0; font-family:var(--font-head); font-size:1.05rem; font-weight:800; color:#05111F; display:flex; align-items:center; gap:0.5rem;">
+                        <i class="fas fa-sliders-h" style="color:#00C2E0;"></i> Visibilidad en Portal Público (Canales por la Integridad)
+                    </h3>
+                    <p style="margin:0.25rem 0 0; font-size:0.84rem; color:#5E7A8E;">
+                        Habilita o suspende en tiempo real secciones e indicadores del sitio público sin modificar archivos del sistema.
+                    </p>
+                </div>
+                <span id="canalesConfigLastUpdate" style="font-size:0.76rem; color:#5E7A8E; background:#F0F5FB; padding:4px 10px; border-radius:20px; font-weight:600;">
+                    Cargando estado...
+                </span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1rem;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.95rem 1.1rem; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; color:#05111F; font-size:0.92rem; display:flex; align-items:center; gap:0.45rem;">
+                            <i class="fas fa-file-contract" style="color:#16A34A;"></i> Protocolos de Actuación
+                        </div>
+                        <div style="font-size:0.79rem; color:#5E7A8E; margin-top:2px;">
+                            Muestra el indicador en listado, tarjetas, KPI del banner y contadores de búsqueda.
+                        </div>
+                        <span id="badgeStatusProtocolos" style="display:inline-block; margin-top:6px; font-size:0.72rem; font-weight:700; padding:2px 9px; border-radius:12px; background:#FEF3C7; color:#92400E;">
+                            Suspendido temporalmente
+                        </span>
+                    </div>
+                    <label style="position:relative; display:inline-block; width:50px; height:28px; flex-shrink:0; cursor:pointer;" title="Activar o suspender Protocolos de actuación">
+                        <input type="checkbox" id="toggleCanalesProtocolos" style="opacity:0; width:0; height:0;" />
+                        <span id="trackCanalesProtocolos" style="position:absolute; inset:0; background:#CBD5E1; border-radius:28px; transition:background 0.25s;">
+                            <span id="thumbCanalesProtocolos" style="position:absolute; width:22px; height:22px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform 0.25s; box-shadow:0 1px 4px rgba(0,0,0,0.2);"></span>
+                        </span>
+                    </label>
+                </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.95rem 1.1rem; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; color:#05111F; font-size:0.92rem; display:flex; align-items:center; gap:0.45rem;">
+                            <i class="fas fa-chart-pie" style="color:#2B82C9;"></i> Dashboard de Cumplimiento CNC
+                        </div>
+                        <div style="font-size:0.79rem; color:#5E7A8E; margin-top:2px;">
+                            Muestra la sección "Transparencia e Indicadores" y gráficas de cumplimiento en el portal público.
+                        </div>
+                        <span id="badgeStatusDashboardCnc" style="display:inline-block; margin-top:6px; font-size:0.72rem; font-weight:700; padding:2px 9px; border-radius:12px; background:#FEF3C7; color:#92400E;">
+                            Oculto temporalmente
+                        </span>
+                    </div>
+                    <label style="position:relative; display:inline-block; width:50px; height:28px; flex-shrink:0; cursor:pointer;" title="Activar o ocultar Dashboard de Cumplimiento CNC">
+                        <input type="checkbox" id="toggleCanalesDashboard" style="opacity:0; width:0; height:0;" />
+                        <span id="trackCanalesDashboard" style="position:absolute; inset:0; background:#CBD5E1; border-radius:28px; transition:background 0.25s;">
+                            <span id="thumbCanalesDashboard" style="position:absolute; width:22px; height:22px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform 0.25s; box-shadow:0 1px 4px rgba(0,0,0,0.2);"></span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <!-- Auditoría de Calidad de Datos (Módulo Canales por la Integridad) -->
         <div id="canalesQualityAuditBanner" style="display:none; margin-bottom: 1.5rem; background: #FFFBEB; border: 1px solid #FCD34D; border-left: 5px solid #F59E0B; border-radius: 14px; padding: 1rem 1.4rem; box-shadow: 0 4px 12px rgba(245,158,11,0.08); align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.9rem; flex: 1; min-width: 280px;">
@@ -1487,6 +1553,102 @@ function renderCrudView(module) {
     document.getElementById('crudModalClose')?.addEventListener('click', closeCrudModal);
     document.getElementById('crudModalCancel')?.addEventListener('click', closeCrudModal);
     document.getElementById('crudForm')?.addEventListener('submit', saveCrudRecord);
+
+    if (module === 'canales') {
+        initCanalesVisibilityControls();
+    }
+}
+
+function updateCanalesVisibilitySwitchUI(cfg) {
+    const showProt = Boolean(cfg?.showProtocolos);
+    const showDash = Boolean(cfg?.showDashboardCnc);
+
+    const chkProt = document.getElementById('toggleCanalesProtocolos');
+    const trkProt = document.getElementById('trackCanalesProtocolos');
+    const thmProt = document.getElementById('thumbCanalesProtocolos');
+    const bdgProt = document.getElementById('badgeStatusProtocolos');
+    if (chkProt) chkProt.checked = showProt;
+    if (trkProt) trkProt.style.background = showProt ? '#16A34A' : '#CBD5E1';
+    if (thmProt) thmProt.style.transform = showProt ? 'translateX(22px)' : 'translateX(0)';
+    if (bdgProt) {
+        bdgProt.textContent = showProt ? 'Activo en portal público' : 'Suspendido temporalmente';
+        bdgProt.style.background = showProt ? '#DCFCE7' : '#FEF3C7';
+        bdgProt.style.color = showProt ? '#15803D' : '#92400E';
+    }
+
+    const chkDash = document.getElementById('toggleCanalesDashboard');
+    const trkDash = document.getElementById('trackCanalesDashboard');
+    const thmDash = document.getElementById('thumbCanalesDashboard');
+    const bdgDash = document.getElementById('badgeStatusDashboardCnc');
+    if (chkDash) chkDash.checked = showDash;
+    if (trkDash) trkDash.style.background = showDash ? '#2B82C9' : '#CBD5E1';
+    if (thmDash) thmDash.style.transform = showDash ? 'translateX(22px)' : 'translateX(0)';
+    if (bdgDash) {
+        bdgDash.textContent = showDash ? 'Visible en portal público' : 'Oculto temporalmente';
+        bdgDash.style.background = showDash ? '#DBEAFE' : '#FEF3C7';
+        bdgDash.style.color = showDash ? '#1D4ED8' : '#92400E';
+    }
+
+    const updEl = document.getElementById('canalesConfigLastUpdate');
+    if (updEl) {
+        updEl.textContent = cfg?.updatedAt
+            ? `Último cambio: ${formatDate(cfg.updatedAt)}`
+            : 'Configuración inicial por defecto';
+    }
+}
+
+async function initCanalesVisibilityControls() {
+    let currentCfg = { showProtocolos: false, showDashboardCnc: false };
+    try {
+        const res = await fetch('/api/admin/canales/config', { headers: getHeaders() });
+        if (res.status === 401) {
+            await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+            return;
+        }
+        if (res.ok) {
+            const payload = await res.json();
+            if (payload?.config) currentCfg = payload.config;
+        }
+    } catch (_) {
+        // fallback defaults
+    }
+    updateCanalesVisibilitySwitchUI(currentCfg);
+
+    const chkProt = document.getElementById('toggleCanalesProtocolos');
+    const chkDash = document.getElementById('toggleCanalesDashboard');
+
+    const savePatch = async (patch) => {
+        if (chkProt) chkProt.disabled = true;
+        if (chkDash) chkDash.disabled = true;
+        try {
+            const res = await fetch('/api/admin/canales/config', {
+                method: 'PUT',
+                headers: getHeaders(),
+                body: JSON.stringify(patch)
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.status === 401) {
+                showToast('Tu sesión expiró. Redirigiendo al inicio de sesión...', 'error');
+                setTimeout(() => {
+                    authLogout(data.error || 'Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                }, 900);
+                return;
+            }
+            if (!res.ok) throw new Error(data.error || 'No se pudo actualizar la configuración.');
+            currentCfg = data.config;
+            updateCanalesVisibilitySwitchUI(currentCfg);
+            showToast('Visibilidad pública de Canales actualizada correctamente', 'success');
+        } catch (err) {
+            updateCanalesVisibilitySwitchUI(currentCfg);
+            showToast(err.message || 'Error al guardar configuración', 'error');
+        } finally {
+            if (chkProt) chkProt.disabled = false;
+            if (chkDash) chkDash.disabled = false;
+        }
+    };
+
+    chkProt?.addEventListener('change', () => savePatch({ showProtocolos: chkProt.checked }));
+    chkDash?.addEventListener('change', () => savePatch({ showDashboardCnc: chkDash.checked }));
 }
 
 async function fetchAndRenderTable(module) {

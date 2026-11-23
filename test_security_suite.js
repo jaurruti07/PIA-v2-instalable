@@ -461,6 +461,65 @@ async function runTests() {
     recordTest('11. Arquitectura Híbrida JSON + SQL', false, err.message);
   }
 
+  // Test 12: Configuración de Visibilidad Pública de Canales por la Integridad (Protocolos y Dashboard CNC)
+  try {
+    const resPubCfg = await fetch(`${BASE_URL}/api/canales/config`);
+    const pubCfg = await resPubCfg.json().catch(() => ({}));
+    const pubCfgOk = resPubCfg.status === 200 &&
+      typeof pubCfg.showProtocolos === 'boolean' &&
+      typeof pubCfg.showDashboardCnc === 'boolean';
+    recordTest('12.1 Consulta pública GET /api/canales/config retorna banderas booleanas seguras (200)', pubCfgOk);
+
+    const resAdminCfgNoAuth = await fetch(`${BASE_URL}/api/admin/canales/config`);
+    const resPutCfgNoAuth = await fetch(`${BASE_URL}/api/admin/canales/config`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ showProtocolos: true })
+    });
+    recordTest('12.2 Bloqueo sin autenticación en GET/PUT /api/admin/canales/config (401)', resAdminCfgNoAuth.status === 401 && resPutCfgNoAuth.status === 401);
+
+    const resLoginAdminCfg = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: cfgAdminToken } = await resLoginAdminCfg.json();
+
+    const resBadType = await fetch(`${BASE_URL}/api/admin/canales/config`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfgAdminToken}` },
+      body: JSON.stringify({ showProtocolos: 'yes' })
+    });
+    recordTest('12.3 Validación estricta de tipos booleanos en PUT /api/admin/canales/config (400)', resBadType.status === 400);
+
+    const initialProt = Boolean(pubCfg.showProtocolos);
+    const initialDash = Boolean(pubCfg.showDashboardCnc);
+
+    const resEnable = await fetch(`${BASE_URL}/api/admin/canales/config`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfgAdminToken}` },
+      body: JSON.stringify({ showProtocolos: true, showDashboardCnc: true })
+    });
+    const enableData = await resEnable.json().catch(() => ({}));
+    const resPubAfter = await fetch(`${BASE_URL}/api/canales/config`);
+    const pubAfter = await resPubAfter.json().catch(() => ({}));
+
+    // Restaurar estado original
+    await fetch(`${BASE_URL}/api/admin/canales/config`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfgAdminToken}` },
+      body: JSON.stringify({ showProtocolos: initialProt, showDashboardCnc: initialDash })
+    });
+
+    const toggleOk = resEnable.status === 200 &&
+      enableData.success === true &&
+      pubAfter.showProtocolos === true &&
+      pubAfter.showDashboardCnc === true;
+    recordTest('12.4 Activación y restauración segura de Protocolos y Dashboard CNC desde Admin API (200)', toggleOk);
+  } catch (err) {
+    recordTest('12. Configuración de Visibilidad de Canales', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(` RESUMEN DE PRUEBAS: ${results.passed} SUPERADAS / ${results.failed} FALLIDAS`);
   console.log('=============================================================\n');

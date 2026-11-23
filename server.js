@@ -41,6 +41,7 @@ const OPERATORS_FILE = path.join(DATA_DIR, 'authorized_operators.json');
 const AUDIT_FILE = path.join(DATA_DIR, 'audit_logs.json');
 const VISITS_FILE = path.join(DATA_DIR, 'page_visits.json');
 const USERS_FILE = path.join(DATA_DIR, 'users_roles.json');
+const CANALES_SETTINGS_FILE = path.join(DATA_DIR, 'canales_settings.json');
 
 // Lista blanca estricta de archivos autorizados (Protección contra Path Traversal)
 const WHITELIST_JSON_MAP = {
@@ -728,6 +729,20 @@ function requireDatabaseAccess(req, res, next) {
     return res.status(403).json({ error: 'No posee permisos asignados para gestionar almacenamiento y bases de datos.' });
   }
   next();
+}
+
+// Middleware genérico de verificación de permiso por módulo
+function requireModuleAccess(moduleKey) {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Acceso no autorizado.' });
+    }
+    const modules = Array.isArray(req.user.modules) ? req.user.modules : [];
+    if (req.user.role !== 'admin' && !modules.includes(moduleKey)) {
+      return res.status(403).json({ error: `No posee permisos asignados para gestionar el módulo "${moduleKey}".` });
+    }
+    next();
+  };
 }
 
 // Cabeceras de seguridad HTTP
@@ -1649,6 +1664,91 @@ app.get('/api/admin/storage/install-assets', requireAuth, requireOperator, requi
     });
   } catch (err) {
     res.status(500).json({ success: false, error: 'No fue posible cargar los artefactos de instalación del servidor.' });
+  }
+});
+
+// ========================================================
+// 5.C CONFIGURACIÓN DE VISIBILIDAD: CANALES POR LA INTEGRIDAD
+// ========================================================
+
+function getCanalesSettings() {
+  const raw = readJsonFile(CANALES_SETTINGS_FILE);
+  if (!raw || typeof raw !== 'object') {
+    return {
+      showProtocolos: false,
+      showDashboardCnc: false,
+      updatedAt: null,
+      updatedBy: null
+    };
+  }
+  return {
+    showProtocolos: Boolean(raw.showProtocolos),
+    showDashboardCnc: Boolean(raw.showDashboardCnc),
+    updatedAt: raw.updatedAt || null,
+    updatedBy: raw.updatedBy || null
+  };
+}
+
+// Configuración pública de banderas visuales (sin exponer metadatos internos)
+app.get('/api/canales/config', (req, res) => {
+  const settings = getCanalesSettings();
+  res.json({
+    showProtocolos: settings.showProtocolos,
+    showDashboardCnc: settings.showDashboardCnc
+  });
+});
+
+// Lectura administrativa de configuración de Canales
+app.get('/api/admin/canales/config', requireAuth, requireOperator, requireModuleAccess('canales'), (req, res) => {
+  res.json({
+    success: true,
+    config: getCanalesSettings()
+  });
+});
+
+// Actualización administrativa de banderas de visibilidad de Canales
+app.put('/api/admin/canales/config', requireAuth, requireOperator, requireModuleAccess('canales'), (req, res) => {
+  const body = req.body || {};
+  const hasShowProt = Object.prototype.hasOwnProperty.call(body, 'showProtocolos');
+  const hasShowDash = Object.prototype.hasOwnProperty.call(body, 'showDashboardCnc');
+
+  if (!hasShowProt && !hasShowDash) {
+    return res.status(400).json({ error: 'Debe indicar al menos una opción de configuración (showProtocolos o showDashboardCnc).' });
+  }
+  if (hasShowProt && typeof body.showProtocolos !== 'boolean') {
+    return res.status(400).json({ error: 'El parámetro "showProtocolos" debe ser un valor booleano.' });
+  }
+  if (hasShowDash && typeof body.showDashboardCnc !== 'boolean') {
+    return res.status(400).json({ error: 'El parámetro "showDashboardCnc" debe ser un valor booleano.' });
+  }
+
+  const prevConfig = getCanalesSettings();
+  const nextConfig = {
+    showProtocolos: hasShowProt ? body.showProtocolos : prevConfig.showProtocolos,
+    showDashboardCnc: hasShowDash ? body.showDashboardCnc : prevConfig.showDashboardCnc,
+    updatedAt: new Date().toISOString(),
+    updatedBy: req.user.upn || req.user.email || 'sistema'
+  };
+
+  try {
+    atomicWriteJson(CANALES_SETTINGS_FILE, nextConfig, null, nextConfig.updatedBy);
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: 'canales',
+      target: 'canales_settings.json',
+      recordId: 'config',
+      details: `Configuración de visibilidad pública de Canales actualizada (Protocolos: ${nextConfig.showProtocolos ? 'Visible' : 'Oculto'}, Dashboard CNC: ${nextConfig.showDashboardCnc ? 'Visible' : 'Oculto'})`,
+      previousValue: { showProtocolos: prevConfig.showProtocolos, showDashboardCnc: prevConfig.showDashboardCnc },
+      newValue: { showProtocolos: nextConfig.showProtocolos, showDashboardCnc: nextConfig.showDashboardCnc },
+      backupCreated: true,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+    res.json({ success: true, config: nextConfig });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al guardar la configuración de visibilidad de Canales.' });
   }
 });
 
