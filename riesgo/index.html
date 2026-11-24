@@ -11,6 +11,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
     <link rel="stylesheet" href="/css/pia-chatbot.css" />
     <style>
         /* ========== ESTILOS BASE Y VARIABLES ========== */
@@ -851,7 +852,17 @@
 
 <div class="stats-ribbon">
     <div class="container">
-        <div class="stats-grid" id="statsGrid"></div>
+        <div class="pia-stats-ribbon-head">
+            <span class="pia-stats-ribbon-tag">Indicadores del módulo</span>
+            <div id="piaStatsCarouselControls" class="pia-stats-carousel-controls">
+                <button type="button" class="pia-stats-nav-btn" id="piaStatsPrevBtn" aria-label="Indicadores anteriores"><i class="fas fa-chevron-left"></i></button>
+                <div id="piaStatsPagination" class="pia-stats-pagination"></div>
+                <button type="button" class="pia-stats-nav-btn" id="piaStatsNextBtn" aria-label="Indicadores siguientes"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div id="riesgoStatsContainer">
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
     </div>
 </div>
 
@@ -1169,6 +1180,8 @@
 </div>
 
 <!-- ========== SCRIPTS ========== -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="/js/pia-ui-runtime.js"></script>
 <script>
 /* ============================================================
    LÓGICA GENERAL DE LA APLICACIÓN
@@ -1903,6 +1916,8 @@ function actualizarHeroPanel(yearData) {
 
 function actualizarStatsRibbon(stats) {
     const container = document.getElementById('statsGrid');
+    const wrap = document.getElementById('riesgoStatsContainer');
+    if (!container || (wrap && wrap.dataset.piaManaged === '1')) return;
     if (!stats || !stats.length) {
         container.innerHTML = '';
         return;
@@ -1921,6 +1936,16 @@ function actualizarKPIs(yearData) {
     const pParcial = total ? Math.round((parcial/total)*100) : 0;
     const pNo = total ? Math.round((noCumple/total)*100) : 0;
     const pBuenas = total ? Math.round((buenas/total)*100) : 0;
+
+    if (window.PIA_UI) {
+        window.PIA_UI.updateLiveValues({
+            totalInstituciones: total,
+            pctCumplen: pCumple,
+            pctEnProceso: pNo,
+            pctBuenasPracticas: pBuenas,
+            cicloActivo: (typeof currentYear !== 'undefined' && currentYear) ? currentYear : '--'
+        });
+    }
     
     document.getElementById('indicatorsMetrics').innerHTML = `
         <div class="kpi-card green" title="Porcentaje de instituciones que cumplen con el lineamiento completo">
@@ -2708,9 +2733,10 @@ function setupEventosGlobales() {
        HERO BANNER BACKGROUND SLIDER
     ============================================================ */
     (function initHeroBgSlider() {
+        const sliderEl = document.getElementById('heroBgSlider');
         const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
         const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
-        if (!slides.length) return;
+        if (!slides.length || (sliderEl && sliderEl.dataset.piaManaged === '1')) return;
 
         let currentIndex = 0;
         let slideInterval = null;
@@ -2733,10 +2759,15 @@ function setupEventosGlobales() {
         function startAutoplay() {
             stopAutoplay();
             slideInterval = setInterval(nextSlide, 5000);
+            window.__piaLegacyHeroTimer = slideInterval;
         }
 
         function stopAutoplay() {
             if (slideInterval) clearInterval(slideInterval);
+            if (window.__piaLegacyHeroTimer) {
+                clearInterval(window.__piaLegacyHeroTimer);
+                window.__piaLegacyHeroTimer = null;
+            }
         }
 
         dots.forEach((dot, index) => {
@@ -2828,6 +2859,16 @@ function setupEventosGlobales() {
     });
 }
 
+if (window.PIA_UI) {
+    window.PIA_UI.init({
+        module: 'riesgo',
+        statsContainerId: 'riesgoStatsContainer',
+        onLoaded: () => {
+            const wrap = document.getElementById('riesgoStatsContainer');
+            if (wrap) wrap.dataset.piaManaged = '1';
+        }
+    });
+}
 cargarDatos();
 </script>
 <script src="/js/pia-chatbot.js" defer></script>

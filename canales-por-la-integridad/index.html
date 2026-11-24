@@ -3421,6 +3421,15 @@
 ============================================================ -->
 <div class="stats-ribbon">
     <div class="container">
+        <div class="pia-stats-ribbon-head">
+            <span class="pia-stats-ribbon-tag">Indicadores del módulo</span>
+            <div id="piaStatsCarouselControls" class="pia-stats-carousel-controls">
+                <button type="button" class="pia-stats-nav-btn" id="piaStatsPrevBtn" aria-label="Indicadores anteriores"><i class="fas fa-chevron-left"></i></button>
+                <div id="piaStatsPagination" class="pia-stats-pagination"></div>
+                <button type="button" class="pia-stats-nav-btn" id="piaStatsNextBtn" aria-label="Indicadores siguientes"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div id="canalesStatsContainer">
         <div class="stats-grid">
             <div class="stat-cell">
                 <div class="stat-icon"><i class="fas fa-phone-alt"></i></div>
@@ -3457,6 +3466,7 @@
                 <div class="stat-num">Validada</div>
                 <div class="stat-lbl"><span class="kpi-label-with-tip"><span>Datos validados por CNC</span><button type="button" class="kpi-tip-btn" aria-label="Información sobre validación de datos" data-kpi-tooltip="Información verificada por la Comisión Nacional contra la Corrupción en coordinación con las Instancias de Asuntos de Probidad."><i class="fas fa-question"></i></button></span></div>
             </div>
+        </div>
         </div>
     </div>
 </div>
@@ -4031,6 +4041,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="/js/pia-ui-runtime.js"></script>
 <script>
 /* ============================================================
    DATA CARGA DESDE JSON EXTERNO
@@ -4069,6 +4080,9 @@ function applyCanalesConfigVisibility() {
     if (dashSection) {
         dashSection.style.display = showDash ? '' : 'none';
         dashSection.setAttribute('aria-hidden', showDash ? 'false' : 'true');
+    }
+    if (window.PIA_UI) {
+        window.PIA_UI.setFlags({ showProtocolos: showProt });
     }
 }
 
@@ -4771,14 +4785,21 @@ function applyFilters() {
     const nInst = filtered.length;
     const nCan  = sumCanales(filtered);
     const nProt = sumProtocolos(filtered);
-    $totalInst.textContent  = nInst;
-    $totalCan.textContent   = nCan;
-    $statsInst.textContent  = nInst;
-    $statsCan.textContent   = nCan;
+    if ($totalInst) $totalInst.textContent  = nInst;
+    if ($totalCan)  $totalCan.textContent   = nCan;
+    if ($statsInst) $statsInst.textContent  = nInst;
+    if ($statsCan)  $statsCan.textContent   = nCan;
     const $totalProt = document.getElementById('totalProtocolosCount');
     const $statsProt = document.getElementById('totalProtocolosStats');
     if ($totalProt) $totalProt.textContent = nProt;
     if ($statsProt) $statsProt.textContent = nProt;
+    if (window.PIA_UI) {
+        window.PIA_UI.updateLiveValues({
+            totalCanales: nCan,
+            totalInstituciones: nInst,
+            totalProtocolos: nProt
+        });
+    }
     renderCards(filtered);
     renderList(filtered);
     switchView(currentView);
@@ -5203,9 +5224,10 @@ document.querySelectorAll('.faq-q').forEach(btn => {
 ============================================================ */
 (function initHeroBgSlider() {
     document.addEventListener('DOMContentLoaded', () => {
+        const sliderEl = document.getElementById('heroBgSlider');
         const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
         const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
-        if (!slides.length) return;
+        if (!slides.length || (sliderEl && sliderEl.dataset.piaManaged === '1')) return;
 
         let currentIndex = 0;
         let slideInterval = null;
@@ -5228,10 +5250,15 @@ document.querySelectorAll('.faq-q').forEach(btn => {
         function startAutoplay() {
             stopAutoplay();
             slideInterval = setInterval(nextSlide, 5000);
+            window.__piaLegacyHeroTimer = slideInterval;
         }
 
         function stopAutoplay() {
             if (slideInterval) clearInterval(slideInterval);
+            if (window.__piaLegacyHeroTimer) {
+                clearInterval(window.__piaLegacyHeroTimer);
+                window.__piaLegacyHeroTimer = null;
+            }
         }
 
         dots.forEach((dot, index) => {
@@ -5277,6 +5304,14 @@ async function cargarDatosYIniciar() {
             CANALES_CONFIG = { showProtocolos: false, showDashboardCnc: false };
         }
         applyCanalesConfigVisibility();
+        if (window.PIA_UI) {
+            window.PIA_UI.init({
+                module: 'canales',
+                statsContainerId: 'canalesStatsContainer',
+                showTooltipButtons: true,
+                initialFlags: { showProtocolos: Boolean(CANALES_CONFIG.showProtocolos) }
+            });
+        }
 
         if (dirRes.status !== 'fulfilled' || !dirRes.value.ok) {
             const statusCode = dirRes.status === 'fulfilled' ? dirRes.value.status : 'red';
@@ -6306,16 +6341,26 @@ document.addEventListener('DOMContentLoaded', () => {
         kpiTooltipEl.style.setProperty('--arrow-left', `${Math.round(arrowLeft)}px`);
     }
 
-    document.querySelectorAll('.kpi-tip-btn[data-kpi-tooltip]').forEach(btn => {
-        btn.addEventListener('mouseenter', () => showKpiTooltip(btn));
-        btn.addEventListener('mouseleave', () => {
-            if (activeKpiTrigger === btn) hideKpiTooltip();
-        });
-        btn.addEventListener('focus', () => showKpiTooltip(btn));
-        btn.addEventListener('blur', () => {
-            if (activeKpiTrigger === btn) hideKpiTooltip();
-        });
-        btn.addEventListener('click', (e) => {
+    document.addEventListener('mouseover', (e) => {
+        const btn = e.target.closest('.kpi-tip-btn[data-kpi-tooltip]');
+        if (btn) showKpiTooltip(btn);
+    });
+    document.addEventListener('mouseout', (e) => {
+        const btn = e.target.closest('.kpi-tip-btn[data-kpi-tooltip]');
+        if (btn && activeKpiTrigger === btn) hideKpiTooltip();
+    });
+    document.addEventListener('focusin', (e) => {
+        const btn = e.target.closest('.kpi-tip-btn[data-kpi-tooltip]');
+        if (btn) showKpiTooltip(btn);
+    });
+    document.addEventListener('focusout', (e) => {
+        const btn = e.target.closest('.kpi-tip-btn[data-kpi-tooltip]');
+        if (btn && activeKpiTrigger === btn) hideKpiTooltip();
+    });
+
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.kpi-tip-btn[data-kpi-tooltip]');
+        if (btn) {
             e.preventDefault();
             e.stopPropagation();
             if (activeKpiTrigger === btn && kpiTooltipEl.classList.contains('visible')) {
@@ -6323,11 +6368,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 showKpiTooltip(btn);
             }
-        });
-    });
-
-    document.addEventListener('click', (e) => {
-        if (activeKpiTrigger && !e.target.closest('.kpi-tip-btn')) {
+            return;
+        }
+        if (activeKpiTrigger) {
             hideKpiTooltip();
         }
     });

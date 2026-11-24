@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
     <link rel="stylesheet" href="/css/pia-chatbot.css">
     <style>
         /* ============================================================
@@ -2263,12 +2264,22 @@
 ============================================================ -->
 <div class="stats-ribbon">
     <div class="container">
+        <div class="pia-stats-ribbon-head">
+            <span class="pia-stats-ribbon-tag">Indicadores del módulo</span>
+            <div id="piaStatsCarouselControls" class="pia-stats-carousel-controls">
+                <button type="button" class="pia-stats-nav-btn" id="piaStatsPrevBtn" aria-label="Indicadores anteriores"><i class="fas fa-chevron-left"></i></button>
+                <div id="piaStatsPagination" class="pia-stats-pagination"></div>
+                <button type="button" class="pia-stats-nav-btn" id="piaStatsNextBtn" aria-label="Indicadores siguientes"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div id="tablerosStatsContainer">
         <div class="stats-grid">
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-building"></i></div><div class="stat-num" id="totalInstitucionesStats">0</div><div class="stat-lbl">Instituciones registradas</div></div>
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-table"></i></div><div class="stat-num" id="totalTablerosStats">0</div><div class="stat-lbl">Tableros disponibles</div></div>
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-university"></i></div><div class="stat-num" id="totalMinisteriosStats">0</div><div class="stat-lbl">Ministerios</div></div>
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-file-signature"></i></div><div class="stat-num" id="totalSecretariasStats">0</div><div class="stat-lbl">Secretarías</div></div>
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-sitemap"></i></div><div class="stat-num" id="totalOtrasStats">0</div><div class="stat-lbl">Otras dependencias</div></div>
+        </div>
         </div>
     </div>
 </div>
@@ -2554,6 +2565,8 @@
 <!-- ============================================================
      SCRIPTS
 ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="/js/pia-ui-runtime.js"></script>
 <script>
 /* ============================================================
    DATOS DE GLOSARIO
@@ -2794,11 +2807,26 @@ function actualizarContadores(list, filtrados) {
     if ($resultadosFilt) $resultadosFilt.textContent = total;
 
     const totalGbl = instituciones.length;
+    const totalTablerosGbl = instituciones.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
+    const totalMinisteriosGbl = contarPorTipo(instituciones, 'Ministerio');
+    const totalSecretariasGbl = contarPorTipo(instituciones, 'Secretaría');
+    const totalOtrasGbl = Math.max(0, totalGbl - totalMinisteriosGbl - totalSecretariasGbl);
+
     if ($statsInst) $statsInst.textContent = totalGbl;
-    if ($statsTableros) $statsTableros.textContent = instituciones.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
-    if ($statsMinisterios) $statsMinisterios.textContent = contarPorTipo(instituciones, 'Ministerio');
-    if ($statsSecretarias) $statsSecretarias.textContent = contarPorTipo(instituciones, 'Secretaría');
-    if ($statsOtras) $statsOtras.textContent = Math.max(0, totalGbl - contarPorTipo(instituciones, 'Ministerio') - contarPorTipo(instituciones, 'Secretaría'));
+    if ($statsTableros) $statsTableros.textContent = totalTablerosGbl;
+    if ($statsMinisterios) $statsMinisterios.textContent = totalMinisteriosGbl;
+    if ($statsSecretarias) $statsSecretarias.textContent = totalSecretariasGbl;
+    if ($statsOtras) $statsOtras.textContent = totalOtrasGbl;
+
+    if (window.PIA_UI) {
+        window.PIA_UI.updateLiveValues({
+            totalInstituciones: totalGbl,
+            totalTableros: totalTablerosGbl,
+            totalMinisterios: totalMinisteriosGbl,
+            totalSecretarias: totalSecretariasGbl,
+            totalOtras: totalOtrasGbl
+        });
+    }
 }
 
 /* ============================================================
@@ -3655,9 +3683,10 @@ document.querySelectorAll('.faq-q').forEach(btn => {
 ============================================================ */
 (function initHeroBgSlider() {
     document.addEventListener('DOMContentLoaded', () => {
+        const sliderEl = document.getElementById('heroBgSlider');
         const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
         const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
-        if (!slides.length) return;
+        if (!slides.length || (sliderEl && sliderEl.dataset.piaManaged === '1')) return;
 
         let currentIndex = 0;
         let slideInterval = null;
@@ -3680,10 +3709,15 @@ document.querySelectorAll('.faq-q').forEach(btn => {
         function startAutoplay() {
             stopAutoplay();
             slideInterval = setInterval(nextSlide, 5000);
+            window.__piaLegacyHeroTimer = slideInterval;
         }
 
         function stopAutoplay() {
             if (slideInterval) clearInterval(slideInterval);
+            if (window.__piaLegacyHeroTimer) {
+                clearInterval(window.__piaLegacyHeroTimer);
+                window.__piaLegacyHeroTimer = null;
+            }
         }
 
         dots.forEach((dot, index) => {
@@ -3733,6 +3767,10 @@ async function cargarDatosYIniciar() {
     readFilters();
     renderGlosarioTabs();
     showToast('Directorio cargado correctamente ✅');
+}
+
+if (window.PIA_UI) {
+    window.PIA_UI.init({ module: 'tableros', statsContainerId: 'tablerosStatsContainer' });
 }
 
 // Asegurar que el DOM esté listo antes de ejecutar

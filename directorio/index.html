@@ -2214,12 +2214,22 @@
 ============================================================ -->
 <div class="stats-ribbon">
     <div class="container">
+        <div class="pia-stats-ribbon-head">
+            <span class="pia-stats-ribbon-tag">Indicadores del módulo</span>
+            <div id="piaStatsCarouselControls" class="pia-stats-carousel-controls">
+                <button type="button" class="pia-stats-nav-btn" id="piaStatsPrevBtn" aria-label="Indicadores anteriores"><i class="fas fa-chevron-left"></i></button>
+                <div id="piaStatsPagination" class="pia-stats-pagination"></div>
+                <button type="button" class="pia-stats-nav-btn" id="piaStatsNextBtn" aria-label="Indicadores siguientes"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div id="directorioStatsContainer">
         <div class="stats-grid">
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-building"></i></div><div class="stat-num" id="totalInstitucionesStats">0</div><div class="stat-lbl">Instituciones registradas</div></div>
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-envelope"></i></div><div class="stat-num" id="totalCorreoStats">0</div><div class="stat-lbl">Con correo electrónico</div></div>
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-phone-alt"></i></div><div class="stat-num" id="totalTelefonoStats">0</div><div class="stat-lbl">Con teléfono</div></div>
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-globe"></i></div><div class="stat-num" id="totalSolicitudStats">0</div><div class="stat-lbl">Con solicitud en línea</div></div>
             <div class="stat-cell"><div class="stat-icon"><i class="fas fa-file-alt"></i></div><div class="stat-num" id="totalOficioStats">0</div><div class="stat-lbl">Con información de oficio</div></div>
+        </div>
         </div>
     </div>
 </div>
@@ -2555,15 +2565,17 @@
      SCRIPTS
 ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="/js/pia-ui-runtime.js"></script>
 <script>
 /* ============================================================
    HERO BANNER BACKGROUND SLIDER
 ============================================================ */
 (function initHeroBgSlider() {
     document.addEventListener('DOMContentLoaded', () => {
+        const sliderEl = document.getElementById('heroBgSlider');
         const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
         const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
-        if (!slides.length) return;
+        if (!slides.length || (sliderEl && sliderEl.dataset.piaManaged === '1')) return;
 
         let currentIndex = 0;
         let slideInterval = null;
@@ -2586,10 +2598,15 @@
         function startAutoplay() {
             stopAutoplay();
             slideInterval = setInterval(nextSlide, 5000);
+            window.__piaLegacyHeroTimer = slideInterval;
         }
 
         function stopAutoplay() {
             if (slideInterval) clearInterval(slideInterval);
+            if (window.__piaLegacyHeroTimer) {
+                clearInterval(window.__piaLegacyHeroTimer);
+                window.__piaLegacyHeroTimer = null;
+            }
         }
 
         dots.forEach((dot, index) => {
@@ -3502,19 +3519,31 @@ function switchView(view) {
 function applyFilters() {
     const filtered = filtrar();
     const nInst = filtered.length;
+    const nCorreo = sumCorreo(filtered);
+    const nTelefono = sumTelefono(filtered);
     const nSolicitud = sumSolicitud(filtered);
     const nOficio = sumOficio(filtered);
 
-    $totalInst.textContent = nInst;
-    $totalSolicitud.textContent = nSolicitud;
-    $totalOficio.textContent = nOficio;
-    $resultadosFilt.textContent = nInst;
+    if ($totalInst) $totalInst.textContent = nInst;
+    if ($totalSolicitud) $totalSolicitud.textContent = nSolicitud;
+    if ($totalOficio) $totalOficio.textContent = nOficio;
+    if ($resultadosFilt) $resultadosFilt.textContent = nInst;
 
-    $statsInst.textContent = nInst;
-    $statsCorreo.textContent = sumCorreo(filtered);
-    $statsTelefono.textContent = sumTelefono(filtered);
-    $statsSolicitud.textContent = nSolicitud;
-    $statsOficio.textContent = nOficio;
+    if ($statsInst) $statsInst.textContent = nInst;
+    if ($statsCorreo) $statsCorreo.textContent = nCorreo;
+    if ($statsTelefono) $statsTelefono.textContent = nTelefono;
+    if ($statsSolicitud) $statsSolicitud.textContent = nSolicitud;
+    if ($statsOficio) $statsOficio.textContent = nOficio;
+
+    if (window.PIA_UI) {
+        window.PIA_UI.updateLiveValues({
+            totalInstituciones: nInst,
+            totalCorreo: nCorreo,
+            totalTelefono: nTelefono,
+            totalSolicitud: nSolicitud,
+            totalOficio: nOficio
+        });
+    }
 
     renderCards(filtered);
     renderList(filtered, true);
@@ -3866,6 +3895,9 @@ async function cargarDatosYIniciar() {
             <p style="font-size:0.8rem; color:var(--text-light);">Error: ${error.message}</p>
         </div></div>`;
     }
+}
+if (window.PIA_UI) {
+    window.PIA_UI.init({ module: 'directorio', statsContainerId: 'directorioStatsContainer' });
 }
 cargarDatosYIniciar();
 

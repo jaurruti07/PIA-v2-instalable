@@ -42,6 +42,11 @@ const AUDIT_FILE = path.join(DATA_DIR, 'audit_logs.json');
 const VISITS_FILE = path.join(DATA_DIR, 'page_visits.json');
 const USERS_FILE = path.join(DATA_DIR, 'users_roles.json');
 const CANALES_SETTINGS_FILE = path.join(DATA_DIR, 'canales_settings.json');
+const MODULES_UI_CONFIG_FILE = path.join(DATA_DIR, 'modules_ui_config.json');
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+const UPLOADS_BG_DIR = path.join(UPLOADS_DIR, 'backgrounds');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(UPLOADS_BG_DIR)) fs.mkdirSync(UPLOADS_BG_DIR, { recursive: true });
 
 // Lista blanca estricta de archivos autorizados (Protección contra Path Traversal)
 const WHITELIST_JSON_MAP = {
@@ -1334,7 +1339,7 @@ const hybridStorage = createHybridStorage({
   saveJsonModuleRecords: saveModuleRecords
 });
 
-const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin'];
+const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin', 'ui', 'portal'];
 
 app.get('/api/modules', (req, res) => {
   res.json(['canales', 'directorio', 'tableros', 'riesgo', 'portal']);
@@ -2233,6 +2238,1172 @@ app.delete('/api/admin/portal/metricas/:id', requireAuth, requireOperator, requi
   }
 });
 
+// ========================================================
+// 5.E GESTIÓN DINÁMICA DE KPIs E IMÁGENES DE FONDO POR MÓDULO
+// ========================================================
+
+const VALID_UI_MODULES = ['portal', 'canales', 'directorio', 'tableros', 'riesgo', 'vehiculos'];
+
+const MODULE_KPI_AUTO_CATALOG = {
+  portal: [],
+  canales: [
+    { key: 'totalCanales', label: 'Total de canales habilitados (dinámico)' },
+    { key: 'totalInstituciones', label: 'Instituciones filtradas / registradas (dinámico)' },
+    { key: 'totalProtocolos', label: 'Instituciones con protocolo de actuación (dinámico)' }
+  ],
+  directorio: [
+    { key: 'totalInstituciones', label: 'Instituciones registradas / filtradas (dinámico)' },
+    { key: 'totalCorreo', label: 'Con correo electrónico (dinámico)' },
+    { key: 'totalTelefono', label: 'Con teléfono (dinámico)' },
+    { key: 'totalSolicitud', label: 'Con solicitud en línea (dinámico)' },
+    { key: 'totalOficio', label: 'Con información de oficio (dinámico)' }
+  ],
+  tableros: [
+    { key: 'totalInstituciones', label: 'Instituciones registradas (dinámico)' },
+    { key: 'totalTableros', label: 'Tableros disponibles (dinámico)' },
+    { key: 'totalMinisterios', label: 'Ministerios (dinámico)' },
+    { key: 'totalSecretarias', label: 'Secretarías (dinámico)' },
+    { key: 'totalOtras', label: 'Otras dependencias (dinámico)' }
+  ],
+  riesgo: [
+    { key: 'totalInstituciones', label: 'Instituciones evaluadas en el ciclo (dinámico)' },
+    { key: 'pctCumplen', label: 'Porcentaje que cumplen (dinámico)' },
+    { key: 'pctEnProceso', label: 'Porcentaje en proceso (dinámico)' },
+    { key: 'pctBuenasPracticas', label: 'Buenas prácticas GRC % (dinámico)' },
+    { key: 'cicloActivo', label: 'Ciclo / Año seleccionado (dinámico)' }
+  ],
+  vehiculos: [
+    { key: 'kpiCumple', label: 'Cumple 7/7 criterios (dinámico)' },
+    { key: 'kpiProceso', label: 'En proceso 1-6 criterios (dinámico)' },
+    { key: 'kpiNoCumple', label: 'No cumple 0/7 criterios (dinámico)' }
+  ]
+};
+
+const DEFAULT_MODULES_UI_CONFIG = {
+  backgrounds: {
+    portal: [
+      { id: 1, url: '/img/wallpaper_directorio_acceso_ejecutivo.png', titulo: 'Acceso Ejecutivo', activo: true, orden: 1 },
+      { id: 2, url: '/img/gobiernoNumerosWall.jpg', titulo: 'Gobierno en Números', activo: true, orden: 2 },
+      { id: 3, url: '/img/wallpaperportal2.png', titulo: 'Portal Integridad 2', activo: true, orden: 3 },
+      { id: 4, url: '/img/wallpaperportal3.jpg', titulo: 'Portal Integridad 3', activo: true, orden: 4 },
+      { id: 5, url: '/img/numeros.png', titulo: 'Datos y Cifras', activo: true, orden: 5 }
+    ],
+    canales: [
+      { id: 1, url: '/img/canalesfondobanner.png', titulo: 'Canales Banner Principal', activo: true, orden: 1 },
+      { id: 2, url: '/img/wallpapercanales1.jpg', titulo: 'Canales Fondo 1', activo: true, orden: 2 },
+      { id: 3, url: '/img/wallpapercanales4.jpg', titulo: 'Canales Fondo 4', activo: true, orden: 3 },
+      { id: 4, url: '/img/wallpapercanales5.jpg', titulo: 'Canales Fondo 5', activo: true, orden: 4 },
+      { id: 5, url: '/img/L2.png', titulo: 'Canales Institucional', activo: true, orden: 5 }
+    ],
+    directorio: [
+      { id: 1, url: '/img/directoriov2.2.png', titulo: 'Directorio Principal', activo: true, orden: 1 },
+      { id: 2, url: '/img/wallpaperdirectorio.jpg', titulo: 'Directorio Fondo 2', activo: true, orden: 2 },
+      { id: 3, url: '/img/wallpaper_directorio_acceso_ejecutivo.png', titulo: 'Acceso Ejecutivo', activo: true, orden: 3 },
+      { id: 4, url: '/img/wallpaperportal3.jpg', titulo: 'Portal 3', activo: true, orden: 4 },
+      { id: 5, url: '/img/logodirectorio2.png', titulo: 'Directorio Institucional', activo: true, orden: 5 }
+    ],
+    tableros: [
+      { id: 1, url: '/img/gobiernoNumerosWall2.jpg', titulo: 'Gobierno en Números 2', activo: true, orden: 1 },
+      { id: 2, url: '/img/gobiernoNumerosWall.jpg', titulo: 'Gobierno en Números 1', activo: true, orden: 2 },
+      { id: 3, url: '/img/gobiernoNumerosWall3.jpg', titulo: 'Gobierno en Números 3', activo: true, orden: 3 },
+      { id: 4, url: '/img/numeros.png', titulo: 'Indicadores y Cifras', activo: true, orden: 4 }
+    ],
+    riesgo: [
+      { id: 1, url: '/img/gestion-de-riesgo.png', titulo: 'Gestión de Riesgo Principal', activo: true, orden: 1 },
+      { id: 2, url: '/img/riesgo.png', titulo: 'Riesgo en la Mira 1', activo: true, orden: 2 },
+      { id: 3, url: '/img/riesgo2.png', titulo: 'Riesgo en la Mira 2', activo: true, orden: 3 },
+      { id: 4, url: '/img/riesgo3.jpg', titulo: 'Riesgo en la Mira 3', activo: true, orden: 4 }
+    ],
+    vehiculos: [
+      { id: 1, url: '/img/vehiculosOficiales.png', titulo: 'Vehículos Oficiales', activo: true, orden: 1 },
+      { id: 2, url: '/img/vehiculo1.jpg', titulo: 'Vehículos Fondo 1', activo: true, orden: 2 },
+      { id: 3, url: '/img/vehiculos2.jpg', titulo: 'Vehículos Fondo 2', activo: true, orden: 3 },
+      { id: 4, url: '/img/vehiculos3.jpg', titulo: 'Vehículos Fondo 3', activo: true, orden: 4 },
+      { id: 5, url: '/img/vehiculos4.png', titulo: 'Vehículos Fondo 4', activo: true, orden: 5 }
+    ]
+  },
+  sectionImages: {
+    portal: {
+      porqueExiste: '/img/wallpaperdirectorio.jpg'
+    }
+  },
+  kpis: {
+    canales: [
+      { id: 1, clave: 'totalCanales', modoValor: 'auto', autoKey: 'totalCanales', valor: '0', sufijo: '', titulo: 'Canales disponibles', descripcion: 'Total de canales habilitados por las instituciones del Organismo Ejecutivo para recepcionar denuncias administrativas.', icono: 'fas fa-phone-alt', activo: true, orden: 1 },
+      { id: 2, clave: 'totalInstituciones', modoValor: 'auto', autoKey: 'totalInstituciones', valor: '0', sufijo: '', titulo: 'Instituciones', descripcion: 'Cantidad total de dependencias e instituciones del Organismo Ejecutivo registradas en este directorio.', icono: 'fas fa-building', activo: true, orden: 2 },
+      { id: 3, clave: 'totalProtocolos', modoValor: 'auto', autoKey: 'totalProtocolos', valor: '0', sufijo: '', titulo: 'Instituciones con protocolo de actuación', descripcion: 'Instituciones del Organismo Ejecutivo que cuentan con un protocolo interno formalizado para tramitar denuncias administrativas.', icono: 'fas fa-file-contract', activo: true, orden: 3, requiresConfigFlag: 'showProtocolos' },
+      { id: 4, clave: 'accesoContinuo', modoValor: 'manual', autoKey: null, valor: '24/7', sufijo: '', titulo: 'Acceso continuo', descripcion: 'Portal disponible en línea las 24 horas del día, los 7 días de la semana, para consultar los medios oficiales de denuncia.', icono: 'fas fa-clock', activo: true, orden: 4 },
+      { id: 5, clave: 'segura', modoValor: 'manual', autoKey: null, valor: '100', sufijo: '%', titulo: 'Segura', descripcion: 'Consulta pública sin registro previo y acceso directo a los canales oficiales de cada entidad bajo resguardo confidencial.', icono: 'fas fa-shield-alt', activo: true, orden: 5 },
+      { id: 6, clave: 'actualizada', modoValor: 'manual', autoKey: null, valor: '100', sufijo: '%', titulo: 'Actualizada', descripcion: 'Directorio en revisión continua conforme las instituciones reportan cambios en sus puntos y medios de atención.', icono: 'fas fa-sync-alt', activo: true, orden: 6 },
+      { id: 7, clave: 'validada', modoValor: 'manual', autoKey: null, valor: 'Validada', sufijo: '', titulo: 'Datos validados por CNC', descripcion: 'Información verificada por la Comisión Nacional contra la Corrupción en coordinación con las Instancias de Asuntos de Probidad.', icono: 'fas fa-user-secret', activo: true, orden: 7 }
+    ],
+    directorio: [
+      { id: 1, clave: 'totalInstituciones', modoValor: 'auto', autoKey: 'totalInstituciones', valor: '0', sufijo: '', titulo: 'Instituciones registradas', descripcion: 'Dependencias del Organismo Ejecutivo incluidas en el directorio', icono: 'fas fa-building', activo: true, orden: 1 },
+      { id: 2, clave: 'totalCorreo', modoValor: 'auto', autoKey: 'totalCorreo', valor: '0', sufijo: '', titulo: 'Con correo electrónico', descripcion: 'Unidades con dirección electrónica oficial de contacto', icono: 'fas fa-envelope', activo: true, orden: 2 },
+      { id: 3, clave: 'totalTelefono', modoValor: 'auto', autoKey: 'totalTelefono', valor: '0', sufijo: '', titulo: 'Con teléfono', descripcion: 'Instituciones con línea telefónica de atención ciudadana', icono: 'fas fa-phone-alt', activo: true, orden: 3 },
+      { id: 4, clave: 'totalSolicitud', modoValor: 'auto', autoKey: 'totalSolicitud', valor: '0', sufijo: '', titulo: 'Con solicitud en línea', descripcion: 'Cuentan con portal o formulario digital de acceso', icono: 'fas fa-globe', activo: true, orden: 4 },
+      { id: 5, clave: 'totalOficio', modoValor: 'auto', autoKey: 'totalOficio', valor: '0', sufijo: '', titulo: 'Con información de oficio', descripcion: 'Disponen de enlace directo a su sección de información pública', icono: 'fas fa-file-alt', activo: true, orden: 5 }
+    ],
+    tableros: [
+      { id: 1, clave: 'totalInstituciones', modoValor: 'auto', autoKey: 'totalInstituciones', valor: '0', sufijo: '', titulo: 'Instituciones registradas', descripcion: 'Entidades públicas integradas en la plataforma', icono: 'fas fa-building', activo: true, orden: 1 },
+      { id: 2, clave: 'totalTableros', modoValor: 'auto', autoKey: 'totalTableros', valor: '0', sufijo: '', titulo: 'Tableros disponibles', descripcion: 'Tableros interactivos de rendición de cuentas publicados', icono: 'fas fa-table', activo: true, orden: 2 },
+      { id: 3, clave: 'totalMinisterios', modoValor: 'auto', autoKey: 'totalMinisterios', valor: '0', sufijo: '', titulo: 'Ministerios', descripcion: 'Ministerios del Organismo Ejecutivo con tablero activo', icono: 'fas fa-university', activo: true, orden: 3 },
+      { id: 4, clave: 'totalSecretarias', modoValor: 'auto', autoKey: 'totalSecretarias', valor: '0', sufijo: '', titulo: 'Secretarías', descripcion: 'Secretarías de la Presidencia con publicación activa', icono: 'fas fa-file-signature', activo: true, orden: 4 },
+      { id: 5, clave: 'totalOtras', modoValor: 'auto', autoKey: 'totalOtras', valor: '0', sufijo: '', titulo: 'Otras dependencias', descripcion: 'Gobernaciones y dependencias descentralizadas', icono: 'fas fa-sitemap', activo: true, orden: 5 }
+    ],
+    riesgo: [
+      { id: 1, clave: 'totalInstituciones', modoValor: 'auto', autoKey: 'totalInstituciones', valor: '0', sufijo: '', titulo: 'Instituciones', descripcion: 'Instituciones evaluadas en el ciclo de gestión de riesgos', icono: 'fas fa-building', activo: true, orden: 1 },
+      { id: 2, clave: 'pctCumplen', modoValor: 'auto', autoKey: 'pctCumplen', valor: '0', sufijo: '%', titulo: 'Cumplen', descripcion: 'Instituciones que cumplen el lineamiento completo', icono: 'fas fa-check-circle', activo: true, orden: 2 },
+      { id: 3, clave: 'pctEnProceso', modoValor: 'auto', autoKey: 'pctEnProceso', valor: '0', sufijo: '%', titulo: 'En proceso', descripcion: 'Instituciones en fase de implementación o cumplimiento parcial', icono: 'fas fa-spinner', activo: true, orden: 3 },
+      { id: 4, clave: 'pctBuenasPracticas', modoValor: 'auto', autoKey: 'pctBuenasPracticas', valor: '0', sufijo: '%', titulo: 'Buenas prácticas GRC', descripcion: 'Adopción voluntaria de buenas prácticas de gestión de riesgos', icono: 'fas fa-star', activo: true, orden: 4 },
+      { id: 5, clave: 'cicloActivo', modoValor: 'auto', autoKey: 'cicloActivo', valor: '2025', sufijo: '', titulo: 'Ciclo activo', descripcion: 'Año de evaluación seleccionado en la consulta', icono: 'fas fa-clock', activo: true, orden: 5 }
+    ],
+    vehiculos: [
+      { id: 1, clave: 'kpiCumple', modoValor: 'auto', autoKey: 'kpiCumple', valor: '0', sufijo: '', titulo: 'Cumple (7/7)', descripcion: 'Instituciones que cumplen los 7 criterios evaluados', icono: 'fas fa-check-circle', activo: true, orden: 1 },
+      { id: 2, clave: 'kpiProceso', modoValor: 'auto', autoKey: 'kpiProceso', valor: '0', sufijo: '', titulo: 'En proceso (1-6)', descripcion: 'Instituciones con cumplimiento parcial de criterios', icono: 'fas fa-clock', activo: true, orden: 2 },
+      { id: 3, clave: 'kpiNoCumple', modoValor: 'auto', autoKey: 'kpiNoCumple', valor: '0', sufijo: '', titulo: 'No cumple (0/7)', descripcion: 'Instituciones sin criterios cumplidos registrados', icono: 'fas fa-times-circle', activo: true, orden: 3 }
+    ]
+  }
+};
+
+function normalizeUiModuleKey(raw) {
+  const normalized = normalizeModuleKey(raw);
+  if (VALID_UI_MODULES.includes(normalized)) return normalized;
+  return null;
+}
+
+function isValidBackgroundImageUrl(rawUrl) {
+  const val = String(rawUrl || '').trim();
+  if (!val || val.length > 500 || /[\s"'`<>()\\;]/.test(val) || val.includes('..')) {
+    return false;
+  }
+  if (/^\/(?:img|uploads\/backgrounds)\/[a-zA-Z0-9._-]+\.(?:png|jpe?g|webp)$/i.test(val)) {
+    return true;
+  }
+  try {
+    const parsed = new URL(val);
+    return parsed.protocol === 'https:';
+  } catch (_) {
+    return false;
+  }
+}
+
+function saveValidatedBase64Image(rawFilename, dataUrl) {
+  const rawStr = String(dataUrl || '').trim();
+  const match = /^data:image\/(png|jpeg|jpg|webp);base64,([A-Za-z0-9+/=\r\n]+)$/i.exec(rawStr);
+  if (!match) {
+    throw new Error('Formato de imagen no admitido. Solo se permiten archivos PNG, JPG/JPEG o WEBP.');
+  }
+
+  const declaredSubtype = match[1].toLowerCase();
+  const base64Body = match[2].replace(/\s+/g, '');
+  const buffer = Buffer.from(base64Body, 'base64');
+
+  if (!buffer || buffer.length === 0) {
+    throw new Error('El archivo de imagen está vacío o corrupto.');
+  }
+  if (buffer.length > 5 * 1024 * 1024) {
+    throw new Error('La imagen excede el tamaño máximo permitido de 5 MB.');
+  }
+
+  // Validación estricta de magic bytes reales (impide falsificación de extensión o SVG/HTML)
+  const isPng = buffer.length >= 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
+  const isJpeg = buffer.length >= 3 && buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
+  const isWebp = buffer.length >= 12 && buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP';
+
+  let finalExt = null;
+  if (isPng && declaredSubtype === 'png') finalExt = 'png';
+  else if (isJpeg && (declaredSubtype === 'jpeg' || declaredSubtype === 'jpg')) finalExt = 'jpg';
+  else if (isWebp && declaredSubtype === 'webp') finalExt = 'webp';
+
+  if (!finalExt) {
+    throw new Error('El contenido binario de la imagen no coincide con un archivo PNG, JPEG o WEBP válido.');
+  }
+
+  const rawStem = path.basename(String(rawFilename || 'fondo'), path.extname(String(rawFilename || '')));
+  const cleanStem = rawStem.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'fondo';
+  const uniqueSuffix = `${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
+  const safeFilename = `${cleanStem}_${uniqueSuffix}.${finalExt}`;
+
+  const targetPath = path.resolve(UPLOADS_BG_DIR, safeFilename);
+  if (!targetPath.startsWith(UPLOADS_BG_DIR + path.sep)) {
+    throw new Error('Ruta de destino inválida fuera del directorio de fondos.');
+  }
+
+  fs.writeFileSync(targetPath, buffer);
+  return {
+    url: `/uploads/backgrounds/${safeFilename}`,
+    filename: safeFilename,
+    sizeBytes: buffer.length
+  };
+}
+
+function normalizeUiKpiList(moduleKey, rawList) {
+  const defaults = DEFAULT_MODULES_UI_CONFIG.kpis[moduleKey] || [];
+  const source = (Array.isArray(rawList) && rawList.length > 0) ? rawList : defaults;
+  const allowedAuto = new Set((MODULE_KPI_AUTO_CATALOG[moduleKey] || []).map(a => a.key));
+  const seenIds = new Set();
+  let maxId = source.reduce((acc, item) => Math.max(acc, Number(item?.id) || 0), 0);
+
+  return source
+    .map((item, idx) => {
+      const m = (item && typeof item === 'object') ? item : {};
+      let id = Number.isFinite(Number(m.id)) && Number(m.id) > 0 ? Math.round(Number(m.id)) : (idx + 1);
+      if (seenIds.has(id)) {
+        maxId += 1;
+        id = maxId;
+      }
+      seenIds.add(id);
+
+      const requestedAutoKey = m.autoKey && allowedAuto.has(String(m.autoKey)) ? String(m.autoKey) : null;
+      const modoValor = (m.modoValor === 'auto' && requestedAutoKey) ? 'auto' : 'manual';
+      const valStr = m.valor !== undefined && m.valor !== null ? String(m.valor).trim().slice(0, 40) : '0';
+
+      const normalized = {
+        id,
+        clave: String(m.clave || `kpi_${id}`).trim().slice(0, 60),
+        modoValor,
+        autoKey: modoValor === 'auto' ? requestedAutoKey : null,
+        valor: valStr === '' ? '0' : valStr,
+        sufijo: String(m.sufijo !== undefined && m.sufijo !== null ? m.sufijo : '').trim().slice(0, 12),
+        titulo: String(m.titulo || `Indicador ${idx + 1}`).trim().slice(0, 120),
+        descripcion: String(m.descripcion !== undefined && m.descripcion !== null ? m.descripcion : '').trim().slice(0, 240),
+        icono: normalizePortalIconClass(m.icono, 'fas fa-chart-line'),
+        activo: m.activo !== false,
+        orden: Number.isFinite(Number(m.orden)) ? Number(m.orden) : (idx + 1)
+      };
+      if (m.requiresConfigFlag) {
+        normalized.requiresConfigFlag = String(m.requiresConfigFlag).slice(0, 40);
+      }
+      return normalized;
+    })
+    .sort((a, b) => (a.orden - b.orden) || (a.id - b.id))
+    .map((m, idx) => ({ ...m, orden: idx + 1 }));
+}
+
+function normalizeBackgroundList(moduleKey, rawList) {
+  const defaults = DEFAULT_MODULES_UI_CONFIG.backgrounds[moduleKey] || [];
+  const source = (Array.isArray(rawList) && rawList.length > 0) ? rawList : defaults;
+  const seenIds = new Set();
+  let maxId = source.reduce((acc, item) => Math.max(acc, Number(item?.id) || 0), 0);
+
+  return source
+    .map((item, idx) => {
+      const b = (item && typeof item === 'object') ? item : {};
+      let id = Number.isFinite(Number(b.id)) && Number(b.id) > 0 ? Math.round(Number(b.id)) : (idx + 1);
+      if (seenIds.has(id)) {
+        maxId += 1;
+        id = maxId;
+      }
+      seenIds.add(id);
+
+      const url = isValidBackgroundImageUrl(b.url) ? String(b.url).trim() : (defaults[0]?.url || '/img/wallpaperportal2.png');
+      return {
+        id,
+        url,
+        titulo: String(b.titulo || `Fondo ${idx + 1}`).trim().slice(0, 100),
+        activo: b.activo !== false,
+        orden: Number.isFinite(Number(b.orden)) ? Number(b.orden) : (idx + 1)
+      };
+    })
+    .sort((a, b) => (a.orden - b.orden) || (a.id - b.id))
+    .map((b, idx) => ({ ...b, orden: idx + 1 }));
+}
+
+function normalizeModulesUiConfig(rawDoc) {
+  const src = (rawDoc && typeof rawDoc === 'object' && !Array.isArray(rawDoc)) ? rawDoc : {};
+  const backgrounds = {};
+  const kpis = {};
+
+  for (const mod of VALID_UI_MODULES) {
+    backgrounds[mod] = normalizeBackgroundList(mod, src.backgrounds?.[mod]);
+    if (mod !== 'portal') {
+      kpis[mod] = normalizeUiKpiList(mod, src.kpis?.[mod]);
+    }
+  }
+
+  const rawPorqueExiste = src.sectionImages?.portal?.porqueExiste;
+  const porqueExiste = isValidBackgroundImageUrl(rawPorqueExiste)
+    ? String(rawPorqueExiste).trim()
+    : DEFAULT_MODULES_UI_CONFIG.sectionImages.portal.porqueExiste;
+
+  return {
+    backgrounds,
+    sectionImages: {
+      portal: {
+        porqueExiste
+      }
+    },
+    kpis,
+    updatedAt: src.updatedAt || null,
+    updatedBy: src.updatedBy || null
+  };
+}
+
+function readModulesUiConfig() {
+  const raw = readJsonFile(MODULES_UI_CONFIG_FILE);
+  const config = normalizeModulesUiConfig(raw);
+  const etag = computeFileHash(MODULES_UI_CONFIG_FILE);
+  return { config, etag };
+}
+
+function writeModulesUiConfig(nextConfig, userUpn, expectedHash = null) {
+  const normalized = normalizeModulesUiConfig({
+    ...nextConfig,
+    updatedAt: new Date().toISOString(),
+    updatedBy: userUpn || 'sistema'
+  });
+  const writeRes = atomicWriteJson(MODULES_UI_CONFIG_FILE, normalized, expectedHash, userUpn);
+  return {
+    config: normalized,
+    newHash: writeRes.newHash,
+    backupCreated: writeRes.backupCreated
+  };
+}
+
+function validateModuleKpiPayload(moduleKey, body = {}, isPartial = false) {
+  const errors = [];
+  if (!isPartial || Object.prototype.hasOwnProperty.call(body, 'titulo')) {
+    const titulo = String(body.titulo || '').trim();
+    if (titulo.length < 2 || titulo.length > 120) {
+      errors.push('El título del KPI es obligatorio (entre 2 y 120 caracteres).');
+    }
+  }
+
+  const allowedAuto = new Set((MODULE_KPI_AUTO_CATALOG[moduleKey] || []).map(a => a.key));
+  const modoValor = Object.prototype.hasOwnProperty.call(body, 'modoValor') ? body.modoValor : null;
+  if (modoValor !== null && modoValor !== 'auto' && modoValor !== 'manual') {
+    errors.push('El modo de valor debe ser "auto" o "manual".');
+  }
+  if (modoValor === 'auto') {
+    const autoKey = String(body.autoKey || '').trim();
+    if (!allowedAuto.has(autoKey)) {
+      errors.push('La fuente dinámica (autoKey) seleccionada no pertenece a este módulo.');
+    }
+  } else if (!isPartial || Object.prototype.hasOwnProperty.call(body, 'valor')) {
+    const valStr = String(body.valor !== undefined && body.valor !== null ? body.valor : '').trim();
+    if (!valStr || valStr.length > 40) {
+      errors.push('El valor del KPI es obligatorio (máximo 40 caracteres).');
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, 'descripcion')) {
+    const desc = String(body.descripcion || '').trim();
+    if (desc.length > 240) {
+      errors.push('El texto debajo del KPI no puede exceder los 240 caracteres.');
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'sufijo')) {
+    const suf = String(body.sufijo || '').trim();
+    if (suf.length > 12) {
+      errors.push('El sufijo no puede exceder los 12 caracteres.');
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'icono') && !isValidPortalIconInput(body.icono)) {
+    errors.push('El ícono debe ser una clase FontAwesome válida (ejemplo: "fas fa-chart-line").');
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'activo') && typeof body.activo !== 'boolean') {
+    errors.push('El estado "activo" debe ser booleano.');
+  }
+  return errors;
+}
+
+function validateBackgroundSlidePayload(body = {}, isPartial = false) {
+  const errors = [];
+  if (!isPartial || Object.prototype.hasOwnProperty.call(body, 'url')) {
+    if (!isValidBackgroundImageUrl(body.url)) {
+      errors.push('La ruta o URL de la imagen de fondo no es válida. Debe ser una imagen institucional (/img/...), un archivo cargado (/uploads/backgrounds/...) o una URL https:// válida.');
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'titulo')) {
+    const titulo = String(body.titulo || '').trim();
+    if (titulo.length > 100) {
+      errors.push('El título descriptivo del fondo no puede exceder los 100 caracteres.');
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'activo') && typeof body.activo !== 'boolean') {
+    errors.push('El estado "activo" debe ser booleano.');
+  }
+  return errors;
+}
+
+function checkUiModuleAccess(req, res, next) {
+  const modKey = normalizeUiModuleKey(req.params.module);
+  if (!modKey) {
+    return res.status(400).json({ error: 'Módulo de interfaz no reconocido.' });
+  }
+  req.uiModuleKey = modKey;
+  const modules = Array.isArray(req.user?.modules) ? req.user.modules : [];
+  if (req.user?.role !== 'admin' && !modules.includes(modKey)) {
+    return res.status(403).json({ error: `No posee permisos asignados para configurar el módulo "${modKey}".` });
+  }
+  next();
+}
+
+// Endpoint público unificado por módulo (KPIs activos y Fondos activos)
+app.get('/api/ui/:module', async (req, res) => {
+  const modKey = normalizeUiModuleKey(req.params.module);
+  if (!modKey) {
+    return res.status(404).json({ error: 'Módulo no encontrado.' });
+  }
+  try {
+    const { config, etag } = readModulesUiConfig();
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+
+    let activeKpis = [];
+    if (modKey === 'portal') {
+      const { portal } = await readPortalState();
+      activeKpis = portal.metricas.filter(m => m.activo !== false);
+    } else {
+      const canalesCfg = modKey === 'canales' ? getCanalesSettings() : null;
+      activeKpis = (config.kpis[modKey] || []).filter(k => {
+        if (k.activo === false) return false;
+        if (modKey === 'canales' && k.requiresConfigFlag === 'showProtocolos' && !canalesCfg.showProtocolos) {
+          return false;
+        }
+        return true;
+      });
+    }
+
+    const activeBackgrounds = (config.backgrounds[modKey] || []).filter(b => b.activo !== false);
+    res.json({
+      module: modKey,
+      kpis: activeKpis,
+      totalKpisActivas: activeKpis.length,
+      carouselActive: activeKpis.length > 4,
+      backgrounds: activeBackgrounds,
+      totalFondosActivos: activeBackgrounds.length,
+      sectionImages: config.sectionImages?.[modKey] || {}
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible obtener la configuración visual del módulo.' });
+  }
+});
+
+// Galería institucional (/img) y fondos subidos (/uploads/backgrounds) para el administrador
+app.get('/api/admin/ui/backgrounds/gallery', requireAuth, requireOperator, (req, res) => {
+  try {
+    const imgDir = path.join(__dirname, 'img');
+    const items = [];
+    const imageExtRe = /\.(png|jpe?g|webp)$/i;
+
+    if (fs.existsSync(UPLOADS_BG_DIR)) {
+      for (const fname of fs.readdirSync(UPLOADS_BG_DIR)) {
+        if (!imageExtRe.test(fname)) continue;
+        const full = path.join(UPLOADS_BG_DIR, fname);
+        const stat = fs.statSync(full);
+        if (stat.isFile()) {
+          items.push({
+            url: `/uploads/backgrounds/${fname}`,
+            name: fname,
+            source: 'upload',
+            sizeBytes: stat.size,
+            mtimeMs: stat.mtimeMs
+          });
+        }
+      }
+    }
+
+    if (fs.existsSync(imgDir)) {
+      for (const fname of fs.readdirSync(imgDir)) {
+        if (!imageExtRe.test(fname)) continue;
+        const full = path.join(imgDir, fname);
+        const stat = fs.statSync(full);
+        if (stat.isFile()) {
+          items.push({
+            url: `/img/${fname}`,
+            name: fname,
+            source: 'institutional',
+            sizeBytes: stat.size,
+            mtimeMs: stat.mtimeMs
+          });
+        }
+      }
+    }
+
+    items.sort((a, b) => {
+      if (a.source !== b.source) return a.source === 'upload' ? -1 : 1;
+      return b.mtimeMs - a.mtimeMs;
+    });
+
+    res.json({ success: true, images: items });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible listar la galería de imágenes.' });
+  }
+});
+
+// Subida segura de imagen de fondo desde el equipo del operador/admin
+app.post('/api/admin/ui/backgrounds/upload', requireAuth, requireOperator, (req, res) => {
+  const { filename, dataUrl, module: targetMod } = req.body || {};
+  if (targetMod) {
+    const norm = normalizeUiModuleKey(targetMod);
+    if (!norm) return res.status(400).json({ error: 'Módulo destino inválido.' });
+    const modules = Array.isArray(req.user.modules) ? req.user.modules : [];
+    if (req.user.role !== 'admin' && !modules.includes(norm)) {
+      return res.status(403).json({ error: `No posee permisos sobre el módulo "${norm}".` });
+    }
+  }
+
+  try {
+    const saved = saveValidatedBase64Image(filename, dataUrl);
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'CARGA DE IMAGEN',
+      module: targetMod ? normalizeUiModuleKey(targetMod) : 'portal',
+      target: saved.filename,
+      details: `Imagen de fondo cargada (${saved.url}, ${Math.round(saved.sizeBytes / 1024)} KB)`,
+      backupCreated: null,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+    res.status(201).json({ success: true, ...saved });
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'No se pudo procesar la imagen cargada.' });
+  }
+});
+
+// Eliminación controlada de imagen cargada en /uploads/backgrounds
+app.delete('/api/admin/ui/backgrounds/upload/:filename', requireAuth, requireOperator, (req, res) => {
+  const rawName = String(req.params.filename || '').trim();
+  if (!/^[a-zA-Z0-9._-]+\.(?:png|jpe?g|webp)$/i.test(rawName) || rawName.includes('..')) {
+    return res.status(400).json({ error: 'Nombre de archivo inválido.' });
+  }
+
+  const resolvedPath = path.resolve(UPLOADS_BG_DIR, rawName);
+  if (!resolvedPath.startsWith(UPLOADS_BG_DIR + path.sep)) {
+    return res.status(403).json({ error: 'Acceso denegado fuera del directorio de fondos.' });
+  }
+  if (!fs.existsSync(resolvedPath)) {
+    return res.status(404).json({ error: 'Imagen cargada no encontrada.' });
+  }
+
+  try {
+    fs.unlinkSync(resolvedPath);
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ELIMINACIÓN',
+      module: 'portal',
+      target: rawName,
+      details: `Archivo de imagen cargada '/uploads/backgrounds/${rawName}' eliminado`,
+      backupCreated: null,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'No se pudo eliminar el archivo de imagen.' });
+  }
+});
+
+// Lectura administrativa completa de UI (KPIs y Fondos) por módulo
+app.get('/api/admin/ui/:module', requireAuth, requireOperator, checkUiModuleAccess, async (req, res) => {
+  const modKey = req.uiModuleKey;
+  try {
+    const { config, etag } = readModulesUiConfig();
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    let kpis = [];
+    if (modKey === 'portal') {
+      const { portal } = await readPortalState();
+      kpis = portal.metricas;
+    } else {
+      kpis = config.kpis[modKey] || [];
+    }
+
+    res.json({
+      success: true,
+      module: modKey,
+      kpis,
+      backgrounds: config.backgrounds[modKey] || [],
+      sectionImages: config.sectionImages?.[modKey] || {},
+      autoKeysCatalog: MODULE_KPI_AUTO_CATALOG[modKey] || [],
+      updatedAt: config.updatedAt,
+      updatedBy: config.updatedBy
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Error obteniendo configuración de KPIs y fondos.' });
+  }
+});
+
+// Crear KPI en módulo
+app.post('/api/admin/ui/:module/kpis', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  if (modKey === 'portal') {
+    return res.status(400).json({ error: 'Para el Portal Principal utilice /api/admin/portal/metricas.' });
+  }
+  const body = req.body || {};
+  const errors = validateModuleKpiPayload(modKey, body, false);
+  if (errors.length > 0) return res.status(400).json({ error: errors.join(' ') });
+
+  try {
+    const { config } = readModulesUiConfig();
+    const list = config.kpis[modKey] || [];
+    const nextId = list.reduce((max, k) => Math.max(max, Number(k.id) || 0), 0) + 1;
+    const modoValor = body.modoValor === 'auto' ? 'auto' : 'manual';
+    const newKpi = {
+      id: nextId,
+      clave: `custom_${nextId}`,
+      modoValor,
+      autoKey: modoValor === 'auto' ? String(body.autoKey).trim() : null,
+      valor: modoValor === 'auto' ? '0' : String(body.valor).trim().slice(0, 40),
+      sufijo: String(body.sufijo !== undefined && body.sufijo !== null ? body.sufijo : '').trim().slice(0, 12),
+      titulo: String(body.titulo).trim().slice(0, 120),
+      descripcion: String(body.descripcion !== undefined && body.descripcion !== null ? body.descripcion : '').trim().slice(0, 240),
+      icono: normalizePortalIconClass(body.icono, 'fas fa-chart-line'),
+      activo: body.activo !== undefined ? Boolean(body.activo) : true,
+      orden: Number.isFinite(Number(body.orden)) && Number(body.orden) > 0 ? Number(body.orden) : (list.length + 1)
+    };
+
+    const nextConfig = {
+      ...config,
+      kpis: {
+        ...config.kpis,
+        [modKey]: [...list, newKpi]
+      }
+    };
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig(nextConfig, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+    const savedKpi = writeRes.config.kpis[modKey].find(k => k.id === nextId) || newKpi;
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'CREACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey})`,
+      recordId: savedKpi.id,
+      details: `Nuevo KPI creado en módulo '${modKey}': '${savedKpi.titulo}'`,
+      previousValue: null,
+      newValue: savedKpi,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.status(201).json({ success: true, kpi: savedKpi, kpis: writeRes.config.kpis[modKey] });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo crear el KPI.' });
+  }
+});
+
+// Reordenar KPIs de un módulo
+app.put('/api/admin/ui/:module/kpis/reorder', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  if (modKey === 'portal') {
+    return res.status(400).json({ error: 'Para el Portal Principal utilice /api/admin/portal/metricas/reorder.' });
+  }
+  const orderedIds = req.body?.orderedIds;
+  if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+    return res.status(400).json({ error: 'Debe enviar el arreglo "orderedIds".' });
+  }
+
+  try {
+    const { config } = readModulesUiConfig();
+    const list = config.kpis[modKey] || [];
+    const byId = new Map(list.map(k => [String(k.id), k]));
+    const reordered = [];
+    const used = new Set();
+
+    orderedIds.forEach(rawId => {
+      const key = String(rawId);
+      if (byId.has(key) && !used.has(key)) {
+        used.add(key);
+        reordered.push({ ...byId.get(key), orden: reordered.length + 1 });
+      }
+    });
+    list.forEach(k => {
+      const key = String(k.id);
+      if (!used.has(key)) reordered.push({ ...k, orden: reordered.length + 1 });
+    });
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig({
+      ...config,
+      kpis: { ...config.kpis, [modKey]: reordered }
+    }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey})`,
+      recordId: 'kpis_reorder',
+      details: `Orden de KPIs del módulo '${modKey}' actualizado`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({ success: true, kpis: writeRes.config.kpis[modKey] });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo reordenar los KPIs.' });
+  }
+});
+
+// Editar KPI de un módulo
+app.put('/api/admin/ui/:module/kpis/:id', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  if (modKey === 'portal') {
+    return res.status(400).json({ error: 'Para el Portal Principal utilice /api/admin/portal/metricas/:id.' });
+  }
+  const kpiId = Number(req.params.id);
+  if (!Number.isFinite(kpiId) || kpiId <= 0) {
+    return res.status(400).json({ error: 'ID de KPI inválido.' });
+  }
+
+  const body = req.body || {};
+  const errors = validateModuleKpiPayload(modKey, body, true);
+  if (errors.length > 0) return res.status(400).json({ error: errors.join(' ') });
+
+  try {
+    const { config } = readModulesUiConfig();
+    const list = config.kpis[modKey] || [];
+    const idx = list.findIndex(k => Number(k.id) === kpiId);
+    if (idx === -1) return res.status(404).json({ error: 'KPI no encontrado.' });
+
+    const prev = { ...list[idx] };
+    const nextModo = Object.prototype.hasOwnProperty.call(body, 'modoValor') ? body.modoValor : prev.modoValor;
+    const nextAutoKey = nextModo === 'auto'
+      ? (Object.prototype.hasOwnProperty.call(body, 'autoKey') ? String(body.autoKey).trim() : prev.autoKey)
+      : null;
+
+    const updated = {
+      ...prev,
+      modoValor: nextModo,
+      autoKey: nextAutoKey,
+      valor: Object.prototype.hasOwnProperty.call(body, 'valor') ? String(body.valor).trim().slice(0, 40) : prev.valor,
+      sufijo: Object.prototype.hasOwnProperty.call(body, 'sufijo') ? String(body.sufijo || '').trim().slice(0, 12) : prev.sufijo,
+      titulo: Object.prototype.hasOwnProperty.call(body, 'titulo') ? String(body.titulo).trim().slice(0, 120) : prev.titulo,
+      descripcion: Object.prototype.hasOwnProperty.call(body, 'descripcion') ? String(body.descripcion || '').trim().slice(0, 240) : prev.descripcion,
+      icono: Object.prototype.hasOwnProperty.call(body, 'icono') ? normalizePortalIconClass(body.icono, prev.icono) : prev.icono,
+      activo: Object.prototype.hasOwnProperty.call(body, 'activo') ? Boolean(body.activo) : prev.activo,
+      orden: Object.prototype.hasOwnProperty.call(body, 'orden') && Number.isFinite(Number(body.orden)) ? Number(body.orden) : prev.orden
+    };
+
+    const nextList = [...list];
+    nextList[idx] = updated;
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig({
+      ...config,
+      kpis: { ...config.kpis, [modKey]: nextList }
+    }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+    const savedKpi = writeRes.config.kpis[modKey].find(k => Number(k.id) === kpiId) || updated;
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey})`,
+      recordId: kpiId,
+      details: `KPI #${kpiId} ('${savedKpi.titulo}') actualizado en módulo '${modKey}'`,
+      previousValue: prev,
+      newValue: savedKpi,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({ success: true, kpi: savedKpi, kpis: writeRes.config.kpis[modKey] });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo actualizar el KPI.' });
+  }
+});
+
+// Eliminar KPI de un módulo
+app.delete('/api/admin/ui/:module/kpis/:id', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  if (modKey === 'portal') {
+    return res.status(400).json({ error: 'Para el Portal Principal utilice /api/admin/portal/metricas/:id.' });
+  }
+  const kpiId = Number(req.params.id);
+  if (!Number.isFinite(kpiId) || kpiId <= 0) {
+    return res.status(400).json({ error: 'ID de KPI inválido.' });
+  }
+
+  try {
+    const { config } = readModulesUiConfig();
+    const list = config.kpis[modKey] || [];
+    const target = list.find(k => Number(k.id) === kpiId);
+    if (!target) return res.status(404).json({ error: 'KPI no encontrado.' });
+    if (list.length <= 1) {
+      return res.status(400).json({ error: 'Debe permanecer al menos un KPI registrado en el módulo.' });
+    }
+
+    const remaining = list.filter(k => Number(k.id) !== kpiId);
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig({
+      ...config,
+      kpis: { ...config.kpis, [modKey]: remaining }
+    }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ELIMINACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey})`,
+      recordId: kpiId,
+      details: `KPI #${kpiId} ('${target.titulo}') eliminado del módulo '${modKey}'`,
+      previousValue: target,
+      newValue: null,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({ success: true, kpis: writeRes.config.kpis[modKey] });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo eliminar el KPI.' });
+  }
+});
+
+// Agregar imagen de fondo al slider de un módulo o del portal principal
+app.post('/api/admin/ui/:module/backgrounds', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  const body = req.body || {};
+  const errors = validateBackgroundSlidePayload(body, false);
+  if (errors.length > 0) return res.status(400).json({ error: errors.join(' ') });
+
+  try {
+    const { config } = readModulesUiConfig();
+    const list = config.backgrounds[modKey] || [];
+    const nextId = list.reduce((max, b) => Math.max(max, Number(b.id) || 0), 0) + 1;
+    const newSlide = {
+      id: nextId,
+      url: String(body.url).trim(),
+      titulo: String(body.titulo || `Fondo ${nextId}`).trim().slice(0, 100),
+      activo: body.activo !== undefined ? Boolean(body.activo) : true,
+      orden: Number.isFinite(Number(body.orden)) && Number(body.orden) > 0 ? Number(body.orden) : (list.length + 1)
+    };
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig({
+      ...config,
+      backgrounds: { ...config.backgrounds, [modKey]: [...list, newSlide] }
+    }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+    const savedSlide = writeRes.config.backgrounds[modKey].find(b => b.id === nextId) || newSlide;
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'CREACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey})`,
+      recordId: savedSlide.id,
+      details: `Imagen de fondo agregada en '${modKey}': ${savedSlide.url}`,
+      previousValue: null,
+      newValue: savedSlide,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.status(201).json({ success: true, background: savedSlide, backgrounds: writeRes.config.backgrounds[modKey] });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo agregar la imagen de fondo.' });
+  }
+});
+
+// Reordenar imágenes de fondo de un módulo
+app.put('/api/admin/ui/:module/backgrounds/reorder', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  const orderedIds = req.body?.orderedIds;
+  if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+    return res.status(400).json({ error: 'Debe enviar el arreglo "orderedIds".' });
+  }
+
+  try {
+    const { config } = readModulesUiConfig();
+    const list = config.backgrounds[modKey] || [];
+    const byId = new Map(list.map(b => [String(b.id), b]));
+    const reordered = [];
+    const used = new Set();
+
+    orderedIds.forEach(rawId => {
+      const key = String(rawId);
+      if (byId.has(key) && !used.has(key)) {
+        used.add(key);
+        reordered.push({ ...byId.get(key), orden: reordered.length + 1 });
+      }
+    });
+    list.forEach(b => {
+      const key = String(b.id);
+      if (!used.has(key)) reordered.push({ ...b, orden: reordered.length + 1 });
+    });
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig({
+      ...config,
+      backgrounds: { ...config.backgrounds, [modKey]: reordered }
+    }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey})`,
+      recordId: 'backgrounds_reorder',
+      details: `Orden de imágenes de fondo actualizado en '${modKey}'`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({ success: true, backgrounds: writeRes.config.backgrounds[modKey] });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo reordenar los fondos.' });
+  }
+});
+
+// Editar imagen de fondo existente
+app.put('/api/admin/ui/:module/backgrounds/:id', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  const bgId = Number(req.params.id);
+  if (!Number.isFinite(bgId) || bgId <= 0) {
+    return res.status(400).json({ error: 'ID de fondo inválido.' });
+  }
+
+  const body = req.body || {};
+  const errors = validateBackgroundSlidePayload(body, true);
+  if (errors.length > 0) return res.status(400).json({ error: errors.join(' ') });
+
+  try {
+    const { config } = readModulesUiConfig();
+    const list = config.backgrounds[modKey] || [];
+    const idx = list.findIndex(b => Number(b.id) === bgId);
+    if (idx === -1) return res.status(404).json({ error: 'Imagen de fondo no encontrada.' });
+
+    const prev = { ...list[idx] };
+    const updated = {
+      ...prev,
+      url: Object.prototype.hasOwnProperty.call(body, 'url') ? String(body.url).trim() : prev.url,
+      titulo: Object.prototype.hasOwnProperty.call(body, 'titulo') ? String(body.titulo || '').trim().slice(0, 100) : prev.titulo,
+      activo: Object.prototype.hasOwnProperty.call(body, 'activo') ? Boolean(body.activo) : prev.activo,
+      orden: Object.prototype.hasOwnProperty.call(body, 'orden') && Number.isFinite(Number(body.orden)) ? Number(body.orden) : prev.orden
+    };
+
+    const nextList = [...list];
+    nextList[idx] = updated;
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig({
+      ...config,
+      backgrounds: { ...config.backgrounds, [modKey]: nextList }
+    }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+    const saved = writeRes.config.backgrounds[modKey].find(b => Number(b.id) === bgId) || updated;
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey})`,
+      recordId: bgId,
+      details: `Imagen de fondo #${bgId} actualizada en '${modKey}'`,
+      previousValue: prev,
+      newValue: saved,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({ success: true, background: saved, backgrounds: writeRes.config.backgrounds[modKey] });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo actualizar la imagen de fondo.' });
+  }
+});
+
+// Eliminar imagen de fondo del slider
+app.delete('/api/admin/ui/:module/backgrounds/:id', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  const bgId = Number(req.params.id);
+  if (!Number.isFinite(bgId) || bgId <= 0) {
+    return res.status(400).json({ error: 'ID de fondo inválido.' });
+  }
+
+  try {
+    const { config } = readModulesUiConfig();
+    const list = config.backgrounds[modKey] || [];
+    const target = list.find(b => Number(b.id) === bgId);
+    if (!target) return res.status(404).json({ error: 'Imagen de fondo no encontrada.' });
+    if (list.length <= 1) {
+      return res.status(400).json({ error: 'Debe permanecer al menos una imagen de fondo configurada.' });
+    }
+
+    const remaining = list.filter(b => Number(b.id) !== bgId);
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig({
+      ...config,
+      backgrounds: { ...config.backgrounds, [modKey]: remaining }
+    }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ELIMINACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey})`,
+      recordId: bgId,
+      details: `Imagen de fondo #${bgId} (${target.url}) eliminada de '${modKey}'`,
+      previousValue: target,
+      newValue: null,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({ success: true, backgrounds: writeRes.config.backgrounds[modKey] });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo eliminar la imagen de fondo.' });
+  }
+});
+
+// Actualizar imagen destacada de sección (Portal Principal: ¿Por qué existe?)
+app.put('/api/admin/ui/:module/section-images', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  if (modKey !== 'portal') {
+    return res.status(400).json({ error: 'Solo el Portal Principal dispone de imagen de sección configurable.' });
+  }
+  const { porqueExiste } = req.body || {};
+  if (!isValidBackgroundImageUrl(porqueExiste)) {
+    return res.status(400).json({ error: 'Ruta o URL de imagen inválida.' });
+  }
+
+  try {
+    const { config } = readModulesUiConfig();
+    const prevVal = config.sectionImages?.portal?.porqueExiste || null;
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig({
+      ...config,
+      sectionImages: {
+        ...config.sectionImages,
+        portal: { porqueExiste: String(porqueExiste).trim() }
+      }
+    }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: 'portal',
+      target: 'modules_ui_config.json (portal.porqueExiste)',
+      recordId: 'porqueExiste',
+      details: `Imagen de sección "¿Por qué existe?" actualizada a ${String(porqueExiste).trim()}`,
+      previousValue: prevVal,
+      newValue: String(porqueExiste).trim(),
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({ success: true, sectionImages: writeRes.config.sectionImages.portal });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo actualizar la imagen de sección.' });
+  }
+});
+
+// Restaurar valores predeterminados de KPIs o Fondos para un módulo
+app.post('/api/admin/ui/:module/reset-defaults', requireAuth, requireOperator, checkUiModuleAccess, (req, res) => {
+  const modKey = req.uiModuleKey;
+  const scope = req.body?.scope === 'kpis' ? 'kpis' : 'backgrounds';
+  if (scope === 'kpis' && modKey === 'portal') {
+    return res.status(400).json({ error: 'Los KPIs del Portal Principal se gestionan directamente desde Métricas Portal.' });
+  }
+
+  try {
+    const { config } = readModulesUiConfig();
+    const nextConfig = { ...config };
+    if (scope === 'backgrounds') {
+      nextConfig.backgrounds = {
+        ...config.backgrounds,
+        [modKey]: JSON.parse(JSON.stringify(DEFAULT_MODULES_UI_CONFIG.backgrounds[modKey] || []))
+      };
+      if (modKey === 'portal') {
+        nextConfig.sectionImages = {
+          ...config.sectionImages,
+          portal: { ...DEFAULT_MODULES_UI_CONFIG.sectionImages.portal }
+        };
+      }
+    } else {
+      nextConfig.kpis = {
+        ...config.kpis,
+        [modKey]: JSON.parse(JSON.stringify(DEFAULT_MODULES_UI_CONFIG.kpis[modKey] || []))
+      };
+    }
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = writeModulesUiConfig(nextConfig, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'RESTAURACIÓN',
+      module: modKey,
+      target: `modules_ui_config.json (${modKey}.${scope})`,
+      recordId: scope,
+      details: `Valores predeterminados de ${scope === 'kpis' ? 'KPIs' : 'imágenes de fondo'} restaurados para '${modKey}'`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      kpis: writeRes.config.kpis[modKey] || [],
+      backgrounds: writeRes.config.backgrounds[modKey] || [],
+      sectionImages: writeRes.config.sectionImages?.[modKey] || {}
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo restaurar la configuración.' });
+  }
+});
+
 // Lectura de módulos (Público y Operadores) con ETag y soporte híbrido JSON / SQL
 app.get('/api/:module', async (req, res, next) => {
   const { module } = req.params;
@@ -2737,12 +3908,18 @@ app.get('/api/admin/chatbot/settings', requireAuth, requireOperator, (req, res) 
   res.json(getChatbotSettings());
 });
 
-// Archivo upload endpoint para operadores
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
+// Archivo upload endpoint autenticado para operadores (con validación real de imagen)
 app.post('/api/files/upload', requireAuth, requireOperator, (req, res) => {
-  res.json({ url: '/uploads/sample.png', filename: 'sample.png' });
+  const { filename, dataUrl } = req.body || {};
+  if (!dataUrl) {
+    return res.status(400).json({ error: 'Debe enviar la imagen codificada en Base64 (dataUrl).' });
+  }
+  try {
+    const saved = saveValidatedBase64Image(filename, dataUrl);
+    res.status(201).json({ success: true, ...saved });
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'Archivo inválido.' });
+  }
 });
 
 // Edición controlada de ficheros JSON institucionales (solo operadores autorizados en lista blanca)
@@ -2865,7 +4042,7 @@ const sendFreshHtml = (filePath, res) => {
 };
 
 app.use('/img', express.static(path.join(__dirname, 'img')));
-app.use('/uploads', express.static(uploadsDir));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.get(['/vehiculos', '/vehiculos/'], (req, res) => {
   // Transparencia vehicular no visible temporalmente mientras se completa su validación

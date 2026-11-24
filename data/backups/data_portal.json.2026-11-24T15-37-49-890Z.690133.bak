@@ -1,0 +1,52 @@
+{
+  "oficinasProbidad": 65,
+  "canalesDenuncia": 200,
+  "denunciasPenales": 446,
+  "plataformasActivas": 9,
+  "metricas": [
+    {
+      "id": 1,
+      "clave": "oficinasProbidad",
+      "valor": 65,
+      "sufijo": "+",
+      "titulo": "Instancias de Asuntos de Probidad",
+      "descripcion": "Instituciones especializadas con Oficinas de Asuntos de Probidad",
+      "icono": "fas fa-building",
+      "activo": true,
+      "orden": 1
+    },
+    {
+      "id": 2,
+      "clave": "canalesDenuncia",
+      "valor": 200,
+      "sufijo": "+",
+      "titulo": "Canales de denuncia",
+      "descripcion": "Correos, teléfonos, formularios",
+      "icono": "fas fa-envelope-open-text",
+      "activo": true,
+      "orden": 2
+    },
+    {
+      "id": 3,
+      "clave": "denunciasPenales",
+      "valor": 446,
+      "sufijo": "+",
+      "titulo": "Denuncias penales",
+      "descripcion": "En proceso y resueltas",
+      "icono": "fas fa-gavel",
+      "activo": true,
+      "orden": 3
+    },
+    {
+      "id": 4,
+      "clave": "plataformasActivas",
+      "valor": 9,
+      "sufijo": "",
+      "titulo": "Plataformas activas",
+      "descripcion": "Integradas para la transparencia",
+      "icono": "fas fa-layer-group",
+      "activo": true,
+      "orden": 4
+    }
+  ]
+}

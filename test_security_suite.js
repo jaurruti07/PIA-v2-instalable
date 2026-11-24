@@ -614,6 +614,160 @@ async function runTests() {
     recordTest('13. Métricas Dinámicas del Portal Principal', false, err.message);
   }
 
+  // Test 14: KPIs e Imágenes de Fondo por Módulo + Portal (RBAC, validación de archivos binarios, URLs y CRUD)
+  try {
+    const resPubUi = await fetch(`${BASE_URL}/api/ui/directorio`);
+    const pubUiData = await resPubUi.json().catch(() => ({}));
+    const pubUiOk = resPubUi.status === 200 &&
+      pubUiData.module === 'directorio' &&
+      Array.isArray(pubUiData.kpis) &&
+      pubUiData.kpis.length >= 1 &&
+      Array.isArray(pubUiData.backgrounds) &&
+      pubUiData.backgrounds.length >= 1 &&
+      typeof pubUiData.carouselActive === 'boolean';
+    recordTest('14.1 Consulta pública GET /api/ui/:module retorna KPIs y fondos normalizados (200)', pubUiOk);
+
+    const resUiNoAuthGet = await fetch(`${BASE_URL}/api/admin/ui/directorio`);
+    const resUiNoAuthPost = await fetch(`${BASE_URL}/api/admin/ui/directorio/kpis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ titulo: 'Sin Auth', valor: '10', icono: 'fas fa-star' })
+    });
+    const resUiNoAuthBg = await fetch(`${BASE_URL}/api/admin/ui/directorio/backgrounds`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: '/img/wallpaperdirectorio.jpg', titulo: 'Sin Auth' })
+    });
+    const resUiNoAuthUpload = await fetch(`${BASE_URL}/api/admin/ui/backgrounds/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: 'x.png', dataUrl: 'data:image/png;base64,iVBORw0KGgo=' })
+    });
+    recordTest(
+      '14.2 Bloqueo sin autenticación en endpoints admin de KPIs, fondos y carga de imágenes (401)',
+      resUiNoAuthGet.status === 401 &&
+      resUiNoAuthPost.status === 401 &&
+      resUiNoAuthBg.status === 401 &&
+      resUiNoAuthUpload.status === 401
+    );
+
+    const resLoginUi = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: uiToken } = await resLoginUi.json();
+
+    // Rechazar SVG / firma mágica falsa / javascript: URL / path traversal
+    const svgBase64 = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>').toString('base64');
+    const resSvgUpload = await fetch(`${BASE_URL}/api/admin/ui/backgrounds/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uiToken}` },
+      body: JSON.stringify({ filename: 'xss.svg', dataUrl: `data:image/svg+xml;base64,${svgBase64}` })
+    });
+    const fakePngBase64 = Buffer.from('NOT_A_REAL_PNG_FILE').toString('base64');
+    const resFakeMagicUpload = await fetch(`${BASE_URL}/api/admin/ui/backgrounds/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uiToken}` },
+      body: JSON.stringify({ filename: 'fake.png', dataUrl: `data:image/png;base64,${fakePngBase64}` })
+    });
+    const resBadBgUrl = await fetch(`${BASE_URL}/api/admin/ui/portal/backgrounds`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uiToken}` },
+      body: JSON.stringify({ url: 'javascript:alert(1)', titulo: 'Bad XSS' })
+    });
+    const resTraversalDel = await fetch(`${BASE_URL}/api/admin/ui/backgrounds/upload/..%2F..%2Fserver.js`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${uiToken}` }
+    });
+    recordTest(
+      '14.3 Rechazo estricto de SVG, firma mágica inválida, URL insegura y Path Traversal en fondos (400)',
+      resSvgUpload.status === 400 &&
+      resFakeMagicUpload.status === 400 &&
+      resBadBgUrl.status === 400 &&
+      resTraversalDel.status === 400
+    );
+
+    // Flujo completo autenticado: subir PNG válido 1x1 -> agregar fondo -> agregar KPI en vehiculos (4 KPIs => carouselActive true) -> actualizar -> eliminar y limpiar
+    const valid1x1PngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    const resUploadPng = await fetch(`${BASE_URL}/api/admin/ui/backgrounds/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uiToken}` },
+      body: JSON.stringify({ filename: 'test_ui_bg.png', dataUrl: `data:image/png;base64,${valid1x1PngBase64}` })
+    });
+    const uploadedBg = await resUploadPng.json().catch(() => ({}));
+    const uploadedFilename = uploadedBg?.filename;
+    const uploadedUrl = uploadedBg?.url;
+
+    const resAddBg = uploadedUrl ? await fetch(`${BASE_URL}/api/admin/ui/vehiculos/backgrounds`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uiToken}` },
+      body: JSON.stringify({ url: uploadedUrl, titulo: 'Fondo Prueba QA', activo: true })
+    }) : null;
+    const addedBg = resAddBg ? await resAddBg.json().catch(() => ({})) : {};
+    const addedBgId = addedBg?.background?.id;
+
+    const resAddKpi = await fetch(`${BASE_URL}/api/admin/ui/vehiculos/kpis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uiToken}` },
+      body: JSON.stringify({
+        modoValor: 'manual',
+        valor: '98',
+        sufijo: '%',
+        titulo: 'Cumplimiento QA',
+        descripcion: 'Indicador de prueba agregado dinámicamente',
+        icono: 'fas fa-car',
+        activo: true
+      })
+    });
+    const addedKpiData = await resAddKpi.json().catch(() => ({}));
+    const addedKpiId = addedKpiData?.kpi?.id;
+
+    const resEditKpi = addedKpiId ? await fetch(`${BASE_URL}/api/admin/ui/vehiculos/kpis/${addedKpiId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uiToken}` },
+      body: JSON.stringify({
+        titulo: 'Cumplimiento QA Editado',
+        icono: 'fas fa-shield-alt',
+        descripcion: 'Texto actualizado en módulo'
+      })
+    }) : null;
+    const editedKpiData = resEditKpi ? await resEditKpi.json().catch(() => ({})) : {};
+
+    const resCheckVehPub = await fetch(`${BASE_URL}/api/ui/vehiculos`);
+    const vehPubData = await resCheckVehPub.json().catch(() => ({}));
+
+    // Limpieza completa de artefactos de prueba
+    const resDelKpi = addedKpiId ? await fetch(`${BASE_URL}/api/admin/ui/vehiculos/kpis/${addedKpiId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${uiToken}` }
+    }) : null;
+    const resDelBg = addedBgId ? await fetch(`${BASE_URL}/api/admin/ui/vehiculos/backgrounds/${addedBgId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${uiToken}` }
+    }) : null;
+    const resDelFile = uploadedFilename ? await fetch(`${BASE_URL}/api/admin/ui/backgrounds/upload/${encodeURIComponent(uploadedFilename)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${uiToken}` }
+    }) : null;
+
+    const fullModuleUiOk = resUploadPng.status === 201 &&
+      Boolean(uploadedUrl) &&
+      resAddBg?.status === 201 &&
+      resAddKpi.status === 201 &&
+      resEditKpi?.status === 200 &&
+      editedKpiData?.kpi?.titulo === 'Cumplimiento QA Editado' &&
+      vehPubData.backgrounds?.some(b => b.url === uploadedUrl) &&
+      vehPubData.kpis?.some(k => k.titulo === 'Cumplimiento QA Editado') &&
+      resDelKpi?.status === 200 &&
+      resDelBg?.status === 200 &&
+      resDelFile?.status === 200;
+
+    recordTest('14.4 Subida PNG segura, alta/consulta de fondo por módulo y CRUD completo de KPIs por módulo con limpieza (201/200)', fullModuleUiOk);
+  } catch (err) {
+    recordTest('14. KPIs e Imágenes de Fondo por Módulo + Portal', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(` RESUMEN DE PRUEBAS: ${results.passed} SUPERADAS / ${results.failed} FALLIDAS`);
   console.log('=============================================================\n');

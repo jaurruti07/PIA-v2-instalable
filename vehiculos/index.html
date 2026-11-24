@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- Librerías para exportar -->
@@ -3395,6 +3396,8 @@
 
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="/js/pia-ui-runtime.js"></script>
 <script>
     let catalogInstituciones = [];
     let vehicles = [];
@@ -3981,6 +3984,14 @@
         const kpiNoCumple = document.getElementById('kpiNoCumple');
         if (kpiNoCumple) kpiNoCumple.textContent = noCumpleCount;
 
+        if (window.PIA_UI) {
+            window.PIA_UI.updateLiveValues({
+                kpiCumple: cumpleCount,
+                kpiProceso: procesoCount,
+                kpiNoCumple: noCumpleCount
+            });
+        }
+
         const globalPctVal = totalInsts > 0 ? ((totalPassesSum / (totalInsts * 7)) * 100).toFixed(2) : '0.00';
         const globalPctEl = document.getElementById('globalPct');
         if (globalPctEl) globalPctEl.textContent = globalPctVal + '%';
@@ -4345,9 +4356,10 @@
        HERO BANNER BACKGROUND SLIDER
     ============================================================ */
     function initHeroBgSlider() {
+        const sliderEl = document.getElementById('heroBgSlider');
         const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
         const dots = document.querySelectorAll('#heroSliderDots .hero-dot');
-        if (!slides.length) return;
+        if (!slides.length || (sliderEl && sliderEl.dataset.piaManaged === '1')) return;
 
         let currentIndex = 0;
         let slideInterval = null;
@@ -4370,10 +4382,15 @@
         function startAutoplay() {
             stopAutoplay();
             slideInterval = setInterval(nextSlide, 5000);
+            window.__piaLegacyHeroTimer = slideInterval;
         }
 
         function stopAutoplay() {
             if (slideInterval) clearInterval(slideInterval);
+            if (window.__piaLegacyHeroTimer) {
+                clearInterval(window.__piaLegacyHeroTimer);
+                window.__piaLegacyHeroTimer = null;
+            }
         }
 
         dots.forEach((dot, index) => {
@@ -4387,6 +4404,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        if (window.PIA_UI) {
+            window.PIA_UI.init({
+                module: 'vehiculos',
+                statsContainerId: 'semaphoreKPIs',
+                variant: 'semaphore'
+            });
+        }
         loadData();
         initHeroBgSlider();
     });

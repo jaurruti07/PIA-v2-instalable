@@ -5,6 +5,7 @@ import { initChatbotManager } from './chatbot-manager.js';
 import { initTechnicalGuide } from './technical-guide.js';
 import { validateModuleRecord } from './schema-validator.js';
 import { loginWithFirebase, sendFirebasePasswordReset, verifyToken, logout as authLogout, validateInstitutionalEmail } from './auth.js';
+import { mountModuleUiTabs } from './module-ui-manager.js';
 
 // Session Inactivity Timer Configuration (30 minutos)
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
@@ -1428,6 +1429,21 @@ function renderCrudView(module) {
             </div>
         </div>
 
+        <!-- Selector de Pestañas del Módulo: Registros | KPIs | Imágenes de Fondo -->
+        <div id="moduleSubTabsBar" style="display:flex; gap:0.55rem; margin-bottom:1.35rem; flex-wrap:wrap; background:#fff; padding:0.45rem; border-radius:14px; border:1px solid rgba(26,92,143,0.14); width:fit-content; max-width:100%;">
+            <button type="button" class="mod-subtab-btn active" data-subtab="records" style="padding:0.55rem 1.05rem; border-radius:10px; font-weight:700; font-size:0.86rem; background:#05111F; color:#00C2E0; cursor:pointer; border:none;">
+                <i class="fas fa-table" style="margin-right:6px;"></i>Registros del Módulo
+            </button>
+            <button type="button" class="mod-subtab-btn" data-subtab="kpis" style="padding:0.55rem 1.05rem; border-radius:10px; font-weight:700; font-size:0.86rem; background:transparent; color:#5E7A8E; cursor:pointer; border:none;">
+                <i class="fas fa-tachometer-alt" style="margin-right:6px;"></i>KPIs del Módulo
+            </button>
+            <button type="button" class="mod-subtab-btn" data-subtab="backgrounds" style="padding:0.55rem 1.05rem; border-radius:10px; font-weight:700; font-size:0.86rem; background:transparent; color:#5E7A8E; cursor:pointer; border:none;">
+                <i class="fas fa-images" style="margin-right:6px;"></i>Imágenes de Fondo
+            </button>
+        </div>
+
+        <div id="moduleTabRecords">
+
         ${module === 'canales' ? `
         <!-- Configuración de Visibilidad Pública (Protocolos de Actuación y Dashboard CNC) -->
         <div id="canalesVisibilityCard" style="margin-bottom: 1.5rem; background: #fff; border: 1px solid rgba(26,92,143,0.16); border-left: 5px solid #00C2E0; border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 4px 16px rgba(5,17,31,0.05);">
@@ -1551,6 +1567,10 @@ function renderCrudView(module) {
                 </form>
             </div>
         </div>
+        </div><!-- /#moduleTabRecords -->
+
+        <div id="moduleTabKpis" style="display:none;"></div>
+        <div id="moduleTabBackgrounds" style="display:none;"></div>
     `;
 
     document.getElementById('btnNewRecord')?.addEventListener('click', () => openCrudModal());
@@ -1560,6 +1580,35 @@ function renderCrudView(module) {
     document.getElementById('crudModalClose')?.addEventListener('click', closeCrudModal);
     document.getElementById('crudModalCancel')?.addEventListener('click', closeCrudModal);
     document.getElementById('crudForm')?.addEventListener('submit', saveCrudRecord);
+
+    const uiTargetModule = module === 'vehiculos_instituciones' ? 'vehiculos' : module;
+    let uiTabsInitialized = false;
+    document.querySelectorAll('#moduleSubTabsBar .mod-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const tab = btn.dataset.subtab;
+            document.querySelectorAll('#moduleSubTabsBar .mod-subtab-btn').forEach(b => {
+                const active = b.dataset.subtab === tab;
+                b.style.background = active ? '#05111F' : 'transparent';
+                b.style.color = active ? '#00C2E0' : '#5E7A8E';
+            });
+            const pRec = document.getElementById('moduleTabRecords');
+            const pKpi = document.getElementById('moduleTabKpis');
+            const pBg = document.getElementById('moduleTabBackgrounds');
+            if (pRec) pRec.style.display = tab === 'records' ? 'block' : 'none';
+            if (pKpi) pKpi.style.display = tab === 'kpis' ? 'block' : 'none';
+            if (pBg) pBg.style.display = tab === 'backgrounds' ? 'block' : 'none';
+
+            if (!uiTabsInitialized && (tab === 'kpis' || tab === 'backgrounds')) {
+                uiTabsInitialized = true;
+                await mountModuleUiTabs({
+                    module: uiTargetModule,
+                    kpisContainerId: 'moduleTabKpis',
+                    backgroundsContainerId: 'moduleTabBackgrounds',
+                    deps: { getHeaders, showToast, authLogout }
+                });
+            }
+        });
+    });
 
     if (module === 'canales') {
         initCanalesVisibilityControls();
@@ -3066,6 +3115,18 @@ function renderPortalMetricsView() {
             </div>
         </div>
 
+        <!-- Selector de Pestañas del Portal Principal: KPIs | Imágenes de Fondo -->
+        <div id="portalSubTabsBar" style="display:flex; gap:0.55rem; margin-bottom:1.35rem; flex-wrap:wrap; background:#fff; padding:0.45rem; border-radius:14px; border:1px solid rgba(26,92,143,0.14); width:fit-content; max-width:100%;">
+            <button type="button" class="portal-subtab-btn active" data-subtab="kpis" style="padding:0.55rem 1.05rem; border-radius:10px; font-weight:700; font-size:0.86rem; background:#05111F; color:#00C2E0; cursor:pointer; border:none;">
+                <i class="fas fa-tachometer-alt" style="margin-right:6px;"></i>KPIs del Portal Principal
+            </button>
+            <button type="button" class="portal-subtab-btn" data-subtab="backgrounds" style="padding:0.55rem 1.05rem; border-radius:10px; font-weight:700; font-size:0.86rem; background:transparent; color:#5E7A8E; cursor:pointer; border:none;">
+                <i class="fas fa-images" style="margin-right:6px;"></i>Imágenes de Fondo del Portal
+            </button>
+        </div>
+
+        <div id="portalTabKpis">
+
         <!-- Banner informativo de estado y modo carrusel -->
         <div id="portalMetricsStatusCard" style="margin-bottom: 1.5rem; background: #fff; border: 1px solid rgba(26,92,143,0.16); border-left: 5px solid #00C2E0; border-radius: 16px; padding: 1.15rem 1.4rem; box-shadow: 0 4px 16px rgba(5,17,31,0.05); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
             <div style="display:flex; align-items:center; gap:0.9rem; flex:1; min-width:260px;">
@@ -3230,7 +3291,33 @@ function renderPortalMetricsView() {
                 </div>
             </div>
         </div>
+        </div><!-- /#portalTabKpis -->
+        <div id="portalTabBackgrounds" style="display:none;"></div>
     `;
+
+    let portalBgMounted = false;
+    document.querySelectorAll('#portalSubTabsBar .portal-subtab-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const tab = btn.dataset.subtab;
+            document.querySelectorAll('#portalSubTabsBar .portal-subtab-btn').forEach(b => {
+                const active = b.dataset.subtab === tab;
+                b.style.background = active ? '#05111F' : 'transparent';
+                b.style.color = active ? '#00C2E0' : '#5E7A8E';
+            });
+            const pKpi = document.getElementById('portalTabKpis');
+            const pBg = document.getElementById('portalTabBackgrounds');
+            if (pKpi) pKpi.style.display = tab === 'kpis' ? 'block' : 'none';
+            if (pBg) pBg.style.display = tab === 'backgrounds' ? 'block' : 'none';
+            if (!portalBgMounted && tab === 'backgrounds') {
+                portalBgMounted = true;
+                await mountModuleUiTabs({
+                    module: 'portal',
+                    backgroundsContainerId: 'portalTabBackgrounds',
+                    deps: { getHeaders, showToast, authLogout }
+                });
+            }
+        });
+    });
 
     document.getElementById('btnNewPortalMetric')?.addEventListener('click', () => openPortalMetricModal(null));
     document.getElementById('btnExportPortalJson')?.addEventListener('click', exportPortalJsonDocument);
