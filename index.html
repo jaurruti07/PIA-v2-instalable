@@ -499,11 +499,33 @@
         .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.4); }
 
         .stats-ribbon { background: var(--navy-mid); border-top: 1px solid rgba(0,194,224,0.08); border-bottom: 1px solid rgba(0,194,224,0.08); padding: 1.6rem 0; }
+        .stats-ribbon-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .stats-carousel-controls { display: flex; align-items: center; gap: 0.55rem; }
+        .stats-nav-btn {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(5,17,31,0.72); border: 1px solid rgba(0,194,224,0.28);
+            color: var(--cyan); display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.78rem; transition: all 0.2s;
+        }
+        .stats-nav-btn:hover { background: var(--cyan); color: var(--navy); border-color: var(--cyan); }
+        .stats-swiper-pagination { display: flex; align-items: center; gap: 5px; width: auto !important; }
+        .stats-swiper-pagination .swiper-pagination-bullet { width: 7px; height: 7px; background: rgba(255,255,255,0.3); opacity: 1; transition: all 0.25s; margin: 0 !important; }
+        .stats-swiper-pagination .swiper-pagination-bullet-active { width: 18px; border-radius: 10px; background: var(--cyan); }
         .stats-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
+            display: grid; grid-template-columns: repeat(var(--stats-cols, 4), 1fr);
             gap: 1px; background: rgba(0,194,224,0.08);
             border: 1px solid rgba(0,194,224,0.08); border-radius: var(--radius-xl); overflow: hidden;
         }
+        .stats-carousel-wrap {
+            position: relative;
+            background: rgba(0,194,224,0.08);
+            border: 1px solid rgba(0,194,224,0.12);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+        .stats-swiper { width: 100%; }
+        .stats-swiper .swiper-slide { height: auto; display: flex; border-right: 1px solid rgba(0,194,224,0.08); }
+        .stats-swiper .stat-cell { width: 100%; display: flex; flex-direction: column; justify-content: center; min-height: 158px; }
         .stat-cell { background: var(--navy-mid); padding: 1.4rem 1rem; text-align: center; transition: background 0.2s; }
         .stat-cell:hover { background: rgba(0,194,224,0.06); }
         .stat-cell-icon { font-size: 1.3rem; color: var(--cyan); margin-bottom: 0.5rem; }
@@ -1793,7 +1815,7 @@
 ============================================================ -->
 <section class="hero" id="inicio">
     <div class="hero-bg-slider" id="heroBgSlider">
-        <div class="hero-slide active" style="background-image: url('/img/Banner%20portal%20PIA.jpg');"></div>
+        <div class="hero-slide active" style="background-image: url('/img/wallpaper_directorio_acceso_ejecutivo.png');"></div>
         <div class="hero-slide" style="background-image: url('/img/gobiernoNumerosWall.jpg');"></div>
         <div class="hero-slide" style="background-image: url('/img/wallpaperportal2.png');"></div>
         <div class="hero-slide" style="background-image: url('/img/wallpaperportal3.jpg');"></div>
@@ -1826,35 +1848,46 @@
 ============================================================ -->
 
 <div class="stats-ribbon">
-    <div class="portal-band-text">            
     <div class="container">
-        <div class="stats-grid">
-            <div class="stat-cell">
-                <div class="stat-cell-icon"><i class="fas fa-building"></i></div>
-                <div class="stat-num"><span class="counter" id="oficinasProbidad">0</span>+</div>
-                <div class="stat-lbl">Instancias de Asuntos de Probidad</div>
-                <div class="stat-desc" id="descOficinas">Insituciones especializadas con Oficinas de Asuntos de Probidad</div>
+        <div class="stats-ribbon-head">
+            <div class="section-tag on-dark" style="color:var(--cyan); margin-bottom:0;">El ecosistema en cifras</div>
+            <div class="stats-carousel-controls" id="statsCarouselControls" style="display:none;">
+                <button type="button" class="stats-nav-btn stats-prev" aria-label="Métrica anterior" title="Métrica anterior">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="stats-swiper-pagination" id="statsSwiperPagination"></div>
+                <button type="button" class="stats-nav-btn stats-next" aria-label="Siguiente métrica" title="Siguiente métrica">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
-            <div class="stat-cell">
-                <div class="stat-cell-icon"><i class="fas fa-envelope-open-text"></i></div>
-                <div class="stat-num"><span class="counter" id="canalesDenuncia">0</span>+</div>
-                <div class="stat-lbl">Canales de denuncia</div>
-                <div class="stat-desc" id="descCanales">Correos, teléfonos, formularios</div>
-            </div>
-            <div class="stat-cell">
-                <div class="stat-cell-icon"><i class="fas fa-gavel"></i></div>
-                <div class="stat-num"><span class="counter" id="denunciasPenales">0</span>+</div>
-                <div class="stat-lbl">Denuncias penales</div>
-                <div class="stat-desc" id="descDenuncias">En proceso y resueltas</div>
-            </div>
-            <div class="stat-cell">
-                <div class="stat-cell-icon"><i class="fas fa-layer-group"></i></div>
-                <div class="stat-num"><span class="counter" id="plataformasActivas">0</span></div>
-                <div class="stat-lbl">Plataformas activas</div>
-                <div class="stat-desc" id="descPlataformas">Integradas para la transparencia</div>
-            </div>
-            <div class="section-tag on-dark" style="color:var(--cyan);">El ecosistema en cifras</div>
         </div>
+        <div id="statsMetricsContainer">
+            <div class="stats-grid" style="--stats-cols: 4;">
+                <div class="stat-cell">
+                    <div class="stat-cell-icon"><i class="fas fa-building"></i></div>
+                    <div class="stat-num"><span class="counter" id="oficinasProbidad" data-target="65">0</span>+</div>
+                    <div class="stat-lbl">Instancias de Asuntos de Probidad</div>
+                    <div class="stat-desc" id="descOficinas">Instituciones especializadas con Oficinas de Asuntos de Probidad</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="stat-cell-icon"><i class="fas fa-envelope-open-text"></i></div>
+                    <div class="stat-num"><span class="counter" id="canalesDenuncia" data-target="200">0</span>+</div>
+                    <div class="stat-lbl">Canales de denuncia</div>
+                    <div class="stat-desc" id="descCanales">Correos, teléfonos, formularios</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="stat-cell-icon"><i class="fas fa-gavel"></i></div>
+                    <div class="stat-num"><span class="counter" id="denunciasPenales" data-target="446">0</span>+</div>
+                    <div class="stat-lbl">Denuncias penales</div>
+                    <div class="stat-desc" id="descDenuncias">En proceso y resueltas</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="stat-cell-icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="stat-num"><span class="counter" id="plataformasActivas" data-target="9">0</span></div>
+                    <div class="stat-lbl">Plataformas activas</div>
+                    <div class="stat-desc" id="descPlataformas">Integradas para la transparencia</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1866,7 +1899,7 @@
     <section class="section" id="portal">
         <div class="portal-band fade-up">
             <div class="portal-band-img">
-                <img src="/img/Por%20qu%C3%A9%20existe.png" alt="Gobierno de Guatemala" loading="lazy">
+                <img src="/img/wallpaperdirectorio.jpg" alt="Portal de Integridad Activa - Gobierno de Guatemala" loading="lazy">
             </div>
             <div class="portal-band-text">
                 <div class="section-tag on-dark" style="color:var(--cyan);">¿Por qué existe?</div>
@@ -2421,7 +2454,7 @@ Utiliza los mecanismos oficiales para participar activamente.
                     <!-- Radiografía de la Corrupción (icono) -->
                     <div class="swiper-slide">
                         <div class="plat-card">
-                            <div class="plat-card-bg" style="background-image:url('/img/Radiograf%C3%ADa%20de%20la%20corrupci%C3%B3n.jpg');"></div>
+                            <div class="plat-card-bg" style="background-image:url('/img/numeros.png');"></div>
                             <div class="plat-front">
                                 <div class="plat-logo-wrap">
                                     <i class="fas fa-chart-pie"></i>
@@ -2522,7 +2555,7 @@ Utiliza los mecanismos oficiales para participar activamente.
                     <!-- Canales por la Integridad (icono) -->
                     <div class="swiper-slide">
                         <div class="plat-card">
-                            <div class="plat-card-bg" style="background-image:url('/img/Canales%20por%20la%20integridad.jpg');"></div>
+                            <div class="plat-card-bg" style="background-image:url('/img/canalesfondobanner.png');"></div>
                             <div class="plat-front">
                                 <div class="plat-logo-wrap">
                                     <i class="fas fa-bullhorn"></i>
@@ -2544,7 +2577,7 @@ Utiliza los mecanismos oficiales para participar activamente.
                     <!-- Vigilando la Integridad (icono) -->
                     <div class="swiper-slide">
                         <div class="plat-card">
-                            <div class="plat-card-bg" style="background-image:url('/img/Vigilando%20la%20integridad.jpg');"></div>
+                            <div class="plat-card-bg" style="background-image:url('/img/wallpapercanales1.jpg');"></div>
                             <div class="plat-front">
                                 <div class="plat-logo-wrap">
                                     <i class="fas fa-eye"></i>
@@ -3425,34 +3458,181 @@ Utiliza los mecanismos oficiales para participar activamente.
     });
 
     /* ============================================================
-       CARGAR DATOS DESDE JSON (data_portal.json)
+       CARGAR MÉTRICAS DINÁMICAS DEL PORTAL (CON SOPORTE DE CARRUSEL)
     ============================================================ */
+    let statsSwiperInstance = null;
+
+    function escapePortalText(str) {
+        return String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function sanitizePortalIcon(rawIcon) {
+        const cleaned = String(rawIcon || '').trim().replace(/\s+/g, ' ');
+        if (/^fa(?:s|r|b|l|d|ss|sr)?\s+fa-[a-z0-9-]+$/i.test(cleaned)) return cleaned.toLowerCase();
+        if (/^fa-[a-z0-9-]+$/i.test(cleaned)) return 'fas ' + cleaned.toLowerCase();
+        return 'fas fa-chart-line';
+    }
+
+    function normalizeClientPortalMetrics(data) {
+        if (data && Array.isArray(data.metricas) && data.metricas.length > 0) {
+            return data.metricas
+                .filter(m => m && m.activo !== false)
+                .sort((a, b) => (Number(a.orden) || 0) - (Number(b.orden) || 0));
+        }
+        const desc = (data && data.descripciones && typeof data.descripciones === 'object') ? data.descripciones : {};
+        return [
+            {
+                id: 1,
+                clave: 'oficinasProbidad',
+                valor: Number(data?.oficinasProbidad ?? 65),
+                sufijo: '+',
+                titulo: 'Instancias de Asuntos de Probidad',
+                descripcion: desc.oficinasProbidad || 'Instituciones especializadas con Oficinas de Asuntos de Probidad',
+                icono: 'fas fa-building'
+            },
+            {
+                id: 2,
+                clave: 'canalesDenuncia',
+                valor: Number(data?.canalesDenuncia ?? 200),
+                sufijo: '+',
+                titulo: 'Canales de denuncia',
+                descripcion: desc.canalesDenuncia || 'Correos, teléfonos, formularios',
+                icono: 'fas fa-envelope-open-text'
+            },
+            {
+                id: 3,
+                clave: 'denunciasPenales',
+                valor: Number(data?.denunciasPenales ?? 446),
+                sufijo: '+',
+                titulo: 'Denuncias penales',
+                descripcion: desc.denunciasPenales || 'En proceso y resueltas',
+                icono: 'fas fa-gavel'
+            },
+            {
+                id: 4,
+                clave: 'plataformasActivas',
+                valor: Number(data?.plataformasActivas ?? 9),
+                sufijo: '',
+                titulo: 'Plataformas activas',
+                descripcion: desc.plataformasActivas || 'Integradas para la transparencia',
+                icono: 'fas fa-layer-group'
+            }
+        ];
+    }
+
+    function buildStatCellMarkup(m) {
+        const safeIcon = sanitizePortalIcon(m.icono);
+        const val = Number.isFinite(Number(m.valor)) ? Number(m.valor) : 0;
+        const suffix = escapePortalText(m.sufijo || '');
+        const title = escapePortalText(m.titulo || '');
+        const desc = escapePortalText(m.descripcion || '');
+        const idAttr = m.clave ? ` id="${escapePortalText(m.clave)}"` : '';
+        return `
+            <div class="stat-cell">
+                <div class="stat-cell-icon"><i class="${safeIcon}"></i></div>
+                <div class="stat-num"><span class="counter"${idAttr} data-target="${val}">0</span>${suffix}</div>
+                <div class="stat-lbl">${title}</div>
+                <div class="stat-desc">${desc}</div>
+            </div>
+        `;
+    }
+
+    function renderPortalStatsRibbon(metrics) {
+        const container = document.getElementById('statsMetricsContainer');
+        const controls = document.getElementById('statsCarouselControls');
+        if (!container) return;
+
+        if (statsSwiperInstance && typeof statsSwiperInstance.destroy === 'function') {
+            statsSwiperInstance.destroy(true, true);
+            statsSwiperInstance = null;
+        }
+
+        const list = Array.isArray(metrics) && metrics.length > 0 ? metrics : normalizeClientPortalMetrics(null);
+        const useCarousel = list.length > 4;
+
+        if (useCarousel) {
+            if (controls) controls.style.display = 'flex';
+            container.innerHTML = `
+                <div class="stats-carousel-wrap">
+                    <div class="swiper stats-swiper" id="statsSwiper">
+                        <div class="swiper-wrapper">
+                            ${list.map(m => `<div class="swiper-slide">${buildStatCellMarkup(m)}</div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (typeof Swiper === 'function') {
+                statsSwiperInstance = new Swiper('#statsSwiper', {
+                    slidesPerView: 1,
+                    spaceBetween: 0,
+                    loop: true,
+                    speed: 650,
+                    observer: true,
+                    observeParents: true,
+                    autoplay: {
+                        delay: 3600,
+                        disableOnInteraction: false,
+                        pauseOnMouseEnter: true
+                    },
+                    pagination: {
+                        el: '#statsSwiperPagination',
+                        clickable: true
+                    },
+                    navigation: {
+                        nextEl: '.stats-next',
+                        prevEl: '.stats-prev'
+                    },
+                    breakpoints: {
+                        540: { slidesPerView: 2 },
+                        900: { slidesPerView: 3 },
+                        1180: { slidesPerView: 4 }
+                    }
+                });
+            }
+        } else {
+            if (controls) controls.style.display = 'none';
+            const cols = Math.max(1, Math.min(4, list.length));
+            container.innerHTML = `
+                <div class="stats-grid" style="--stats-cols: ${cols};">
+                    ${list.map(m => buildStatCellMarkup(m)).join('')}
+                </div>
+            `;
+        }
+    }
+
     async function cargarDatos() {
         try {
-            const response = await fetch('data_portal.json');
-            if (!response.ok) throw new Error('No se pudo cargar data_portal.json');
-            const data = await response.json();
+            let data = null;
+            try {
+                const apiRes = await fetch('/api/portal/metricas', { cache: 'no-store' });
+                if (apiRes.ok) data = await apiRes.json();
+            } catch (_) {}
 
-            document.getElementById('oficinasProbidad').innerText = data.oficinasProbidad || 0;
-            document.getElementById('canalesDenuncia').innerText = data.canalesDenuncia || 0;
-            document.getElementById('denunciasPenales').innerText = data.denunciasPenales || 0;
-            document.getElementById('plataformasActivas').innerText = data.plataformasActivas || 8;
-
-            if (data.descripciones) {
-                if (data.descripciones.oficinasProbidad) document.getElementById('descOficinas').innerText = data.descripciones.oficinasProbidad;
-                if (data.descripciones.canalesDenuncia) document.getElementById('descCanales').innerText = data.descripciones.canalesDenuncia;
-                if (data.descripciones.denunciasPenales) document.getElementById('descDenuncias').innerText = data.descripciones.denunciasPenales;
-                if (data.descripciones.plataformasActivas) document.getElementById('descPlataformas').innerText = data.descripciones.plataformasActivas;
+            if (!data) {
+                const response = await fetch('data_portal.json', { cache: 'no-store' });
+                if (!response.ok) throw new Error('No se pudo cargar data_portal.json');
+                data = await response.json();
             }
 
-            console.log('✅ Datos cargados correctamente desde data_portal.json', data);
+            const activeMetrics = normalizeClientPortalMetrics(data);
+            renderPortalStatsRibbon(activeMetrics);
+            countersRunning = false;
             startCounters();
         } catch (error) {
-            console.error('❌ Error cargando data_portal.json:', error);
-            document.getElementById('oficinasProbidad').innerText = '67';
-            document.getElementById('canalesDenuncia').innerText = '191';
-            document.getElementById('denunciasPenales').innerText = '423';
-            document.getElementById('plataformasActivas').innerText = '8';
+            console.error('❌ Error cargando métricas del portal:', error);
+            renderPortalStatsRibbon(normalizeClientPortalMetrics({
+                oficinasProbidad: 67,
+                canalesDenuncia: 191,
+                denunciasPenales: 423,
+                plataformasActivas: 8
+            }));
+            countersRunning = false;
             startCounters();
         }
     }
@@ -3465,13 +3645,18 @@ Utiliza los mecanismos oficiales para participar activamente.
         countersRunning = true;
         const counters = document.querySelectorAll('.stats-ribbon .counter');
         counters.forEach(counter => {
-            const target = parseInt(counter.innerText);
+            const target = parseInt(counter.dataset.target !== undefined ? counter.dataset.target : counter.innerText, 10);
             if (isNaN(target)) return;
+            const slideEl = counter.closest('.swiper-slide');
+            if (slideEl && slideEl.classList.contains('swiper-slide-duplicate')) {
+                counter.innerText = String(target);
+                return;
+            }
             let current = 0;
             const step = Math.max(1, Math.ceil(target / 80));
             const update = () => {
                 current = Math.min(current + step, target);
-                counter.innerText = current;
+                counter.innerText = String(current);
                 if (current < target) setTimeout(update, 18);
             };
             update();
@@ -3485,7 +3670,8 @@ Utiliza los mecanismos oficiales para participar activamente.
             }
         });
     }, { threshold: 0.3 });
-    ribbonObserver.observe(document.querySelector('.stats-ribbon'));
+    const statsRibbonEl = document.querySelector('.stats-ribbon');
+    if (statsRibbonEl) ribbonObserver.observe(statsRibbonEl);
 
     /* ============================================================
        HERO BANNER BACKGROUND SLIDER

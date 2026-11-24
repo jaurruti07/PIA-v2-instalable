@@ -93,6 +93,24 @@ export function validateJsonSchema(filePath, data) {
           errors.push(`El campo '${field}' debe ser un número entero mayor o igual a 0.`);
         }
       });
+      if (data.metricas !== undefined) {
+        if (!Array.isArray(data.metricas)) {
+          errors.push('El campo "metricas" debe ser un arreglo JSON válido.');
+        } else {
+          data.metricas.forEach((m, idx) => {
+            if (!isObject(m)) {
+              errors.push(`[Métrica ${idx + 1}]: Debe ser un objeto válido.`);
+              return;
+            }
+            if (!isNonEmptyString(m.titulo)) {
+              errors.push(`[Métrica ${idx + 1}]: El campo 'titulo' es obligatorio.`);
+            }
+            if (typeof m.valor !== 'number' || isNaN(m.valor) || m.valor < 0) {
+              errors.push(`[Métrica ${idx + 1}]: El campo 'valor' debe ser un número >= 0.`);
+            }
+          });
+        }
+      }
     }
   }
 
@@ -371,6 +389,16 @@ export function validateModuleRecord(moduleName, recordObj) {
     }
     if (!isNonEmptyString(recordObj.estado)) {
       errors.push('El estado de disponibilidad del tablero es obligatorio.');
+    }
+  } else if (moduleName === 'portal_metric') {
+    if (!isNonEmptyString(recordObj.titulo) || recordObj.titulo.trim().length < 2) {
+      errors.push('El título de la métrica es obligatorio (mínimo 2 caracteres).');
+    }
+    if (recordObj.valor === undefined || recordObj.valor === null || isNaN(Number(recordObj.valor)) || Number(recordObj.valor) < 0) {
+      errors.push('El valor numérico de la métrica debe ser mayor o igual a 0.');
+    }
+    if (recordObj.icono && !/^fa(?:s|r|b|l|d|ss|sr)?\s+fa-[a-z0-9-]+$/i.test(String(recordObj.icono).trim()) && !/^fa-[a-z0-9-]+$/i.test(String(recordObj.icono).trim())) {
+      errors.push('El ícono debe tener formato FontAwesome válido (ej. "fas fa-shield-alt").');
     }
   }
 

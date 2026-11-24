@@ -474,7 +474,14 @@ window.navigateTo = async function(module, options = {}) {
         return;
     }
 
-    // Dynamic CRUD Module (canales, directorio, tableros, riesgo, vehiculos, portal)
+    if (module === 'portal') {
+        currentModule = 'portal';
+        renderPortalMetricsView();
+        await loadPortalMetricsData();
+        return;
+    }
+
+    // Dynamic CRUD Module (canales, directorio, tableros, riesgo, vehiculos)
     renderCrudView(module);
     await fetchAndRenderTable(module);
 };
@@ -2988,4 +2995,694 @@ function exportModuleJson() {
         downloadAnchor.click();
         downloadAnchor.remove();
     }
+}
+
+// ========================================================
+// GESTOR DEDICADO DE MÉTRICAS DEL PORTAL PRINCIPAL (PIA)
+// ========================================================
+
+const PORTAL_ICON_GALLERY = [
+    { cls: 'fas fa-building', label: 'Instituciones' },
+    { cls: 'fas fa-envelope-open-text', label: 'Canales' },
+    { cls: 'fas fa-gavel', label: 'Denuncias / Legal' },
+    { cls: 'fas fa-layer-group', label: 'Plataformas' },
+    { cls: 'fas fa-shield-alt', label: 'Integridad' },
+    { cls: 'fas fa-balance-scale', label: 'Probidad / Ética' },
+    { cls: 'fas fa-landmark', label: 'Estado / Gobierno' },
+    { cls: 'fas fa-users', label: 'Ciudadanía' },
+    { cls: 'fas fa-chart-line', label: 'Indicadores' },
+    { cls: 'fas fa-chart-pie', label: 'Estadísticas' },
+    { cls: 'fas fa-file-contract', label: 'Protocolos' },
+    { cls: 'fas fa-check-circle', label: 'Cumplimiento' },
+    { cls: 'fas fa-eye', label: 'Transparencia' },
+    { cls: 'fas fa-handshake', label: 'Participación' },
+    { cls: 'fas fa-clipboard-check', label: 'Auditoría' },
+    { cls: 'fas fa-bullhorn', label: 'Alertas' },
+    { cls: 'fas fa-search', label: 'Consultas' },
+    { cls: 'fas fa-globe', label: 'Portal Web' },
+    { cls: 'fas fa-lock', label: 'Seguridad' },
+    { cls: 'fas fa-award', label: 'Reconocimiento' },
+    { cls: 'fas fa-folder-open', label: 'Expedientes' },
+    { cls: 'fas fa-phone-volume', label: 'Línea Directa' },
+    { cls: 'fas fa-car', label: 'Vehículos' },
+    { cls: 'fas fa-laptop-code', label: 'Digital' }
+];
+
+let portalMetricsCache = [];
+let portalDocumentCache = null;
+let portalMetricsEtag = null;
+let editingPortalMetricId = null;
+let pendingDeletePortalMetricId = null;
+
+function sanitizeAdminIconClass(rawIcon, fallback = 'fas fa-chart-line') {
+    const cleaned = String(rawIcon || '').trim().replace(/\s+/g, ' ');
+    if (/^fa(?:s|r|b|l|d|ss|sr)?\s+fa-[a-z0-9-]+$/i.test(cleaned)) return cleaned.toLowerCase();
+    if (/^fa-[a-z0-9-]+$/i.test(cleaned)) return `fas ${cleaned.toLowerCase()}`;
+    return fallback;
+}
+
+function renderPortalMetricsView() {
+    const contentArea = document.getElementById('contentArea');
+    if (!contentArea) return;
+
+    contentArea.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: #05111F;">
+                    <i class="fas fa-globe" style="color: #00C2E0; margin-right: 0.5rem;"></i>Métricas del Portal Principal
+                </h1>
+                <p style="color: #5E7A8E; font-size: 0.95rem;">Agrega nuevas cifras clave, actualiza el texto inferior, personaliza los íconos y organiza la barra de estadísticas del inicio.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="btn-primary" id="btnNewPortalMetric" style="padding: 0.75rem 1.25rem; background: #00C2E0; color: #05111F; font-weight: 700; border-radius: 12px; border: none; cursor: pointer;">
+                    <i class="fas fa-plus"></i> Nueva Métrica
+                </button>
+                <button class="btn-secondary" id="btnExportPortalJson" style="padding: 0.75rem 1.25rem; background: #163250; color: #fff; font-weight: 600; border-radius: 12px; border: none; cursor: pointer;">
+                    <i class="fas fa-download"></i> Exportar JSON
+                </button>
+                <button class="btn-secondary" id="btnEditPortalRaw" style="padding: 0.75rem 1.25rem; background: #05111F; color: #fff; font-weight: 600; border-radius: 12px; border: none; cursor: pointer;">
+                    <i class="fas fa-code"></i> Editar JSON Completo
+                </button>
+            </div>
+        </div>
+
+        <!-- Banner informativo de estado y modo carrusel -->
+        <div id="portalMetricsStatusCard" style="margin-bottom: 1.5rem; background: #fff; border: 1px solid rgba(26,92,143,0.16); border-left: 5px solid #00C2E0; border-radius: 16px; padding: 1.15rem 1.4rem; box-shadow: 0 4px 16px rgba(5,17,31,0.05); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+            <div style="display:flex; align-items:center; gap:0.9rem; flex:1; min-width:260px;">
+                <div style="width:42px; height:42px; border-radius:12px; background:#05111F; color:#00C2E0; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;">
+                    <i class="fas fa-sliders-h"></i>
+                </div>
+                <div>
+                    <div style="font-weight:800; color:#05111F; font-size:0.96rem;">Comportamiento en la Portada Pública ("El ecosistema en cifras")</div>
+                    <div id="portalCarouselHint" style="font-size:0.84rem; color:#5E7A8E; margin-top:2px;">Cargando configuración actual...</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                <span id="portalMetricsCountBadge" style="font-size:0.8rem; font-weight:700; padding:5px 12px; border-radius:20px; background:#F0F5FB; color:#1A5C8F;">0 métricas</span>
+                <span id="portalCarouselModeBadge" style="font-size:0.8rem; font-weight:700; padding:5px 12px; border-radius:20px; background:#E0F2FE; color:#0369A1;">Estático</span>
+            </div>
+        </div>
+
+        <!-- Vista previa rápida del cintillo público -->
+        <div style="background: #0C2033; border-radius: 18px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,194,224,0.18); box-shadow: 0 8px 24px rgba(5,17,31,0.12);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; flex-wrap:wrap; gap:0.5rem;">
+                <span style="font-size:0.74rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#00C2E0;">
+                    <i class="fas fa-eye" style="margin-right:6px;"></i> Vista Previa en Portal Principal (Métricas Visibles)
+                </span>
+                <a href="/" target="_blank" rel="noopener noreferrer" style="font-size:0.78rem; color:#A8BFCC; font-weight:600; text-decoration:none;">
+                    <i class="fas fa-external-link-alt"></i> Abrir Portal Público
+                </a>
+            </div>
+            <div id="portalMetricsAdminPreviewGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:1px; background:rgba(0,194,224,0.12); border:1px solid rgba(0,194,224,0.12); border-radius:14px; overflow:hidden;"></div>
+        </div>
+
+        <!-- Tabla de métricas -->
+        <div style="background: #fff; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(5,17,31,0.06);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                <input type="text" id="portalMetricsSearch" placeholder="Buscar métrica por título, texto o ícono..." style="padding: 0.6rem 1rem; width: 320px; max-width: 100%; border: 1px solid rgba(26,92,143,0.2); border-radius: 8px;" />
+                <span id="portalMetricsRecordCount" style="font-size: 0.85rem; color: #5E7A8E; font-weight: 600;">0 métricas registradas</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: #F0F5FB; border-bottom: 2px solid rgba(26,92,143,0.14);">
+                            <th style="padding: 0.85rem 0.9rem;">Orden</th>
+                            <th style="padding: 0.85rem 0.9rem;">Ícono</th>
+                            <th style="padding: 0.85rem 0.9rem;">Cifra</th>
+                            <th style="padding: 0.85rem 0.9rem;">Título y Texto debajo de la métrica</th>
+                            <th style="padding: 0.85rem 0.9rem;">Visibilidad</th>
+                            <th style="padding: 0.85rem 0.9rem; text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="portalMetricsTableBody">
+                        <tr><td colspan="6" style="padding: 2rem; text-align: center; color: #5E7A8E;">Cargando métricas del portal...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal Crear / Editar Métrica del Portal -->
+        <div id="portalMetricModal" style="display:none; position:fixed; inset:0; background:rgba(5,17,31,0.72); backdrop-filter:blur(8px); z-index:1050; align-items:center; justify-content:center; padding:1rem;">
+            <div style="background:#fff; border-radius:20px; max-width:700px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem 2rem; box-shadow:0 24px 60px rgba(0,0,0,0.35);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; border-bottom:1px solid #E8EEF7; padding-bottom:0.85rem;">
+                    <h3 id="portalMetricModalTitle" style="font-family:var(--font-head); font-size:1.35rem; color:#05111F; margin:0;">Nueva Métrica del Portal</h3>
+                    <button type="button" id="portalMetricModalClose" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#5E7A8E;">&times;</button>
+                </div>
+
+                <!-- Vista previa en vivo de cómo se verá en la cinta -->
+                <div style="background:#0C2033; border-radius:16px; padding:1.15rem 1.25rem; text-align:center; margin-bottom:1.25rem; border:1px solid rgba(0,194,224,0.2);">
+                    <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.5); margin-bottom:0.5rem;">Vista previa de la métrica</div>
+                    <div id="pmPreviewIconWrap" style="font-size:1.4rem; color:#00C2E0; margin-bottom:0.4rem;"><i class="fas fa-chart-line"></i></div>
+                    <div id="pmPreviewValue" style="font-family:var(--font-head); font-size:2rem; font-weight:800; color:#fff; line-height:1;">0</div>
+                    <div id="pmPreviewTitle" style="font-size:0.82rem; font-weight:600; color:rgba(255,255,255,0.75); margin-top:0.25rem;">Título de la métrica</div>
+                    <div id="pmPreviewDesc" style="font-size:0.72rem; color:#A8BFCC; margin-top:0.15rem;">Texto descriptivo debajo de la métrica</div>
+                </div>
+
+                <form id="portalMetricForm">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                        <div>
+                            <label for="pmValor" style="display:block; font-weight:700; color:#0C1F30; font-size:0.86rem; margin-bottom:0.35rem;">Valor numérico *</label>
+                            <input type="number" id="pmValor" min="0" step="1" required style="width:100%; padding:0.7rem 0.9rem; border:1px solid #A8BFCC; border-radius:10px; font-size:0.95rem;" placeholder="Ej. 65" />
+                        </div>
+                        <div>
+                            <label for="pmSufijo" style="display:block; font-weight:700; color:#0C1F30; font-size:0.86rem; margin-bottom:0.35rem;">Sufijo opcional (ej. +, %, K)</label>
+                            <div style="display:flex; gap:0.4rem;">
+                                <input type="text" id="pmSufijo" maxlength="12" style="flex:1; padding:0.7rem 0.9rem; border:1px solid #A8BFCC; border-radius:10px; font-size:0.95rem;" placeholder="Ej. +" />
+                                <button type="button" class="pm-suf-preset" data-suf="+" style="padding:0 0.7rem; border-radius:8px; border:1px solid #CBD5E1; background:#F8FAFC; font-weight:700;">+</button>
+                                <button type="button" class="pm-suf-preset" data-suf="%" style="padding:0 0.7rem; border-radius:8px; border:1px solid #CBD5E1; background:#F8FAFC; font-weight:700;">%</button>
+                                <button type="button" class="pm-suf-preset" data-suf="" style="padding:0 0.65rem; border-radius:8px; border:1px solid #CBD5E1; background:#F8FAFC; font-size:0.78rem;">N/A</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label for="pmTitulo" style="display:block; font-weight:700; color:#0C1F30; font-size:0.86rem; margin-bottom:0.35rem;">Título principal de la métrica *</label>
+                        <input type="text" id="pmTitulo" maxlength="120" required style="width:100%; padding:0.7rem 0.9rem; border:1px solid #A8BFCC; border-radius:10px; font-size:0.95rem;" placeholder="Ej. Instituciones con Capacitación Activa" />
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label for="pmDescripcion" style="display:block; font-weight:700; color:#0C1F30; font-size:0.86rem; margin-bottom:0.35rem;">Texto debajo de la métrica (Descripción)</label>
+                        <textarea id="pmDescripcion" rows="2" maxlength="240" style="width:100%; padding:0.7rem 0.9rem; border:1px solid #A8BFCC; border-radius:10px; font-size:0.92rem; resize:vertical;" placeholder="Ej. Personal público capacitado en prevención de conflictos de interés"></textarea>
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label for="pmIcono" style="display:block; font-weight:700; color:#0C1F30; font-size:0.86rem; margin-bottom:0.35rem;">Ícono (Clase FontAwesome o seleccione uno debajo) *</label>
+                        <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.65rem;">
+                            <div id="pmIconInputPreview" style="width:42px; height:42px; border-radius:10px; background:#0C2033; color:#00C2E0; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <input type="text" id="pmIcono" required style="flex:1; padding:0.7rem 0.9rem; border:1px solid #A8BFCC; border-radius:10px; font-family:monospace; font-size:0.9rem;" placeholder="fas fa-chart-line" />
+                        </div>
+                        <div id="pmIconGallery" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(92px, 1fr)); gap:0.45rem; max-height:170px; overflow-y:auto; padding:0.65rem; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+                            ${PORTAL_ICON_GALLERY.map(ic => `
+                                <button type="button" class="pm-icon-choice" data-icon="${ic.cls}" title="${escapeHtml(ic.label)} (${ic.cls})" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:0.5rem 0.35rem; border-radius:9px; border:1px solid #E2E8F0; background:#fff; color:#0C1F30; font-size:0.72rem; cursor:pointer; transition:all 0.15s;">
+                                    <i class="${ic.cls}" style="font-size:1.05rem; color:#1A5C8F;"></i>
+                                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">${escapeHtml(ic.label)}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding:0.75rem 1rem; background:#F0F5FB; border-radius:12px; margin-bottom:1.25rem;">
+                        <label style="display:flex; align-items:center; gap:0.55rem; font-weight:700; color:#05111F; cursor:pointer;">
+                            <input type="checkbox" id="pmActivo" checked style="width:18px; height:18px;" />
+                            Visible en el portal público
+                        </label>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <label for="pmOrden" style="font-weight:700; color:#0C1F30; font-size:0.85rem;">Posición:</label>
+                            <input type="number" id="pmOrden" min="1" step="1" style="width:76px; padding:0.4rem 0.6rem; border:1px solid #A8BFCC; border-radius:8px; text-align:center;" />
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+                        <button type="button" id="portalMetricModalCancel" style="padding:0.75rem 1.4rem; background:#E8EEF7; color:#05111F; border-radius:10px; font-weight:600; cursor:pointer;">Cancelar</button>
+                        <button type="submit" id="portalMetricSubmitBtn" style="padding:0.75rem 1.5rem; background:#00C2E0; color:#05111F; border-radius:10px; font-weight:700; cursor:pointer;">Guardar Métrica</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Confirmar Eliminación de Métrica (evita window.confirm bloqueado en iframes) -->
+        <div id="portalMetricDeleteModal" style="display:none; position:fixed; inset:0; background:rgba(5,17,31,0.72); backdrop-filter:blur(8px); z-index:1060; align-items:center; justify-content:center; padding:1rem;">
+            <div style="background:#fff; border-radius:20px; max-width:480px; width:100%; padding:1.65rem 1.75rem; box-shadow:0 24px 60px rgba(0,0,0,0.35);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <div style="display:flex; align-items:center; gap:0.65rem;">
+                        <div style="width:40px; height:40px; border-radius:12px; background:#FEE2E2; color:#DC2626; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <h3 style="font-family:var(--font-head); font-size:1.2rem; color:#05111F; margin:0;">Eliminar métrica</h3>
+                    </div>
+                    <button type="button" id="portalMetricDeleteClose" style="background:none; border:none; font-size:1.45rem; cursor:pointer; color:#5E7A8E;">&times;</button>
+                </div>
+                <p style="color:#334155; font-size:0.93rem; line-height:1.5; margin-bottom:1rem;">
+                    ¿Estás seguro de que deseas eliminar permanentemente esta métrica del Portal Principal? Esta acción actualizará la portada y quedará registrada en la bitácora.
+                </p>
+                <div style="background:#0C2033; border-radius:12px; padding:0.95rem 1rem; margin-bottom:1.25rem; border:1px solid rgba(0,194,224,0.2); text-align:center;">
+                    <div id="pmDeletePreviewValue" style="font-family:var(--font-head); font-size:1.55rem; font-weight:800; color:#fff; line-height:1.1;">0</div>
+                    <div id="pmDeletePreviewTitle" style="font-size:0.86rem; font-weight:700; color:#00C2E0; margin-top:0.25rem;">Métrica</div>
+                    <div id="pmDeletePreviewDesc" style="font-size:0.74rem; color:#A8BFCC; margin-top:0.15rem;"></div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+                    <button type="button" id="portalMetricDeleteCancel" style="padding:0.7rem 1.25rem; background:#E8EEF7; color:#05111F; border:none; border-radius:10px; font-weight:600; cursor:pointer;">Cancelar</button>
+                    <button type="button" id="portalMetricDeleteConfirm" style="padding:0.7rem 1.35rem; background:#EF4444; color:#fff; border:none; border-radius:10px; font-weight:700; cursor:pointer;">
+                        <i class="fas fa-trash" style="margin-right:6px;"></i>Sí, eliminar métrica
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('btnNewPortalMetric')?.addEventListener('click', () => openPortalMetricModal(null));
+    document.getElementById('btnExportPortalJson')?.addEventListener('click', exportPortalJsonDocument);
+    document.getElementById('btnEditPortalRaw')?.addEventListener('click', () => navigateTo('database'));
+    document.getElementById('portalMetricsSearch')?.addEventListener('input', (e) => renderPortalMetricsTable(e.target.value));
+    document.getElementById('portalMetricModalClose')?.addEventListener('click', closePortalMetricModal);
+    document.getElementById('portalMetricModalCancel')?.addEventListener('click', closePortalMetricModal);
+    document.getElementById('portalMetricModal')?.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'portalMetricModal') closePortalMetricModal();
+    });
+    document.getElementById('portalMetricDeleteClose')?.addEventListener('click', closePortalMetricDeleteModal);
+    document.getElementById('portalMetricDeleteCancel')?.addEventListener('click', closePortalMetricDeleteModal);
+    document.getElementById('portalMetricDeleteModal')?.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'portalMetricDeleteModal') closePortalMetricDeleteModal();
+    });
+    document.getElementById('portalMetricDeleteConfirm')?.addEventListener('click', confirmDeletePortalMetric);
+    document.getElementById('portalMetricForm')?.addEventListener('submit', savePortalMetricForm);
+
+    ['pmValor', 'pmSufijo', 'pmTitulo', 'pmDescripcion', 'pmIcono'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', updatePortalMetricModalPreview);
+    });
+
+    document.querySelectorAll('.pm-suf-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sufInput = document.getElementById('pmSufijo');
+            if (sufInput) {
+                sufInput.value = btn.dataset.suf || '';
+                updatePortalMetricModalPreview();
+            }
+        });
+    });
+
+    document.querySelectorAll('.pm-icon-choice').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const iconInput = document.getElementById('pmIcono');
+            if (iconInput) {
+                iconInput.value = btn.dataset.icon || 'fas fa-chart-line';
+                updatePortalMetricModalPreview();
+            }
+        });
+    });
+}
+
+function updatePortalMetricModalPreview() {
+    const valor = document.getElementById('pmValor')?.value || '0';
+    const sufijo = document.getElementById('pmSufijo')?.value || '';
+    const titulo = document.getElementById('pmTitulo')?.value.trim() || 'Título de la métrica';
+    const desc = document.getElementById('pmDescripcion')?.value.trim() || 'Sin texto inferior configurado';
+    const rawIcon = document.getElementById('pmIcono')?.value || '';
+    const safeIcon = sanitizeAdminIconClass(rawIcon, 'fas fa-chart-line');
+
+    const prevIcon = document.getElementById('pmPreviewIconWrap');
+    const prevInputIcon = document.getElementById('pmIconInputPreview');
+    const prevVal = document.getElementById('pmPreviewValue');
+    const prevTit = document.getElementById('pmPreviewTitle');
+    const prevDesc = document.getElementById('pmPreviewDesc');
+
+    if (prevIcon) prevIcon.innerHTML = `<i class="${safeIcon}"></i>`;
+    if (prevInputIcon) prevInputIcon.innerHTML = `<i class="${safeIcon}"></i>`;
+    if (prevVal) prevVal.textContent = `${valor}${sufijo}`;
+    if (prevTit) prevTit.textContent = titulo;
+    if (prevDesc) prevDesc.textContent = desc;
+
+    document.querySelectorAll('.pm-icon-choice').forEach(btn => {
+        const selected = (btn.dataset.icon || '').toLowerCase() === safeIcon.toLowerCase();
+        btn.style.borderColor = selected ? '#00C2E0' : '#E2E8F0';
+        btn.style.background = selected ? '#E0F7FA' : '#fff';
+    });
+}
+
+async function loadPortalMetricsData() {
+    try {
+        const res = await fetch('/api/admin/portal/metricas', { headers: getHeaders(), cache: 'no-store' });
+        if (res.status === 401) {
+            await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+            return;
+        }
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Error al cargar métricas del portal');
+        }
+        const etag = res.headers.get('ETag');
+        if (etag) portalMetricsEtag = etag;
+        const payload = await res.json();
+        portalDocumentCache = payload.portal || null;
+        portalMetricsCache = Array.isArray(payload.metricas) ? payload.metricas : [];
+        updatePortalMetricsSummary();
+        renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+    } catch (err) {
+        showToast('Error cargando métricas del portal: ' + err.message, 'error');
+    }
+}
+
+function updatePortalMetricsSummary() {
+    const active = portalMetricsCache.filter(m => m.activo !== false);
+    const totalCount = portalMetricsCache.length;
+    const activeCount = active.length;
+    const isCarousel = activeCount > 4;
+
+    const countBadge = document.getElementById('portalMetricsCountBadge');
+    const modeBadge = document.getElementById('portalCarouselModeBadge');
+    const hintEl = document.getElementById('portalCarouselHint');
+    const recCount = document.getElementById('portalMetricsRecordCount');
+
+    if (countBadge) countBadge.textContent = `${activeCount} visibles / ${totalCount} total`;
+    if (recCount) recCount.textContent = `${totalCount} métricas registradas`;
+    if (modeBadge) {
+        modeBadge.textContent = isCarousel ? 'Carrusel Automático Activo' : 'Cuadrícula Estática';
+        modeBadge.style.background = isCarousel ? '#DCFCE7' : '#E0F2FE';
+        modeBadge.style.color = isCarousel ? '#15803D' : '#0369A1';
+    }
+    if (hintEl) {
+        hintEl.textContent = isCarousel
+            ? `Hay ${activeCount} métricas visibles: el portal principal activa automáticamente el carrusel rotativo para mostrarlas.`
+            : `Actualmente hay ${activeCount} métricas visibles (modo cuadrícula). Al habilitar más de 4 métricas, el portal activará automáticamente el efecto carrusel.`;
+    }
+
+    const previewGrid = document.getElementById('portalMetricsAdminPreviewGrid');
+    if (previewGrid) {
+        if (active.length === 0) {
+            previewGrid.innerHTML = `<div style="padding:1.2rem; text-align:center; color:#A8BFCC;">No hay métricas visibles actualmente. Activa o agrega una métrica.</div>`;
+        } else {
+            previewGrid.innerHTML = active.map(m => `
+                <div style="background:#0C2033; padding:1rem 0.8rem; text-align:center;">
+                    <div style="font-size:1.15rem; color:#00C2E0; margin-bottom:0.35rem;"><i class="${sanitizeAdminIconClass(m.icono)}"></i></div>
+                    <div style="font-family:var(--font-head); font-size:1.45rem; font-weight:800; color:#fff; line-height:1.1;">${escapeHtml(String(m.valor ?? 0))}${escapeHtml(m.sufijo || '')}</div>
+                    <div style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.78); margin-top:0.2rem;">${escapeHtml(m.titulo || '')}</div>
+                    <div style="font-size:0.67rem; color:#A8BFCC; margin-top:0.15rem;">${escapeHtml(m.descripcion || '')}</div>
+                </div>
+            `).join('');
+        }
+    }
+}
+
+function renderPortalMetricsTable(searchQuery = '') {
+    const tbody = document.getElementById('portalMetricsTableBody');
+    if (!tbody) return;
+
+    const q = String(searchQuery || '').trim().toLowerCase();
+    const filtered = q
+        ? portalMetricsCache.filter(m =>
+            String(m.titulo || '').toLowerCase().includes(q) ||
+            String(m.descripcion || '').toLowerCase().includes(q) ||
+            String(m.icono || '').toLowerCase().includes(q) ||
+            String(m.valor ?? '').includes(q)
+        )
+        : portalMetricsCache;
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="padding: 2rem; text-align: center; color: #5E7A8E;">No se encontraron métricas que coincidan con la búsqueda.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map((m, idx) => {
+        const safeIcon = sanitizeAdminIconClass(m.icono);
+        const isActive = m.activo !== false;
+        const canMoveUp = !q && idx > 0;
+        const canMoveDown = !q && idx < filtered.length - 1;
+        return `
+            <tr style="border-bottom: 1px solid #E8EEF7; ${!isActive ? 'opacity:0.65; background:#F8FAFC;' : ''}">
+                <td style="padding: 0.85rem 0.9rem; white-space: nowrap;">
+                    <div style="display:flex; align-items:center; gap:0.35rem;">
+                        <span style="font-weight:800; color:#1A5C8F; min-width:22px;">#${escapeHtml(String(m.orden || (idx + 1)))}</span>
+                        <button type="button" onclick="window.movePortalMetric(${m.id}, -1)" ${canMoveUp ? '' : 'disabled'} title="Subir posición" style="padding:3px 6px; border-radius:6px; border:1px solid #CBD5E1; background:#fff; color:#0C1F30; cursor:${canMoveUp ? 'pointer' : 'not-allowed'}; opacity:${canMoveUp ? '1' : '0.35'};">
+                            <i class="fas fa-chevron-up" style="font-size:0.7rem;"></i>
+                        </button>
+                        <button type="button" onclick="window.movePortalMetric(${m.id}, 1)" ${canMoveDown ? '' : 'disabled'} title="Bajar posición" style="padding:3px 6px; border-radius:6px; border:1px solid #CBD5E1; background:#fff; color:#0C1F30; cursor:${canMoveDown ? 'pointer' : 'not-allowed'}; opacity:${canMoveDown ? '1' : '0.35'};">
+                            <i class="fas fa-chevron-down" style="font-size:0.7rem;"></i>
+                        </button>
+                    </div>
+                </td>
+                <td style="padding: 0.85rem 0.9rem;">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                        <div style="width:38px; height:38px; border-radius:10px; background:#0C2033; color:#00C2E0; display:flex; align-items:center; justify-content:center; font-size:1.05rem; flex-shrink:0;">
+                            <i class="${safeIcon}"></i>
+                        </div>
+                        <code style="font-size:0.76rem; color:#5E7A8E; background:#F0F5FB; padding:2px 6px; border-radius:6px;">${escapeHtml(safeIcon)}</code>
+                    </div>
+                </td>
+                <td style="padding: 0.85rem 0.9rem;">
+                    <span style="font-family:var(--font-head); font-size:1.2rem; font-weight:800; color:#05111F;">${escapeHtml(String(m.valor ?? 0))}${escapeHtml(m.sufijo || '')}</span>
+                </td>
+                <td style="padding: 0.85rem 0.9rem; max-width: 340px;">
+                    <div style="font-weight:700; color:#05111F; font-size:0.94rem;">${escapeHtml(m.titulo || '')}</div>
+                    <div style="font-size:0.8rem; color:#5E7A8E; margin-top:2px;">${m.descripcion ? escapeHtml(m.descripcion) : '<span style="color:#A8BFCC;">Sin texto descriptivo</span>'}</div>
+                </td>
+                <td style="padding: 0.85rem 0.9rem;">
+                    <button type="button" onclick="window.togglePortalMetricActive(${m.id})" style="padding:4px 10px; border-radius:20px; font-size:0.76rem; font-weight:700; cursor:pointer; border:none; ${isActive ? 'background:#DCFCE7; color:#15803D;' : 'background:#FEF3C7; color:#92400E;'}" title="Clic para mostrar u ocultar en el portal público">
+                        <i class="fas ${isActive ? 'fa-eye' : 'fa-eye-slash'}" style="margin-right:4px;"></i>${isActive ? 'Visible' : 'Oculta'}
+                    </button>
+                </td>
+                <td style="padding: 0.85rem 0.9rem; text-align: right; white-space: nowrap;">
+                    <button type="button" onclick="window.editPortalMetric(${m.id})" style="padding: 0.45rem 0.8rem; background: #00C2E0; color: #05111F; border-radius: 8px; font-weight: 700; margin-right: 0.35rem; cursor:pointer;" title="Editar métrica, texto inferior e ícono">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button type="button" onclick="window.deletePortalMetric(${m.id})" style="padding: 0.45rem 0.75rem; background: #EF4444; color: #fff; border-radius: 8px; font-weight: 600; cursor:pointer;" title="Eliminar métrica">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function openPortalMetricModal(metric = null) {
+    editingPortalMetricId = metric ? Number(metric.id) : null;
+    const modal = document.getElementById('portalMetricModal');
+    const titleEl = document.getElementById('portalMetricModalTitle');
+    if (!modal) return;
+
+    if (titleEl) {
+        titleEl.textContent = metric ? `Editar Métrica #${metric.id}` : 'Nueva Métrica del Portal Principal';
+    }
+
+    document.getElementById('pmValor').value = metric ? String(metric.valor ?? 0) : '';
+    document.getElementById('pmSufijo').value = metric ? (metric.sufijo || '') : '+';
+    document.getElementById('pmTitulo').value = metric ? (metric.titulo || '') : '';
+    document.getElementById('pmDescripcion').value = metric ? (metric.descripcion || '') : '';
+    document.getElementById('pmIcono').value = metric ? sanitizeAdminIconClass(metric.icono) : 'fas fa-chart-line';
+    document.getElementById('pmActivo').checked = metric ? (metric.activo !== false) : true;
+    document.getElementById('pmOrden').value = metric ? String(metric.orden || 1) : String(portalMetricsCache.length + 1);
+
+    updatePortalMetricModalPreview();
+    modal.style.display = 'flex';
+}
+
+function closePortalMetricModal() {
+    const modal = document.getElementById('portalMetricModal');
+    if (modal) modal.style.display = 'none';
+    editingPortalMetricId = null;
+}
+
+async function fetchPortalAdminMutation(url, method, body = null) {
+    const buildHeaders = () => {
+        const headers = getHeaders();
+        if (portalMetricsEtag) headers['If-Match'] = portalMetricsEtag;
+        return headers;
+    };
+
+    const opts = {
+        method,
+        headers: buildHeaders(),
+        cache: 'no-store'
+    };
+    if (body !== null) opts.body = JSON.stringify(body);
+
+    let res = await fetch(url, opts);
+
+    if (res.status === 409) {
+        const refreshRes = await fetch('/api/admin/portal/metricas', { headers: getHeaders(), cache: 'no-store' });
+        if (refreshRes.ok) {
+            const freshEtag = refreshRes.headers.get('ETag');
+            if (freshEtag) portalMetricsEtag = freshEtag;
+            const retryOpts = {
+                method,
+                headers: buildHeaders(),
+                cache: 'no-store'
+            };
+            if (body !== null) retryOpts.body = JSON.stringify(body);
+            res = await fetch(url, retryOpts);
+        }
+    }
+
+    if (res.status === 401) {
+        await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+        return null;
+    }
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        throw new Error(data.error || 'No se pudo completar la operación sobre las métricas.');
+    }
+
+    const newEtag = res.headers.get('ETag');
+    if (newEtag) portalMetricsEtag = newEtag;
+    return data;
+}
+
+async function savePortalMetricForm(e) {
+    e.preventDefault();
+    const valorRaw = document.getElementById('pmValor')?.value;
+    const sufijo = document.getElementById('pmSufijo')?.value.trim() || '';
+    const titulo = document.getElementById('pmTitulo')?.value.trim() || '';
+    const descripcion = document.getElementById('pmDescripcion')?.value.trim() || '';
+    const icono = document.getElementById('pmIcono')?.value.trim() || 'fas fa-chart-line';
+    const activo = Boolean(document.getElementById('pmActivo')?.checked);
+    const orden = Number(document.getElementById('pmOrden')?.value || (portalMetricsCache.length + 1));
+
+    const payload = {
+        valor: Number(valorRaw),
+        sufijo,
+        titulo,
+        descripcion,
+        icono,
+        activo,
+        orden
+    };
+
+    const validation = validateModuleRecord('portal_metric', payload);
+    if (!validation.isValid) {
+        showToast(validation.errors.join(' '), 'error');
+        return;
+    }
+
+    const submitBtn = document.getElementById('portalMetricSubmitBtn');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+        const isEdit = Boolean(editingPortalMetricId);
+        const url = isEdit
+            ? `/api/admin/portal/metricas/${editingPortalMetricId}`
+            : `/api/admin/portal/metricas`;
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const data = await fetchPortalAdminMutation(url, method, payload);
+        if (!data) return;
+
+        portalDocumentCache = data.portal || portalDocumentCache;
+        portalMetricsCache = Array.isArray(data.metricas) ? data.metricas : portalMetricsCache;
+
+        closePortalMetricModal();
+        updatePortalMetricsSummary();
+        renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+        showToast(isEdit ? 'Métrica actualizada correctamente en el portal' : 'Nueva métrica agregada al portal', 'success');
+    } catch (err) {
+        showToast(err.message || 'Error al guardar la métrica', 'error');
+    } finally {
+        if (submitBtn) submitBtn.disabled = false;
+    }
+}
+
+window.editPortalMetric = function(id) {
+    const item = portalMetricsCache.find(m => Number(m.id) === Number(id));
+    if (!item) return;
+    openPortalMetricModal(item);
+};
+
+window.togglePortalMetricActive = async function(id) {
+    const item = portalMetricsCache.find(m => Number(m.id) === Number(id));
+    if (!item) return;
+
+    try {
+        const data = await fetchPortalAdminMutation(
+            `/api/admin/portal/metricas/${Number(id)}`,
+            'PUT',
+            { activo: !(item.activo !== false) }
+        );
+        if (!data) return;
+
+        portalDocumentCache = data.portal || portalDocumentCache;
+        portalMetricsCache = Array.isArray(data.metricas) ? data.metricas : portalMetricsCache;
+        updatePortalMetricsSummary();
+        renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+        showToast('Visibilidad de la métrica actualizada', 'success');
+    } catch (err) {
+        showToast(err.message || 'Error al cambiar visibilidad', 'error');
+    }
+};
+
+window.movePortalMetric = async function(id, delta) {
+    const idx = portalMetricsCache.findIndex(m => Number(m.id) === Number(id));
+    if (idx === -1) return;
+    const targetIdx = idx + delta;
+    if (targetIdx < 0 || targetIdx >= portalMetricsCache.length) return;
+
+    const reordered = [...portalMetricsCache];
+    const [moved] = reordered.splice(idx, 1);
+    reordered.splice(targetIdx, 0, moved);
+    const orderedIds = reordered.map(m => m.id);
+
+    try {
+        const data = await fetchPortalAdminMutation(
+            '/api/admin/portal/metricas/reorder',
+            'PUT',
+            { orderedIds }
+        );
+        if (!data) return;
+
+        portalDocumentCache = data.portal || portalDocumentCache;
+        portalMetricsCache = Array.isArray(data.metricas) ? data.metricas : reordered;
+        updatePortalMetricsSummary();
+        renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+        showToast('Orden de métricas actualizado', 'success');
+    } catch (err) {
+        showToast(err.message || 'Error al reordenar', 'error');
+    }
+};
+
+function closePortalMetricDeleteModal() {
+    const modal = document.getElementById('portalMetricDeleteModal');
+    if (modal) modal.style.display = 'none';
+    pendingDeletePortalMetricId = null;
+}
+
+window.deletePortalMetric = function(id) {
+    const item = portalMetricsCache.find(m => Number(m.id) === Number(id));
+    if (!item) {
+        showToast('No se encontró la métrica seleccionada.', 'error');
+        return;
+    }
+    if (portalMetricsCache.length <= 1) {
+        showToast('Debe permanecer al menos una métrica registrada en el portal.', 'warning');
+        return;
+    }
+
+    pendingDeletePortalMetricId = Number(item.id);
+    const modal = document.getElementById('portalMetricDeleteModal');
+    if (!modal) return;
+
+    const valEl = document.getElementById('pmDeletePreviewValue');
+    const titEl = document.getElementById('pmDeletePreviewTitle');
+    const descEl = document.getElementById('pmDeletePreviewDesc');
+    if (valEl) valEl.textContent = `${item.valor ?? 0}${item.sufijo || ''}`;
+    if (titEl) titEl.textContent = item.titulo || `Métrica #${item.id}`;
+    if (descEl) descEl.textContent = item.descripcion || '';
+
+    modal.style.display = 'flex';
+};
+
+async function confirmDeletePortalMetric() {
+    if (!pendingDeletePortalMetricId) return;
+    const id = pendingDeletePortalMetricId;
+    const confirmBtn = document.getElementById('portalMetricDeleteConfirm');
+    if (confirmBtn) confirmBtn.disabled = true;
+
+    try {
+        const data = await fetchPortalAdminMutation(`/api/admin/portal/metricas/${id}`, 'DELETE');
+        if (!data) return;
+
+        portalDocumentCache = data.portal || portalDocumentCache;
+        portalMetricsCache = Array.isArray(data.metricas) ? data.metricas : portalMetricsCache.filter(m => Number(m.id) !== Number(id));
+        closePortalMetricDeleteModal();
+        updatePortalMetricsSummary();
+        renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+        showToast('Métrica eliminada correctamente', 'success');
+    } catch (err) {
+        showToast(err.message || 'Error al eliminar la métrica', 'error');
+    } finally {
+        if (confirmBtn) confirmBtn.disabled = false;
+    }
+}
+
+function exportPortalJsonDocument() {
+    const payload = portalDocumentCache || { metricas: portalMetricsCache };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'data_portal.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast("Archivo 'data_portal.json' descargado", 'success');
 }

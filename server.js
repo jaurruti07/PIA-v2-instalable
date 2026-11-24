@@ -1257,7 +1257,7 @@ function getModuleRecords(module) {
   }
 
   if (module === 'portal') {
-    return [{ id: 1, ...data }];
+    return [{ id: 1, ...normalizePortalDocument(data) }];
   }
 
   if (Array.isArray(data)) {
@@ -1297,7 +1297,8 @@ function saveModuleRecords(module, records, user = 'sistema', expectedHash = nul
   if (module === 'portal') {
     const singleRecord = records[0] || {};
     const { id, ...portalData } = singleRecord;
-    return atomicWriteJson(filePath, portalData, expectedHash, user);
+    const normalized = normalizePortalDocument(portalData);
+    return atomicWriteJson(filePath, normalized, expectedHash, user);
   }
 
   if (module === 'canales' || module === 'canales-por-la-integridad') {
@@ -1749,6 +1750,486 @@ app.put('/api/admin/canales/config', requireAuth, requireOperator, requireModule
     res.json({ success: true, config: nextConfig });
   } catch (err) {
     res.status(500).json({ error: 'Error al guardar la configuración de visibilidad de Canales.' });
+  }
+});
+
+// ========================================================
+// 5.D GESTIÓN DINÁMICA DE MÉTRICAS DEL PORTAL PRINCIPAL
+// ========================================================
+
+const DEFAULT_PORTAL_METRICS = [
+  {
+    id: 1,
+    clave: 'oficinasProbidad',
+    valor: 65,
+    sufijo: '+',
+    titulo: 'Instancias de Asuntos de Probidad',
+    descripcion: 'Instituciones especializadas con Oficinas de Asuntos de Probidad',
+    icono: 'fas fa-building',
+    activo: true,
+    orden: 1
+  },
+  {
+    id: 2,
+    clave: 'canalesDenuncia',
+    valor: 200,
+    sufijo: '+',
+    titulo: 'Canales de denuncia',
+    descripcion: 'Correos, teléfonos, formularios',
+    icono: 'fas fa-envelope-open-text',
+    activo: true,
+    orden: 2
+  },
+  {
+    id: 3,
+    clave: 'denunciasPenales',
+    valor: 446,
+    sufijo: '+',
+    titulo: 'Denuncias penales',
+    descripcion: 'En proceso y resueltas',
+    icono: 'fas fa-gavel',
+    activo: true,
+    orden: 3
+  },
+  {
+    id: 4,
+    clave: 'plataformasActivas',
+    valor: 9,
+    sufijo: '',
+    titulo: 'Plataformas activas',
+    descripcion: 'Integradas para la transparencia',
+    icono: 'fas fa-layer-group',
+    activo: true,
+    orden: 4
+  }
+];
+
+const PORTAL_ICON_REGEX = /^fa(?:s|r|b|l|d|ss|sr)?\s+fa-[a-z0-9-]+$/i;
+
+function normalizePortalIconClass(rawIcon, fallback = 'fas fa-chart-line') {
+  const cleaned = String(rawIcon || '').trim().replace(/\s+/g, ' ');
+  if (!cleaned) return fallback;
+  if (PORTAL_ICON_REGEX.test(cleaned)) return cleaned.toLowerCase();
+  if (/^fa-[a-z0-9-]+$/i.test(cleaned)) return `fas ${cleaned.toLowerCase()}`;
+  return fallback;
+}
+
+function isValidPortalIconInput(rawIcon) {
+  const cleaned = String(rawIcon || '').trim().replace(/\s+/g, ' ');
+  return PORTAL_ICON_REGEX.test(cleaned) || /^fa-[a-z0-9-]+$/i.test(cleaned);
+}
+
+function normalizePortalDocument(rawDoc) {
+  const src = (rawDoc && typeof rawDoc === 'object' && !Array.isArray(rawDoc)) ? rawDoc : {};
+  const legacyValues = {
+    oficinasProbidad: Number.isFinite(Number(src.oficinasProbidad)) ? Math.max(0, Math.round(Number(src.oficinasProbidad))) : 65,
+    canalesDenuncia: Number.isFinite(Number(src.canalesDenuncia)) ? Math.max(0, Math.round(Number(src.canalesDenuncia))) : 200,
+    denunciasPenales: Number.isFinite(Number(src.denunciasPenales)) ? Math.max(0, Math.round(Number(src.denunciasPenales))) : 446,
+    plataformasActivas: Number.isFinite(Number(src.plataformasActivas)) ? Math.max(0, Math.round(Number(src.plataformasActivas))) : 9
+  };
+
+  let metricas = [];
+  if (Array.isArray(src.metricas) && src.metricas.length > 0) {
+    metricas = src.metricas.map((item, idx) => {
+      const m = (item && typeof item === 'object') ? item : {};
+      const numId = Number(m.id);
+      const valorNum = Number(m.valor);
+      return {
+        id: Number.isFinite(numId) && numId > 0 ? Math.round(numId) : (idx + 1),
+        clave: String(m.clave || `metric_${idx + 1}`).trim().slice(0, 60),
+        valor: Number.isFinite(valorNum) && valorNum >= 0 ? valorNum : 0,
+        sufijo: String(m.sufijo !== undefined && m.sufijo !== null ? m.sufijo : '').trim().slice(0, 12),
+        titulo: String(m.titulo || `Métrica ${idx + 1}`).trim().slice(0, 120),
+        descripcion: String(m.descripcion !== undefined && m.descripcion !== null ? m.descripcion : '').trim().slice(0, 240),
+        icono: normalizePortalIconClass(m.icono, 'fas fa-chart-line'),
+        activo: m.activo !== false,
+        orden: Number.isFinite(Number(m.orden)) ? Number(m.orden) : (idx + 1)
+      };
+    });
+  } else {
+    const descMap = (src.descripciones && typeof src.descripciones === 'object') ? src.descripciones : {};
+    metricas = DEFAULT_PORTAL_METRICS.map(def => ({
+      ...def,
+      valor: legacyValues[def.clave] !== undefined ? legacyValues[def.clave] : def.valor,
+      descripcion: descMap[def.clave] ? String(descMap[def.clave]).trim().slice(0, 240) : def.descripcion
+    }));
+  }
+
+  // Deduplicar IDs en caso de inconsistencia previa y ordenar por 'orden'
+  const seenIds = new Set();
+  let maxId = metricas.reduce((acc, m) => Math.max(acc, Number(m.id) || 0), 0);
+  metricas = metricas
+    .map(m => {
+      let id = m.id;
+      if (seenIds.has(id)) {
+        maxId += 1;
+        id = maxId;
+      }
+      seenIds.add(id);
+      return { ...m, id };
+    })
+    .sort((a, b) => (a.orden - b.orden) || (a.id - b.id))
+    .map((m, idx) => ({ ...m, orden: idx + 1 }));
+
+  // Sincronizar campos heredados para compatibilidad con SQL / validadores
+  const syncedLegacy = { ...legacyValues };
+  for (const key of Object.keys(syncedLegacy)) {
+    const match = metricas.find(m => m.clave === key);
+    if (match) {
+      syncedLegacy[key] = Number.isFinite(Number(match.valor)) ? Math.max(0, Math.round(Number(match.valor))) : syncedLegacy[key];
+    }
+  }
+
+  return {
+    ...syncedLegacy,
+    metricas
+  };
+}
+
+function validateMetricPayload(body = {}, isPartial = false) {
+  const errors = [];
+  if (!isPartial || Object.prototype.hasOwnProperty.call(body, 'titulo')) {
+    const titulo = String(body.titulo || '').trim();
+    if (titulo.length < 2 || titulo.length > 120) {
+      errors.push('El título de la métrica es obligatorio (entre 2 y 120 caracteres).');
+    }
+  }
+  if (!isPartial || Object.prototype.hasOwnProperty.call(body, 'valor')) {
+    const val = Number(body.valor);
+    if (body.valor === '' || body.valor === null || body.valor === undefined || !Number.isFinite(val) || val < 0 || val > 999999999) {
+      errors.push('El valor de la métrica debe ser un número mayor o igual a 0.');
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'descripcion')) {
+    const desc = String(body.descripcion || '').trim();
+    if (desc.length > 240) {
+      errors.push('El texto debajo de la métrica no puede exceder los 240 caracteres.');
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'sufijo')) {
+    const suf = String(body.sufijo || '').trim();
+    if (suf.length > 12) {
+      errors.push('El sufijo no puede exceder los 12 caracteres.');
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'icono')) {
+    if (!isValidPortalIconInput(body.icono)) {
+      errors.push('El ícono debe ser una clase FontAwesome válida (ejemplo: "fas fa-shield-alt").');
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'activo') && typeof body.activo !== 'boolean') {
+    errors.push('El estado "activo" debe ser booleano.');
+  }
+  return errors;
+}
+
+async function readPortalState() {
+  const { source, records, etag } = await hybridStorage.readModule('portal');
+  const first = (Array.isArray(records) && records[0]) ? records[0] : {};
+  const { id, ...rawPortal } = first;
+  return {
+    source,
+    etag,
+    portal: normalizePortalDocument(rawPortal)
+  };
+}
+
+async function writePortalState(nextPortalDoc, userUpn, expectedHash = null) {
+  const normalized = normalizePortalDocument(nextPortalDoc);
+  const source = hybridStorage.getModuleSource('portal');
+  if (source === 'sql') {
+    const result = await hybridStorage.updateRecord('portal', 1, normalized, userUpn, expectedHash);
+    return {
+      source: 'sql',
+      newHash: result?.newHash || null,
+      backupCreated: result?.backupCreated || 'Transacción SQL ACID',
+      portal: normalized
+    };
+  }
+  const filePath = WHITELIST_JSON_MAP['portal'];
+  const writeRes = atomicWriteJson(filePath, normalized, expectedHash, userUpn);
+  return {
+    source: 'json',
+    newHash: writeRes.newHash,
+    backupCreated: writeRes.backupCreated,
+    portal: normalized
+  };
+}
+
+// Endpoint público de métricas dinámicas del portal principal
+app.get('/api/portal/metricas', async (req, res) => {
+  try {
+    const { portal, etag } = await readPortalState();
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    const activeMetrics = portal.metricas.filter(m => m.activo !== false);
+    res.json({
+      oficinasProbidad: portal.oficinasProbidad,
+      canalesDenuncia: portal.canalesDenuncia,
+      denunciasPenales: portal.denunciasPenales,
+      plataformasActivas: portal.plataformasActivas,
+      metricas: activeMetrics,
+      totalActivas: activeMetrics.length,
+      carouselActive: activeMetrics.length > 4
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible cargar las métricas del portal.' });
+  }
+});
+
+// Lectura administrativa completa de métricas del portal
+app.get('/api/admin/portal/metricas', requireAuth, requireOperator, requireModuleAccess('portal'), async (req, res) => {
+  try {
+    const { source, etag, portal } = await readPortalState();
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.setHeader('X-PIA-Storage-Source', source);
+    res.json({
+      success: true,
+      portal,
+      metricas: portal.metricas
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible obtener las métricas del portal.' });
+  }
+});
+
+// Crear una nueva métrica del portal principal
+app.post('/api/admin/portal/metricas', requireAuth, requireOperator, requireModuleAccess('portal'), async (req, res) => {
+  const body = req.body || {};
+  const errors = validateMetricPayload(body, false);
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  try {
+    const { portal } = await readPortalState();
+    const nextId = portal.metricas.reduce((max, m) => Math.max(max, Number(m.id) || 0), 0) + 1;
+    const requestedOrder = Number(body.orden);
+    const nextOrder = Number.isFinite(requestedOrder) && requestedOrder > 0
+      ? requestedOrder
+      : (portal.metricas.length + 1);
+
+    const newMetric = {
+      id: nextId,
+      clave: `custom_${nextId}`,
+      valor: Number(body.valor),
+      sufijo: String(body.sufijo !== undefined && body.sufijo !== null ? body.sufijo : '').trim().slice(0, 12),
+      titulo: String(body.titulo).trim().slice(0, 120),
+      descripcion: String(body.descripcion !== undefined && body.descripcion !== null ? body.descripcion : '').trim().slice(0, 240),
+      icono: normalizePortalIconClass(body.icono, 'fas fa-chart-line'),
+      activo: body.activo !== undefined ? Boolean(body.activo) : true,
+      orden: nextOrder
+    };
+
+    const nextPortal = {
+      ...portal,
+      metricas: [...portal.metricas, newMetric]
+    };
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = await writePortalState(nextPortal, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+    const savedMetric = writeRes.portal.metricas.find(m => m.id === nextId) || newMetric;
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'CREACIÓN',
+      module: 'portal',
+      target: `data_portal.json (${writeRes.source.toUpperCase()})`,
+      recordId: savedMetric.id,
+      details: `Nueva métrica creada en el Portal Principal: '${savedMetric.titulo}' (${savedMetric.valor}${savedMetric.sufijo})`,
+      previousValue: null,
+      newValue: savedMetric,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.status(201).json({
+      success: true,
+      metric: savedMetric,
+      metricas: writeRes.portal.metricas,
+      portal: writeRes.portal
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'Error al crear la métrica del portal.' });
+  }
+});
+
+// Reordenar métricas del portal principal
+app.put('/api/admin/portal/metricas/reorder', requireAuth, requireOperator, requireModuleAccess('portal'), async (req, res) => {
+  const orderedIds = req.body?.orderedIds;
+  if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+    return res.status(400).json({ error: 'Debe enviar el arreglo "orderedIds" para reordenar las métricas.' });
+  }
+
+  try {
+    const { portal } = await readPortalState();
+    const byId = new Map(portal.metricas.map(m => [String(m.id), m]));
+    const reordered = [];
+    const used = new Set();
+
+    orderedIds.forEach(rawId => {
+      const key = String(rawId);
+      if (byId.has(key) && !used.has(key)) {
+        used.add(key);
+        reordered.push({ ...byId.get(key), orden: reordered.length + 1 });
+      }
+    });
+    portal.metricas.forEach(m => {
+      const key = String(m.id);
+      if (!used.has(key)) {
+        reordered.push({ ...m, orden: reordered.length + 1 });
+      }
+    });
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = await writePortalState({ ...portal, metricas: reordered }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: 'portal',
+      target: 'data_portal.json',
+      recordId: 'reorder',
+      details: `Orden de métricas del Portal Principal actualizado (${orderedIds.join(', ')})`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({ success: true, metricas: writeRes.portal.metricas, portal: writeRes.portal });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'Error al reordenar las métricas.' });
+  }
+});
+
+// Actualizar una métrica existente del portal principal (valor, sufijo, título, texto inferior, ícono, estado)
+app.put('/api/admin/portal/metricas/:id', requireAuth, requireOperator, requireModuleAccess('portal'), async (req, res) => {
+  const metricId = Number(req.params.id);
+  if (!Number.isFinite(metricId) || metricId <= 0) {
+    return res.status(400).json({ error: 'ID de métrica inválido.' });
+  }
+
+  const body = req.body || {};
+  const errors = validateMetricPayload(body, true);
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  try {
+    const { portal } = await readPortalState();
+    const idx = portal.metricas.findIndex(m => Number(m.id) === metricId);
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Métrica no encontrada.' });
+    }
+
+    const prevMetric = { ...portal.metricas[idx] };
+    const updatedMetric = {
+      ...prevMetric,
+      valor: Object.prototype.hasOwnProperty.call(body, 'valor') ? Number(body.valor) : prevMetric.valor,
+      sufijo: Object.prototype.hasOwnProperty.call(body, 'sufijo') ? String(body.sufijo || '').trim().slice(0, 12) : prevMetric.sufijo,
+      titulo: Object.prototype.hasOwnProperty.call(body, 'titulo') ? String(body.titulo).trim().slice(0, 120) : prevMetric.titulo,
+      descripcion: Object.prototype.hasOwnProperty.call(body, 'descripcion') ? String(body.descripcion || '').trim().slice(0, 240) : prevMetric.descripcion,
+      icono: Object.prototype.hasOwnProperty.call(body, 'icono') ? normalizePortalIconClass(body.icono, prevMetric.icono) : prevMetric.icono,
+      activo: Object.prototype.hasOwnProperty.call(body, 'activo') ? Boolean(body.activo) : prevMetric.activo,
+      orden: Object.prototype.hasOwnProperty.call(body, 'orden') && Number.isFinite(Number(body.orden))
+        ? Number(body.orden)
+        : prevMetric.orden
+    };
+
+    const nextMetricas = [...portal.metricas];
+    nextMetricas[idx] = updatedMetric;
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = await writePortalState({ ...portal, metricas: nextMetricas }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+    const savedMetric = writeRes.portal.metricas.find(m => Number(m.id) === metricId) || updatedMetric;
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: 'portal',
+      target: `data_portal.json (${writeRes.source.toUpperCase()})`,
+      recordId: metricId,
+      details: `Métrica #${metricId} ('${savedMetric.titulo}') actualizada en el Portal Principal`,
+      previousValue: prevMetric,
+      newValue: savedMetric,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      metric: savedMetric,
+      metricas: writeRes.portal.metricas,
+      portal: writeRes.portal
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'Error al actualizar la métrica del portal.' });
+  }
+});
+
+// Eliminar una métrica del portal principal
+app.delete('/api/admin/portal/metricas/:id', requireAuth, requireOperator, requireModuleAccess('portal'), async (req, res) => {
+  const metricId = Number(req.params.id);
+  if (!Number.isFinite(metricId) || metricId <= 0) {
+    return res.status(400).json({ error: 'ID de métrica inválido.' });
+  }
+
+  try {
+    const { portal } = await readPortalState();
+    const target = portal.metricas.find(m => Number(m.id) === metricId);
+    if (!target) {
+      return res.status(404).json({ error: 'Métrica no encontrada.' });
+    }
+    if (portal.metricas.length <= 1) {
+      return res.status(400).json({ error: 'Debe permanecer al menos una métrica registrada en el portal.' });
+    }
+
+    const remaining = portal.metricas.filter(m => Number(m.id) !== metricId);
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const writeRes = await writePortalState({ ...portal, metricas: remaining }, req.user.upn || req.user.email || 'sistema', ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ELIMINACIÓN',
+      module: 'portal',
+      target: `data_portal.json (${writeRes.source.toUpperCase()})`,
+      recordId: metricId,
+      details: `Métrica #${metricId} ('${target.titulo}') eliminada del Portal Principal`,
+      previousValue: target,
+      newValue: null,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      metricas: writeRes.portal.metricas,
+      portal: writeRes.portal
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'Error al eliminar la métrica.' });
   }
 });
 

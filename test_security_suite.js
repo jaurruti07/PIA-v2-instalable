@@ -520,6 +520,100 @@ async function runTests() {
     recordTest('12. Configuración de Visibilidad de Canales', false, err.message);
   }
 
+  // Test 13: Métricas Dinámicas del Portal Principal (CRUD, íconos, texto inferior y carrusel)
+  try {
+    const resPubMetrics = await fetch(`${BASE_URL}/api/portal/metricas`);
+    const pubMetrics = await resPubMetrics.json().catch(() => ({}));
+    const pubMetricsOk = resPubMetrics.status === 200 &&
+      Array.isArray(pubMetrics.metricas) &&
+      pubMetrics.metricas.length >= 4 &&
+      typeof pubMetrics.carouselActive === 'boolean';
+    recordTest('13.1 Consulta pública GET /api/portal/metricas retorna arreglo normalizado de métricas (200)', pubMetricsOk);
+
+    const resAdminGetNoAuth = await fetch(`${BASE_URL}/api/admin/portal/metricas`);
+    const resAdminPostNoAuth = await fetch(`${BASE_URL}/api/admin/portal/metricas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ valor: 10, titulo: 'Test', icono: 'fas fa-star' })
+    });
+    const resAdminPutNoAuth = await fetch(`${BASE_URL}/api/admin/portal/metricas/1`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ valor: 99 })
+    });
+    const resAdminDelNoAuth = await fetch(`${BASE_URL}/api/admin/portal/metricas/1`, { method: 'DELETE' });
+    recordTest(
+      '13.2 Bloqueo sin autenticación en GET/POST/PUT/DELETE /api/admin/portal/metricas (401)',
+      resAdminGetNoAuth.status === 401 &&
+      resAdminPostNoAuth.status === 401 &&
+      resAdminPutNoAuth.status === 401 &&
+      resAdminDelNoAuth.status === 401
+    );
+
+    const resLoginPortal = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: portalToken } = await resLoginPortal.json();
+
+    const resBadMetric = await fetch(`${BASE_URL}/api/admin/portal/metricas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${portalToken}` },
+      body: JSON.stringify({ valor: -5, titulo: 'A', icono: 'bad<script>icon' })
+    });
+    recordTest('13.3 Validación estricta de valor numérico e ícono FontAwesome en POST /api/admin/portal/metricas (400)', resBadMetric.status === 400);
+
+    // Crear 5ta métrica para validar activación automática de carrusel (>4), editar su ícono y texto inferior, y eliminarla
+    const resCreateMetric = await fetch(`${BASE_URL}/api/admin/portal/metricas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${portalToken}` },
+      body: JSON.stringify({
+        valor: 120,
+        sufijo: '+',
+        titulo: 'Capacitaciones Institucionales',
+        descripcion: 'Talleres realizados en prevención',
+        icono: 'fas fa-award',
+        activo: true
+      })
+    });
+    const createdData = await resCreateMetric.json().catch(() => ({}));
+    const newId = createdData?.metric?.id;
+
+    const resUpdateMetric = newId ? await fetch(`${BASE_URL}/api/admin/portal/metricas/${newId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${portalToken}` },
+      body: JSON.stringify({
+        valor: 135,
+        descripcion: 'Servidores públicos capacitados en integridad',
+        icono: 'fas fa-shield-alt'
+      })
+    }) : null;
+    const updatedData = resUpdateMetric ? await resUpdateMetric.json().catch(() => ({})) : {};
+
+    const resPubCarousel = await fetch(`${BASE_URL}/api/portal/metricas`);
+    const pubCarousel = await resPubCarousel.json().catch(() => ({}));
+
+    const resDeleteMetric = newId ? await fetch(`${BASE_URL}/api/admin/portal/metricas/${newId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${portalToken}` }
+    }) : null;
+
+    const crudPortalOk = resCreateMetric.status === 201 &&
+      Boolean(newId) &&
+      resUpdateMetric?.status === 200 &&
+      updatedData?.metric?.valor === 135 &&
+      updatedData?.metric?.icono === 'fas fa-shield-alt' &&
+      updatedData?.metric?.descripcion === 'Servidores públicos capacitados en integridad' &&
+      pubCarousel.carouselActive === true &&
+      pubCarousel.totalActivas >= 5 &&
+      resDeleteMetric?.status === 200;
+
+    recordTest('13.4 Creación, edición (valor, texto inferior e ícono), activación de carrusel (>4) y eliminación de métrica del portal (201/200)', crudPortalOk);
+  } catch (err) {
+    recordTest('13. Métricas Dinámicas del Portal Principal', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(` RESUMEN DE PRUEBAS: ${results.passed} SUPERADAS / ${results.failed} FALLIDAS`);
   console.log('=============================================================\n');

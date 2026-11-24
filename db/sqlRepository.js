@@ -330,10 +330,23 @@ export async function fetchFullVehiculosDocument(connOrPool = null) {
   return { catalogInstituciones, vehicles };
 }
 
+async function hasPortalMetricsJsonCol(connOrPool) {
+  try {
+    const [cols] = await connOrPool.execute(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'pia_portal_metricas' AND COLUMN_NAME = 'metricas_json'`
+    );
+    return Array.isArray(cols) && cols.length > 0;
+  } catch (_) {
+    return false;
+  }
+}
+
 async function fetchPortalRecords(connOrPool) {
-  const [rows] = await connOrPool.execute(
-    'SELECT id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas FROM pia_portal_metricas ORDER BY id ASC LIMIT 1'
-  );
+  const hasJsonCol = await hasPortalMetricsJsonCol(connOrPool);
+  const selectSql = hasJsonCol
+    ? 'SELECT id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas, metricas_json FROM pia_portal_metricas ORDER BY id ASC LIMIT 1'
+    : 'SELECT id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas FROM pia_portal_metricas ORDER BY id ASC LIMIT 1';
+  const [rows] = await connOrPool.execute(selectSql);
   if (!rows || rows.length === 0) {
     return [{
       id: 1,
@@ -344,13 +357,22 @@ async function fetchPortalRecords(connOrPool) {
     }];
   }
   const r = rows[0];
-  return [{
+  let parsedMetricas = null;
+  if (hasJsonCol && r.metricas_json) {
+    try {
+      const arr = JSON.parse(r.metricas_json);
+      if (Array.isArray(arr)) parsedMetricas = arr;
+    } catch (_) {}
+  }
+  const doc = {
     id: Number(r.id) || 1,
     oficinasProbidad: Number(r.oficinas_probidad) || 0,
     canalesDenuncia: Number(r.canales_denuncia) || 0,
     denunciasPenales: Number(r.denuncias_penales) || 0,
     plataformasActivas: Number(r.plataformas_activas) || 0
-  }];
+  };
+  if (parsedMetricas) doc.metricas = parsedMetricas;
+  return [doc];
 }
 
 export async function getSqlModuleRecords(moduleName) {
@@ -618,21 +640,43 @@ export async function createSqlModuleRecord(moduleName, payload, expectedHash = 
 
     if (canonical === 'portal') {
       const body = payload || {};
-      await conn.execute(
-        `INSERT INTO pia_portal_metricas (id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas)
-         VALUES (1, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           oficinas_probidad = VALUES(oficinas_probidad),
-           canales_denuncia = VALUES(canales_denuncia),
-           denuncias_penales = VALUES(denuncias_penales),
-           plataformas_activas = VALUES(plataformas_activas)`,
-        [
-          toInt(body.oficinasProbidad, 0),
-          toInt(body.canalesDenuncia, 0),
-          toInt(body.denunciasPenales, 0),
-          toInt(body.plataformasActivas, 0)
-        ]
-      );
+      const hasJsonCol = await hasPortalMetricsJsonCol(conn);
+      const metricasJsonStr = Array.isArray(body.metricas) ? JSON.stringify(body.metricas) : null;
+      if (hasJsonCol) {
+        await conn.execute(
+          `INSERT INTO pia_portal_metricas (id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas, metricas_json)
+           VALUES (1, ?, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE
+             oficinas_probidad = VALUES(oficinas_probidad),
+             canales_denuncia = VALUES(canales_denuncia),
+             denuncias_penales = VALUES(denuncias_penales),
+             plataformas_activas = VALUES(plataformas_activas),
+             metricas_json = VALUES(metricas_json)`,
+          [
+            toInt(body.oficinasProbidad, 0),
+            toInt(body.canalesDenuncia, 0),
+            toInt(body.denunciasPenales, 0),
+            toInt(body.plataformasActivas, 0),
+            metricasJsonStr
+          ]
+        );
+      } else {
+        await conn.execute(
+          `INSERT INTO pia_portal_metricas (id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas)
+           VALUES (1, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE
+             oficinas_probidad = VALUES(oficinas_probidad),
+             canales_denuncia = VALUES(canales_denuncia),
+             denuncias_penales = VALUES(denuncias_penales),
+             plataformas_activas = VALUES(plataformas_activas)`,
+          [
+            toInt(body.oficinasProbidad, 0),
+            toInt(body.canalesDenuncia, 0),
+            toInt(body.denunciasPenales, 0),
+            toInt(body.plataformasActivas, 0)
+          ]
+        );
+      }
       const rows = await fetchPortalRecords(conn);
       return rows[0];
     }
@@ -864,21 +908,43 @@ export async function updateSqlModuleRecord(moduleName, id, payload, expectedHas
       const currentList = await fetchPortalRecords(conn);
       const current = currentList[0];
       const merged = { ...current, ...payload, id: 1 };
-      await conn.execute(
-        `INSERT INTO pia_portal_metricas (id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas)
-         VALUES (1, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           oficinas_probidad = VALUES(oficinas_probidad),
-           canales_denuncia = VALUES(canales_denuncia),
-           denuncias_penales = VALUES(denuncias_penales),
-           plataformas_activas = VALUES(plataformas_activas)`,
-        [
-          toInt(merged.oficinasProbidad, 0),
-          toInt(merged.canalesDenuncia, 0),
-          toInt(merged.denunciasPenales, 0),
-          toInt(merged.plataformasActivas, 0)
-        ]
-      );
+      const hasJsonCol = await hasPortalMetricsJsonCol(conn);
+      const metricasJsonStr = Array.isArray(merged.metricas) ? JSON.stringify(merged.metricas) : null;
+      if (hasJsonCol) {
+        await conn.execute(
+          `INSERT INTO pia_portal_metricas (id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas, metricas_json)
+           VALUES (1, ?, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE
+             oficinas_probidad = VALUES(oficinas_probidad),
+             canales_denuncia = VALUES(canales_denuncia),
+             denuncias_penales = VALUES(denuncias_penales),
+             plataformas_activas = VALUES(plataformas_activas),
+             metricas_json = VALUES(metricas_json)`,
+          [
+            toInt(merged.oficinasProbidad, 0),
+            toInt(merged.canalesDenuncia, 0),
+            toInt(merged.denunciasPenales, 0),
+            toInt(merged.plataformasActivas, 0),
+            metricasJsonStr
+          ]
+        );
+      } else {
+        await conn.execute(
+          `INSERT INTO pia_portal_metricas (id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas)
+           VALUES (1, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE
+             oficinas_probidad = VALUES(oficinas_probidad),
+             canales_denuncia = VALUES(canales_denuncia),
+             denuncias_penales = VALUES(denuncias_penales),
+             plataformas_activas = VALUES(plataformas_activas)`,
+          [
+            toInt(merged.oficinasProbidad, 0),
+            toInt(merged.canalesDenuncia, 0),
+            toInt(merged.denunciasPenales, 0),
+            toInt(merged.plataformasActivas, 0)
+          ]
+        );
+      }
       const rows = await fetchPortalRecords(conn);
       return rows[0];
     }
