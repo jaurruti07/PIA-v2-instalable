@@ -69,7 +69,7 @@ export function initTechnicalGuide() {
                     <i class="fas fa-database" style="color: var(--blue-bright); margin-right: 4px;"></i> Motor de Datos Híbrido
                 </div>
                 <div style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">JSON + MySQL/MariaDB</div>
-                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-lock"></i> 3 Modalidades · 14 Tablas SQL</div>
+                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600; margin-top: 0.25rem;"><i class="fas fa-lock"></i> 3 Modalidades · 18 Tablas SQL</div>
             </div>
 
             <div style="background: #fff; padding: 1.25rem 1.5rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
@@ -137,10 +137,12 @@ export function initTechnicalGuide() {
                         <i class="fas fa-terminal"></i> Comandos de Ejecución, Lint y Pruebas (<code>package.json</code>)
                     </div>
                     <pre style="margin: 0; background: rgba(0,0,0,0.4); padding: 0.85rem 1rem; border-radius: 8px; font-family: monospace; font-size: 0.85rem; color: #38d6f0; overflow-x: auto;">
-npm run dev    # Servidor Express en puerto 3000
-npm start      # Arranque de producción (node server.js)
-npm run lint   # Verificación sintáctica de servidor, DAL híbrida y panel
-npm test       # Suite integral de seguridad, permisos, JSON y mappers SQL
+npm run setup:init  # Inicializa directorios protegidos, .env y JSON operativos sin sobrescribir
+npm run setup:check # Verifica integridad de carpetas, .env, JSON y estado SQL
+npm run dev         # Servidor Express en puerto 3000
+npm start           # Arranque de producción (node server.js)
+npm run lint        # Verificación sintáctica de servidor, DAL híbrida, scripts y panel
+npm test            # Suite integral de seguridad, RBAC, UI dinámica y mappers SQL (55+ pruebas)
                     </pre>
                 </div>
             </section>
@@ -162,16 +164,18 @@ npm test       # Suite integral de seguridad, permisos, JSON y mappers SQL
 ├── <span style="color: #22C55E;">server.js</span>                        <span style="color: #94A3B8;"># Servidor Express, API REST, Auth, DAL Híbrida, Gemini AI y Auditoría</span>
 ├── <span style="color: #22C55E;">package.json</span>                     <span style="color: #94A3B8;"># Dependencias (express, mysql2, dotenv, @google/genai, jose)</span>
 ├── <span style="color: #22C55E;">.env.example</span>                     <span style="color: #94A3B8;"># Plantilla segura de variables de entorno (Puerto, Sesión, MySQL)</span>
-├── <span style="color: #22C55E;">deploy-iis.ps1</span>                   <span style="color: #94A3B8;"># Script PowerShell automatizado de despliegue Windows + IIS + ACLs</span>
-├── <span style="color: #22C55E;">web.config</span>                       <span style="color: #94A3B8;"># Configuración IIS (URL Rewrite + ARR, MIME y bloqueo de .env/.sql/data)</span>
-├── <span style="color: #22C55E;">test_security_suite.js</span>           <span style="color: #94A3B8;"># Suite automatizada de seguridad, RBAC, JSON y SQL (36 pruebas)</span>
+├── <span style="color: #22C55E;">deploy-iis.ps1</span>                   <span style="color: #94A3B8;"># Script PowerShell de despliegue Windows + IIS + ACLs + init_pia_config</span>
+├── <span style="color: #22C55E;">deploy-linux.sh</span>                  <span style="color: #94A3B8;"># Script Bash de despliegue Linux (Ubuntu/Debian/RHEL + Systemd + Nginx)</span>
+├── <span style="color: #22C55E;">web.config</span>                       <span style="color: #94A3B8;"># Configuración IIS (URL Rewrite + ARR, MIME, 20MB uploads, bloqueo sensible)</span>
+├── <span style="color: #22C55E;">test_security_suite.js</span>           <span style="color: #94A3B8;"># Suite automatizada de seguridad, RBAC, UI dinámica y SQL (55+ pruebas)</span>
 │
-├── <span style="color: #38BDF8;">/sql/</span>                            <span style="color: #94A3B8;"># Scripts DDL para base de datos relacional</span>
-│   └── <span style="color: #22C55E;">01_schema_mysql.sql</span>          <span style="color: #94A3B8;"># Esquema oficial MySQL/MariaDB de 14 tablas, FKs e índices</span>
+├── <span style="color: #38BDF8;">/sql/</span>                            <span style="color: #94A3B8;"># Scripts DDL y semilla para base de datos relacional</span>
+│   ├── <span style="color: #22C55E;">01_schema_mysql.sql</span>          <span style="color: #94A3B8;"># Esquema oficial MySQL/MariaDB de 18 tablas, FKs e índices</span>
+│   └── <span style="color: #22C55E;">02_seed_initial_config.sql</span>   <span style="color: #94A3B8;"># Semilla idempotente de métricas, KPIs, fondos y banderas iniciales</span>
 │
 ├── <span style="color: #38BDF8;">/db/</span>                             <span style="color: #94A3B8;"># Capa de Acceso a Datos Híbrida (JSON + SQL)</span>
 │   ├── <span style="color: #F97316;">sqlClient.js</span>                 <span style="color: #94A3B8;"># Pool de conexiones MySQL2 parametrizado y manejo de transacciones</span>
-│   ├── <span style="color: #F97316;">schemaInit.js</span>                <span style="color: #94A3B8;"># Inicialización idempotente e inspección en INFORMATION_SCHEMA</span>
+│   ├── <span style="color: #F97316;">schemaInit.js</span>                <span style="color: #94A3B8;"># Inicialización idempotente (18 tablas + semilla) e INFORMATION_SCHEMA</span>
 │   ├── <span style="color: #F97316;">storageConfig.js</span>             <span style="color: #94A3B8;"># Gestor de modalidad (json | sql | hybrid) por módulo</span>
 │   ├── <span style="color: #F97316;">sqlRepository.js</span>             <span style="color: #94A3B8;"># CRUD parametrizado, ETag OCC y mappers SQL <-> JSON exactos</span>
 │   ├── <span style="color: #F97316;">hybridStorage.js</span>             <span style="color: #94A3B8;"># Enrutador de fuente única por módulo</span>
@@ -180,15 +184,20 @@ npm test       # Suite integral de seguridad, permisos, JSON y mappers SQL
 ├── <span style="color: #38BDF8;">/data/</span>                           <span style="color: #94A3B8;"># Directorio protegido (configurable con PIA_DATA_DIR=C:\PIA_Data)</span>
 │   ├── <span style="color: #22C55E;">users_roles.json</span>             <span style="color: #94A3B8;"># Identidades institucionales con hash PBKDF2/SHA-512 y módulos</span>
 │   ├── <span style="color: #22C55E;">storage_config.json</span>          <span style="color: #94A3B8;"># Modalidad activa (JSON / SQL / Híbrido) por módulo</span>
+│   ├── <span style="color: #22C55E;">canales_settings.json</span>        <span style="color: #94A3B8;"># Visibilidad pública de Protocolos y Dashboard CNC en Canales</span>
+│   ├── <span style="color: #22C55E;">modules_ui_config.json</span>       <span style="color: #94A3B8;"># KPIs configurables, fondos Hero e imagen de sección del Portal</span>
 │   ├── <span style="color: #22C55E;">audit_logs.json</span>              <span style="color: #94A3B8;"># Bitácora oficial inmutable de auditoría con IP y cambios</span>
-│   └── <span style="color: #38BDF8;">/backups/</span>                    <span style="color: #94A3B8;"># Respaldos automáticos rotativos previos a cada mutación/migración</span>
+│   ├── <span style="color: #38BDF8;">/backups/</span>                    <span style="color: #94A3B8;"># Respaldos automáticos rotativos previos a cada mutación/migración</span>
+│   └── <span style="color: #38BDF8;">/migration_logs/</span>             <span style="color: #94A3B8;"># Bitácoras detalladas (.log/.json) de migraciones CLI</span>
 │
+├── <span style="color: #38BDF8;">/uploads/backgrounds/</span>            <span style="color: #94A3B8;"># Imágenes PNG/JPG/WEBP cargadas y validadas por magic bytes</span>
 ├── <span style="color: #38BDF8;">/docs/</span>                           <span style="color: #94A3B8;"># Documentación oficial de instalación y arquitectura</span>
 │   ├── <span style="color: #22C55E;">GUIA_INSTALACION_WINDOWS_SQL.md</span>
 │   └── <span style="color: #22C55E;">ARQUITECTURA_V2_Y_MIGRACION_SQL.md</span>
 │
 ├── <span style="color: #38BDF8;">/admin/</span>                          <span style="color: #94A3B8;"># Panel Administrativo SPA Autenticado (/admin/)</span>
-│   └── <span style="color: #38BDF8;">/js/</span>                         <span style="color: #94A3B8;"># app.js, auth.js, crud.js, user-manager.js, database-manager.js, technical-guide.js</span>
+│   ├── <span style="color: #38BDF8;">/scripts/</span>                    <span style="color: #94A3B8;"># CLIs bloqueados en web (403): init_pia_config.js, migrate_json_to_sql.js</span>
+│   └── <span style="color: #38BDF8;">/js/</span>                         <span style="color: #94A3B8;"># app.js, auth.js, crud.js, module-ui-manager.js, user-manager.js, database-manager.js</span>
 │
 └── <span style="color: #38BDF8;">Módulos Públicos</span>                 <span style="color: #94A3B8;"># /canales-por-la-integridad/, /directorio/, /gobierno_en_numeros/, /riesgo/, /vehiculos/</span>
                 </div>
@@ -202,7 +211,7 @@ npm test       # Suite integral de seguridad, permisos, JSON y mappers SQL
                     </div>
                     <div>
                         <h2 style="font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--navy); margin: 0;">3. Arquitectura Híbrida de Datos (JSON + MySQL/MariaDB)</h2>
-                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Convivencia de los 5 archivos JSON institucionales + métricas con 14 tablas relacionales SQL</p>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Convivencia de los archivos JSON institucionales y configuración visual con 18 tablas relacionales SQL</p>
                     </div>
                 </div>
 
@@ -252,9 +261,9 @@ npm test       # Suite integral de seguridad, permisos, JSON y mappers SQL
                                 <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(34,197,94,0.12); color: #22C55E; padding: 2px 8px; border-radius: 6px; font-weight: 700;">Transacción ACID</span></td>
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border); background: var(--surface);">
-                                <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-globe" style="color: #8b5cf6;"></i> Portal & Usuarios</td>
-                                <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/data_portal.json · /data/users_roles.json</td>
-                                <td style="padding: 0.85rem 1rem; font-family: monospace;"><code>pia_portal_metricas</code>, <code>pia_storage_migrations</code></td>
+                                <td style="padding: 0.85rem 1rem; font-weight: 700; color: var(--navy);"><i class="fas fa-globe" style="color: #8b5cf6;"></i> Portal & Configuración UI</td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace; color: var(--blue-bright);">/data_portal.json · /data/modules_ui_config.json · /data/canales_settings.json</td>
+                                <td style="padding: 0.85rem 1rem; font-family: monospace;"><code>pia_portal_metricas</code>, <code>pia_canales_config</code>, <code>pia_modules_ui_*</code> (3), <code>pia_storage_migrations</code></td>
                                 <td style="padding: 0.85rem 1rem;"><span class="badge-audit" style="background: rgba(239,68,68,0.12); color: var(--red); padding: 2px 8px; border-radius: 6px; font-weight: 700;">Fuera de wwwroot</span></td>
                             </tr>
                         </tbody>
@@ -326,6 +335,16 @@ npm test       # Suite integral de seguridad, permisos, JSON y mappers SQL
                     </div>
 
                     <!-- Endpoint 6 -->
+                    <div style="background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="background: #0ea5e9; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">GET / POST / PUT / DEL</span>
+                            <code style="font-size: 0.95rem; font-weight: 700; color: var(--navy);">/api/ui/:module · /api/portal/metricas · /api/canales/config · /api/admin/ui/*</code>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Gestión dinámica de métricas del portal, KPIs por módulo, fondos de héroe (validados por magic bytes) y banderas de Canales.</div>
+                        <span style="font-size: 0.75rem; background: rgba(239,68,68,0.15); color: var(--red); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Lectura Pública / Mutación Auth</span>
+                    </div>
+
+                    <!-- Endpoint 7 -->
                     <div style="background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="background: var(--blue-bright); color: #fff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; font-family: monospace;">GET / POST / DELETE</span>
@@ -471,9 +490,11 @@ app.post('/api/chatbot/ask', async (req, res) => {
                     <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
                         <h3 style="font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;"><i class="fas fa-server" style="color: var(--cyan);"></i> Paquete de Instalación en Servidor (Scripts Disponibles)</h3>
                         <ul style="font-size: 0.88rem; color: var(--text-main); padding-left: 1.2rem; margin: 0 0 0.85rem; display: flex; flex-direction: column; gap: 0.35rem;">
-                            <li><strong><code>deploy-iis.ps1</code>:</strong> Script PowerShell para Windows Server que crea <code>C:\PIA_Data\backups</code> con ACLs NTFS estrictas, instala dependencias y crea el Application Pool <code>PiaAppPool</code>.</li>
-                            <li><strong><code>web.config</code>:</strong> Reglas IIS (URL Rewrite + ARR) que enrutan <code>/api/*</code>, <code>/admin/*</code> y los JSON híbridos hacia <code>127.0.0.1:3000</code>, bloqueando acceso HTTP a <code>.env</code>, <code>.sql</code>, <code>.bak</code> y <code>data/</code>.</li>
-                            <li><strong><code>sql/01_schema_mysql.sql</code>:</strong> Script DDL idempotente con las 14 tablas relacionales para MySQL 8.0+ / MariaDB 10.6+.</li>
+                            <li><strong><code>admin/scripts/init_pia_config.js</code>:</strong> Inicializador CLI idempotente (<code>npm run setup:init</code> / <code>npm run setup:check</code>) para directorios protegidos, <code>.env</code>, configs JSON iniciales y validación de datasets.</li>
+                            <li><strong><code>deploy-iis.ps1</code>:</strong> Script PowerShell para Windows Server que crea <code>C:\PIA_Data\backups</code>, <code>migration_logs</code> y <code>uploads\backgrounds</code> con ACLs NTFS estrictas, instala dependencias, ejecuta <code>init_pia_config.js</code> y crea el Application Pool <code>PiaAppPool</code>.</li>
+                            <li><strong><code>deploy-linux.sh</code>:</strong> Script Bash idempotente para servidores Linux (Ubuntu/Debian/RHEL) con permisos, <code>systemd</code> y plantilla Nginx.</li>
+                            <li><strong><code>web.config</code>:</strong> Reglas IIS (URL Rewrite + ARR) con límite de 20 MB para cargas de fondos, enrutamiento a <code>127.0.0.1:3000</code> y bloqueo de <code>.env</code>, <code>.sql</code>, <code>.ps1</code>, <code>.sh</code>, <code>db/</code>, <code>sql/</code> y <code>data/</code>.</li>
+                            <li><strong><code>sql/01_schema_mysql.sql</code> y <code>02_seed_initial_config.sql</code>:</strong> Esquema DDL idempotente de 18 tablas relacionales + semilla inicial de métricas, KPIs, fondos Hero y banderas de Canales.</li>
                             <li><strong><code>.env.example</code>:</strong> Plantilla de variables para puerto, <code>PIA_SESSION_SECRET</code>, <code>PIA_DATA_DIR</code>, <code>PIA_STORAGE_MODE</code> y credenciales SQL.</li>
                         </ul>
                         <button type="button" id="btnJumpToInstallGuideCard" style="padding: 0.6rem 1.05rem; background: var(--navy); color: #fff; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">

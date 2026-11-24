@@ -1,264 +1,167 @@
 # Portal de Integridad Activa (PIA)
 ### Comisión Nacional contra la Corrupción (CNC) — Presidencia de la República de Guatemala
-**Documentación Técnica de Arquitectura, Despliegue y Entrega al Departamento de TI**
+**Documentación Técnica de Arquitectura, Instalación, Configuración Inicial y Despliegue (TI)**
 
 ---
 
-## 1. Resumen Ejecutivo y Arquitectura
+## 1. Resumen Ejecutivo y Arquitectura Vigente
 
-El **Portal de Integridad Activa (PIA)** es la plataforma oficial del Organismo Ejecutivo de Guatemala orientada a centralizar y transparentar la información pública, canales de denuncia confidencial, directorio institucional, tableros de rendición de cuentas y gestión de riesgos de corrupción.
+El **Portal de Integridad Activa (PIA)** es la plataforma oficial del Organismo Ejecutivo de Guatemala orientada a centralizar y transparentar la información pública, canales de denuncia administrativa confidencial, directorio de acceso a la información pública, tableros de rendición de cuentas, gestión de riesgos de corrupción y transparencia vehicular.
 
-### Pila Tecnológica (Tech Stack)
-- **Backend Principal (Producción TI):** Python 3.11+ con **Flask** y servidor WSGI **Gunicorn**.
-- **Backend Secundario / Desarrollo:** Node.js con Express (motor dual compatible).
-- **Frontend:** HTML5 semántico, CSS3 con variables nativas de diseño institucional, JavaScript ES6+ modular sin dependencias pesadas.
-- **Seguridad Criptográfica:** Contraseñas encriptadas con sal PBKDF2-HMAC-SHA512 (10,000 iteraciones), tokens de sesión HMAC-SHA256, cabeceras estrictas (CSP, X-Frame-Options, ETag de concurrencia).
-- **Almacenamiento Persistente:** Estructuras JSON protegidas fuera del document root con escrituras atómicas y respaldo automático versionado.
+### Pila Tecnológica Actual (Tech Stack)
+- **Backend Institucional:** **Node.js LTS (18.x / 20.x / 22.x+) ESM** con **Express 4.19** (`server.js` en el puerto `3000`).
+- **Frontend:** HTML5 semántico, CSS3 modular con variables institucionales, JavaScript ES Modules nativo sin frameworks pesados de compilación.
+- **Capa de Persistencia Híbrida (`db/`):** Convivencia configurable sin cambios de código entre almacenamiento en **JSON** (escrituras atómicas + respaldos rotativos) y **MySQL 8.0+ / MariaDB 10.6+** (`mysql2`, transacciones ACID, consultas parametrizadas `?`, 18 tablas relacionales).
+- **Seguridad Criptográfica y Control de Acceso:**
+  - Contraseñas derivadas con **PBKDF2-HMAC-SHA512** (10,000 iteraciones y sal aleatoria de 16 bytes) en `PIA_DATA_DIR/users_roles.json`.
+  - Tokens de sesión firmados con **HMAC-SHA256** (`pia_sess_*`) y verificación opcional de tokens **Firebase Auth (JWKS RS256)**.
+  - Control de concurrencia optimista (**ETag SHA-256** / `If-Match` → HTTP `409 Conflict`).
+  - Bitácora de auditoría inmutable (`audit_logs.json`) y bloqueo HTTP `403` para scripts CLI (`/admin/scripts/*`).
+- **Configuración Visual Dinámica por Módulo (`/api/ui/:module`):**
+  - Métricas dinámicas del Portal principal con carrusel automático cuando hay más de 4 indicadores activos.
+  - KPIs configurables por módulo (`auto` o `manual`), galería/carrusel de fondos Hero e imagen de sección *«¿Por qué existe?»* (`/img/wallpaperdirectorio.jpg`), con carga binaria segura (`PNG`/`JPG`/`WEBP`, máx. 5 MB, validación por *magic bytes*) en `/uploads/backgrounds/`.
+- **Asistente Ciudadano Lupita:** Integración server-side con `@google/genai` (`GEMINI_API_KEY`) y motor heurístico local de contingencia.
 
 ---
 
-## 2. Estructura Estándar del Proyecto
+## 2. Estructura Actual del Proyecto
 
 ```text
 /
-├── app.py                      # Backend principal en Python Flask (rutas, APIs, seguridad)
-├── gunicorn.conf.py            # Configuración de producción para el servidor WSGI Gunicorn
-├── requirements.txt            # Dependencias oficiales de Python
-├── Dockerfile                  # Contenedor de producción con usuario no privilegiado
-├── .env.example                # Plantilla de variables de entorno seguras
-├── README.md                   # Manual técnico y guía de despliegue para TI
+├── server.js                         # Servidor Express ESM (API REST, Auth, DAL Híbrida, UI Dinámica, IA, Auditoría)
+├── package.json                      # Dependencias y comandos (setup:init, setup:check, lint, test, migrate:sql)
+├── .env.example                      # Plantilla segura de variables de entorno (Puerto, Sesión, MySQL, Gemini, Firebase)
+├── deploy-iis.ps1                    # Instalador automatizado Windows Server + IIS + NTFS ACLs + init_pia_config
+├── deploy-linux.sh                   # Instalador automatizado Linux (Ubuntu/Debian/RHEL + systemd + Nginx)
+├── web.config                        # Configuración IIS (URL Rewrite + ARR, límite 20 MB, bloqueo de archivos sensibles)
+├── test_security_suite.js            # Suite integral de pruebas de seguridad, RBAC, UI dinámica y SQL
+├── index.html & data_portal.json     # Portada del Portal PIA y métricas generales dinámicas
 │
-├── templates/                  # Plantillas HTML del portal
-│   ├── index.html              # Portada del Portal PIA
-│   ├── canales.html            # Canales por la Integridad
-│   ├── directorio.html         # Directorio Acceso al Ejecutivo
-│   ├── tableros.html           # Tu Gobierno en Números
-│   ├── riesgo.html             # Riesgo en la Mira
-│   ├── admin.html              # Panel Administrativo y de Gestión
-│   └── 404.html                # Página de error 404 institucional
+├── sql/                              # Scripts oficiales de Base de Datos (MySQL 8.0+ / MariaDB 10.6+)
+│   ├── 01_schema_mysql.sql           # DDL idempotente con 18 tablas, llaves foráneas e índices
+│   └── 02_seed_initial_config.sql    # Semilla idempotente de métricas, KPIs, fondos Hero y banderas iniciales
 │
-├── static/                     # Recursos estáticos organizados
-│   ├── css/                    # Hojas de estilo generales y de módulos
-│   ├── js/                     # Librerías cliente, internacionalización y utilidades
-│   └── images/                 # Logos institucionales, infografías y fotografías
+├── db/                               # Capa de Acceso a Datos Híbrida (JSON + SQL)
+│   ├── sqlClient.js                  # Pool MySQL2 y manejo transaccional
+│   ├── schemaInit.js                 # Verificación e inicialización idempotente (18 tablas + semilla)
+│   ├── storageConfig.js              # Gestión de modalidad (json | sql | hybrid) por módulo
+│   ├── sqlRepository.js              # CRUD parametrizado y mappers SQL <-> JSON
+│   ├── hybridStorage.js              # Enrutador único por módulo
+│   └── migrationService.js           # Importación JSON -> SQL y Exportación SQL -> JSON con respaldos
 │
-├── data/                       # Almacenamiento persistente protegido
-│   ├── users_roles.json        # Identidades, contraseñas encriptadas y módulos autorizados
-│   ├── authorized_operators.json # Metadatos de operadores
-│   ├── audit_logs.json         # Bitácora inmutable de auditoría individualizada
-│   ├── page_visits.json        # Contador y analítica de visitas reales
-│   └── backups/                # Respaldos automáticos rotativos (hasta 30 versiones)
+├── data/                             # Directorio de datos operativos protegido (configurable con PIA_DATA_DIR)
+│   ├── users_roles.json              # Cuentas @cnc.gob.gt con hash PBKDF2/SHA-512 y permisos por módulo
+│   ├── storage_config.json           # Modalidad activa (json | sql | hybrid)
+│   ├── canales_settings.json         # Banderas públicas de Canales (showProtocolos, showDashboardCnc)
+│   ├── modules_ui_config.json        # KPIs, fondos Hero e imagen de sección por módulo
+│   ├── audit_logs.json               # Bitácora oficial de auditoría
+│   ├── page_visits.json              # Analítica de visitas
+│   ├── authorized_operators.example.json # Plantilla de operadores institucionales
+│   ├── backups/                      # Respaldos automáticos rotativos (hasta 30 versiones por archivo)
+│   └── migration_logs/               # Bitácoras detalladas (.log/.json) de migraciones CLI
 │
-├── canales-por-la-integridad/  # Recursos específicos del módulo de denuncias
-├── directorio/                 # Recursos específicos del directorio de autoridades
-├── gobierno_en_numeros/        # Datos y tableros de rendición de cuentas
-├── riesgo/                     # Matriz de riesgos de corrupción por institución
-├── server.js                   # Servidor alternativo en Node.js para entornos Node
-└── test_security_suite.js      # Suite automatizada de pruebas de seguridad (24/24)
+├── uploads/backgrounds/              # Imágenes de fondo subidas desde /admin/ y validadas por magic bytes
+├── docs/                             # Manuales oficiales de instalación y arquitectura
+│   ├── GUIA_INSTALACION_WINDOWS_SQL.md
+│   └── ARQUITECTURA_V2_Y_MIGRACION_SQL.md
+│
+├── admin/                            # Panel Administrativo SPA (/admin/)
+│   ├── scripts/                      # CLIs administrativos bloqueados por HTTP (403)
+│   │   ├── init_pia_config.js        # Inicializador idempotente de directorios, .env, configs JSON y SQL
+│   │   └── migrate_json_to_sql.js    # Migración masiva CLI y validación estricta de JSON vs SQL
+│   └── js/                           # app.js, crud.js, module-ui-manager.js, user-manager.js, database-manager.js
+│
+└── Módulos Públicos                  # /canales-por-la-integridad/, /directorio/, /gobierno_en_numeros/, /riesgo/, /vehiculos/
 ```
 
 ---
 
-## 3. Identidades Institucionales, Creación de Usuarios, Permisos y Contraseñas
+## 3. Cuentas Institucionales, Roles y Gestión de Usuarios
 
 ### Cuentas Base Institucionales Protegidas
-Por directriz institucional de la CNC, el portal cuenta con dos identidades operativas maestras preconfiguradas que están blindadas contra eliminación accidental o no autorizada:
+El portal inicializa dos cuentas administrativas maestras protegidas contra eliminación no autorizada:
 
 | Usuario (Correo) | Rol Base | Contraseña Inicial | Mecanismo de Seguridad | Estado |
 |---|---|---|---|---|
-| `deteccionydenuncia@cnc.gob.gt` | Administrador Pleno | `12345` | Sal criptográfica PBKDF2/SHA-512 | Cuenta Base Protegida |
-| `apoyogi@cnc.gob.gt` | Administrador Pleno | `12345` | Sal criptográfica PBKDF2/SHA-512 | Cuenta Base Protegida |
+| `deteccionydenuncia@cnc.gob.gt` | Administrador Pleno (`admin`) | `12345` | PBKDF2-HMAC-SHA512 + Sal 16 bytes | Cuenta Base Protegida |
+| `apoyogi@cnc.gob.gt` | Administrador Pleno (`admin`) | `12345` | PBKDF2-HMAC-SHA512 + Sal 16 bytes | Cuenta Base Protegida |
 
-### Gestión Dinámica de Usuarios y Creación de Nuevas Cuentas
-Desde el módulo **Gestión de Usuarios, Roles y Permisos** (`/admin/`), los administradores pueden crear nuevos usuarios institucionales haciendo clic en **"+ Agregar Nuevo Usuario"**:
-1. **Validación y Encriptación Automática:** Se valida formato de correo institucional (`@cnc.gob.gt` o similar), nombre del funcionario y contraseña mínima de 4 caracteres. La contraseña es encriptada en el backend mediante derivación de clave **PBKDF2 con HMAC-SHA512** y sal aleatoria única de 16 bytes.
-2. **Asignación Granular de Módulos:** El administrador puede seleccionar uno a uno los módulos a los que el usuario tendrá acceso (Canales, Directorio, Tableros, Riesgo, Métricas, Visitas, Usuarios, Auditoría, Base de Datos, Guía Técnica) o marcar **"Todos tienen permiso a todo"** por defecto.
-3. **Roles Soportados:** `admin` (Administrador con privilegios completos) y `data_operator` (Operador de datos institucional con acceso restringido a los módulos autorizados).
-4. **Protección de Cuentas Base:** Los nuevos usuarios pueden ser eliminados cuando concluya su gestión, mientras que las dos cuentas maestras institucionales cuentan con salvaguarda permanente a nivel de código y API.
-5. **Cambio de Contraseña:** Cualquier usuario puede actualizar su clave desde el panel administrativo, regenerando la sal y hash en el almacenamiento persistente.
+> **Recomendación obligatoria en producción:** Cambiar las contraseñas iniciales desde `/admin/` → **Gestión de Usuarios** inmediatamente después de finalizar la instalación.
+
+### Gestión Granular por Módulos
+Desde `/admin/` → **Gestión de Usuarios** se pueden crear cuentas `@cnc.gob.gt` con roles `admin` o `data_operator`, asignando acceso granular a:
+`canales`, `directorio`, `tableros`, `riesgo`, `vehiculos`, `portal`, `visits`, `chatbot`, `users`, `audit`, `database`, `guide`.
 
 ---
 
-## 4. Catálogo Institucional Unificado (Canales por la Integridad)
-
-El filtro por tipo de institución en la página pública de **Canales por la Integridad** (`/canales-por-la-integridad/`), el formulario de edición en el **Módulo Administrativo** (`/admin/`) y el archivo de datos (`data_directorio.json`) se encuentran **100% sincronizados**:
-
-- **Catálogo Oficial:**
-  1. `Ministerios` (14 instituciones ministeriales)
-  2. `Secretarías` (15 secretarías y dependencias de apoyo presidencial)
-  3. `Gobernaciones Departamentales` (22 gobernaciones departamentales de la República)
-  4. `Otras dependencias` (Fondos sociales, comisiones ejecutivas y comités, ej. CNC, SAT)
-  5. `Dependencias temporales` (Comisiones temporales y unidades transitorias)
-
-- **Sincronización Bidireccional y Resiliencia:** El motor de filtrado detecta automáticamente cualquier variante histórica o institucional (ej. `Gobernaciones` ↔ `Gobernaciones Departamentales`), mapeándolos al catálogo oficial sin pérdida de datos ni discrepancias de filtrado.
-
----
-
-## 5. Estado de Características Especiales
-
-- **Chatbot (Asistente Virtual Lupita):** Inactivado de la interfaz visual del portal público por solicitud institucional (`CHATBOT_UI_ACTIVE = false`), manteniendo todo el código, componentes e integración con Gemini listos para reactivarse instantáneamente cuando la dirección lo disponga.
-- **Guía Multilingüe de Denuncia Segura:** Inactivada y retirada de los elementos visibles de la interfaz (`#heroGuiaCTA`, selector en barra de accesibilidad y enlaces directos), preservando en el código todas las traducciones en idiomas mayas (K'iche', Q'eqchi', Kaqchikel, Mam), síntesis de voz y estructura para cuando deba volver a mostrarse.
-
----
-
-## 6. Instrucciones de Despliegue para el Departamento de TI
-
-### Opción A: Despliegue con Docker (Recomendado)
-
-1. **Construir la imagen de contenedor:**
-   ```bash
-   docker build -t pia-portal:latest .
-   ```
-
-2. **Ejecutar el contenedor montando el volumen de datos persistentes:**
-   ```bash
-   docker run -d \
-     --name pia-portal-app \
-     -p 3000:3000 \
-     -v /opt/pia/data:/app/data \
-     --env-file .env \
-     --restart unless-stopped \
-     pia-portal:latest
-   ```
-
-### Opción B: Despliegue en Servidor Linux (Systemd + Gunicorn + Nginx)
-
-1. **Instalar dependencias en el servidor:**
-   ```bash
-   sudo apt-get update && sudo apt-get install -y python3-pip python3-venv nginx
-   ```
-
-2. **Crear entorno virtual e instalar requerimientos:**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-3. **Configurar servicio en Systemd (`/etc/systemd/system/pia.service`):**
-   ```ini
-   [Unit]
-   Description=Portal de Integridad Activa (PIA) - CNC
-   After=network.target
-
-   [Service]
-   User=www-data
-   Group=www-data
-   WorkingDirectory=/var/www/pia
-   Environment="PATH=/var/www/pia/venv/bin"
-   EnvironmentFile=/var/www/pia/.env
-   ExecStart=/var/www/pia/venv/bin/gunicorn -c gunicorn.conf.py app:app
-   Restart=always
-   RestartSec=5
-
-   [Install]
-   WantedBy=multi-user.target
-   ```
-
-4. **Habilitar e iniciar el servicio:**
-   ```bash
-   sudo systemctl daemon-reload
-   sudo systemctl enable pia
-   sudo systemctl start pia
-   ```
-
-5. **Configuración de Nginx Reverse Proxy (`/etc/nginx/sites-available/pia`):**
-   ```nginx
-   server {
-       listen 80;
-       server_name pia.gob.gt;
-       return 301 https://$host$request_uri;
-   }
-
-   server {
-       listen 443 ssl http2;
-       server_name pia.gob.gt;
-
-       ssl_certificate /etc/ssl/certs/pia_gob_gt.crt;
-       ssl_certificate_key /etc/ssl/private/pia_gob_gt.key;
-
-       # Cabeceras de seguridad institucional
-       add_header X-Frame-Options "SAMEORIGIN" always;
-       add_header X-Content-Type-Options "nosniff" always;
-       add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-
-       location / {
-           proxy_pass http://127.0.0.1:3000;
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-           proxy_set_header X-Forwarded-Proto $scheme;
-       }
-   }
-   ```
-
----
-
-### Opción C: Despliegue con Node.js + PM2 (Servidor Express)
+## 4. Inicialización Rápida y Comandos Oficiales
 
 1. **Instalar dependencias:**
    ```bash
-   npm install --production
+   npm ci --omit=dev
    ```
-
-2. **Iniciar servicio en segundo plano con PM2:**
+2. **Inicializar directorios, `.env` y archivos de configuración operativos (idempotente, no sobrescribe datos existentes):**
    ```bash
-   npx pm2 start server.js --name "pia-portal" -i max
-   npx pm2 save
-   npx pm2 startup
+   node admin/scripts/init_pia_config.js --generate-secret
+   # o mediante npm:
+   npm run setup:init
+   ```
+3. **Verificar integridad inicial de configuración y datasets JSON:**
+   ```bash
+   npm run setup:check
+   ```
+4. **Inicializar MySQL/MariaDB (opcional, si usará modalidad `sql` o `hybrid`):**
+   ```bash
+   mysql -u pia_app_user -p < sql/01_schema_mysql.sql
+   mysql -u pia_app_user -p < sql/02_seed_initial_config.sql
+   # O en un solo paso junto con la carga masiva de los JSON:
+   node admin/scripts/migrate_json_to_sql.js --init-schema --include-portal
+   ```
+5. **Iniciar el servidor y validar seguridad:**
+   ```bash
+   npm start
+   npm run lint
+   npm test
    ```
 
-### Opción D: Despliegue en Windows Server con IIS
+---
 
-1. Utilizar el script automatizado PowerShell provisto en la raíz:
+## 5. Despliegue en Servidores Institucionales
+
+### Opción A: Windows Server con IIS + ARR (Recomendado en entorno Microsoft)
+1. Ejecutar PowerShell **como Administrador** en la ruta del proyecto (`C:\inetpub\wwwroot\PIA`):
    ```powershell
    .\deploy-iis.ps1
+   # Si MySQL/MariaDB ya está configurado en .env y desea crear las 18 tablas automáticamente:
+   .\deploy-iis.ps1 -InitSql
    ```
-2. El archivo `web.config` preconfigurado en la raíz establece la reescritura de URLs hacia `http://localhost:3000` con compresión gzip y cabeceras de seguridad activas.
+2. El script valida Node.js >= 18, crea `C:\PIA_Data` (`backups`, `migration_logs`) y `uploads\backgrounds` con ACLs NTFS restringidas, genera `.env` y `PIA_SESSION_SECRET`, ejecuta `init_pia_config.js`, configura el AppPool `PiaAppPool` y valida los endpoints de salud.
+3. En IIS → nodo del servidor → *Application Request Routing Cache* → *Server Proxy Settings*: habilitar **Enable proxy**. El archivo `web.config` enruta `/api/*`, `/admin/*`, `/uploads/backgrounds/*` y los JSON híbridos hacia `http://127.0.0.1:3000`, permitiendo cargas de imágenes de hasta 20 MB y bloqueando `.env`, `.sql`, `.ps1`, `.sh`, `data/`, `db/`, `sql/`, `docs/` y `admin/scripts/`.
+4. Registrar el servicio permanente con **PM2** o **NSSM**.
 
-### Opción E: Modo Fuera de Línea / Descargado (Sin Backend)
+### Opción B: Linux Server (Ubuntu / Debian / RHEL) con Systemd + Nginx
+1. Ejecutar el instalador oficial:
+   ```bash
+   chmod +x deploy-linux.sh
+   sudo ./deploy-linux.sh --install-systemd
+   # Con inicialización SQL automática:
+   sudo ./deploy-linux.sh --install-systemd --init-sql
+   ```
+2. Configurar Nginx utilizando la plantilla impresa por el script (con `client_max_body_size 20M;` y bloqueo de rutas sensibles) y certificado TLS en el puerto `443`.
 
-El sistema cuenta con el motor de persistencia resiliente **PiaDataEngine**:
-1. Si el portal se descarga o se ejecuta abriendo directamente `index.html` en un navegador (o mediante cualquier servidor estático liviano como `python3 -m http.server 8080`), el módulo administrativo detecta automáticamente el entorno estático.
-2. Los datos se leen directamente de los archivos JSON locales y los cambios se almacenan en `localStorage` con bitácora de auditoría local.
-3. No requiere Firebase ni dependencias externas para operar de forma completa.
-
----
-
-## 7. Verificación de Seguridad y Pruebas Automatizadas
-
-El proyecto incluye la suite completa de 28 pruebas de regresión y seguridad en `test_security_suite.js`.
-
-Para verificar la integridad del portal:
-```bash
-node test_security_suite.js
-```
-
-**Resultado oficial:**
-```text
-=============================================================
-RESUMEN DE PRUEBAS: 28 SUPERADAS / 0 FALLIDAS
-=============================================================
-```
-
-Pruebas cubiertas:
-- Rechazo estricto de accesos no autenticados en mutaciones (`POST`, `PUT`, `DELETE`).
-- Bloqueo de path traversal (`../../`).
-- Eliminación de credenciales genéricas/maestras no admitidas.
-- Validación de persistencia, rotación de respaldos a 30 versiones y escrituras atómicas.
-- Comprobación de endpoints públicos para visualización ciudadana (Canales, Directorio, Tableros, Riesgo, Vehículos).
-- Creación dinámica de usuarios con encriptación PBKDF2/SHA-512 y asignación granular de módulos.
-- Salvaguarda permanente de cuentas base institucionales contra borrado no autorizado.
+### Opción C: Modo Local / Portátil (Solo JSON)
+El sistema arranca 100% funcional con `PIA_STORAGE_MODE=json` sin requerir base de datos SQL instalada, sirviendo todos los módulos y configuraciones desde JSON con respaldos atómicos.
 
 ---
 
-## 8. Arquitectura Híbrida JSON + SQL (MySQL / MariaDB)
+## 6. Arquitectura Híbrida JSON + SQL (18 Tablas)
 
-El Portal PIA soporta tres modalidades configurables sin modificar código fuente desde el panel administrativo (**Gestión de almacenamiento y base de datos**) o mediante `.env` (`PIA_STORAGE_MODE`):
+El Portal PIA soporta tres modalidades configurables desde `/admin/` → **Almacenamiento y BD** o mediante `.env` (`PIA_STORAGE_MODE`):
 
-1. **JSON (Predeterminado):** Mantiene la operación íntegra sobre los 5 archivos JSON del portal (`data_directorio.json`, `data_acceso.json`, `data_tableros.json`, `riesgo/datos.json`, `vehiculos/vehiculos.json`) y `data_portal.json`, totalmente funcional incluso sin motor SQL instalado.
-2. **SQL (MySQL / MariaDB):** Persistencia relacional con transacciones ACID, consultas parametrizadas, llaves foráneas e índices definidos en `sql/01_schema_mysql.sql`.
-3. **HÍBRIDO:** Selección por módulo (`json` o `sql`), manteniendo una única fuente autoritativa por módulo para evitar escrituras simultáneas conflictivas.
+1. **`json` (Predeterminada):** Opera con `data_directorio.json`, `data_acceso.json`, `data_tableros.json`, `riesgo/datos.json`, `vehiculos/vehiculos.json`, `data_portal.json` y los JSON de configuración en `PIA_DATA_DIR`.
+2. **`sql`:** Persistencia completa en MySQL 8.0+ / MariaDB 10.6+ sobre las **18 tablas** definidas en `sql/01_schema_mysql.sql`.
+3. **`hybrid`:** Selección individual (`json` o `sql`) por cada uno de los 6 módulos de datos manteniendo una única fuente autoritativa.
 
-Para despliegue paso a paso en Windows Server + Node.js + MySQL/MariaDB, consulte `docs/GUIA_INSTALACION_WINDOWS_SQL.md`.
-
+Para el detalle completo de instalación paso a paso y arquitectura, consulte:
+- `docs/GUIA_INSTALACION_WINDOWS_SQL.md`
+- `docs/ARQUITECTURA_V2_Y_MIGRACION_SQL.md`

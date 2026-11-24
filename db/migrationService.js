@@ -528,6 +528,7 @@ export async function importJsonToSql({
           }
         } else if (mod === 'portal') {
           const p = jsonDatasets.portal || {};
+          const metricasJsonStr = Array.isArray(p.metricas) ? JSON.stringify(p.metricas) : null;
           report.sourceCount = 1;
           const [exist] = await conn.execute('SELECT id FROM pia_portal_metricas WHERE id = 1');
           if (exist.length > 0) {
@@ -535,15 +536,15 @@ export async function importJsonToSql({
               report.skipped = 1;
             } else {
               await conn.execute(
-                'UPDATE pia_portal_metricas SET oficinas_probidad = ?, canales_denuncia = ?, denuncias_penales = ?, plataformas_activas = ? WHERE id = 1',
-                [toInt(p.oficinasProbidad, 0), toInt(p.canalesDenuncia, 0), toInt(p.denunciasPenales, 0), toInt(p.plataformasActivas, 0)]
+                'UPDATE pia_portal_metricas SET oficinas_probidad = ?, canales_denuncia = ?, denuncias_penales = ?, plataformas_activas = ?, metricas_json = ? WHERE id = 1',
+                [toInt(p.oficinasProbidad, 0), toInt(p.canalesDenuncia, 0), toInt(p.denunciasPenales, 0), toInt(p.plataformasActivas, 0), metricasJsonStr]
               );
               report.updated = 1;
             }
           } else {
             await conn.execute(
-              'INSERT INTO pia_portal_metricas (id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas) VALUES (1, ?, ?, ?, ?)',
-              [toInt(p.oficinasProbidad, 0), toInt(p.canalesDenuncia, 0), toInt(p.denunciasPenales, 0), toInt(p.plataformasActivas, 0)]
+              'INSERT INTO pia_portal_metricas (id, oficinas_probidad, canales_denuncia, denuncias_penales, plataformas_activas, metricas_json) VALUES (1, ?, ?, ?, ?, ?)',
+              [toInt(p.oficinasProbidad, 0), toInt(p.canalesDenuncia, 0), toInt(p.denunciasPenales, 0), toInt(p.plataformasActivas, 0), metricasJsonStr]
             );
             report.inserted = 1;
           }

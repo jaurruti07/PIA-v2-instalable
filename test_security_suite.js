@@ -284,7 +284,7 @@ async function runTests() {
     const validStructure = resStatus.status === 200 &&
       statusData?.config?.mode === 'json' &&
       Array.isArray(statusData?.modules) && statusData.modules.length === 6 &&
-      Array.isArray(statusData?.schema?.tables) && statusData.schema.tables.length === 14 &&
+      Array.isArray(statusData?.schema?.tables) && statusData.schema.tables.length === 18 &&
       hasNoSecrets;
     recordTest('11.3 Consulta autorizada de /api/admin/storage/status sin credenciales expuestas (200 OK)', validStructure);
 
@@ -359,14 +359,14 @@ async function runTests() {
       [{ fecha: '2025-01-01', status: 'Activo', multas: 0, iscv_moroso: 0 }]
     );
 
-    const mappersOk = stmts.length === 14 &&
+    const mappersOk = stmts.length === 18 &&
       canalMapped['Protocolo de actuación'] === true &&
       dirMapped.enlaces_solicitud[0] === 'https://s1' &&
       dirMapped.enlaces_oficio[0] === 'https://o1' &&
       riesgoMapped.checks.identificacion === true &&
       vehMapped.iscvMoroso === true &&
       vehMapped.history.length === 1;
-    recordTest('11.7 Script DDL (14 tablas) y mappers SQL<->JSON validados sin pérdida de campos', mappersOk);
+    recordTest('11.7 Script DDL (18 tablas) y mappers SQL<->JSON validados sin pérdida de campos', mappersOk);
 
     // 11.8 Endpoint seguro de guía de instalación y script SQL en módulo de almacenamiento
     const resAssetsNoAuth = await fetch(`${BASE_URL}/api/admin/storage/install-assets`);
@@ -377,37 +377,52 @@ async function runTests() {
     const assetsOk = resAssetsNoAuth.status === 401 &&
       resAssetsAuth.status === 200 &&
       assetsData.success === true &&
+      assetsData.tableCount === 18 &&
       typeof assetsData.sqlScript === 'string' &&
       assetsData.sqlScript.includes('CREATE TABLE IF NOT EXISTS `pia_canales_integridad`') &&
+      typeof assetsData.sqlSeedScript === 'string' &&
+      assetsData.sqlSeedScript.includes('pia_modules_ui_kpis') &&
       typeof assetsData.envTemplate === 'string' &&
       assetsData.envTemplate.includes('PIA_STORAGE_MODE=json') &&
       !assetsData.envTemplate.includes('MYSQL_PASSWORD=CONTRASEÑA_REAL') &&
       typeof assetsData.deployPs1 === 'string' &&
       assetsData.deployPs1.includes('PIA_DATA_DIR') &&
+      typeof assetsData.deployLinuxSh === 'string' &&
+      assetsData.deployLinuxSh.includes('init_pia_config.js') &&
       typeof assetsData.webConfig === 'string' &&
       assetsData.webConfig.includes('ReverseProxyToNodeService') &&
       typeof assetsData.guideMarkdown === 'string' &&
       assetsData.guideMarkdown.includes('URL Rewrite') &&
       typeof assetsData.migrateScript === 'string' &&
-      assetsData.migrateScript.includes('FIVE_JSON_MODULES');
-    recordTest('11.8 Guía de instalación, scripts (SQL, migración CLI, PowerShell, web.config) y plantilla servidos de forma segura (200 / 401)', assetsOk);
+      assetsData.migrateScript.includes('FIVE_JSON_MODULES') &&
+      typeof assetsData.initConfigScript === 'string' &&
+      assetsData.initConfigScript.includes('runInitialConfigSetup');
+    recordTest('11.8 Guía de instalación, scripts (SQL 18 tablas, semilla, init_pia_config, migración CLI, PowerShell, Linux, web.config) servidos de forma segura (200 / 401)', assetsOk);
 
-    // 11.9 Script de migración masiva (admin/scripts/migrate_json_to_sql.js): bloqueado en web público y validación masiva de los 5 JSON
+    // 11.9 Scripts CLI (admin/scripts/*): bloqueados en web público y validación masiva + check inicial
     const resCliPublic = await fetch(`${BASE_URL}/admin/scripts/migrate_json_to_sql.js`);
+    const resInitCliPublic = await fetch(`${BASE_URL}/admin/scripts/init_pia_config.js`);
     const { runBulkJsonToSqlMigration } = await import('./admin/scripts/migrate_json_to_sql.js');
+    const { runInitialConfigSetup } = await import('./admin/scripts/init_pia_config.js');
     const dryRunRes = await runBulkJsonToSqlMigration({
       dryRun: true,
       quiet: true,
       logDir: null
     });
+    const initCheckRes = await runInitialConfigSetup({
+      checkOnly: true,
+      quiet: true
+    });
     const cliMigrationOk = resCliPublic.status === 403 &&
+      resInitCliPublic.status === 403 &&
       dryRunRes.success === true &&
       dryRunRes.modules.length === 5 &&
       dryRunRes.summary.errors === 0 &&
       dryRunRes.summary.validated > 0 &&
       Array.isArray(dryRunRes.recordLogs) &&
-      dryRunRes.recordLogs.length === dryRunRes.summary.totalSource;
-    recordTest('11.9 Script CLI admin/scripts protegido (403) y validación masiva de los 5 JSON contra esquema SQL con log por registro', cliMigrationOk);
+      dryRunRes.recordLogs.length === dryRunRes.summary.totalSource &&
+      initCheckRes.success === true;
+    recordTest('11.9 Scripts CLI admin/scripts protegidos (403), validación masiva de los 5 JSON y check de configuración inicial OK', cliMigrationOk);
 
     // 11.10 Módulo admin/database-manager.js: protegido en HTTP público (403), endpoints seguros sin credenciales y validación .env
     const resDbManagerPublic = await fetch(`${BASE_URL}/admin/database-manager.js`);

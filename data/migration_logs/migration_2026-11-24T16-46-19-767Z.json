@@ -1,0 +1,4830 @@
+{
+  "startedAt": "2026-11-24T16:46:19.767Z",
+  "finishedAt": "2026-11-24T16:46:19.797Z",
+  "dryRun": true,
+  "onConflict": "skip",
+  "backupFolder": null,
+  "liveColumnCheck": {
+    "ok": false,
+    "missingColumns": [],
+    "checked": false
+  },
+  "summary": {
+    "totalSource": 474,
+    "validated": 354,
+    "inserted": 0,
+    "updated": 0,
+    "skipped": 120,
+    "errors": 0
+  },
+  "modules": [
+    {
+      "module": "canales",
+      "label": "Canales por la Integridad",
+      "jsonFile": "canales-por-la-integridad/data_directorio.json",
+      "sourceCount": 65,
+      "validated": 65,
+      "inserted": 0,
+      "updated": 0,
+      "skipped": 0,
+      "errorsCount": 0
+    },
+    {
+      "module": "directorio",
+      "label": "Directorio Acceso al Ejecutivo",
+      "jsonFile": "directorio/data_acceso.json",
+      "sourceCount": 67,
+      "validated": 67,
+      "inserted": 0,
+      "updated": 0,
+      "skipped": 0,
+      "errorsCount": 0
+    },
+    {
+      "module": "tableros",
+      "label": "Tu Gobierno en Números",
+      "jsonFile": "gobierno_en_numeros/data_tableros.json",
+      "sourceCount": 34,
+      "validated": 34,
+      "inserted": 0,
+      "updated": 0,
+      "skipped": 0,
+      "errorsCount": 0
+    },
+    {
+      "module": "riesgo",
+      "label": "Riesgo en la Mira",
+      "jsonFile": "riesgo/datos.json",
+      "sourceCount": 88,
+      "validated": 88,
+      "inserted": 0,
+      "updated": 0,
+      "skipped": 0,
+      "errorsCount": 0
+    },
+    {
+      "module": "vehiculos",
+      "label": "Transparencia Vehicular",
+      "jsonFile": "vehiculos/vehiculos.json",
+      "sourceCount": 219,
+      "validated": 99,
+      "inserted": 0,
+      "updated": 0,
+      "skipped": 120,
+      "errorsCount": 0
+    },
+    {
+      "module": "portal",
+      "label": "Métricas Generales del Portal",
+      "jsonFile": "data_portal.json",
+      "sourceCount": 1,
+      "validated": 1,
+      "inserted": 0,
+      "updated": 0,
+      "skipped": 0,
+      "errorsCount": 0
+    }
+  ],
+  "recordLogs": [
+    {
+      "timestamp": "2026-11-24T16:46:19.790Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 1,
+      "recordId": "1",
+      "ref": "Ministerio de Agricultura, Ganadería y Alimentación - MAGA",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.790Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 2,
+      "recordId": "2",
+      "ref": "Ministerio de Economía - MINECO",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.790Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 3,
+      "recordId": "3",
+      "ref": "Ministerio de Comunicaciones, Infraestructura y Vivienda - MICIVI",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 4,
+      "recordId": "4",
+      "ref": "Ministerio de Cultura y Deportes - MICUDE",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 5,
+      "recordId": "5",
+      "ref": "Ministerio de Desarrollo Social - MIDES",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 6,
+      "recordId": "6",
+      "ref": "Ministerio de la Defensa Nacional - MINDEF",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 7,
+      "recordId": "7",
+      "ref": "Ministerio de Educación - MINEDUC",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 8,
+      "recordId": "8",
+      "ref": "Ministerio de Energía y Minas - MEM",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 9,
+      "recordId": "9",
+      "ref": "Ministerio de Finanzas Públicas - MINFIN",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 10,
+      "recordId": "10",
+      "ref": "Ministerio de Gobernación - MINGOB",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 11,
+      "recordId": "11",
+      "ref": "Ministerio de Relaciones Exteriores - MINEX",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 12,
+      "recordId": "12",
+      "ref": "Ministerio de Salud Pública y Asistencia Social - MSPAS",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 13,
+      "recordId": "13",
+      "ref": "Ministerio de Trabajo y Previsión Social - MINTRAB",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 14,
+      "recordId": "14",
+      "ref": "Ministerio de Ambiente y Recursos Naturales - MARN",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 15,
+      "recordId": "15",
+      "ref": "Secretaría de Asuntos Administrativos y de Seguridad de la Presidencia - SAAS",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 16,
+      "recordId": "16",
+      "ref": "Secretaría de Bienestar Social de la Presidencia - SBS",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 17,
+      "recordId": "17",
+      "ref": "Secretaría de Coordinación Ejecutiva de la Presidencia - SCEP",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 18,
+      "recordId": "18",
+      "ref": "Secretaría contra la Violencia Sexual, Explotación y Trata de Personas - SVET",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 19,
+      "recordId": "19",
+      "ref": "Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas - SECCATID",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 20,
+      "recordId": "20",
+      "ref": "Secretaría General de la Presidencia - SGP",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 21,
+      "recordId": "21",
+      "ref": "Secretaría Nacional de Administración de Bienes en Extinción de Dominio - SENABED",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 22,
+      "recordId": "22",
+      "ref": "Secretaría Nacional de Ciencia y Tecnología - SENACYT",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 23,
+      "recordId": "23",
+      "ref": "Secretaría de Obras Sociales de la Esposa del Presidente - SOSEP",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 24,
+      "recordId": "24",
+      "ref": "Secretaría Presidencial de la Mujer - SEPREM",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 25,
+      "recordId": "25",
+      "ref": "Secretaría de Seguridad Alimentaria y Nutricional - SESAN",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 26,
+      "recordId": "26",
+      "ref": "Secretaría Técnica del Consejo Nacional de Seguridad - STCNS",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 27,
+      "recordId": "27",
+      "ref": "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno - AMSCLAE",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 28,
+      "recordId": "28",
+      "ref": "Comisión Presidencial contra la Discriminación y el Racismo - CODISRA",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 29,
+      "recordId": "29",
+      "ref": "Comisión Presidencial por la Paz y los Derechos Humanos - COPADEH",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 30,
+      "recordId": "30",
+      "ref": "Consejo Nacional de la Juventud - CONJUVE",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 31,
+      "recordId": "31",
+      "ref": "Inspectoria General del Sistema Nacional de Seguridad - IGSNS",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 32,
+      "recordId": "32",
+      "ref": "Instituto Nacional de Estudios Estratégicos en Seguridad - INEES",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 33,
+      "recordId": "33",
+      "ref": "Vicepresidencia de la República de Guatemala - VPRG",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 34,
+      "recordId": "34",
+      "ref": "Gobernación Departamental de Baja Verapaz",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 35,
+      "recordId": "35",
+      "ref": "Gobernación Departamental de Chimaltenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 36,
+      "recordId": "36",
+      "ref": "Gobernación Departamental de El Progreso",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 37,
+      "recordId": "37",
+      "ref": "Gobernación Departamental de Escuintla",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 38,
+      "recordId": "38",
+      "ref": "Gobernación Departamental de Guatemala",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.792Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 39,
+      "recordId": "39",
+      "ref": "Gobernación Departamental de Jalapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 40,
+      "recordId": "40",
+      "ref": "Gobernación Departamental de Jutiapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 41,
+      "recordId": "41",
+      "ref": "Gobernación Departamental de Petén",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 42,
+      "recordId": "42",
+      "ref": "Gobernación Departamental de Quetzaltenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 43,
+      "recordId": "43",
+      "ref": "Gobernación Departamental de Quiché",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 44,
+      "recordId": "44",
+      "ref": "Gobernación Departamental de Sacatepéquez",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 45,
+      "recordId": "45",
+      "ref": "Gobernación Departamental de San Marcos",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 46,
+      "recordId": "46",
+      "ref": "Gobernación Departamental de Suchitepéquez",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 47,
+      "recordId": "47",
+      "ref": "Gobernación Departamental de Zacapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 48,
+      "recordId": "48",
+      "ref": "Gobernación Departamental de Huehuetenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 49,
+      "recordId": "49",
+      "ref": "Gobernación Departamental de Alta Verapaz",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 50,
+      "recordId": "50",
+      "ref": "Gobernación Departamental de Chiquimula",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 51,
+      "recordId": "51",
+      "ref": "Gobernación Departamental de Santa Rosa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 52,
+      "recordId": "52",
+      "ref": "Secretaría de Inteligencia Estratégica del Estado (SIE)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 53,
+      "recordId": "53",
+      "ref": "Gobernación Departamental de Retalhuleu",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 54,
+      "recordId": "54",
+      "ref": "Secretaría de Comunicación Social de la Presidencia - SCSPR",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 55,
+      "recordId": "55",
+      "ref": "Gobernación Departamental de Izabal",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 56,
+      "recordId": "56",
+      "ref": "Comisión Presidencial de Gobierno Abierto y Electrónico - GAE",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 57,
+      "recordId": "57",
+      "ref": "Gobernación Departamental de Sololá",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 58,
+      "recordId": "58",
+      "ref": "Gobernación Departamental de Totonicapán",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 59,
+      "recordId": "59",
+      "ref": "Secretaría de Planificación y Programación de la Presidencia - SEGEPLAN",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 60,
+      "recordId": "60",
+      "ref": "Autoridad para el Manejo Sustentable de la cuenca del lago de Amatitlán - AMSA",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 61,
+      "recordId": "61",
+      "ref": "Comisión Nacional Contra la Corrupción - CNC",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 62,
+      "recordId": "62",
+      "ref": "Defensoría de la Mujer Indígena - DEMI",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 63,
+      "recordId": "63",
+      "ref": "Oficina Nacional de Servicio Civil - ONSEC",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 64,
+      "recordId": "64",
+      "ref": "Consejo Nacional de Áreas Protegidas - CONAP",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "canales",
+      "table": "pia_canales_integridad",
+      "index": 65,
+      "recordId": "65",
+      "ref": "Comisión Presidencial de Atención a la Conflictividad - COPRECOM",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_canales_integridad'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 1,
+      "recordId": "1",
+      "ref": "VICE - Vicepresidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 2,
+      "recordId": "2",
+      "ref": "MAGA - Ministerio de Agricultura, Ganadería y Alimentación -MAGA-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 3,
+      "recordId": "3",
+      "ref": "MARN - Ministerio de Ambiente y Recursos Naturales -MARN-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 4,
+      "recordId": "4",
+      "ref": "MICIVI - Ministerio de Comunicaciones, Infraestructura y Vivienda -MICIVI-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 5,
+      "recordId": "5",
+      "ref": "MCD - Ministerio de Cultura y Deportes -MCD-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 6,
+      "recordId": "6",
+      "ref": "MIDES - Ministerio de Desarrollo Social -MIDES-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 7,
+      "recordId": "7",
+      "ref": "MINECO - Ministerio de Economía -MINECO-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 8,
+      "recordId": "8",
+      "ref": "MINEDUC - Ministerio de Educación -MINEDUC-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 9,
+      "recordId": "9",
+      "ref": "MEM - Ministerio de Energía y Minas -MEM-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 10,
+      "recordId": "10",
+      "ref": "MINFIN - Ministerio de Finanzas Públicas -MINFIN-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 11,
+      "recordId": "11",
+      "ref": "MINGOB - Ministerio de Gobernación -MINGOB-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 12,
+      "recordId": "12",
+      "ref": "MINDEF - Ministerio de la Defensa Nacional -MINDEF-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 13,
+      "recordId": "13",
+      "ref": "MINEX - Ministerio de Relaciones Exteriores -MINEX-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 14,
+      "recordId": "14",
+      "ref": "MSPAS - Ministerio de Salud Pública y Asistencia Social -MSPAS-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 15,
+      "recordId": "15",
+      "ref": "MINTRAB - Ministerio de Trabajo y Previsión Social -MINTRAB-",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 16,
+      "recordId": "16",
+      "ref": "SVET - Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas - SVET -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 17,
+      "recordId": "17",
+      "ref": "SAAS - Secretaría de Asuntos Administrativos y de Seguridad - SAAS -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 18,
+      "recordId": "18",
+      "ref": "SBS - Secretaría de Bienestar Social de la Presidencia - SBS -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 19,
+      "recordId": "19",
+      "ref": "SCSPR - Secretaría de Comunicación Social de la Presidencia - SCS -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 20,
+      "recordId": "20",
+      "ref": "SCEP - Secretaría de Coordinación Ejecutiva de la Presidencia - SCEP -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 21,
+      "recordId": "21",
+      "ref": "SIE - Secretaría de Inteligencia Estratégica del Estado - SIE -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 22,
+      "recordId": "22",
+      "ref": "SOSEP - Secretaría de Obras Sociales de la Esposa del Presidente - SOSEP -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 23,
+      "recordId": "23",
+      "ref": "SEGEPLAN - Secretaría de Planificación y Programación de la Presidencia - SEGEPLAN -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 24,
+      "recordId": "24",
+      "ref": "SESAN - Secretaría de Seguridad Alimentaria y Nutricional - SESAN -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 25,
+      "recordId": "25",
+      "ref": "SECCATID - Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas - SECCATID -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 26,
+      "recordId": "26",
+      "ref": "SGP - Secretaría General de la Presidencia - SGP -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 27,
+      "recordId": "27",
+      "ref": "SENACYT - Secretaría Nacional de Ciencia y Tecnología - SENACYT -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 28,
+      "recordId": "28",
+      "ref": "SEPREM - Secretaría Presidencial de la Mujer - SEPREM -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 29,
+      "recordId": "29",
+      "ref": "SPRIV - Secretaría Privada de la Presidencia - SPRIV -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 30,
+      "recordId": "30",
+      "ref": "AMSA - Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán - AMSA -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 31,
+      "recordId": "31",
+      "ref": "AMSCLAE - Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno – AMSCLAE -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 32,
+      "recordId": "32",
+      "ref": "CONAP - Consejo Nacional de Áreas Protegidas – CONAP -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 33,
+      "recordId": "33",
+      "ref": "CONJUVE - Consejo Nacional de la Juventud – CONJUVE -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 34,
+      "recordId": "34",
+      "ref": "DEMI - Defensoría de la Mujer Indígena - DEMI -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 35,
+      "recordId": "35",
+      "ref": "FODIGUA - Fondo de Desarrollo Indígena Guatemalteco – FODIGUA -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 36,
+      "recordId": "36",
+      "ref": "IGSNS - Inspectoría General del Sistema Nacional de Seguridad – IGSNS -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 37,
+      "recordId": "37",
+      "ref": "INEES - Instituto Nacional de Estudios Estratégicos de Seguridad – INEES -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 38,
+      "recordId": "38",
+      "ref": "ONSEC - Oficina Nacional de Servicio Civil – ONSEC -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 39,
+      "recordId": "39",
+      "ref": "SENABED - Secretaría Nacional de Administración de Bienes de Extinción de Dominio – SENABED -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 40,
+      "recordId": "40",
+      "ref": "STCNS - Secretaría Técnica del Consejo Nacional de Seguridad – STCNS –",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 41,
+      "recordId": "41",
+      "ref": "CNC - Comisión Nacional Contra la Corrupción - CNC -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 42,
+      "recordId": "42",
+      "ref": "CODISRA - Comisión Presidencial contra la Discriminación y el Racismo Contra los Pueblos Indígenas en Guatemala – CODISR",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 43,
+      "recordId": "43",
+      "ref": "COPRESAM - Comisión Presidencial de Asuntos Municipales – COPRESAM -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 44,
+      "recordId": "44",
+      "ref": "GAE - Comisión Presidencial de Gobierno Abierto y Electrónico– GAE -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 45,
+      "recordId": "45",
+      "ref": "COPADEH - Comisión Presidencial por la Paz y los Derechos Humanos – COPADEH -",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 46,
+      "recordId": "46",
+      "ref": "ALTA VERAPAZ - Gobernación Departamental de Alta Verapaz",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 47,
+      "recordId": "47",
+      "ref": "BAJA VERAPAZ - Gobernación Departamental de Baja Verapaz",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 48,
+      "recordId": "48",
+      "ref": "CHIMALTENANGO - Gobernación Departamental de Chimaltenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 49,
+      "recordId": "49",
+      "ref": "CHIQUIMULA - Gobernación Departamental de Chiquimula",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 50,
+      "recordId": "50",
+      "ref": "EL PROGRESO - Gobernación Departamental de El Progreso",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 51,
+      "recordId": "51",
+      "ref": "ESCUINTLA - Gobernación Departamental de Escuintla",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 52,
+      "recordId": "52",
+      "ref": "GUATEMALA - Gobernación Departamental de Guatemala",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 53,
+      "recordId": "53",
+      "ref": "HUEHUETENANGO - Gobernación Departamental de Huehuetenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 54,
+      "recordId": "54",
+      "ref": "IZABAL - Gobernación Departamental de Izabal",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 55,
+      "recordId": "55",
+      "ref": "JALAPA - Gobernación Departamental de Jalapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 56,
+      "recordId": "56",
+      "ref": "JUTIAPA - Gobernación Departamental de Jutiapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 57,
+      "recordId": "57",
+      "ref": "PETÉN - Gobernación Departamental de Petén",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 58,
+      "recordId": "58",
+      "ref": "QUETZALTENANGO - Gobernación Departamental de Quetzaltenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 59,
+      "recordId": "59",
+      "ref": "QUICHÉ - Gobernación Departamental de Quiché",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.793Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 60,
+      "recordId": "60",
+      "ref": "RETALHULEU - Gobernación Departamental de Retalhuleu",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 61,
+      "recordId": "61",
+      "ref": "SACATEPÉQUEZ - Gobernación Departamental de Sacatepéquez",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 62,
+      "recordId": "62",
+      "ref": "SAN MARCOS - Gobernación Departamental de San Marcos",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 63,
+      "recordId": "63",
+      "ref": "SANTA ROSA - Gobernación Departamental de Santa Rosa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 64,
+      "recordId": "64",
+      "ref": "SOLOLÁ - Gobernación Departamental de Sololá",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 65,
+      "recordId": "65",
+      "ref": "SUCHITEPÉQUEZ - Gobernación Departamental de Suchitepéquez",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 66,
+      "recordId": "66",
+      "ref": "TOTONICAPÁN - Gobernación Departamental de Totonicapán",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "directorio",
+      "table": "pia_directorio_acceso",
+      "index": 67,
+      "recordId": "67",
+      "ref": "ZACAPA - Gobernación Departamental de Zacapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_directorio_acceso'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 1,
+      "recordId": "1",
+      "ref": "VICE - Vicepresidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 2,
+      "recordId": "2",
+      "ref": "MAGA - Ministerio de Agricultura, Ganadería y Alimentación",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 3,
+      "recordId": "3",
+      "ref": "MARN - Ministerio de Ambiente y Recursos Naturales",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 4,
+      "recordId": "4",
+      "ref": "MICIVI - Ministerio de Comunicaciones, Infraestructura y Vivienda",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 5,
+      "recordId": "5",
+      "ref": "MCD - Ministerio de Cultura y Deportes",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 6,
+      "recordId": "6",
+      "ref": "MIDES - Ministerio de Desarrollo Social",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 7,
+      "recordId": "7",
+      "ref": "MINECO - Ministerio de Economía",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 8,
+      "recordId": "8",
+      "ref": "MINEDUC - Ministerio de Educación",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 9,
+      "recordId": "9",
+      "ref": "MEM - Ministerio de Energía y Minas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 10,
+      "recordId": "10",
+      "ref": "MINFIN - Ministerio de Finanzas Públicas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 11,
+      "recordId": "11",
+      "ref": "MINGOB - Ministerio de Gobernación",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 12,
+      "recordId": "12",
+      "ref": "MINDEF - Ministerio de la Defensa Nacional",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 13,
+      "recordId": "13",
+      "ref": "MINEX - Ministerio de Relaciones Exteriores",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 14,
+      "recordId": "14",
+      "ref": "MSPAS - Ministerio de Salud Pública y Asistencia Social",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 15,
+      "recordId": "15",
+      "ref": "MINTRAB - Ministerio de Trabajo y Previsión Social",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 16,
+      "recordId": "16",
+      "ref": "SVET - Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 17,
+      "recordId": "17",
+      "ref": "SAAS - Secretaría de Asuntos Administrativos y de Seguridad",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 18,
+      "recordId": "18",
+      "ref": "SBS - Secretaría de Bienestar Social de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 19,
+      "recordId": "19",
+      "ref": "SCSPR - Secretaría de Comunicación Social de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 20,
+      "recordId": "20",
+      "ref": "SCEP - Secretaría de Coordinación Ejecutiva de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 21,
+      "recordId": "21",
+      "ref": "SIE - Secretaría de Inteligencia Estratégica del Estado",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 22,
+      "recordId": "22",
+      "ref": "SOSEP - Secretaría de Obras Sociales de la Esposa del Presidente",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 23,
+      "recordId": "23",
+      "ref": "SEGEPLAN - Secretaría de Planificación y Programación de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 24,
+      "recordId": "24",
+      "ref": "SESAN - Secretaría de Seguridad Alimentaria y Nutricional",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 25,
+      "recordId": "25",
+      "ref": "SECCATID - Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 26,
+      "recordId": "26",
+      "ref": "SGP - Secretaría General de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 27,
+      "recordId": "27",
+      "ref": "SENACYT - Secretaría Nacional de Ciencia y Tecnología",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 28,
+      "recordId": "28",
+      "ref": "SEPREM - Secretaría Presidencial de la Mujer",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 29,
+      "recordId": "29",
+      "ref": "SPRIV - Secretaría Privada de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 30,
+      "recordId": "30",
+      "ref": "AMSA - Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 31,
+      "recordId": "31",
+      "ref": "AMSCLAE - Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 32,
+      "recordId": "32",
+      "ref": "CONAP - Consejo Nacional de Áreas Protegidas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 33,
+      "recordId": "33",
+      "ref": "CNC - Comisión Nacional contra la Corrupción",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "tableros",
+      "table": "pia_tableros_gobierno",
+      "index": 34,
+      "recordId": "34",
+      "ref": "CODISRA - Comisión Presidencial contra la Discriminación y el Racismo",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_tableros_gobierno'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_ciclos",
+      "index": 1,
+      "recordId": "2025",
+      "ref": "Ciclo 2025",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_ciclos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_ciclos",
+      "index": 70,
+      "recordId": "2026",
+      "ref": "Ciclo 2026",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_ciclos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_ciclos",
+      "index": 71,
+      "recordId": "2027",
+      "ref": "Ciclo 2027",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_ciclos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_ciclos",
+      "index": 72,
+      "recordId": "2028",
+      "ref": "Ciclo 2028",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_ciclos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 2,
+      "recordId": "2025:1",
+      "ref": "MAGA (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 3,
+      "recordId": "2025:2",
+      "ref": "MARN (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 4,
+      "recordId": "2025:3",
+      "ref": "MICIV (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 5,
+      "recordId": "2025:4",
+      "ref": "MICUDE (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 6,
+      "recordId": "2025:5",
+      "ref": "MIDES (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 7,
+      "recordId": "2025:6",
+      "ref": "MINECO (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 8,
+      "recordId": "2025:7",
+      "ref": "MINEDUC (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 9,
+      "recordId": "2025:8",
+      "ref": "MEM (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 10,
+      "recordId": "2025:9",
+      "ref": "MINFIN (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 11,
+      "recordId": "2025:10",
+      "ref": "MINGOB (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 12,
+      "recordId": "2025:11",
+      "ref": "MINDEF (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 13,
+      "recordId": "2025:12",
+      "ref": "MINEX (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 14,
+      "recordId": "2025:13",
+      "ref": "MSPAS (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 15,
+      "recordId": "2025:14",
+      "ref": "MINTRAB (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 16,
+      "recordId": "2025:15",
+      "ref": "SVET (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 17,
+      "recordId": "2025:16",
+      "ref": "SAAS (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 18,
+      "recordId": "2025:17",
+      "ref": "SBS (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 19,
+      "recordId": "2025:18",
+      "ref": "SCSPR (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 20,
+      "recordId": "2025:19",
+      "ref": "SCEP (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 21,
+      "recordId": "2025:20",
+      "ref": "SIE (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 22,
+      "recordId": "2025:21",
+      "ref": "SOSEP (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 23,
+      "recordId": "2025:22",
+      "ref": "SEGEPLAN (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 24,
+      "recordId": "2025:23",
+      "ref": "SESAN (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 25,
+      "recordId": "2025:24",
+      "ref": "SECCATID (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 26,
+      "recordId": "2025:25",
+      "ref": "SGP (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 27,
+      "recordId": "2025:26",
+      "ref": "SENABED (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 28,
+      "recordId": "2025:27",
+      "ref": "SENACYT (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 29,
+      "recordId": "2025:28",
+      "ref": "SEPREM (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 30,
+      "recordId": "2025:29",
+      "ref": "SPP (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 31,
+      "recordId": "2025:30",
+      "ref": "STCNS (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 32,
+      "recordId": "2025:31",
+      "ref": "AMSCLAE (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 33,
+      "recordId": "2025:32",
+      "ref": "AMSA (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 34,
+      "recordId": "2025:33",
+      "ref": "CNC (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 35,
+      "recordId": "2025:34",
+      "ref": "CODISRA (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 36,
+      "recordId": "2025:35",
+      "ref": "COPRESAM (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 37,
+      "recordId": "2025:36",
+      "ref": "GAE (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 38,
+      "recordId": "2025:37",
+      "ref": "COPADEH (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 39,
+      "recordId": "2025:38",
+      "ref": "COPRECON (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 40,
+      "recordId": "2025:39",
+      "ref": "CONAP (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 41,
+      "recordId": "2025:40",
+      "ref": "CONJUVE (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 42,
+      "recordId": "2025:41",
+      "ref": "DEMI (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 43,
+      "recordId": "2025:42",
+      "ref": "FODIGUA (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 44,
+      "recordId": "2025:43",
+      "ref": "IGSNS (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 45,
+      "recordId": "2025:44",
+      "ref": "INEES (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 46,
+      "recordId": "2025:45",
+      "ref": "ONSEC (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 47,
+      "recordId": "2025:46",
+      "ref": "VPRG (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 48,
+      "recordId": "2025:47",
+      "ref": "Gob. Deptal. AV (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.794Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 49,
+      "recordId": "2025:48",
+      "ref": "Gob. Deptal. BV (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 50,
+      "recordId": "2025:49",
+      "ref": "Gob. Deptal. Chimalt (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 51,
+      "recordId": "2025:50",
+      "ref": "Gob. Deptal. Chiquimula (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 52,
+      "recordId": "2025:51",
+      "ref": "Gob. Deptal. El Progreso (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 53,
+      "recordId": "2025:52",
+      "ref": "Gob. Deptal. Escuintla (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 54,
+      "recordId": "2025:53",
+      "ref": "Gob. Deptal. Guate (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 55,
+      "recordId": "2025:54",
+      "ref": "Gob. Deptal. Huehue (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 56,
+      "recordId": "2025:55",
+      "ref": "Gob. Deptal. Izabal (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 57,
+      "recordId": "2025:56",
+      "ref": "Gob. Deptal. Jalapa (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 58,
+      "recordId": "2025:57",
+      "ref": "Gob. Deptal. Jutiapa (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 59,
+      "recordId": "2025:58",
+      "ref": "Gob. Deptal. Petén (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 60,
+      "recordId": "2025:59",
+      "ref": "Gob. Deptal. Quetz (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 61,
+      "recordId": "2025:60",
+      "ref": "Gob. Deptal. Quiché (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 62,
+      "recordId": "2025:61",
+      "ref": "Gob. Deptal. Reu (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 63,
+      "recordId": "2025:62",
+      "ref": "Gob. Deptal. Sac (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 64,
+      "recordId": "2025:63",
+      "ref": "Gob. Deptal. San Marcos (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 65,
+      "recordId": "2025:64",
+      "ref": "Gob. Deptal. Sta. Rosa (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 66,
+      "recordId": "2025:65",
+      "ref": "Gob. Deptal. Sololá (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 67,
+      "recordId": "2025:66",
+      "ref": "Gob. Deptal. Suchi (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 68,
+      "recordId": "2025:67",
+      "ref": "Gob. Deptal. Toto (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_instituciones",
+      "index": 69,
+      "recordId": "2025:68",
+      "ref": "Gob. Deptal. Zacapa (2025)",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 73,
+      "recordId": "frec-1",
+      "ref": "Apropiación irregular de fondos públicos",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 74,
+      "recordId": "frec-2",
+      "ref": "Abuso en la función pública",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 75,
+      "recordId": "frec-3",
+      "ref": "Abuso de la función pública en procesos administrativos",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 76,
+      "recordId": "frec-4",
+      "ref": "Adquisiciones irregulares",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 77,
+      "recordId": "frec-5",
+      "ref": "Colusión en adquisición de bienes y servicios",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 78,
+      "recordId": "frec-6",
+      "ref": "Corrupción por omisión",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 79,
+      "recordId": "frec-7",
+      "ref": "Expedición irregular de licencias, permisos o constancias",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 80,
+      "recordId": "frec-8",
+      "ref": "Inconsistencia de avances en obra pública",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 81,
+      "recordId": "frec-9",
+      "ref": "Manejo indebido de registros e inventarios",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 82,
+      "recordId": "frec-10",
+      "ref": "Manipulación de información y/o manejo indebido de expedientes",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 83,
+      "recordId": "frec-11",
+      "ref": "Ofrecimiento irregular de plazas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 84,
+      "recordId": "frec-12",
+      "ref": "Solicitud o aceptación irregular",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 85,
+      "recordId": "frec-13",
+      "ref": "Traslado irregular de reos",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 86,
+      "recordId": "frec-14",
+      "ref": "Uso indebido de programas sociales",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 87,
+      "recordId": "frec-15",
+      "ref": "Uso indebido de programas sociales de infraestructura y vivienda",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "riesgo",
+      "table": "pia_riesgo_frecuentes",
+      "index": 88,
+      "recordId": "frec-16",
+      "ref": "Uso y apropiación irregular de bienes públicos",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_riesgo_frecuentes'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 1,
+      "recordId": "Ministerio de Agricultura, Ganadería y Alimentación",
+      "ref": "MAGA - Ministerio de Agricultura, Ganadería y Alimentación",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 2,
+      "recordId": "Ministerio de Ambiente y Recursos Naturales",
+      "ref": "MARN - Ministerio de Ambiente y Recursos Naturales",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 3,
+      "recordId": "Ministerio de Comunicaciones, Infraestructura y Vivienda",
+      "ref": "MICIV - Ministerio de Comunicaciones, Infraestructura y Vivienda",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 4,
+      "recordId": "Ministerio de Cultura y Deportes",
+      "ref": "MICUDE - Ministerio de Cultura y Deportes",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 5,
+      "recordId": "Ministerio de Desarrollo Social",
+      "ref": "MIDES - Ministerio de Desarrollo Social",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 6,
+      "recordId": "Ministerio de Economía",
+      "ref": "MINECO - Ministerio de Economía",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 7,
+      "recordId": "Ministerio de Educación",
+      "ref": "MINEDUC - Ministerio de Educación",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 8,
+      "recordId": "Ministerio de Energía y Minas",
+      "ref": "MEM - Ministerio de Energía y Minas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 9,
+      "recordId": "Ministerio de Finanzas Públicas",
+      "ref": "MINFIN - Ministerio de Finanzas Públicas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 10,
+      "recordId": "Ministerio de Gobernación",
+      "ref": "MINGOB - Ministerio de Gobernación",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 11,
+      "recordId": "Ministerio de la Defensa Nacional",
+      "ref": "MINDEF - Ministerio de la Defensa Nacional",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 12,
+      "recordId": "Ministerio de Relaciones Exteriores",
+      "ref": "MINEX - Ministerio de Relaciones Exteriores",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 13,
+      "recordId": "Ministerio de Salud Pública y Asistencia Social",
+      "ref": "MSPAS - Ministerio de Salud Pública y Asistencia Social",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 14,
+      "recordId": "Ministerio de Trabajo y Previsión Social",
+      "ref": "MINTRAB - Ministerio de Trabajo y Previsión Social",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 15,
+      "recordId": "Secretaría contra la Violencia Sexual, Explotación y Trata de Personas",
+      "ref": "SVET - Secretaría contra la Violencia Sexual, Explotación y Trata de Personas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 16,
+      "recordId": "Secretaría de Asuntos Administrativos y de Seguridad de la Presidencia",
+      "ref": "SAAS - Secretaría de Asuntos Administrativos y de Seguridad de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 17,
+      "recordId": "Secretaría de Bienestar Social de la Presidencia de la República",
+      "ref": "SBS - Secretaría de Bienestar Social de la Presidencia de la República",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 18,
+      "recordId": "Secretaría de Comunicación Social de la Presidencia",
+      "ref": "SCSPR - Secretaría de Comunicación Social de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 19,
+      "recordId": "Secretaría de Coordinación Ejecutiva de la Presidencia",
+      "ref": "SCEP - Secretaría de Coordinación Ejecutiva de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 20,
+      "recordId": "Secretaría de Inteligencia Estratégica del Estado",
+      "ref": "SIE - Secretaría de Inteligencia Estratégica del Estado",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 21,
+      "recordId": "Secretaría de Obras Sociales de la Esposa del Presidente de la República",
+      "ref": "SOSEP - Secretaría de Obras Sociales de la Esposa del Presidente de la República",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 22,
+      "recordId": "Secretaría de Planificación y Programación de la Presidencia",
+      "ref": "SEGEPLAN - Secretaría de Planificación y Programación de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 23,
+      "recordId": "Secretaría de Seguridad Alimentaria y Nutricional",
+      "ref": "SESAN - Secretaría de Seguridad Alimentaria y Nutricional",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 24,
+      "recordId": "Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas",
+      "ref": "SECCATID - Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 25,
+      "recordId": "Secretaría General de la Presidencia",
+      "ref": "SGP - Secretaría General de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 26,
+      "recordId": "Secretaría Nacional de Administración de Bienes en Extinción de Dominio",
+      "ref": "SENABED - Secretaría Nacional de Administración de Bienes en Extinción de Dominio",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 27,
+      "recordId": "Secretaría Nacional de Ciencia y Tecnología",
+      "ref": "SENACYT - Secretaría Nacional de Ciencia y Tecnología",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 28,
+      "recordId": "Secretaría Presidencial de la Mujer",
+      "ref": "SEPREM - Secretaría Presidencial de la Mujer",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 29,
+      "recordId": "Secretaría Privada de la Presidencia",
+      "ref": "SPP - Secretaría Privada de la Presidencia",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 30,
+      "recordId": "Secretaría Técnica del Consejo Nacional de Seguridad",
+      "ref": "STCNS - Secretaría Técnica del Consejo Nacional de Seguridad",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 31,
+      "recordId": "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno",
+      "ref": "AMSCLAE - Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 32,
+      "recordId": "Autoridad para el Manejo Sustentable de la Cuenca y del Lago de Amatitlán",
+      "ref": "AMSA - Autoridad para el Manejo Sustentable de la Cuenca y del Lago de Amatitlán",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 33,
+      "recordId": "Comisión Nacional contra la Corrupción",
+      "ref": "CNC - Comisión Nacional contra la Corrupción",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 34,
+      "recordId": "Comisión Presidencial contra la Discriminación y el Racismo contra los Pueblos Indígenas en Guatemala",
+      "ref": "CODISRA - Comisión Presidencial contra la Discriminación y el Racismo contra los Pueblos Indígenas en Guatemala",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 35,
+      "recordId": "Comisión Presidencial de Asuntos Municipales",
+      "ref": "COPRESAM - Comisión Presidencial de Asuntos Municipales",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 36,
+      "recordId": "Comisión Presidencial de Gobierno Abierto y Electrónico",
+      "ref": "GAE - Comisión Presidencial de Gobierno Abierto y Electrónico",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 37,
+      "recordId": "Comisión Presidencial por la Paz y los Derechos Humanos",
+      "ref": "COPADEH - Comisión Presidencial por la Paz y los Derechos Humanos",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 38,
+      "recordId": "Comisión Presidencial de Atención a la Conflictividad",
+      "ref": "COPRECON - Comisión Presidencial de Atención a la Conflictividad",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 39,
+      "recordId": "Consejo Nacional de Áreas Protegidas",
+      "ref": "CONAP - Consejo Nacional de Áreas Protegidas",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 40,
+      "recordId": "Consejo Nacional de la Juventud",
+      "ref": "CONJUVE - Consejo Nacional de la Juventud",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 41,
+      "recordId": "Defensoría de la Mujer Indígena",
+      "ref": "DEMI - Defensoría de la Mujer Indígena",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 42,
+      "recordId": "Fondo de Desarrollo Indígena Guatemalteco",
+      "ref": "FODIGUA - Fondo de Desarrollo Indígena Guatemalteco",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 43,
+      "recordId": "Inspectoría General del Sistema Nacional de Seguridad",
+      "ref": "IGSNS - Inspectoría General del Sistema Nacional de Seguridad",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 44,
+      "recordId": "Instituto Nacional de Estudios Estratégicos en Seguridad",
+      "ref": "INEES - Instituto Nacional de Estudios Estratégicos en Seguridad",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 45,
+      "recordId": "Oficina Nacional de Servicio Civil",
+      "ref": "ONSEC - Oficina Nacional de Servicio Civil",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 46,
+      "recordId": "Vicepresidencia de la República de Guatemala",
+      "ref": "VPRG - Vicepresidencia de la República de Guatemala",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 47,
+      "recordId": "Gobernación Departamental de Alta Verapaz",
+      "ref": "AV - Gobernación Departamental de Alta Verapaz",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 48,
+      "recordId": "Gobernación Departamental de Baja Verapaz",
+      "ref": "BV - Gobernación Departamental de Baja Verapaz",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 49,
+      "recordId": "Gobernación Departamental de Chimaltenango",
+      "ref": "CM - Gobernación Departamental de Chimaltenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 50,
+      "recordId": "Gobernación Departamental de Chiquimula",
+      "ref": "CQ - Gobernación Departamental de Chiquimula",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 51,
+      "recordId": "Gobernación Departamental de El Progreso",
+      "ref": "PR - Gobernación Departamental de El Progreso",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 52,
+      "recordId": "Gobernación Departamental de Escuintla",
+      "ref": "ES - Gobernación Departamental de Escuintla",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 53,
+      "recordId": "Gobernación Departamental de Guatemala",
+      "ref": "GU - Gobernación Departamental de Guatemala",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 54,
+      "recordId": "Gobernación Departamental de Huehuetenango",
+      "ref": "HU - Gobernación Departamental de Huehuetenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 55,
+      "recordId": "Gobernación Departamental de Izabal",
+      "ref": "IZ - Gobernación Departamental de Izabal",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 56,
+      "recordId": "Gobernación Departamental de Jalapa",
+      "ref": "JA - Gobernación Departamental de Jalapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 57,
+      "recordId": "Gobernación Departamental de Jutiapa",
+      "ref": "JU - Gobernación Departamental de Jutiapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 58,
+      "recordId": "Gobernación Departamental de Petén",
+      "ref": "PE - Gobernación Departamental de Petén",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 59,
+      "recordId": "Gobernación Departamental de Quetzaltenango",
+      "ref": "QZ - Gobernación Departamental de Quetzaltenango",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 60,
+      "recordId": "Gobernación Departamental de Quiché",
+      "ref": "QC - Gobernación Departamental de Quiché",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 61,
+      "recordId": "Gobernación Departamental de Retalhuleu",
+      "ref": "RE - Gobernación Departamental de Retalhuleu",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 62,
+      "recordId": "Gobernación Departamental de Sacatepéquez",
+      "ref": "SA - Gobernación Departamental de Sacatepéquez",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 63,
+      "recordId": "Gobernación Departamental de San Marcos",
+      "ref": "SM - Gobernación Departamental de San Marcos",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 64,
+      "recordId": "Gobernación Departamental de Santa Rosa",
+      "ref": "SR - Gobernación Departamental de Santa Rosa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 65,
+      "recordId": "Gobernación Departamental de Sololá",
+      "ref": "SO - Gobernación Departamental de Sololá",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 66,
+      "recordId": "Gobernación Departamental de Suchitepéquez",
+      "ref": "SU - Gobernación Departamental de Suchitepéquez",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 67,
+      "recordId": "Gobernación Departamental de Totonicapán",
+      "ref": "TO - Gobernación Departamental de Totonicapán",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 68,
+      "recordId": "Gobernación Departamental de Zacapa",
+      "ref": "ZA - Gobernación Departamental de Zacapa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos_instituciones",
+      "index": 69,
+      "recordId": "Presidencia de la República",
+      "ref": "PRES - Presidencia de la República",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos_instituciones'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 70,
+      "recordId": "101",
+      "ref": "O-123ABC · Toyota Hilux",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 71,
+      "recordId": "102",
+      "ref": "O-123ABC · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-123ABC' duplicada del ID 101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 72,
+      "recordId": "103",
+      "ref": "O-123ABC · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-123ABC' duplicada del ID 101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 73,
+      "recordId": "104",
+      "ref": "O-123ABC · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-123ABC' duplicada del ID 101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 74,
+      "recordId": "1",
+      "ref": "O-123ABC · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-123ABC' duplicada del ID 101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 75,
+      "recordId": "201",
+      "ref": "O-946BBZ · Mitsubishi Nativa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 76,
+      "recordId": "202",
+      "ref": "O-946BBZ · Mitsubishi Nativa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-946BBZ' duplicada del ID 201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 77,
+      "recordId": "203",
+      "ref": "O-946BBZ · Mitsubishi Nativa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-946BBZ' duplicada del ID 201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 78,
+      "recordId": "204",
+      "ref": "O-946BBZ · Mitsubishi Nativa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-946BBZ' duplicada del ID 201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.795Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 79,
+      "recordId": "2",
+      "ref": "O-946BBZ · Mitsubishi Nativa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-946BBZ' duplicada del ID 201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 80,
+      "recordId": "301",
+      "ref": "P-123ABC · Mercedes Clase E",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 81,
+      "recordId": "302",
+      "ref": "P-123ABC · Mercedes Clase E",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-123ABC' duplicada del ID 301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 82,
+      "recordId": "303",
+      "ref": "P-123ABC · Mercedes Clase E",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-123ABC' duplicada del ID 301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 83,
+      "recordId": "304",
+      "ref": "P-123ABC · Mercedes Clase E",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-123ABC' duplicada del ID 301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 84,
+      "recordId": "3",
+      "ref": "P-123ABC · Mercedes Clase E",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-123ABC' duplicada del ID 301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 85,
+      "recordId": "401",
+      "ref": "TC-001XYZ · Volvo FH16",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 86,
+      "recordId": "402",
+      "ref": "TC-001XYZ · Volvo FH16",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'TC-001XYZ' duplicada del ID 401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 87,
+      "recordId": "403",
+      "ref": "TC-001XYZ · Volvo FH16",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'TC-001XYZ' duplicada del ID 401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 88,
+      "recordId": "404",
+      "ref": "TC-001XYZ · Volvo FH16",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'TC-001XYZ' duplicada del ID 401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 89,
+      "recordId": "4",
+      "ref": "TC-001XYZ · Volvo FH16",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'TC-001XYZ' duplicada del ID 401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 90,
+      "recordId": "501",
+      "ref": "A-456DEF · Nissan Versa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 91,
+      "recordId": "502",
+      "ref": "A-456DEF · Nissan Versa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-456DEF' duplicada del ID 501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 92,
+      "recordId": "503",
+      "ref": "A-456DEF · Nissan Versa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-456DEF' duplicada del ID 501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 93,
+      "recordId": "504",
+      "ref": "A-456DEF · Nissan Versa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-456DEF' duplicada del ID 501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 94,
+      "recordId": "5",
+      "ref": "A-456DEF · Nissan Versa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-456DEF' duplicada del ID 501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 95,
+      "recordId": "601",
+      "ref": "M-789GHI · Honda CBR 600",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 96,
+      "recordId": "602",
+      "ref": "M-789GHI · Honda CBR 600",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'M-789GHI' duplicada del ID 601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 97,
+      "recordId": "603",
+      "ref": "M-789GHI · Honda CBR 600",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'M-789GHI' duplicada del ID 601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 98,
+      "recordId": "604",
+      "ref": "M-789GHI · Honda CBR 600",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'M-789GHI' duplicada del ID 601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 99,
+      "recordId": "6",
+      "ref": "M-789GHI · Honda CBR 600",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'M-789GHI' duplicada del ID 601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 100,
+      "recordId": "701",
+      "ref": "C-012JKL · Chevrolet Silverado",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 101,
+      "recordId": "702",
+      "ref": "C-012JKL · Chevrolet Silverado",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'C-012JKL' duplicada del ID 701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 102,
+      "recordId": "703",
+      "ref": "C-012JKL · Chevrolet Silverado",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'C-012JKL' duplicada del ID 701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 103,
+      "recordId": "704",
+      "ref": "C-012JKL · Chevrolet Silverado",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'C-012JKL' duplicada del ID 701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 104,
+      "recordId": "7",
+      "ref": "C-012JKL · Chevrolet Silverado",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'C-012JKL' duplicada del ID 701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 105,
+      "recordId": "801",
+      "ref": "O-678PQR · Mazda BT-50",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 106,
+      "recordId": "802",
+      "ref": "O-678PQR · Mazda BT-50",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-678PQR' duplicada del ID 801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 107,
+      "recordId": "803",
+      "ref": "O-678PQR · Mazda BT-50",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-678PQR' duplicada del ID 801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 108,
+      "recordId": "804",
+      "ref": "O-678PQR · Mazda BT-50",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-678PQR' duplicada del ID 801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 109,
+      "recordId": "8",
+      "ref": "O-678PQR · Mazda BT-50",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-678PQR' duplicada del ID 801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 110,
+      "recordId": "901",
+      "ref": "TC-901STU · Toyota Land Cruiser",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 111,
+      "recordId": "902",
+      "ref": "TC-901STU · Toyota Land Cruiser",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'TC-901STU' duplicada del ID 901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 112,
+      "recordId": "903",
+      "ref": "TC-901STU · Toyota Land Cruiser",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'TC-901STU' duplicada del ID 901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 113,
+      "recordId": "904",
+      "ref": "TC-901STU · Toyota Land Cruiser",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'TC-901STU' duplicada del ID 901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 114,
+      "recordId": "9",
+      "ref": "TC-901STU · Toyota Land Cruiser",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'TC-901STU' duplicada del ID 901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 115,
+      "recordId": "1001",
+      "ref": "A-246VWX · Hyundai Tucson",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 116,
+      "recordId": "1002",
+      "ref": "A-246VWX · Hyundai Tucson",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-246VWX' duplicada del ID 1001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 117,
+      "recordId": "1003",
+      "ref": "A-246VWX · Hyundai Tucson",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-246VWX' duplicada del ID 1001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 118,
+      "recordId": "1004",
+      "ref": "A-246VWX · Hyundai Tucson",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-246VWX' duplicada del ID 1001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 119,
+      "recordId": "10",
+      "ref": "A-246VWX · Hyundai Tucson",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-246VWX' duplicada del ID 1001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 120,
+      "recordId": "1101",
+      "ref": "O-789XYZ · Toyota Corolla",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 121,
+      "recordId": "1102",
+      "ref": "O-789XYZ · Toyota Corolla",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-789XYZ' duplicada del ID 1101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 122,
+      "recordId": "1103",
+      "ref": "O-789XYZ · Toyota Corolla",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-789XYZ' duplicada del ID 1101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 123,
+      "recordId": "1104",
+      "ref": "O-789XYZ · Toyota Corolla",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-789XYZ' duplicada del ID 1101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 124,
+      "recordId": "11",
+      "ref": "O-789XYZ · Toyota Corolla",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-789XYZ' duplicada del ID 1101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 125,
+      "recordId": "1201",
+      "ref": "P-456DEF · BMW Serie 5",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 126,
+      "recordId": "1202",
+      "ref": "P-456DEF · BMW Serie 5",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-456DEF' duplicada del ID 1201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 127,
+      "recordId": "1203",
+      "ref": "P-456DEF · BMW Serie 5",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-456DEF' duplicada del ID 1201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 128,
+      "recordId": "1204",
+      "ref": "P-456DEF · BMW Serie 5",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-456DEF' duplicada del ID 1201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 129,
+      "recordId": "12",
+      "ref": "P-456DEF · BMW Serie 5",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-456DEF' duplicada del ID 1201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 130,
+      "recordId": "1301",
+      "ref": "G-789ABC · Toyota Hilux",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 131,
+      "recordId": "1302",
+      "ref": "G-789ABC · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-789ABC' duplicada del ID 1301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 132,
+      "recordId": "1303",
+      "ref": "G-789ABC · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-789ABC' duplicada del ID 1301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 133,
+      "recordId": "1304",
+      "ref": "G-789ABC · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-789ABC' duplicada del ID 1301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 134,
+      "recordId": "13",
+      "ref": "G-789ABC · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-789ABC' duplicada del ID 1301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 135,
+      "recordId": "1401",
+      "ref": "G-123DEF · Mitsubishi L200",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 136,
+      "recordId": "1402",
+      "ref": "G-123DEF · Mitsubishi L200",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-123DEF' duplicada del ID 1401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 137,
+      "recordId": "1403",
+      "ref": "G-123DEF · Mitsubishi L200",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-123DEF' duplicada del ID 1401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 138,
+      "recordId": "1404",
+      "ref": "G-123DEF · Mitsubishi L200",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-123DEF' duplicada del ID 1401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 139,
+      "recordId": "14",
+      "ref": "G-123DEF · Mitsubishi L200",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-123DEF' duplicada del ID 1401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 140,
+      "recordId": "1501",
+      "ref": "E-456GHI · Isuzu NPR",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 141,
+      "recordId": "1502",
+      "ref": "E-456GHI · Isuzu NPR",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'E-456GHI' duplicada del ID 1501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 142,
+      "recordId": "1503",
+      "ref": "E-456GHI · Isuzu NPR",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'E-456GHI' duplicada del ID 1501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 143,
+      "recordId": "1504",
+      "ref": "E-456GHI · Isuzu NPR",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'E-456GHI' duplicada del ID 1501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 144,
+      "recordId": "15",
+      "ref": "E-456GHI · Isuzu NPR",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'E-456GHI' duplicada del ID 1501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 145,
+      "recordId": "1601",
+      "ref": "O-234JKL · Toyota Hiace",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 146,
+      "recordId": "1602",
+      "ref": "O-234JKL · Toyota Hiace",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-234JKL' duplicada del ID 1601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 147,
+      "recordId": "1603",
+      "ref": "O-234JKL · Toyota Hiace",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-234JKL' duplicada del ID 1601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 148,
+      "recordId": "1604",
+      "ref": "O-234JKL · Toyota Hiace",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-234JKL' duplicada del ID 1601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 149,
+      "recordId": "16",
+      "ref": "O-234JKL · Toyota Hiace",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-234JKL' duplicada del ID 1601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 150,
+      "recordId": "1701",
+      "ref": "O-567MNO · Chevrolet N300",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 151,
+      "recordId": "1702",
+      "ref": "O-567MNO · Chevrolet N300",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-567MNO' duplicada del ID 1701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 152,
+      "recordId": "1703",
+      "ref": "O-567MNO · Chevrolet N300",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-567MNO' duplicada del ID 1701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 153,
+      "recordId": "1704",
+      "ref": "O-567MNO · Chevrolet N300",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-567MNO' duplicada del ID 1701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 154,
+      "recordId": "17",
+      "ref": "O-567MNO · Chevrolet N300",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-567MNO' duplicada del ID 1701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 155,
+      "recordId": "1801",
+      "ref": "S-890PQR · Toyota Rav4",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 156,
+      "recordId": "1802",
+      "ref": "S-890PQR · Toyota Rav4",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'S-890PQR' duplicada del ID 1801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 157,
+      "recordId": "1803",
+      "ref": "S-890PQR · Toyota Rav4",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'S-890PQR' duplicada del ID 1801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 158,
+      "recordId": "1804",
+      "ref": "S-890PQR · Toyota Rav4",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'S-890PQR' duplicada del ID 1801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 159,
+      "recordId": "18",
+      "ref": "S-890PQR · Toyota Rav4",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'S-890PQR' duplicada del ID 1801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 160,
+      "recordId": "1901",
+      "ref": "D-123STU · Ford F-150",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 161,
+      "recordId": "1902",
+      "ref": "D-123STU · Ford F-150",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'D-123STU' duplicada del ID 1901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 162,
+      "recordId": "1903",
+      "ref": "D-123STU · Ford F-150",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'D-123STU' duplicada del ID 1901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 163,
+      "recordId": "1904",
+      "ref": "D-123STU · Ford F-150",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'D-123STU' duplicada del ID 1901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 164,
+      "recordId": "19",
+      "ref": "D-123STU · Ford F-150",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'D-123STU' duplicada del ID 1901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 165,
+      "recordId": "2001",
+      "ref": "O-890VWX · Toyota Land Cruiser",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 166,
+      "recordId": "2002",
+      "ref": "O-890VWX · Toyota Land Cruiser",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-890VWX' duplicada del ID 2001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 167,
+      "recordId": "2003",
+      "ref": "O-890VWX · Toyota Land Cruiser",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-890VWX' duplicada del ID 2001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 168,
+      "recordId": "2004",
+      "ref": "O-890VWX · Toyota Land Cruiser",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-890VWX' duplicada del ID 2001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 169,
+      "recordId": "20",
+      "ref": "O-890VWX · Toyota Land Cruiser",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-890VWX' duplicada del ID 2001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 170,
+      "recordId": "2101",
+      "ref": "G-456YZA · Nissan Frontier",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 171,
+      "recordId": "2102",
+      "ref": "G-456YZA · Nissan Frontier",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-456YZA' duplicada del ID 2101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 172,
+      "recordId": "2103",
+      "ref": "G-456YZA · Nissan Frontier",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-456YZA' duplicada del ID 2101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 173,
+      "recordId": "2104",
+      "ref": "G-456YZA · Nissan Frontier",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-456YZA' duplicada del ID 2101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 174,
+      "recordId": "21",
+      "ref": "G-456YZA · Nissan Frontier",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-456YZA' duplicada del ID 2101: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 175,
+      "recordId": "2201",
+      "ref": "E-789BCD · Mitsubishi L200",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 176,
+      "recordId": "2202",
+      "ref": "E-789BCD · Mitsubishi L200",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'E-789BCD' duplicada del ID 2201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 177,
+      "recordId": "2203",
+      "ref": "E-789BCD · Mitsubishi L200",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'E-789BCD' duplicada del ID 2201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 178,
+      "recordId": "2204",
+      "ref": "E-789BCD · Mitsubishi L200",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'E-789BCD' duplicada del ID 2201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 179,
+      "recordId": "22",
+      "ref": "E-789BCD · Mitsubishi L200",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'E-789BCD' duplicada del ID 2201: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 180,
+      "recordId": "2301",
+      "ref": "O-345CDE · Toyota Camry",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 181,
+      "recordId": "2302",
+      "ref": "O-345CDE · Toyota Camry",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-345CDE' duplicada del ID 2301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 182,
+      "recordId": "2303",
+      "ref": "O-345CDE · Toyota Camry",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-345CDE' duplicada del ID 2301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 183,
+      "recordId": "2304",
+      "ref": "O-345CDE · Toyota Camry",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-345CDE' duplicada del ID 2301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 184,
+      "recordId": "23",
+      "ref": "O-345CDE · Toyota Camry",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-345CDE' duplicada del ID 2301: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 185,
+      "recordId": "2401",
+      "ref": "S-678EFG · BMW X5",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 186,
+      "recordId": "2402",
+      "ref": "S-678EFG · BMW X5",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'S-678EFG' duplicada del ID 2401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 187,
+      "recordId": "2403",
+      "ref": "S-678EFG · BMW X5",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'S-678EFG' duplicada del ID 2401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 188,
+      "recordId": "2404",
+      "ref": "S-678EFG · BMW X5",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'S-678EFG' duplicada del ID 2401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 189,
+      "recordId": "24",
+      "ref": "S-678EFG · BMW X5",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'S-678EFG' duplicada del ID 2401: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 190,
+      "recordId": "2501",
+      "ref": "P-901HIJ · Audi A6",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 191,
+      "recordId": "2502",
+      "ref": "P-901HIJ · Audi A6",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-901HIJ' duplicada del ID 2501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 192,
+      "recordId": "2503",
+      "ref": "P-901HIJ · Audi A6",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-901HIJ' duplicada del ID 2501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.796Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 193,
+      "recordId": "2504",
+      "ref": "P-901HIJ · Audi A6",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-901HIJ' duplicada del ID 2501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 194,
+      "recordId": "25",
+      "ref": "P-901HIJ · Audi A6",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'P-901HIJ' duplicada del ID 2501: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 195,
+      "recordId": "2601",
+      "ref": "O-234KLM · Nissan Versa",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 196,
+      "recordId": "2602",
+      "ref": "O-234KLM · Nissan Versa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-234KLM' duplicada del ID 2601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 197,
+      "recordId": "2603",
+      "ref": "O-234KLM · Nissan Versa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-234KLM' duplicada del ID 2601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 198,
+      "recordId": "2604",
+      "ref": "O-234KLM · Nissan Versa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-234KLM' duplicada del ID 2601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 199,
+      "recordId": "26",
+      "ref": "O-234KLM · Nissan Versa",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-234KLM' duplicada del ID 2601: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 200,
+      "recordId": "2701",
+      "ref": "G-567NOP · Toyota Hilux",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 201,
+      "recordId": "2702",
+      "ref": "G-567NOP · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-567NOP' duplicada del ID 2701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 202,
+      "recordId": "2703",
+      "ref": "G-567NOP · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-567NOP' duplicada del ID 2701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 203,
+      "recordId": "2704",
+      "ref": "G-567NOP · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-567NOP' duplicada del ID 2701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 204,
+      "recordId": "27",
+      "ref": "G-567NOP · Toyota Hilux",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'G-567NOP' duplicada del ID 2701: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 205,
+      "recordId": "2801",
+      "ref": "O-890QRS · Mercedes Clase E",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 206,
+      "recordId": "2802",
+      "ref": "O-890QRS · Mercedes Clase E",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-890QRS' duplicada del ID 2801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 207,
+      "recordId": "2803",
+      "ref": "O-890QRS · Mercedes Clase E",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-890QRS' duplicada del ID 2801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 208,
+      "recordId": "2804",
+      "ref": "O-890QRS · Mercedes Clase E",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-890QRS' duplicada del ID 2801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 209,
+      "recordId": "28",
+      "ref": "O-890QRS · Mercedes Clase E",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-890QRS' duplicada del ID 2801: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 210,
+      "recordId": "2901",
+      "ref": "A-123TUV · Hyundai Accent",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 211,
+      "recordId": "2902",
+      "ref": "A-123TUV · Hyundai Accent",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-123TUV' duplicada del ID 2901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 212,
+      "recordId": "2903",
+      "ref": "A-123TUV · Hyundai Accent",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-123TUV' duplicada del ID 2901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 213,
+      "recordId": "2904",
+      "ref": "A-123TUV · Hyundai Accent",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-123TUV' duplicada del ID 2901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 214,
+      "recordId": "29",
+      "ref": "A-123TUV · Hyundai Accent",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'A-123TUV' duplicada del ID 2901: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 215,
+      "recordId": "3001",
+      "ref": "O-456WXY · Toyota Corolla",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_vehiculos'."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 216,
+      "recordId": "3002",
+      "ref": "O-456WXY · Toyota Corolla",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-456WXY' duplicada del ID 3001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 217,
+      "recordId": "3003",
+      "ref": "O-456WXY · Toyota Corolla",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-456WXY' duplicada del ID 3001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 218,
+      "recordId": "3004",
+      "ref": "O-456WXY · Toyota Corolla",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-456WXY' duplicada del ID 3001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "vehiculos",
+      "table": "pia_vehiculos",
+      "index": 219,
+      "recordId": "30",
+      "ref": "O-456WXY · Toyota Corolla",
+      "status": "SKIPPED",
+      "message": "Validado con conflicto de clave única uk_veh_plate (placa 'O-456WXY' duplicada del ID 3001: se omitiría en modo skip)."
+    },
+    {
+      "timestamp": "2026-11-24T16:46:19.797Z",
+      "module": "portal",
+      "table": "pia_portal_metricas",
+      "index": 1,
+      "recordId": "1",
+      "ref": "Métricas Globales PIA",
+      "status": "VALIDATED",
+      "message": "Estructura y tipos SQL válidos para 'pia_portal_metricas'."
+    }
+  ]
+}

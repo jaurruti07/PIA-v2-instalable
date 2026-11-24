@@ -1,22 +1,20 @@
 [
   {
     "operatorIndex": 1,
-    "oid": "",
-    "tid": "",
-    "displayName": "Apoyo GI (CNC)",
-    "upn": "apoyogi@cnc.gob.gt",
-    "role": "data_operator",
-    "status": "pending_configuration",
-    "notes": "PENDIENTE: Ingresar el OID (Object ID) y TID (Tenant ID) reales proporcionados por el equipo de TI de la CNC tras consultar Microsoft Entra ID."
+    "uid": "",
+    "email": "deteccionydenuncia@cnc.gob.gt",
+    "displayName": "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
+    "role": "admin",
+    "status": "active",
+    "notes": "Cuenta institucional base protegida. La contraseña PBKDF2/SHA-512 y los permisos granulares residen en PIA_DATA_DIR/users_roles.json; si se usa Firebase Auth opcional, vincular el UID aquí."
   },
   {
     "operatorIndex": 2,
-    "oid": "",
-    "tid": "",
-    "displayName": "Detección y Denuncia (CNC)",
-    "upn": "deteccionydenuncia@cnc.gob.gt",
-    "role": "data_operator",
-    "status": "pending_configuration",
-    "notes": "PENDIENTE: Ingresar el OID (Object ID) y TID (Tenant ID) reales proporcionados por el equipo de TI de la CNC tras consultar Microsoft Entra ID."
+    "uid": "",
+    "email": "apoyogi@cnc.gob.gt",
+    "displayName": "Apoyo a la Gestión de Irregularidades (CNC)",
+    "role": "admin",
+    "status": "active",
+    "notes": "Cuenta institucional base protegida. La contraseña PBKDF2/SHA-512 y los permisos granulares residen en PIA_DATA_DIR/users_roles.json; si se usa Firebase Auth opcional, vincular el UID aquí."
   }
 ]

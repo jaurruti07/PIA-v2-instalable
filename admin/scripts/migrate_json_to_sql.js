@@ -229,7 +229,8 @@ export const SQL_TABLE_COLUMN_SPECS = {
     oficinas_probidad: { type: 'int' },
     canales_denuncia: { type: 'int' },
     denuncias_penales: { type: 'int' },
-    plataformas_activas: { type: 'int' }
+    plataformas_activas: { type: 'int' },
+    metricas_json: { type: 'longtext' }
   }
 };
 
@@ -300,6 +301,10 @@ function validateRowAgainstSpec(tableName, rowObj) {
       const s = String(val);
       if (rule.maxLength && s.length > rule.maxLength) {
         errors.push(`Columna '${col}' excede longitud máxima VARCHAR(${rule.maxLength}) (${s.length} caracteres).`);
+      }
+    } else if (rule.type === 'text' || rule.type === 'longtext') {
+      if (typeof val !== 'string') {
+        errors.push(`Columna '${col}' requiere texto válido.`);
       }
     } else if (rule.type === 'enum') {
       if (!rule.values.includes(String(val))) {
@@ -940,7 +945,8 @@ function normalizeAndValidateModuleRecords(modDef, rawJson) {
       oficinas_probidad: toIntOrNull(rawJson.oficinasProbidad ?? 0),
       canales_denuncia: toIntOrNull(rawJson.canalesDenuncia ?? 0),
       denuncias_penales: toIntOrNull(rawJson.denunciasPenales ?? 0),
-      plataformas_activas: toIntOrNull(rawJson.plataformasActivas ?? 0)
+      plataformas_activas: toIntOrNull(rawJson.plataformasActivas ?? 0),
+      metricas_json: Array.isArray(rawJson.metricas) ? JSON.stringify(rawJson.metricas) : null
     };
     const check = validateRowAgainstSpec('pia_portal_metricas', row);
     if (check.valid) {
@@ -1943,8 +1949,8 @@ export async function runBulkJsonToSqlMigration({
                 logger.logRecord({ module: 'portal', table: 'pia_portal_metricas', index: 1, recordId: 1, ref: item.ref, status: 'SKIPPED', message: 'Registro ya existente (id=1); omitido.' });
               } else {
                 await conn.execute(
-                  'UPDATE pia_portal_metricas SET oficinas_probidad = ?, canales_denuncia = ?, denuncias_penales = ?, plataformas_activas = ? WHERE id = 1',
-                  [item.row.oficinas_probidad, item.row.canales_denuncia, item.row.denuncias_penales, item.row.plataformas_activas]
+                  'UPDATE pia_portal_metricas SET oficinas_probidad = ?, canales_denuncia = ?, denuncias_penales = ?, plataformas_activas = ?, metricas_json = ? WHERE id = 1',
+                  [item.row.oficinas_probidad, item.row.canales_denuncia, item.row.denuncias_penales, item.row.plataformas_activas, item.row.metricas_json]
                 );
                 report.updated++;
                 logger.logRecord({ module: 'portal', table: 'pia_portal_metricas', index: 1, recordId: 1, ref: item.ref, status: 'UPDATED', message: 'Métricas del portal actualizadas.' });
@@ -1953,9 +1959,9 @@ export async function runBulkJsonToSqlMigration({
               await executeMultiRowInsertWithFallback({
                 conn,
                 table: 'pia_portal_metricas',
-                columns: ['id', 'oficinas_probidad', 'canales_denuncia', 'denuncias_penales', 'plataformas_activas'],
+                columns: ['id', 'oficinas_probidad', 'canales_denuncia', 'denuncias_penales', 'plataformas_activas', 'metricas_json'],
                 items: [item],
-                mapParams: it => [it.row.id, it.row.oficinas_probidad, it.row.canales_denuncia, it.row.denuncias_penales, it.row.plataformas_activas],
+                mapParams: it => [it.row.id, it.row.oficinas_probidad, it.row.canales_denuncia, it.row.denuncias_penales, it.row.plataformas_activas, it.row.metricas_json],
                 moduleKey: 'portal',
                 logger,
                 report
@@ -2114,7 +2120,7 @@ Archivos JSON procesados por defecto:
 
 Opciones:
   --dry-run                Lee y valida los 5 JSON contra el esquema SQL y genera logs sin escribir en BD.
-  --init-schema            Crea la BD y las 14 tablas desde sql/01_schema_mysql.sql si aún no existen.
+  --init-schema            Crea la BD, las 18 tablas (sql/01_schema_mysql.sql) y la configuración inicial (sql/02_seed_initial_config.sql).
   --on-conflict=skip       Omitir registros cuyo ID o clave única ya exista (por defecto).
   --on-conflict=overwrite  Actualizar registros existentes (requiere --confirm-overwrite).
   --confirm-overwrite      Confirmación obligatoria para sobrescribir datos existentes en SQL.

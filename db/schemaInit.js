@@ -14,6 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const SCHEMA_SQL_PATH = path.join(ROOT_DIR, 'sql', '01_schema_mysql.sql');
+const SEED_SQL_PATH = path.join(ROOT_DIR, 'sql', '02_seed_initial_config.sql');
 
 export const PIA_SQL_TABLES = [
   { table: 'pia_canales_integridad', module: 'canales', label: 'Canales por la Integridad' },
@@ -29,7 +30,11 @@ export const PIA_SQL_TABLES = [
   { table: 'pia_vehiculos', module: 'vehiculos', label: 'Transparencia Vehicular (Flotilla)' },
   { table: 'pia_vehiculos_historial', module: 'vehiculos', label: 'Transparencia Vehicular (Historial)', isChild: true },
   { table: 'pia_portal_metricas', module: 'portal', label: 'Métricas Generales del Portal' },
-  { table: 'pia_storage_migrations', module: 'sistema', label: 'Bitácora de Migraciones JSON/SQL', isChild: true }
+  { table: 'pia_storage_migrations', module: 'sistema', label: 'Bitácora de Migraciones JSON/SQL', isChild: true },
+  { table: 'pia_canales_config', module: 'canales', label: 'Canales (Visibilidad Pública)', isChild: true },
+  { table: 'pia_modules_ui_kpis', module: 'sistema', label: 'Configuración Dinámica de KPIs por Módulo', isChild: true },
+  { table: 'pia_modules_ui_backgrounds', module: 'sistema', label: 'Configuración de Fondos Hero por Módulo', isChild: true },
+  { table: 'pia_modules_ui_section_images', module: 'sistema', label: 'Imágenes Institucionales de Sección', isChild: true }
 ];
 
 const ALLOWLISTED_TABLES = new Set(PIA_SQL_TABLES.map(t => t.table));
@@ -73,6 +78,22 @@ export function parseSchemaStatements(sqlRaw) {
   });
 }
 
+export function parseSeedStatements(sqlRaw) {
+  const cleanedLines = sqlRaw
+    .split(/\r?\n/)
+    .filter(line => !line.trim().startsWith('--'));
+  const statements = cleanedLines
+    .join('\n')
+    .split(';')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  return statements.filter(stmt => {
+    const upper = stmt.toUpperCase();
+    return upper.startsWith('INSERT IGNORE INTO') || upper.startsWith('INSERT INTO');
+  });
+}
+
 export async function initializeDatabaseSchema() {
   if (!isSqlConfigured()) {
     return {
@@ -104,11 +125,22 @@ export async function initializeDatabaseSchema() {
       executedCount++;
     }
 
+    let seedExecutedCount = 0;
+    if (fs.existsSync(SEED_SQL_PATH)) {
+      const seedRaw = fs.readFileSync(SEED_SQL_PATH, 'utf8');
+      const seedStatements = parseSeedStatements(seedRaw);
+      for (const stmt of seedStatements) {
+        await serverConn.query(stmt);
+        seedExecutedCount++;
+      }
+    }
+
     const status = await inspectSchemaStatus();
     return {
       success: true,
       database: safeDb,
       statementsExecuted: executedCount,
+      seedStatementsExecuted: seedExecutedCount,
       ...status
     };
   } finally {

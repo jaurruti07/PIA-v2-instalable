@@ -273,3 +273,66 @@ CREATE TABLE IF NOT EXISTS `pia_storage_migrations` (
   PRIMARY KEY (`id`),
   INDEX `idx_mig_fecha` (`executed_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 8. Configuración de Visibilidad de Canales por la Integridad (canales_settings.json)
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `pia_canales_config` (
+  `id` INT NOT NULL DEFAULT 1,
+  `show_protocolos` TINYINT(1) NOT NULL DEFAULT 0,
+  `show_dashboard_cnc` TINYINT(1) NOT NULL DEFAULT 0,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_by` VARCHAR(150) NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
+-- 9. Configuración Visual Dinámica por Módulo (KPIs, Carrusel de Fondos e Imágenes)
+-- Sincronizado con data/modules_ui_config.json y endpoints /api/ui/:module
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `pia_modules_ui_kpis` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `module_key` VARCHAR(40) NOT NULL,
+  `kpi_id` INT NOT NULL,
+  `clave` VARCHAR(60) NOT NULL DEFAULT '',
+  `modo_valor` ENUM('auto', 'manual') NOT NULL DEFAULT 'manual',
+  `auto_key` VARCHAR(60) NULL,
+  `valor` VARCHAR(40) NOT NULL DEFAULT '0',
+  `sufijo` VARCHAR(12) NOT NULL DEFAULT '',
+  `titulo` VARCHAR(120) NOT NULL,
+  `descripcion` VARCHAR(240) NOT NULL DEFAULT '',
+  `icono` VARCHAR(80) NOT NULL DEFAULT 'fas fa-chart-line',
+  `requires_config_flag` VARCHAR(40) NULL,
+  `activo` TINYINT(1) NOT NULL DEFAULT 1,
+  `orden` INT NOT NULL DEFAULT 1,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_ui_kpi_mod_id` (`module_key`, `kpi_id`),
+  INDEX `idx_ui_kpi_orden` (`module_key`, `activo`, `orden`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `pia_modules_ui_backgrounds` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `module_key` VARCHAR(40) NOT NULL,
+  `bg_id` INT NOT NULL,
+  `url` VARCHAR(500) NOT NULL,
+  `titulo` VARCHAR(100) NOT NULL DEFAULT '',
+  `activo` TINYINT(1) NOT NULL DEFAULT 1,
+  `orden` INT NOT NULL DEFAULT 1,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_ui_bg_mod_id` (`module_key`, `bg_id`),
+  INDEX `idx_ui_bg_orden` (`module_key`, `activo`, `orden`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `pia_modules_ui_section_images` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `module_key` VARCHAR(40) NOT NULL,
+  `section_key` VARCHAR(60) NOT NULL,
+  `image_url` VARCHAR(500) NOT NULL,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_by` VARCHAR(150) NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_ui_sec_img` (`module_key`, `section_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

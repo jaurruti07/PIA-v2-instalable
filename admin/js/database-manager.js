@@ -49,7 +49,7 @@ let lastOpReport = null;
 let isBusy = false;
 
 const FALLBACK_ENV_TEMPLATE = `PORT=3000
-ENVIRONMENT=production
+NODE_ENV=production
 PIA_SESSION_SECRET=CAMBIAR_POR_LLAVE_SECRETA_ALEATORIA_SEGURA_64_CARACTERES
 PIA_DATA_DIR=C:\\PIA_Data
 
@@ -312,7 +312,7 @@ function renderHybridSqlTab() {
 
       <div class="storage-kpi-card">
         <div class="storage-kpi-label"><i class="fas fa-table" style="color:var(--cyan);"></i> Tablas SQL Verificadas</div>
-        <div class="storage-kpi-value">${Number(schema.tablesFound) || 0} / ${Number(schema.totalTables) || 14}</div>
+        <div class="storage-kpi-value">${Number(schema.tablesFound) || 0} / ${Number(schema.totalTables) || 18}</div>
         <div class="storage-kpi-sub">${schema.ready ? 'Esquema relacional completo y verificado.' : 'Requiere ejecutar inicialización controlada de BD.'}</div>
       </div>
 
@@ -555,41 +555,68 @@ function renderHybridSqlTab() {
 
 function renderInstallGuideTab() {
   const sqlScript = (installAssets && installAssets.sqlScript) ? installAssets.sqlScript : FALLBACK_SQL_NOTICE;
+  const sqlSeedScript = (installAssets && installAssets.sqlSeedScript) ? installAssets.sqlSeedScript : '-- Ejecuta el servidor Node.js activo para cargar sql/02_seed_initial_config.sql.';
   const envTemplate = (installAssets && installAssets.envTemplate) ? installAssets.envTemplate : FALLBACK_ENV_TEMPLATE;
   const deployPs1 = (installAssets && installAssets.deployPs1) ? installAssets.deployPs1 : '-- Ejecuta el servidor Node.js activo para cargar deploy-iis.ps1 o ábrelo en la raíz del proyecto.';
+  const deployLinuxSh = (installAssets && installAssets.deployLinuxSh) ? installAssets.deployLinuxSh : '# Ejecuta el servidor Node.js activo para cargar deploy-linux.sh o ábrelo en la raíz del proyecto.';
   const webConfig = (installAssets && installAssets.webConfig) ? installAssets.webConfig : '<!-- Ejecuta el servidor Node.js activo para cargar web.config o ábrelo en la raíz del proyecto. -->';
   const migrateScript = (installAssets && installAssets.migrateScript) ? installAssets.migrateScript : '// Ejecuta el servidor Node.js activo para cargar admin/scripts/migrate_json_to_sql.js.';
+  const initConfigScript = (installAssets && installAssets.initConfigScript) ? installAssets.initConfigScript : '// Ejecuta el servidor Node.js activo para cargar admin/scripts/init_pia_config.js.';
 
   const hasLiveSql = Boolean(installAssets && installAssets.sqlScript);
+  const hasLiveSqlSeed = Boolean(installAssets && installAssets.sqlSeedScript);
   const hasLivePs1 = Boolean(installAssets && installAssets.deployPs1);
+  const hasLiveLinuxSh = Boolean(installAssets && installAssets.deployLinuxSh);
   const hasLiveWebConfig = Boolean(installAssets && installAssets.webConfig);
   const hasLiveMigrate = Boolean(installAssets && installAssets.migrateScript);
+  const hasLiveInitCfg = Boolean(installAssets && installAssets.initConfigScript);
 
   const scriptMeta = {
     sql: {
       title: 'sql/01_schema_mysql.sql',
-      subtitle: 'MySQL 8.0+ / MariaDB 10.6+ · InnoDB · utf8mb4_unicode_ci · 14 tablas',
+      subtitle: 'MySQL 8.0+ / MariaDB 10.6+ · InnoDB · utf8mb4_unicode_ci · 18 tablas',
       content: sqlScript,
       fileName: '01_schema_mysql.sql',
       mime: 'application/sql;charset=utf-8'
     },
+    sqlseed: {
+      title: 'sql/02_seed_initial_config.sql',
+      subtitle: 'Semilla idempotente de configuración UI, KPIs, fondos y métricas base del Portal PIA',
+      content: sqlSeedScript,
+      fileName: '02_seed_initial_config.sql',
+      mime: 'application/sql;charset=utf-8'
+    },
+    initcfg: {
+      title: 'admin/scripts/init_pia_config.js',
+      subtitle: 'Inicialización y verificación idempotente de directorios, .env, configs JSON y esquema SQL',
+      content: initConfigScript,
+      fileName: 'init_pia_config.js',
+      mime: 'application/javascript;charset=utf-8'
+    },
     migrate: {
       title: 'admin/scripts/migrate_json_to_sql.js',
-      subtitle: 'Migración masiva CLI de los 5 JSON a SQL con validación de esquema y log por registro',
+      subtitle: 'Migración masiva CLI de los JSON a SQL con validación de esquema y log por registro',
       content: migrateScript,
       fileName: 'migrate_json_to_sql.js',
       mime: 'application/javascript;charset=utf-8'
     },
     ps1: {
       title: 'deploy-iis.ps1',
-      subtitle: 'PowerShell Administrador · ACLs NTFS en C:\\PIA_Data, AppPool IIS y Healthcheck',
+      subtitle: 'PowerShell Administrador · ACLs NTFS en C:\\PIA_Data y uploads, AppPool IIS, init_pia_config y Healthcheck',
       content: deployPs1,
       fileName: 'deploy-iis.ps1',
       mime: 'text/plain;charset=utf-8'
     },
+    linuxsh: {
+      title: 'deploy-linux.sh',
+      subtitle: 'Bash Linux (Ubuntu/Debian/RHEL) · Permisos, .env, systemd, Nginx y Healthcheck',
+      content: deployLinuxSh,
+      fileName: 'deploy-linux.sh',
+      mime: 'text/x-shellscript;charset=utf-8'
+    },
     webconfig: {
       title: 'web.config',
-      subtitle: 'IIS Reverse Proxy (URL Rewrite + ARR), bloqueo de .env/.sql/data y MIME',
+      subtitle: 'IIS Reverse Proxy (URL Rewrite + ARR), límite 20 MB para fondos, bloqueo .env/.sql/.ps1/.sh/data/db/sql y MIME',
       content: webConfig,
       fileName: 'web.config',
       mime: 'application/xml;charset=utf-8'
@@ -605,16 +632,16 @@ function renderInstallGuideTab() {
   const activeScript = scriptMeta[activeScriptTab] || scriptMeta.sql;
   const activeLineCount = activeScript.content.split(/\r?\n/).length;
 
-  const cmdInstall = `cd C:\\inetpub\\wwwroot\\PIA\nnpm install --omit=dev\n\n# Despliegue automatizado IIS + C:\\PIA_Data (PowerShell Administrador):\n.\\deploy-iis.ps1`;
-  const cmdSessionSecret = `# Generar llave criptográfica segura de 96 caracteres hexadecimales para PIA_SESSION_SECRET:\nnode -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`;
+  const cmdInstall = `cd C:\\inetpub\\wwwroot\\PIA\nnpm install --omit=dev\n\n# Inicializar configuración base y carpetas protegidas:\nnpm run setup:init\n\n# Despliegue automatizado completo IIS + C:\\PIA_Data (PowerShell Administrador):\n.\\deploy-iis.ps1`;
+  const cmdSessionSecret = `# Generar llave criptográfica segura de 96 caracteres hexadecimales para PIA_SESSION_SECRET:\nnode -e "console.log(require('crypto').randomBytes(48).toString('hex'))"\n\n# O ejecutar el asistente de configuración inicial con generación automática:\nnode admin/scripts/init_pia_config.js --generate-secret`;
   const cmdCreateDbUser = `CREATE DATABASE IF NOT EXISTS \`pia_db\`\n  CHARACTER SET utf8mb4\n  COLLATE utf8mb4_unicode_ci;\n\nCREATE USER IF NOT EXISTS 'pia_app_user'@'localhost' IDENTIFIED BY 'CONTRASEÑA_SEGURA_AQUI';\nGRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER\n  ON \`pia_db\`.* TO 'pia_app_user'@'localhost';\nFLUSH PRIVILEGES;`;
-  const cmdRunSqlCli = `mysql -u pia_app_user -p < sql\\01_schema_mysql.sql`;
-  const cmdMigrateCli = `# 1. Simular y validar los 5 JSON contra el esquema SQL sin escribir en BD:\nnpm run migrate:sql:dry-run\n\n# 2. Ejecutar inserción masiva hacia MySQL/MariaDB (crea bitácora por registro en data/migration_logs/):\nnode admin/scripts/migrate_json_to_sql.js --init-schema`;
+  const cmdRunSqlCli = `# 1. Crear estructura relacional (18 tablas):\nmysql -u pia_app_user -p < sql\\01_schema_mysql.sql\n\n# 2. Cargar configuración inicial (métricas, KPIs, fondos de héroe y banderas):\nmysql -u pia_app_user -p < sql\\02_seed_initial_config.sql`;
+  const cmdMigrateCli = `# 1. Simular y validar los archivos JSON contra el esquema SQL sin escribir en BD:\nnpm run migrate:sql:dry-run\n\n# 2. Ejecutar inserción masiva hacia MySQL/MariaDB (crea 18 tablas + semilla + logs en data/migration_logs/):\nnode admin/scripts/migrate_json_to_sql.js --init-schema --include-portal`;
   const cmdService = `# Opción A — PM2 como servicio de Windows:\nnpm install -g pm2 pm2-windows-service\npm2-service-install -n PIA_Portal\npm2 start server.js --name pia-backend --env production\npm2 save\n\n# Opción B — NSSM (Servicio nativo Windows):\nnssm install PIA_Service "C:\\Program Files\\nodejs\\node.exe" "C:\\inetpub\\wwwroot\\PIA\\server.js"\nnssm set PIA_Service AppDirectory "C:\\inetpub\\wwwroot\\PIA"\nnssm start PIA_Service`;
-  const cmdLinuxSystemd = `# 1. Crear /etc/systemd/system/pia.service\n[Unit]\nDescription=Portal de Integridad Activa (PIA) - CNC\nAfter=network.target mysql.service\n\n[Service]\nType=simple\nUser=www-data\nWorkingDirectory=/var/www/pia\nExecStart=/usr/bin/node /var/www/pia/server.js\nRestart=always\nRestartSec=5\nEnvironment=NODE_ENV=production\n\n[Install]\nWantedBy=multi-user.target\n\n# 2. Habilitar servicio:\nsudo systemctl daemon-reload && sudo systemctl enable --now pia`;
-  const cmdLinuxNginx = `# /etc/nginx/sites-available/pia (Proxy Inverso + Bloqueo de archivos sensibles)\nserver {\n    listen 80;\n    server_name pia.cnc.gob.gt;\n\n    location ~* \\.(env|sql|bak|tmp)$ { deny all; return 404; }\n    location ^~ /data/ { deny all; return 404; }\n\n    location / {\n        proxy_pass http://127.0.0.1:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }\n}`;
+  const cmdLinuxSystemd = `# Opción rápida automatizada en Linux:\nsudo bash deploy-linux.sh --install-systemd\n\n# O manualmente en /etc/systemd/system/pia.service:\n[Unit]\nDescription=Portal de Integridad Activa (PIA) - CNC\nAfter=network.target mysql.service mariadb.service\n\n[Service]\nType=simple\nUser=www-data\nWorkingDirectory=/var/www/pia\nEnvironmentFile=/var/www/pia/.env\nEnvironment=NODE_ENV=production\nExecStart=/usr/bin/node /var/www/pia/server.js\nRestart=always\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target`;
+  const cmdLinuxNginx = `# /etc/nginx/sites-available/pia (Proxy Inverso + Límite carga imágenes + Bloqueo archivos sensibles)\nserver {\n    listen 80;\n    server_name pia.cnc.gob.gt;\n    client_max_body_size 20M;\n\n    location ~* \\.(env|sql|bak|tmp|ps1|sh)$ { deny all; return 404; }\n    location ^~ /data/ { deny all; return 404; }\n    location ^~ /db/ { deny all; return 404; }\n    location ^~ /sql/ { deny all; return 404; }\n    location ^~ /admin/scripts/ { deny all; return 403; }\n\n    location / {\n        proxy_pass http://127.0.0.1:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }\n}`;
   const cmdBackupRestore = `# Respaldo diario programado de MySQL/MariaDB (PowerShell):\n$fecha = Get-Date -Format "yyyyMMdd_HHmm"\nmysqldump -u pia_app_user -p --single-transaction --routines --triggers pia_db > "C:\\PIA_Backups\\pia_db_$fecha.sql"\n\n# Restauración de emergencia desde respaldo SQL:\nmysql -u pia_app_user -p pia_db < C:\\PIA_Backups\\pia_db_20261118_0200.sql`;
-  const cmdVerify = `npm test\n# Verificar módulos y salud del servicio:\ncurl http://127.0.0.1:3000/api/modules`;
+  const cmdVerify = `npm run setup:check\nnpm run lint\nnpm test\n# Verificar módulos, métricas dinámicas y configuración UI:\ncurl http://127.0.0.1:3000/api/modules\ncurl http://127.0.0.1:3000/api/ui/portal`;
 
   return `
     <!-- Encabezado y paquete completo de descargas -->
@@ -623,18 +650,27 @@ function renderInstallGuideTab() {
         <div>
           <h3 style="margin:0; color:var(--navy);"><i class="fas fa-server" style="color:var(--cyan);"></i> Guía Completa de Instalación en Servidor (Windows Server / Linux + Node.js + SQL)</h3>
           <p class="text-muted" style="margin:0.35rem 0 0;">
-            Procedimiento integral, scripts oficiales de despliegue e infraestructura, configuración de proxy inverso y respaldos para operar PIA en servidor institucional con almacenamiento JSON, SQL o Híbrido.
+            Procedimiento integral, scripts oficiales de despliegue e infraestructura (18 tablas SQL, semilla inicial e inicializador CLI), configuración de proxy inverso y respaldos.
           </p>
         </div>
         <div class="storage-btn-toolbar">
           <button type="button" class="btn btn-primary" id="btnDownloadSqlScript" ${!hasLiveSql ? 'disabled' : ''}>
             <i class="fas fa-database"></i> 01_schema_mysql.sql
           </button>
+          <button type="button" class="btn btn-primary" id="btnDownloadSqlSeedScript" ${!hasLiveSqlSeed ? 'disabled' : ''}>
+            <i class="fas fa-seedling"></i> 02_seed_initial_config.sql
+          </button>
+          <button type="button" class="btn btn-info-alt" id="btnDownloadInitConfigScript" ${!hasLiveInitCfg ? 'disabled' : ''}>
+            <i class="fas fa-cogs"></i> init_pia_config.js
+          </button>
           <button type="button" class="btn btn-info-alt" id="btnDownloadMigrateScript" ${!hasLiveMigrate ? 'disabled' : ''}>
             <i class="fas fa-file-import"></i> migrate_json_to_sql.js
           </button>
           <button type="button" class="btn btn-info-alt" id="btnDownloadDeployPs1" ${!hasLivePs1 ? 'disabled' : ''}>
             <i class="fas fa-terminal"></i> deploy-iis.ps1
+          </button>
+          <button type="button" class="btn btn-info-alt" id="btnDownloadDeployLinux" ${!hasLiveLinuxSh ? 'disabled' : ''}>
+            <i class="fab fa-linux"></i> deploy-linux.sh
           </button>
           <button type="button" class="btn btn-success-alt" id="btnDownloadWebConfig" ${!hasLiveWebConfig ? 'disabled' : ''}>
             <i class="fas fa-file-code"></i> web.config
@@ -733,8 +769,8 @@ function renderInstallGuideTab() {
         <div class="install-step-card">
           <div class="install-step-num">4</div>
           <div class="install-step-body">
-            <h4>Ejecutar el Script de Creación de Tablas (14 tablas relacionales)</h4>
-            <p class="text-muted" style="margin:0;">Ejecute <code>sql/01_schema_mysql.sql</code> desde consola MySQL o utilice el botón <strong>Inicializar / Verificar Tablas SQL</strong> en la pestaña <strong>Almacenamiento Híbrido y SQL</strong> (proceso idempotente con <code>CREATE TABLE IF NOT EXISTS</code>).</p>
+            <h4>Ejecutar Creación de Tablas (18 tablas relacionales) y Semilla Inicial</h4>
+            <p class="text-muted" style="margin:0;">Ejecute <code>sql/01_schema_mysql.sql</code> y <code>sql/02_seed_initial_config.sql</code> desde consola MySQL o utilice el botón <strong>Inicializar / Verificar Tablas SQL</strong> en <strong>Almacenamiento Híbrido y SQL</strong> (idempotente).</p>
             <div class="install-code-wrap">
               <div class="install-code-header">
                 <span>Consola MySQL / PowerShell</span>
@@ -869,11 +905,20 @@ function renderInstallGuideTab() {
         <button type="button" class="btn ${activeScriptTab === 'sql' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="sql" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
           <i class="fas fa-database"></i> 01_schema_mysql.sql
         </button>
+        <button type="button" class="btn ${activeScriptTab === 'sqlseed' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="sqlseed" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
+          <i class="fas fa-seedling"></i> 02_seed_initial_config.sql
+        </button>
+        <button type="button" class="btn ${activeScriptTab === 'initcfg' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="initcfg" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
+          <i class="fas fa-cogs"></i> init_pia_config.js
+        </button>
         <button type="button" class="btn ${activeScriptTab === 'migrate' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="migrate" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
           <i class="fas fa-file-import"></i> migrate_json_to_sql.js
         </button>
         <button type="button" class="btn ${activeScriptTab === 'ps1' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="ps1" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
           <i class="fas fa-terminal"></i> deploy-iis.ps1
+        </button>
+        <button type="button" class="btn ${activeScriptTab === 'linuxsh' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="linuxsh" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
+          <i class="fab fa-linux"></i> deploy-linux.sh
         </button>
         <button type="button" class="btn ${activeScriptTab === 'webconfig' ? 'btn-primary' : 'btn-secondary'} script-subtab-btn" data-script-tab="webconfig" style="font-size:0.82rem; padding:0.45rem 0.9rem;">
           <i class="fas fa-server"></i> web.config (IIS)
@@ -1662,6 +1707,18 @@ function setupEventListeners() {
   };
   document.getElementById('btnDownloadSqlScript')?.addEventListener('click', handleDownloadSql);
 
+  document.getElementById('btnDownloadSqlSeedScript')?.addEventListener('click', () => {
+    if (installAssets && installAssets.sqlSeedScript) {
+      downloadTextFile('02_seed_initial_config.sql', installAssets.sqlSeedScript, 'application/sql;charset=utf-8');
+    }
+  });
+
+  document.getElementById('btnDownloadInitConfigScript')?.addEventListener('click', () => {
+    if (installAssets && installAssets.initConfigScript) {
+      downloadTextFile('init_pia_config.js', installAssets.initConfigScript, 'application/javascript;charset=utf-8');
+    }
+  });
+
   document.getElementById('btnDownloadMigrateScript')?.addEventListener('click', () => {
     if (installAssets && installAssets.migrateScript) {
       downloadTextFile('migrate_json_to_sql.js', installAssets.migrateScript, 'application/javascript;charset=utf-8');
@@ -1671,6 +1728,12 @@ function setupEventListeners() {
   document.getElementById('btnDownloadDeployPs1')?.addEventListener('click', () => {
     if (installAssets && installAssets.deployPs1) {
       downloadTextFile('deploy-iis.ps1', installAssets.deployPs1, 'text/plain;charset=utf-8');
+    }
+  });
+
+  document.getElementById('btnDownloadDeployLinux')?.addEventListener('click', () => {
+    if (installAssets && installAssets.deployLinuxSh) {
+      downloadTextFile('deploy-linux.sh', installAssets.deployLinuxSh, 'text/x-shellscript;charset=utf-8');
     }
   });
 
@@ -1704,8 +1767,11 @@ function setupEventListeners() {
   document.getElementById('btnDownloadActiveScript')?.addEventListener('click', () => {
     const map = {
       sql: { file: '01_schema_mysql.sql', content: installAssets?.sqlScript || FALLBACK_SQL_NOTICE, mime: 'application/sql;charset=utf-8' },
+      sqlseed: { file: '02_seed_initial_config.sql', content: installAssets?.sqlSeedScript || '', mime: 'application/sql;charset=utf-8' },
+      initcfg: { file: 'init_pia_config.js', content: installAssets?.initConfigScript || '', mime: 'application/javascript;charset=utf-8' },
       migrate: { file: 'migrate_json_to_sql.js', content: installAssets?.migrateScript || '', mime: 'application/javascript;charset=utf-8' },
       ps1: { file: 'deploy-iis.ps1', content: installAssets?.deployPs1 || '', mime: 'text/plain;charset=utf-8' },
+      linuxsh: { file: 'deploy-linux.sh', content: installAssets?.deployLinuxSh || '', mime: 'text/x-shellscript;charset=utf-8' },
       webconfig: { file: 'web.config', content: installAssets?.webConfig || '', mime: 'application/xml;charset=utf-8' },
       env: { file: '.env.example', content: installAssets?.envTemplate || FALLBACK_ENV_TEMPLATE, mime: 'text/plain;charset=utf-8' }
     };

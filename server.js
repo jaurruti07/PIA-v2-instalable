@@ -1637,35 +1637,51 @@ app.get('/api/admin/storage/migrations', requireAuth, requireOperator, requireDa
 app.get('/api/admin/storage/install-assets', requireAuth, requireOperator, requireDatabaseAccess, (req, res) => {
   try {
     const sqlPath = path.join(__dirname, 'sql', '01_schema_mysql.sql');
+    const sqlSeedPath = path.join(__dirname, 'sql', '02_seed_initial_config.sql');
     const envExamplePath = path.join(__dirname, '.env.example');
     const guidePath = path.join(__dirname, 'docs', 'GUIA_INSTALACION_WINDOWS_SQL.md');
+    const readmePath = path.join(__dirname, 'README.md');
     const deployPs1Path = path.join(__dirname, 'deploy-iis.ps1');
+    const deployLinuxPath = path.join(__dirname, 'deploy-linux.sh');
     const webConfigPath = path.join(__dirname, 'web.config');
     const migrateScriptPath = path.join(__dirname, 'admin', 'scripts', 'migrate_json_to_sql.js');
+    const initConfigScriptPath = path.join(__dirname, 'admin', 'scripts', 'init_pia_config.js');
 
     const sqlScript = fs.existsSync(sqlPath) ? fs.readFileSync(sqlPath, 'utf8') : '';
+    const sqlSeedScript = fs.existsSync(sqlSeedPath) ? fs.readFileSync(sqlSeedPath, 'utf8') : '';
     const envTemplate = fs.existsSync(envExamplePath) ? fs.readFileSync(envExamplePath, 'utf8') : '';
     const guideMarkdown = fs.existsSync(guidePath) ? fs.readFileSync(guidePath, 'utf8') : '';
+    const readmeMarkdown = fs.existsSync(readmePath) ? fs.readFileSync(readmePath, 'utf8') : '';
     const deployPs1 = fs.existsSync(deployPs1Path) ? fs.readFileSync(deployPs1Path, 'utf8') : '';
+    const deployLinuxSh = fs.existsSync(deployLinuxPath) ? fs.readFileSync(deployLinuxPath, 'utf8') : '';
     const webConfig = fs.existsSync(webConfigPath) ? fs.readFileSync(webConfigPath, 'utf8') : '';
     const migrateScript = fs.existsSync(migrateScriptPath) ? fs.readFileSync(migrateScriptPath, 'utf8') : '';
+    const initConfigScript = fs.existsSync(initConfigScriptPath) ? fs.readFileSync(initConfigScriptPath, 'utf8') : '';
 
     res.json({
       success: true,
-      tableCount: 14,
+      tableCount: 18,
       sqlScript,
+      sqlSeedScript,
       envTemplate,
       guideMarkdown,
+      readmeMarkdown,
       deployPs1,
+      deployLinuxSh,
       webConfig,
       migrateScript,
+      initConfigScript,
       fileNames: {
         sql: '01_schema_mysql.sql',
+        sqlSeed: '02_seed_initial_config.sql',
         env: '.env.example',
         guide: 'GUIA_INSTALACION_WINDOWS_SQL.md',
+        readme: 'README.md',
         deployPs1: 'deploy-iis.ps1',
+        deployLinuxSh: 'deploy-linux.sh',
         webConfig: 'web.config',
-        migrateScript: 'migrate_json_to_sql.js'
+        migrateScript: 'migrate_json_to_sql.js',
+        initConfigScript: 'init_pia_config.js'
       }
     });
   } catch (err) {

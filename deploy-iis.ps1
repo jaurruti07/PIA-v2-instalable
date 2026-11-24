@@ -7,12 +7,13 @@
     Este script realiza las siguientes acciones de forma determinista y segura:
     1. Verifica privilegios de Administrador local.
     2. Comprueba prerrequisitos: Node.js LTS (>= 18), npm, IIS, URL Rewrite Module y ARR.
-    3. Crea la estructura de almacenamiento protegido en C:\PIA_Data con permisos NTFS restringidos.
-    4. Inicializa el directorio de respaldos automáticos rotativos (C:\PIA_Data\backups).
-    5. Instala las dependencias de producción de Node.js (npm ci / npm install --omit=dev).
-    6. Valida la plantilla .env institucional sin almacenar contraseñas ni secretos en repositorio.
+    3. Crea la estructura de almacenamiento protegido en C:\PIA_Data (backups, migration_logs)
+       y el directorio de fondos cargados (uploads\backgrounds) con permisos NTFS restringidos.
+    4. Instala las dependencias de producción de Node.js (npm ci / npm install --omit=dev).
+    5. Inicializa .env desde .env.example con PIA_DATA_DIR y llave criptográfica PIA_SESSION_SECRET.
+    6. Ejecuta admin/scripts/init_pia_config.js (y opcionalmente -InitSql para crear las 18 tablas).
     7. Configura el Sitio Web y el Application Pool dedicado en IIS.
-    8. Ejecuta pruebas de verificación de arranque y validación de endpoints HTTP.
+    8. Ejecuta pruebas de verificación de arranque y validación de endpoints HTTP públicos.
 
 .PARAMETER InstallPath
     Ruta donde se alojará el código de la aplicación. Por defecto: C:\inetpub\wwwroot\PIA
@@ -25,6 +26,9 @@
 
 .PARAMETER SiteName
     Nombre del Sitio en IIS. Por defecto: "PortalIntegridadActiva"
+
+.PARAMETER InitSql
+    Si se especifica, ejecuta también la inicialización de las 18 tablas MySQL/MariaDB y su configuración base.
 #>
 
 [CmdletBinding()]
@@ -33,6 +37,7 @@ param (
     [string]$DataPath = "C:\PIA_Data",
     [int]$Port = 3000,
     [string]$SiteName = "PortalIntegridadActiva",
+    [switch]$InitSql = $false,
     [switch]$SkipServiceCreation = $false
 )
 
@@ -72,11 +77,16 @@ Write-Success "Privilegios de Administrador confirmados."
 # ========================================================
 # 2. VERIFICACIÓN DE PRERREQUISITOS DE SOFTWARE
 # ========================================================
-Write-Step "2. Verificando software base requerido (Node.js, npm, IIS)..."
+Write-Step "2. Verificando software base requerido (Node.js >= 18, npm, IIS)..."
 
 # Node.js
 try {
-    $nodeVersion = & node -v
+    $nodeVersion = (& node -v).Trim()
+    $nodeMajor = [int]($nodeVersion.TrimStart('v').Split('.')[0])
+    if ($nodeMajor -lt 18) {
+        Write-ErrorMsg "Se requiere Node.js LTS >= 18.x (detectado: $nodeVersion)."
+        exit 1
+    }
     Write-Success "Node.js detectado: $nodeVersion"
 } catch {
     Write-ErrorMsg "Node.js no está instalado o no figura en la variable PATH del sistema."
@@ -86,7 +96,7 @@ try {
 
 # npm
 try {
-    $npmVersion = & npm -v
+    $npmVersion = (& npm -v).Trim()
     Write-Success "npm detectado: $npmVersion"
 } catch {
     Write-ErrorMsg "npm no está disponible en el entorno."
@@ -117,82 +127,98 @@ if (-not $rewriteInstalled) {
 }
 
 # ========================================================
-# 3. CREACIÓN Y ASEGURAMIENTO DEL DIRECTORIO DE DATOS
+# 3. CREACIÓN Y ASEGURAMIENTO DE DIRECTORIOS PROTEGIDOS
 # ========================================================
-Write-Step "3. Configurando directorio de almacenamiento protegido ($DataPath)..."
+Write-Step "3. Configurando almacenamiento protegido ($DataPath) y fondos dinámicos..."
 
-if (-not (Test-Path $DataPath)) {
-    New-Item -ItemType Directory -Path $DataPath -Force | Out-Null
-    Write-Success "Directorio $DataPath creado."
-} else {
-    Write-Success "Directorio $DataPath ya existe."
+$scriptDir = $PSScriptRoot
+if (-not $scriptDir) { $scriptDir = (Get-Location).Path }
+$currentDir = if ($PSBoundParameters.ContainsKey('InstallPath') -and $InstallPath) { $InstallPath } else { $scriptDir }
+if (-not (Test-Path $currentDir)) {
+    New-Item -ItemType Directory -Path $currentDir -Force | Out-Null
 }
 
 $backupsPath = Join-Path $DataPath "backups"
-if (-not (Test-Path $backupsPath)) {
-    New-Item -ItemType Directory -Path $backupsPath -Force | Out-Null
-    Write-Success "Directorio de respaldos $backupsPath creado."
+$migLogsPath = Join-Path $DataPath "migration_logs"
+$uploadsBgPath = Join-Path $currentDir "uploads\backgrounds"
+
+foreach ($dir in @($DataPath, $backupsPath, $migLogsPath, $uploadsBgPath)) {
+    if (-not (Test-Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        Write-Success "Directorio creado: $dir"
+    } else {
+        Write-Success "Directorio verificado: $dir"
+    }
 }
 
-# Permisos NTFS Restringidos: Solo SYSTEM, Administradores y cuenta de IIS / Servicio
+# Permisos NTFS Restringidos en DataPath: Solo SYSTEM, Administradores e IIS_IUSRS
 Write-Step "Aplicando listas de control de acceso NTFS (ACLs) seguras..."
 $acl = Get-Acl $DataPath
 $acl.SetAccessRuleProtection($true, $false) # Deshabilitar herencia
 
-# Regla: SYSTEM -> Control Total
 $ruleSystem = New-Object System.Security.AccessControl.FileSystemAccessRule("NT AUTHORITY\SYSTEM", "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")
-$acl.AddAccessRule($ruleSystem)
-
-# Regla: Administradores -> Control Total
 $ruleAdmins = New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Administrators", "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")
-$acl.AddAccessRule($ruleAdmins)
-
-# Regla: IIS_IUSRS -> Modificar / Lectura / Escritura
 $ruleIIS = New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\IIS_IUSRS", "Modify", "ContainerInherit,ObjectInherit", "None", "Allow")
+$acl.AddAccessRule($ruleSystem)
+$acl.AddAccessRule($ruleAdmins)
 $acl.AddAccessRule($ruleIIS)
-
 Set-Acl -Path $DataPath -AclObject $acl
-Write-Success "Permisos NTFS reforzados en $DataPath. Acceso denegado a usuarios públicos."
+
+# Permiso de escritura controlada para subida de imágenes de fondo por el backend en uploads\backgrounds
+$aclUploads = Get-Acl $uploadsBgPath
+$aclUploads.AddAccessRule($ruleIIS)
+Set-Acl -Path $uploadsBgPath -AclObject $aclUploads
+Write-Success "Permisos NTFS reforzados en $DataPath y $uploadsBgPath."
 
 # ========================================================
 # 4. INSTALACIÓN DE DEPENDENCIAS DEL PROYECTO
 # ========================================================
-Write-Step "4. Preparando dependencias de Node.js en $InstallPath..."
-$currentDir = $PSScriptRoot
-if (-not $currentDir) { $currentDir = (Get-Location).Path }
-
+Write-Step "4. Preparando dependencias de Node.js en $currentDir..."
 Set-Location $currentDir
-if (Test-Path "package.json") {
-    Write-Host "  Ejecutando npm install para producción..."
+if (Test-Path "package-lock.json") {
+    Write-Host "  Ejecutando npm ci --omit=dev..."
+    & npm ci --omit=dev --no-audit --no-fund
+    if ($LASTEXITCODE -ne 0) {
+        Write-ErrorMsg "npm ci finalizó con código de salida $LASTEXITCODE."
+        exit $LASTEXITCODE
+    }
+    Write-Success "Dependencias de producción instaladas con lockfile."
+} elseif (Test-Path "package.json") {
+    Write-Host "  Ejecutando npm install --omit=dev..."
     & npm install --omit=dev --no-audit --no-fund
+    if ($LASTEXITCODE -ne 0) {
+        Write-ErrorMsg "npm install finalizó con código de salida $LASTEXITCODE."
+        exit $LASTEXITCODE
+    }
     Write-Success "Dependencias de producción verificadas."
 } else {
     Write-WarnMsg "package.json no encontrado en el directorio actual. Omitiendo npm install."
 }
 
 # ========================================================
-# 5. CONFIGURACIÓN DE VARIABLES DE ENTORNO
+# 5. CONFIGURACIÓN DE VARIABLES DE ENTORNO E INICIALIZACIÓN PIA
 # ========================================================
-Write-Step "5. Verificando plantilla de variables de entorno institucional..."
+Write-Step "5. Inicializando variables de entorno (.env) y configuración operativa PIA..."
 $envFile = Join-Path $currentDir ".env"
-$envExample = Join-Path $currentDir ".env.example"
+$initArgs = @("admin/scripts/init_pia_config.js", "--data-dir=$DataPath", "--generate-secret")
+if ($InitSql) {
+    $initArgs += "--init-sql"
+}
 
-if (-not (Test-Path $envFile)) {
-    if (Test-Path $envExample) {
-        Copy-Item -Path $envExample -Destination $envFile
-        Write-WarnMsg "Se generó .env a partir de .env.example. Complete los parámetros institucionales requeridos:"
-        Write-Host "  - PIA_SESSION_SECRET (Llave aleatoria de 64+ caracteres)"
-        Write-Host "  - PIA_DATA_DIR (Por defecto: C:\PIA_Data)"
-        Write-Host "  - PIA_STORAGE_MODE (json | sql | hybrid - por defecto: json)"
-        Write-Host "  - MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE (Opcional para MySQL/MariaDB)"
-        Write-Host "  - GEMINI_API_KEY (Opcional: si falta, Lupita opera con motor heurístico local)"
+if (Test-Path "admin/scripts/init_pia_config.js") {
+    & node @initArgs
+    if ($LASTEXITCODE -ne 0) {
+        Write-WarnMsg "La inicialización/validación inicial reportó advertencias o errores. Revise la salida anterior."
+    } else {
+        Write-Success "Configuración inicial y datasets JSON verificados correctamente."
     }
-} else {
-    Write-Success "Archivo .env existente detectado. Conservando configuración actual."
+} elseif (-not (Test-Path $envFile) -and (Test-Path ".env.example")) {
+    Copy-Item -Path ".env.example" -Destination $envFile
+    Write-WarnMsg "Se generó .env a partir de .env.example. Complete PIA_SESSION_SECRET y MYSQL_*."
 }
 
 # ========================================================
-# 6. CONFIGURACIÓN DE IIS (SITE Y APPLICATION POOL)
+# 6. CONFIGURACIÓN DE IIS (APPLICATION POOL Y SITIO WEB)
 # ========================================================
 Write-Step "6. Configurando IIS Application Pool y Sitio Web..."
 Import-Module WebAdministration -ErrorAction SilentlyContinue
@@ -200,12 +226,22 @@ Import-Module WebAdministration -ErrorAction SilentlyContinue
 $appPoolName = "PiaAppPool"
 if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
     $appPool = New-Item "IIS:\AppPools\$appPoolName"
-    $appPool.managedRuntimeVersion = "" # Sin runtime .NET (.NET CLR Version: No Managed Code)
+    $appPool.managedRuntimeVersion = "" # .NET CLR Version: No Managed Code
     $appPool.processModel.idleTimeout = [TimeSpan]::Zero # No suspender el proceso
     $appPool | Set-Item
     Write-Success "Application Pool '$appPoolName' creado sin Managed Code."
 } else {
     Write-Success "Application Pool '$appPoolName' ya existe."
+}
+
+if (Get-Command Get-Website -ErrorAction SilentlyContinue) {
+    $existingSite = Get-Website -Name $SiteName -ErrorAction SilentlyContinue
+    if (-not $existingSite) {
+        Write-Host "  Sitio IIS '$SiteName' aún no creado. Para crearlo en puerto 80 apuntando a '$currentDir':"
+        Write-Host "    New-Website -Name `"$SiteName`" -PhysicalPath `"$currentDir`" -ApplicationPool `"$appPoolName`" -Port 80"
+    } else {
+        Write-Success "Sitio IIS '$SiteName' verificado (Estado: $($existingSite.State))."
+    }
 }
 
 # ========================================================
@@ -221,7 +257,7 @@ if (-not $SkipServiceCreation) {
     Write-Host "    pm2 save"
     Write-Host ""
     Write-Host "  Opción B: Instalar como servicio nativo con NSSM (Non-Sucking Service Manager):"
-    Write-Host "    nssm install PIA_Service node.exe `"$currentDir\server.js`""
+    Write-Host "    nssm install PIA_Service `"$((Get-Command node).Source)`" `"$currentDir\server.js`""
     Write-Host "    nssm set PIA_Service AppDirectory `"$currentDir`""
     Write-Host "    nssm start PIA_Service"
 }
@@ -235,9 +271,20 @@ $healthTestCode = @"
 try {
     const resModules = await fetch('http://127.0.0.1:$Port/api/modules');
     const modules = await resModules.json();
+    const resPortalUi = await fetch('http://127.0.0.1:$Port/api/ui/portal');
+    const portalUi = await resPortalUi.json();
+    const resCanalesCfg = await fetch('http://127.0.0.1:$Port/api/canales/config');
+    const canalesCfg = await resCanalesCfg.json();
     const resChat = await fetch('http://127.0.0.1:$Port/api/chatbot/config');
     const chat = await resChat.json();
-    console.log(JSON.stringify({ ok: true, modulesCount: modules.length, chatbotActive: chat.enabled !== false }));
+    console.log(JSON.stringify({
+        ok: true,
+        modulesCount: Array.isArray(modules) ? modules.length : 0,
+        portalKpis: Array.isArray(portalUi.kpis) ? portalUi.kpis.length : 0,
+        portalFondos: Array.isArray(portalUi.backgrounds) ? portalUi.backgrounds.length : 0,
+        canalesConfigOk: typeof canalesCfg.showProtocolos === 'boolean',
+        chatbotActive: chat.enabled !== false
+    }));
 } catch (e) {
     console.log(JSON.stringify({ ok: false, error: e.message }));
 }
@@ -249,7 +296,7 @@ if ($healthResult) {
         $jsonRes = $healthResult | ConvertFrom-Json
         if ($jsonRes.ok) {
             Write-Success "Servicio Node.js respondiendo correctamente en http://127.0.0.1:$Port"
-            Write-Success "Módulos activos: $($jsonRes.modulesCount). Asistente Lupita: $($jsonRes.chatbotActive)"
+            Write-Success "Módulos activos: $($jsonRes.modulesCount) | Portal KPIs: $($jsonRes.portalKpis) | Fondos: $($jsonRes.portalFondos) | Lupita: $($jsonRes.chatbotActive)"
         } else {
             Write-WarnMsg "El servicio aún no está levantado en el puerto $Port ($($jsonRes.error)). Inicie el servicio para verificar."
         }
@@ -261,10 +308,14 @@ if ($healthResult) {
 }
 
 Write-Host "`n=============================================================" -ForegroundColor Green
-Write-Host " INSTALACIÓN Y PREPARACIÓN PIA (JSON + SQL) COMPLETADA" -ForegroundColor Green
+Write-Host " INSTALACIÓN Y PREPARACIÓN PIA (JSON + SQL 18 TABLAS) COMPLETADA" -ForegroundColor Green
 Write-Host "=============================================================" -ForegroundColor Green
 Write-Host " Próximos pasos recomendados en el servidor:" -ForegroundColor Cyan
 Write-Host "  1. En IIS -> Application Request Routing Cache -> Server Proxy Settings: habilitar 'Enable proxy'."
-Write-Host "  2. Completar PIA_SESSION_SECRET y credenciales MYSQL_* en .env si usará SQL."
-Write-Host "  3. Inicializar tablas SQL con 'mysql -u pia_app_user -p < sql\01_schema_mysql.sql' o desde /admin/."
-Write-Host "  4. Ejecutar 'npm test' para verificar seguridad y funcionamiento general.`n"
+Write-Host "  2. Verificar credenciales MYSQL_* en .env si usará modalidad SQL o Híbrida."
+Write-Host "  3. Inicializar BD y configuración SQL (18 tablas):"
+Write-Host "     mysql -u pia_app_user -p < sql\01_schema_mysql.sql"
+Write-Host "     mysql -u pia_app_user -p < sql\02_seed_initial_config.sql"
+Write-Host "     (o ejecutar: node admin/scripts/migrate_json_to_sql.js --init-schema --include-portal)"
+Write-Host "  4. Ejecutar 'npm run setup:check' y 'npm test' para validar seguridad y funcionamiento.`n"
+
