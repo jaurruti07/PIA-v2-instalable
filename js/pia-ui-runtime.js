@@ -74,11 +74,23 @@
       .pia-stats-carousel-controls {
         display: none;
         align-items: center;
-        gap: 0.6rem;
+        justify-content: center;
+        gap: 0.65rem;
+        max-width: 100%;
+        flex-wrap: nowrap;
       }
       .pia-stats-nav-btn {
         width: 34px;
         height: 34px;
+        min-width: 34px;
+        min-height: 34px;
+        max-width: 34px;
+        max-height: 34px;
+        aspect-ratio: 1 / 1;
+        padding: 0;
+        margin: 0;
+        flex: 0 0 34px;
+        box-sizing: border-box;
         border-radius: 50%;
         border: 1px solid rgba(0, 194, 224, 0.35);
         background: rgba(5, 17, 31, 0.55);
@@ -89,6 +101,7 @@
         cursor: pointer;
         transition: all 0.2s ease;
         font-size: 0.8rem;
+        line-height: 1;
       }
       .pia-stats-nav-btn:hover {
         background: var(--cyan, #00C2E0);
@@ -96,13 +109,22 @@
         border-color: var(--cyan, #00C2E0);
       }
       .pia-stats-pagination {
-        display: inline-flex;
+        position: static !important;
+        width: auto !important;
+        max-width: calc(100% - 92px);
+        display: inline-flex !important;
         align-items: center;
-        gap: 5px;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0 !important;
       }
       .pia-stats-pagination .swiper-pagination-bullet {
         width: 8px;
         height: 8px;
+        margin: 0 !important;
+        border-radius: 50%;
+        flex-shrink: 0;
         background: rgba(255, 255, 255, 0.32);
         opacity: 1;
         transition: all 0.25s ease;
@@ -122,15 +144,24 @@
         overflow: hidden;
       }
       .pia-stats-swiper {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
         border: 1px solid rgba(0, 194, 224, 0.12);
         border-radius: 14px;
         overflow: hidden;
         background: rgba(0, 194, 224, 0.08);
       }
+      .pia-stats-swiper .swiper-wrapper {
+        align-items: stretch;
+      }
       .pia-stats-swiper .swiper-slide {
         height: auto !important;
         display: flex;
         align-items: stretch;
+        box-sizing: border-box;
+        border-right: 1px solid rgba(0, 194, 224, 0.08);
       }
       .pia-stats-swiper .stat-cell,
       .pia-stats-grid .stat-cell {
@@ -177,10 +208,33 @@
       }
       .pia-semaphore-kpis-carousel .semaphore-kpi {
         height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
       }
       @media (max-width: 960px) {
         .pia-stats-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+      }
+      @media (max-width: 768px) {
+        .pia-stats-ribbon-head {
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          gap: 0.75rem;
+        }
+        .pia-stats-ribbon-tag {
+          justify-content: center;
+        }
+        .pia-stats-carousel-controls {
+          width: 100%;
+          justify-content: center;
+          margin: 0 auto;
         }
       }
       @media (max-width: 540px) {
@@ -310,6 +364,11 @@
           slidesPerView: 1,
           spaceBetween: 14,
           loop: true,
+          roundLengths: true,
+          observer: true,
+          observeParents: true,
+          resizeObserver: true,
+          watchOverflow: true,
           autoplay: { delay: 3600, disableOnInteraction: false, pauseOnMouseEnter: true },
           pagination: { el: '#piaSemaphorePagination', clickable: true },
           breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
@@ -340,7 +399,7 @@
         </div>
       `;
     } else {
-      if (controlsEl) controlsEl.style.display = 'inline-flex';
+      if (controlsEl) controlsEl.style.display = 'flex';
       container.innerHTML = `
         <div class="swiper pia-stats-swiper" id="piaModuleStatsSwiper">
           <div class="swiper-wrapper">
@@ -350,9 +409,14 @@
       `;
       state.kpiSwiper = new window.Swiper('#piaModuleStatsSwiper', {
         slidesPerView: 1,
-        spaceBetween: 1,
+        spaceBetween: 0,
         loop: true,
         speed: 650,
+        roundLengths: true,
+        observer: true,
+        observeParents: true,
+        resizeObserver: true,
+        watchOverflow: true,
         autoplay: {
           delay: 3600,
           disableOnInteraction: false,

@@ -500,16 +500,18 @@
 
         .stats-ribbon { background: var(--navy-mid); border-top: 1px solid rgba(0,194,224,0.08); border-bottom: 1px solid rgba(0,194,224,0.08); padding: 1.6rem 0; }
         .stats-ribbon-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
-        .stats-carousel-controls { display: flex; align-items: center; gap: 0.55rem; }
+        .stats-carousel-controls { display: flex; align-items: center; justify-content: center; gap: 0.6rem; max-width: 100%; }
         .stats-nav-btn {
-            width: 34px; height: 34px; border-radius: 50%;
+            width: 34px; height: 34px; min-width: 34px; min-height: 34px; max-width: 34px; max-height: 34px;
+            aspect-ratio: 1 / 1; padding: 0; margin: 0; flex: 0 0 34px; box-sizing: border-box;
+            border-radius: 50%; line-height: 1;
             background: rgba(5,17,31,0.72); border: 1px solid rgba(0,194,224,0.28);
             color: var(--cyan); display: inline-flex; align-items: center; justify-content: center;
             font-size: 0.78rem; transition: all 0.2s;
         }
         .stats-nav-btn:hover { background: var(--cyan); color: var(--navy); border-color: var(--cyan); }
-        .stats-swiper-pagination { display: flex; align-items: center; gap: 5px; width: auto !important; }
-        .stats-swiper-pagination .swiper-pagination-bullet { width: 7px; height: 7px; background: rgba(255,255,255,0.3); opacity: 1; transition: all 0.25s; margin: 0 !important; }
+        .stats-swiper-pagination { position: static !important; display: inline-flex !important; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; width: auto !important; max-width: calc(100% - 92px); margin: 0 !important; }
+        .stats-swiper-pagination .swiper-pagination-bullet { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: rgba(255,255,255,0.3); opacity: 1; transition: all 0.25s; margin: 0 !important; }
         .stats-swiper-pagination .swiper-pagination-bullet-active { width: 18px; border-radius: 10px; background: var(--cyan); }
         .stats-grid {
             display: grid; grid-template-columns: repeat(var(--stats-cols, 4), 1fr);
@@ -518,20 +520,22 @@
         }
         .stats-carousel-wrap {
             position: relative;
+            width: 100%;
+            margin: 0 auto;
             background: rgba(0,194,224,0.08);
             border: 1px solid rgba(0,194,224,0.12);
             border-radius: var(--radius-xl);
             overflow: hidden;
         }
-        .stats-swiper { width: 100%; }
-        .stats-swiper .swiper-slide { height: auto; display: flex; border-right: 1px solid rgba(0,194,224,0.08); }
-        .stats-swiper .stat-cell { width: 100%; display: flex; flex-direction: column; justify-content: center; min-height: 158px; }
+        .stats-swiper { width: 100%; max-width: 100%; margin: 0 auto; box-sizing: border-box; }
+        .stats-swiper .swiper-slide { height: auto; display: flex; box-sizing: border-box; border-right: 1px solid rgba(0,194,224,0.08); }
+        .stats-swiper .stat-cell { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 158px; }
         .stat-cell { background: var(--navy-mid); padding: 1.4rem 1rem; text-align: center; transition: background 0.2s; }
         .stat-cell:hover { background: rgba(0,194,224,0.06); }
         .stat-cell-icon { font-size: 1.3rem; color: var(--cyan); margin-bottom: 0.5rem; }
         .stat-num { font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; }
         .stat-lbl { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.7); margin-top: 0.2rem; }
-        .stat-desc { font-size: 0.68rem; color: var(--text-light); margin-top: 0.15rem; letter-spacing: 0.02em; }
+        .stat-desc { font-size: 0.68rem; color: var(--text-light); margin: 0.15rem auto 0; letter-spacing: 0.02em; }
 
         .section { padding: 4.5rem 0; }
         .section-tag {
@@ -1249,6 +1253,9 @@
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 680px) {
+            .stats-ribbon-head { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 0.75rem; }
+            .stats-ribbon-head .section-tag { justify-content: center; }
+            .stats-carousel-controls { width: 100%; justify-content: center; margin: 0 auto; }
             .hero-inner { padding: 3.5rem 1rem 4.5rem; }
             .metrics-strip { grid-template-columns: repeat(2, 1fr); }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -3573,8 +3580,11 @@ Utiliza los mecanismos oficiales para participar activamente.
                     spaceBetween: 0,
                     loop: true,
                     speed: 650,
+                    roundLengths: true,
                     observer: true,
                     observeParents: true,
+                    resizeObserver: true,
+                    watchOverflow: true,
                     autoplay: {
                         delay: 3600,
                         disableOnInteraction: false,

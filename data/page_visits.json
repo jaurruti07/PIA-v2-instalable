@@ -1,12 +1,12 @@
 {
-  "totalVisits": 15,
+  "totalVisits": 17,
   "createdAt": "2026-11-11T13:22:54.419Z",
-  "lastUpdated": "2026-11-17T18:56:56.426Z",
+  "lastUpdated": "2026-11-25T14:31:15.757Z",
   "pages": {
     "/": {
       "name": "Portal Principal / Inicio",
-      "visits": 6,
-      "lastVisit": "2026-11-17T18:56:56.327Z"
+      "visits": 8,
+      "lastVisit": "2026-11-25T14:31:15.757Z"
     },
     "/directorio": {
       "name": "Directorio Acceso al Ejecutivo",
@@ -30,6 +30,22 @@
     }
   },
   "recentVisits": [
+    {
+      "id": "fbfc274c",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-25T14:31:15.757Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "8f0e0448",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-25T14:25:58.964Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    },
     {
       "id": "63271784",
       "path": "/riesgo",
