@@ -288,7 +288,7 @@
             text-transform: uppercase; color: var(--cyan);
             margin-bottom: 1.6rem;
         }
-        .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; }
+        .hero-eyebrow > span:first-child { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; flex-shrink: 0; }
         @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
 
         .hero h1 {
@@ -2196,7 +2196,7 @@
 
             <ul class="nav-menu" id="navMenu">
                 <li class="menu-group">
-                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_accede">Accede</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
                         <!-- Transparencia Vehicular no visible temporalmente -->
@@ -2204,7 +2204,7 @@
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_explora">Explora</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
@@ -2214,13 +2214,13 @@
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_aprende">Aprende</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
                     </ul>
                 </li>
                 <li class="menu-group">
-                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_reporta">Reporta</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
                         <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
@@ -2248,13 +2248,13 @@
         <button class="hero-dot" aria-label="Diapositiva 4"></button>
     </div>
     <div class="container hero-inner">
-        <div class="hero-eyebrow"><span></span>Transparencia y Rendición de Cuentas</div>
-        <h1>Tu <br><em>Gobierno en Números</em></h1>
-        <p class="hero-lema">Tableros de Rendición de cuentas</p>
-        <p class="hero-sub">Son herramientas de prevención que busca favorecer la rendición de cuentas. Centraliza y publica de manera proactiva, información importante sobre la gestión de recursos en las instituciones que conforman el Organismo Ejecutivo.</p>
+        <div class="hero-eyebrow"><span></span><data data-pia-text="hero.eyebrow">Transparencia y Rendición de Cuentas</data></div>
+        <h1><span data-pia-text="hero.title_prefix">Tu</span> <br><em data-pia-text="hero.title_highlight">Gobierno en Números</em></h1>
+        <p class="hero-lema" data-pia-text="hero.lema">Tableros de Rendición de cuentas</p>
+        <p class="hero-sub" data-pia-text="hero.sub">Son herramientas de prevención que busca favorecer la rendición de cuentas. Centraliza y publica de manera proactiva, información importante sobre la gestión de recursos en las instituciones que conforman el Organismo Ejecutivo.</p>
         <div class="hero-actions">
-            <a href="#directorio" class="btn-primary" id="heroCTA"><i class="fas fa-chart-simple"></i> Consultar Tableros</a>
-            <a href="#sobre" class="btn-outline"><i class="fas fa-info-circle"></i> Conocer Más</a>
+            <a href="#directorio" class="btn-primary" id="heroCTA"><i class="fas fa-chart-simple"></i> <span data-pia-text="hero.cta_primary">Consultar Tableros</span></a>
+            <a href="#sobre" class="btn-outline"><i class="fas fa-info-circle"></i> <span data-pia-text="hero.cta_secondary">Conocer Más</span></a>
         </div>
     </div>
 </section>
@@ -2265,7 +2265,7 @@
 <div class="stats-ribbon">
     <div class="container">
         <div class="pia-stats-ribbon-head">
-            <span class="pia-stats-ribbon-tag">Indicadores del módulo</span>
+            <span class="pia-stats-ribbon-tag" data-pia-text="stats.ribbon_tag">Indicadores del módulo</span>
             <div id="piaStatsCarouselControls" class="pia-stats-carousel-controls">
                 <button type="button" class="pia-stats-nav-btn" id="piaStatsPrevBtn" aria-label="Indicadores anteriores"><i class="fas fa-chevron-left"></i></button>
                 <div id="piaStatsPagination" class="pia-stats-pagination"></div>
@@ -2292,16 +2292,16 @@
     <section class="section" id="sobre">
         <div class="about-section">
             <div class="about-content">
-                <div class="section-tag">Sobre la plataforma</div>
-                <h2>Tu <em>Gobierno en Números</em></h2>
+                <div class="section-tag" data-pia-text="sobre.tag">Sobre la plataforma</div>
+                <h2><span data-pia-text="sobre.title_prefix">Tu</span> <em data-pia-text="sobre.title_highlight">Gobierno en Números</em></h2>
                 
-                <p>Facilita el acceso a información gubernamental mediante tableros claros, accesibles y de fácil comprensión, fortaleciendo la transparencia y la rendición de cuentas.</p>
-                <p>Dirigido a ciudadanía, periodistas, organizaciones, academia y autoridades que requieran información clara y consolidada para conocer, analizar y dar seguimiento a la gestión y uso de los recursos públicos del Organismo Ejecutivo.</p>
+                <p data-pia-text="sobre.p1">Facilita el acceso a información gubernamental mediante tableros claros, accesibles y de fácil comprensión, fortaleciendo la transparencia y la rendición de cuentas.</p>
+                <p data-pia-text="sobre.p2">Dirigido a ciudadanía, periodistas, organizaciones, academia y autoridades que requieran información clara y consolidada para conocer, analizar y dar seguimiento a la gestión y uso de los recursos públicos del Organismo Ejecutivo.</p>
                 <div class="about-features">
-                    <div class="about-feature"><i class="fas fa-chart-pie"></i><span>Datos actualizados</span></div>
-                    <div class="about-feature"><i class="fas fa-share-alt"></i><span>Comparte información</span></div>
-                    <div class="about-feature"><i class="fas fa-download"></i><span>Exporta resultados</span></div>
-                    <div class="about-feature"><i class="fas fa-eye"></i><span>Transparencia activa</span></div>
+                    <div class="about-feature"><i class="fas fa-chart-pie"></i><span data-pia-text="sobre.feat1">Datos actualizados</span></div>
+                    <div class="about-feature"><i class="fas fa-share-alt"></i><span data-pia-text="sobre.feat2">Comparte información</span></div>
+                    <div class="about-feature"><i class="fas fa-download"></i><span data-pia-text="sobre.feat3">Exporta resultados</span></div>
+                    <div class="about-feature"><i class="fas fa-eye"></i><span data-pia-text="sobre.feat4">Transparencia activa</span></div>
                     <img src="/img/gobierno_en_numerosV2.png" alt="Tu Gobierno en Números">
                 </div>
                  
@@ -2318,8 +2318,8 @@
     <section class="section" style="padding-top:0;">
         
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Conceptos clave</div>
-            <h2 class="section-title">Glosario de Transparencia y Rendición de Cuentas</h2>
+            <div class="section-tag" style="justify-content:center;" data-pia-text="glosario.tag">Conceptos clave</div>
+            <h2 class="section-title" data-pia-text="glosario.title">Glosario de Transparencia y Rendición de Cuentas</h2>
         </div>
         <div class="glosario-tabs">
             <div class="glosario-tab-nav" id="glosarioTabNav">
@@ -2338,10 +2338,10 @@
     <section class="section" id="directorio">
         <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
             <div>
-                <div class="section-tag">Datos y transparencia</div>
-                <h2 class="section-title">Tableros de Rendición de Cuentas</h2>
+                <div class="section-tag" data-pia-text="tableros.tag">Datos y transparencia</div>
+                <h2 class="section-title" data-pia-text="tableros.title">Tableros de Rendición de Cuentas</h2>
                 <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem; max-width:600px;">
-                    <i class="fas fa-info-circle"></i> La información que se presenta ha sido proporcionada bajo responsabilidad de las dependencias encargadas del acceso a la información pública del Organismo Ejecutivo. La actualización de los enlaces y contenidos es responsabilidad de cada institución.
+                    <i class="fas fa-info-circle"></i> <span data-pia-text="tableros.disclaimer">La información que se presenta ha sido proporcionada bajo responsabilidad de las dependencias encargadas del acceso a la información pública del Organismo Ejecutivo. La actualización de los enlaces y contenidos es responsabilidad de cada institución.</span>
                 </div>
             </div>
             <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
@@ -2362,7 +2362,7 @@
 <div class="filter-bar">
             <div class="filter-bar-header">
                 <div class="filter-bar-title">
-                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
+                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> <span data-pia-text="tableros.filters_title">Filtros de Búsqueda</span>
                 </div>
                 <div class="filter-active-count" id="activeFilterBadge" style="display:none;">
                     <i class="fas fa-filter"></i> <span id="activeFilterCountText">0 filtros activos</span>
@@ -2370,8 +2370,8 @@
             </div>
             <div class="filter-grid">
                 <div class="filter-group">
-                    <span class="filter-label"><i class="fas fa-layer-group"></i> Tipo dependencia</span>
-                    <select id="tipoFilter" aria-label="Filtrar por tipo de dependencia"><option value="">Todos los tipos</option></select>
+                    <span class="filter-label"><i class="fas fa-layer-group"></i> Tipo institución</span>
+                    <select id="tipoFilter" aria-label="Filtrar por tipo de institución"><option value="">Todos los tipos de institución</option></select>
                 </div>
                 <div class="filter-group">
                     <span class="filter-label"><i class="fas fa-building"></i> Nombre</span>
@@ -2462,16 +2462,16 @@
     ============================================================ -->
     <section class="section" id="faq" style="padding-top:0;">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Preguntas frecuentes</div>
-            <h2 class="section-title">Resolvemos tus dudas</h2>
-            <p class="section-sub">Respuestas a las consultas más comunes sobre la plataforma y los tableros de rendición de cuentas.</p>
+            <div class="section-tag" style="justify-content:center;" data-pia-text="faq.tag">Preguntas frecuentes</div>
+            <h2 class="section-title" data-pia-text="faq.title">Resolvemos tus dudas</h2>
+            <p class="section-sub" data-pia-text="faq.sub">Respuestas a las consultas más comunes sobre la plataforma y los tableros de rendición de cuentas.</p>
         </div>
         <div class="faq-wrap">
-            <div class="faq-item"><button class="faq-q">¿Qué información puedo consultar? <i class="fas fa-chevron-down"></i></button><div class="faq-a">En algunos tableros podrás consultar las autoridades de cada institución, el presupuesto vigente, el presupuesto ejecutado, información de pago de salarios, avance en proyectos prioritarios, resultados o logros, espacios para sugerencias y mucho más.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Quién actualiza los tableros? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Cada institución es responsable de la actualización y calidad de la información publicada en su tablero. La plataforma solo enlaza a las fuentes oficiales.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Puedo descargar información? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Sí, puede exportar los resultados filtrados en formato PDF o Excel utilizando los botones de exportación disponibles en la sección del directorio.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Cómo comparto un tablero? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Cada tarjeta tiene un botón de compartir que genera un mensaje con el nombre de la institución y el enlace al tablero, listo para enviar por WhatsApp o copiar al portapapeles.</div></div>
-            <div class="faq-item"><button class="faq-q">¿La plataforma genera información propia? <i class="fas fa-chevron-down"></i></button><div class="faq-a">No. La plataforma es un directorio que enlaza a las fuentes oficiales de cada institución. No genera ni modifica la información publicada.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q1">¿Qué información puedo consultar?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a1">En algunos tableros podrás consultar las autoridades de cada institución, el presupuesto vigente, el presupuesto ejecutado, información de pago de salarios, avance en proyectos prioritarios, resultados o logros, espacios para sugerencias y mucho más.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q2">¿Quién actualiza los tableros?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a2">Cada institución es responsable de la actualización y calidad de la información publicada en su tablero. La plataforma solo enlaza a las fuentes oficiales.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q3">¿Puedo descargar información?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a3">Sí, puede exportar los resultados filtrados en formato PDF o Excel utilizando los botones de exportación disponibles en la sección del directorio.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q4">¿Cómo comparto un tablero?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a4">Cada tarjeta tiene un botón de compartir que genera un mensaje con el nombre de la institución y el enlace al tablero, listo para enviar por WhatsApp o copiar al portapapeles.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q5">¿La plataforma genera información propia?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a5">No. La plataforma es un directorio que enlaza a las fuentes oficiales de cada institución. No genera ni modifica la información publicada.</div></div>
         </div>
     </section>
 
@@ -2487,11 +2487,11 @@
             <div class="footer-brand">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala">
                 <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
-                <p>Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
+                <p data-pia-text="footer.brand_phrase">Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
             </div>
 
             <div class="footer-col">
-                <h4>Reporta irregularidades</h4>
+                <h4 data-pia-text="footer.col1_title">Reporta irregularidades</h4>
                 <ul class="footer-links">
                     <li><a href="canales-por-la-integridad/">Canales por la Integridad</a></li>
                     <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
@@ -2499,7 +2499,7 @@
             </div>
 
             <div class="footer-col">
-                <h4>Explora datos</h4>
+                <h4 data-pia-text="footer.col2_title">Explora datos</h4>
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
@@ -2508,23 +2508,23 @@
             </div>
 
             <div class="footer-col">
-                <h4>Accede a la información</h4>
+                <h4 data-pia-text="footer.col3_title">Accede a la información</h4>
                 <ul class="footer-links">
                     <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
                     <!-- <li><a href="../vehiculos/">Transparencia Vehicular</a></li> -->
                     <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
-                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <h4 style="margin-top:1.5rem;" data-pia-text="footer.col4_title">Aprende</h4>
                 <ul class="footer-links">
                     <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
                 </ul>
             </div>
 
             <div class="footer-col">
-                <h4>Contacto</h4>
+                <h4 data-pia-text="footer.col5_title">Contacto</h4>
                 <div class="footer-contact">
-                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
-                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt" data-pia-text="footer.contact_email">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/" data-pia-text="footer.contact_web">pia.gob.gt</a></span>
                 </div>
                 <div class="social-row">
                     <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
@@ -2536,7 +2536,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
+            <p data-pia-text="footer.copyright">© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
                 <img src="/img/L1.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
                 <img src="/img/gobierno_en_numerosV2.png" alt="Tu Gobierno en Números" style="height:36px; width:auto; opacity:0.6;">
@@ -2567,6 +2567,7 @@
 ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script src="/js/pia-ui-runtime.js"></script>
+<script src="/js/pia-module-texts.js" data-module="tableros"></script>
 <script>
 /* ============================================================
    DATOS DE GLOSARIO
@@ -2585,40 +2586,40 @@ let instituciones = [];
 
 // Datos de respaldo
 const FALLBACK_DATA = [
-    { id: 1, nombre_institucion: "Comisión Nacional contra la Corrupción", siglas: "CNC", tipo_dependencia: "Comisión", sector: "Presidencia", link_tablero: "https://sgp.gob.gt/web/index.php/uip/informacion-publica-de-oficio/category/371-2026", descripcion: "Tablero institucional de rendición de cuentas de la Comisión Nacional contra la Corrupción.", fecha_actualizacion: "2026", estado: "Disponible" },
-    { id: 2, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno", siglas: "AMSCLAE", tipo_dependencia: "Autoridad", sector: "Ambiente", link_tablero: "https://www.amsclae.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 3, nombre_institucion: "Comisión Presidencial contra la Discriminación y el Racismo", siglas: "CODISRA", tipo_dependencia: "Comisión", sector: "Presidencia", link_tablero: "https://codisra.gob.gt/index.php/informacion-publica/tablero-de-rendicion-de-cuentas", descripcion: "Tablero de rendición de cuentas de la Comisión Presidencial contra la Discriminación y el Racismo.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 4, nombre_institucion: "Ministerio de Agricultura, Ganadería y Alimentación", siglas: "MAGA", tipo_dependencia: "Ministerio", sector: "Agricultura", link_tablero: "https://www.maga.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Agricultura, Ganadería y Alimentación.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 5, nombre_institucion: "Ministerio de Ambiente y Recursos Naturales", siglas: "MARN", tipo_dependencia: "Ministerio", sector: "Ambiente", link_tablero: "https://www.marn.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Ambiente y Recursos Naturales.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 6, nombre_institucion: "Ministerio de Comunicaciones, Infraestructura y Vivienda", siglas: "MICIVI", tipo_dependencia: "Ministerio", sector: "Infraestructura", link_tablero: "https://www.micivi.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Comunicaciones, Infraestructura y Vivienda.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 7, nombre_institucion: "Ministerio de Cultura y Deportes", siglas: "MCD", tipo_dependencia: "Ministerio", sector: "Cultura", link_tablero: "https://www.mcd.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Cultura y Deportes.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 8, nombre_institucion: "Ministerio de Desarrollo Social", siglas: "MIDES", tipo_dependencia: "Ministerio", sector: "Social", link_tablero: "https://www.mides.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Desarrollo Social.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 9, nombre_institucion: "Ministerio de Economía", siglas: "MINECO", tipo_dependencia: "Ministerio", sector: "Economía", link_tablero: "https://www.mineco.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Economía.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 10, nombre_institucion: "Ministerio de Educación", siglas: "MINEDUC", tipo_dependencia: "Ministerio", sector: "Educación", link_tablero: "https://www.mineduc.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Educación.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 11, nombre_institucion: "Ministerio de Energía y Minas", siglas: "MEM", tipo_dependencia: "Ministerio", sector: "Energía", link_tablero: "https://www.mem.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Energía y Minas.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 12, nombre_institucion: "Ministerio de Finanzas Públicas", siglas: "MINFIN", tipo_dependencia: "Ministerio", sector: "Finanzas", link_tablero: "https://www.minfin.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Finanzas Públicas.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 13, nombre_institucion: "Ministerio de Gobernación", siglas: "MINGOB", tipo_dependencia: "Ministerio", sector: "Seguridad", link_tablero: "https://www.mingob.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Gobernación.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 14, nombre_institucion: "Ministerio de la Defensa Nacional", siglas: "MINDEF", tipo_dependencia: "Ministerio", sector: "Defensa", link_tablero: "https://www.mindef.mil.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de la Defensa Nacional.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 15, nombre_institucion: "Ministerio de Relaciones Exteriores", siglas: "MINEX", tipo_dependencia: "Ministerio", sector: "Relaciones Exteriores", link_tablero: "https://www.minex.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Relaciones Exteriores.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 16, nombre_institucion: "Ministerio de Salud Pública y Asistencia Social", siglas: "MSPAS", tipo_dependencia: "Ministerio", sector: "Salud", link_tablero: "https://www.mspas.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Salud Pública y Asistencia Social.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 17, nombre_institucion: "Ministerio de Trabajo y Previsión Social", siglas: "MINTRAB", tipo_dependencia: "Ministerio", sector: "Trabajo", link_tablero: "https://www.mintrabajo.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Trabajo y Previsión Social.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 18, nombre_institucion: "Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas", siglas: "SVET", tipo_dependencia: "Secretaría", sector: "Seguridad", link_tablero: "https://www.svet.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 19, nombre_institucion: "Secretaría de Asuntos Administrativos y de Seguridad", siglas: "SAAS", tipo_dependencia: "Secretaría", sector: "Administración", link_tablero: "https://www.saas.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Asuntos Administrativos y de Seguridad.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 20, nombre_institucion: "Secretaría de Bienestar Social de la Presidencia", siglas: "SBS", tipo_dependencia: "Secretaría", sector: "Social", link_tablero: "https://www.sbs.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Bienestar Social de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 21, nombre_institucion: "Secretaría de Comunicación Social de la Presidencia", siglas: "SCSPR", tipo_dependencia: "Secretaría", sector: "Comunicación", link_tablero: "https://www.scspr.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Comunicación Social de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 22, nombre_institucion: "Secretaría de Coordinación Ejecutiva de la Presidencia", siglas: "SCEP", tipo_dependencia: "Secretaría", sector: "Coordinación", link_tablero: "https://www.scep.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Coordinación Ejecutiva de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 23, nombre_institucion: "Secretaría de Inteligencia Estratégica del Estado", siglas: "SIE", tipo_dependencia: "Secretaría", sector: "Inteligencia", link_tablero: "https://www.sie.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Inteligencia Estratégica del Estado.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 24, nombre_institucion: "Secretaría de Obras Sociales de la Esposa del Presidente", siglas: "SOSEP", tipo_dependencia: "Secretaría", sector: "Social", link_tablero: "https://www.sosep.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Obras Sociales de la Esposa del Presidente.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 25, nombre_institucion: "Secretaría de Planificación y Programación de la Presidencia", siglas: "SEGEPLAN", tipo_dependencia: "Secretaría", sector: "Planificación", link_tablero: "https://www.segeplan.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Planificación y Programación de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 26, nombre_institucion: "Secretaría de Seguridad Alimentaria y Nutricional", siglas: "SESAN", tipo_dependencia: "Secretaría", sector: "Social", link_tablero: "https://www.sesan.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Seguridad Alimentaria y Nutricional.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 27, nombre_institucion: "Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas", siglas: "SECCATID", tipo_dependencia: "Secretaría", sector: "Seguridad", link_tablero: "https://www.seccatid.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 28, nombre_institucion: "Secretaría General de la Presidencia", siglas: "SGP", tipo_dependencia: "Secretaría", sector: "Presidencia", link_tablero: "https://www.sgp.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría General de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 29, nombre_institucion: "Secretaría Nacional de Ciencia y Tecnología", siglas: "SENACYT", tipo_dependencia: "Secretaría", sector: "Ciencia", link_tablero: "https://www.senacyt.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Nacional de Ciencia y Tecnología.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 30, nombre_institucion: "Secretaría Presidencial de la Mujer", siglas: "SEPREM", tipo_dependencia: "Secretaría", sector: "Género", link_tablero: "https://www.seprem.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Presidencial de la Mujer.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 31, nombre_institucion: "Secretaría Privada de la Presidencia", siglas: "SPRIV", tipo_dependencia: "Secretaría", sector: "Presidencia", link_tablero: "https://www.spriv.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Privada de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 32, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán", siglas: "AMSA", tipo_dependencia: "Autoridad", sector: "Ambiente", link_tablero: "https://www.amsa.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 33, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno", siglas: "AMSCLAE", tipo_dependencia: "Autoridad", sector: "Ambiente", link_tablero: "https://www.amsclae.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno.", fecha_actualizacion: "2025", estado: "Disponible" },
-    { id: 34, nombre_institucion: "Consejo Nacional de Áreas Protegidas", siglas: "CONAP", tipo_dependencia: "Consejo", sector: "Ambiente", link_tablero: "https://www.conap.gob.gt/", descripcion: "Tablero de rendición de cuentas del Consejo Nacional de Áreas Protegidas.", fecha_actualizacion: "2025", estado: "Disponible" }
+    { id: 1, nombre_institucion: "Comisión Nacional contra la Corrupción", siglas: "CNC", tipo_dependencia: "Otras dependencias", sector: "Presidencia", link_tablero: "https://sgp.gob.gt/web/index.php/uip/informacion-publica-de-oficio/category/371-2026", descripcion: "Tablero institucional de rendición de cuentas de la Comisión Nacional contra la Corrupción.", fecha_actualizacion: "2026", estado: "Disponible" },
+    { id: 2, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno", siglas: "AMSCLAE", tipo_dependencia: "Otras dependencias", sector: "Ambiente", link_tablero: "https://www.amsclae.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 3, nombre_institucion: "Comisión Presidencial contra la Discriminación y el Racismo", siglas: "CODISRA", tipo_dependencia: "Otras dependencias", sector: "Presidencia", link_tablero: "https://codisra.gob.gt/index.php/informacion-publica/tablero-de-rendicion-de-cuentas", descripcion: "Tablero de rendición de cuentas de la Comisión Presidencial contra la Discriminación y el Racismo.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 4, nombre_institucion: "Ministerio de Agricultura, Ganadería y Alimentación", siglas: "MAGA", tipo_dependencia: "Ministerios", sector: "Agricultura", link_tablero: "https://www.maga.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Agricultura, Ganadería y Alimentación.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 5, nombre_institucion: "Ministerio de Ambiente y Recursos Naturales", siglas: "MARN", tipo_dependencia: "Ministerios", sector: "Ambiente", link_tablero: "https://www.marn.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Ambiente y Recursos Naturales.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 6, nombre_institucion: "Ministerio de Comunicaciones, Infraestructura y Vivienda", siglas: "MICIVI", tipo_dependencia: "Ministerios", sector: "Infraestructura", link_tablero: "https://www.micivi.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Comunicaciones, Infraestructura y Vivienda.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 7, nombre_institucion: "Ministerio de Cultura y Deportes", siglas: "MCD", tipo_dependencia: "Ministerios", sector: "Cultura", link_tablero: "https://www.mcd.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Cultura y Deportes.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 8, nombre_institucion: "Ministerio de Desarrollo Social", siglas: "MIDES", tipo_dependencia: "Ministerios", sector: "Social", link_tablero: "https://www.mides.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Desarrollo Social.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 9, nombre_institucion: "Ministerio de Economía", siglas: "MINECO", tipo_dependencia: "Ministerios", sector: "Economía", link_tablero: "https://www.mineco.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Economía.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 10, nombre_institucion: "Ministerio de Educación", siglas: "MINEDUC", tipo_dependencia: "Ministerios", sector: "Educación", link_tablero: "https://www.mineduc.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Educación.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 11, nombre_institucion: "Ministerio de Energía y Minas", siglas: "MEM", tipo_dependencia: "Ministerios", sector: "Energía", link_tablero: "https://www.mem.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Energía y Minas.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 12, nombre_institucion: "Ministerio de Finanzas Públicas", siglas: "MINFIN", tipo_dependencia: "Ministerios", sector: "Finanzas", link_tablero: "https://www.minfin.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Finanzas Públicas.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 13, nombre_institucion: "Ministerio de Gobernación", siglas: "MINGOB", tipo_dependencia: "Ministerios", sector: "Seguridad", link_tablero: "https://www.mingob.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Gobernación.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 14, nombre_institucion: "Ministerio de la Defensa Nacional", siglas: "MINDEF", tipo_dependencia: "Ministerios", sector: "Defensa", link_tablero: "https://www.mindef.mil.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de la Defensa Nacional.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 15, nombre_institucion: "Ministerio de Relaciones Exteriores", siglas: "MINEX", tipo_dependencia: "Ministerios", sector: "Relaciones Exteriores", link_tablero: "https://www.minex.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Relaciones Exteriores.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 16, nombre_institucion: "Ministerio de Salud Pública y Asistencia Social", siglas: "MSPAS", tipo_dependencia: "Ministerios", sector: "Salud", link_tablero: "https://www.mspas.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Salud Pública y Asistencia Social.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 17, nombre_institucion: "Ministerio de Trabajo y Previsión Social", siglas: "MINTRAB", tipo_dependencia: "Ministerios", sector: "Trabajo", link_tablero: "https://www.mintrabajo.gob.gt/", descripcion: "Tablero de rendición de cuentas del Ministerio de Trabajo y Previsión Social.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 18, nombre_institucion: "Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas", siglas: "SVET", tipo_dependencia: "Secretarías", sector: "Seguridad", link_tablero: "https://www.svet.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 19, nombre_institucion: "Secretaría de Asuntos Administrativos y de Seguridad", siglas: "SAAS", tipo_dependencia: "Secretarías", sector: "Administración", link_tablero: "https://www.saas.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Asuntos Administrativos y de Seguridad.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 20, nombre_institucion: "Secretaría de Bienestar Social de la Presidencia", siglas: "SBS", tipo_dependencia: "Secretarías", sector: "Social", link_tablero: "https://www.sbs.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Bienestar Social de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 21, nombre_institucion: "Secretaría de Comunicación Social de la Presidencia", siglas: "SCSPR", tipo_dependencia: "Secretarías", sector: "Comunicación", link_tablero: "https://www.scspr.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Comunicación Social de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 22, nombre_institucion: "Secretaría de Coordinación Ejecutiva de la Presidencia", siglas: "SCEP", tipo_dependencia: "Secretarías", sector: "Coordinación", link_tablero: "https://www.scep.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Coordinación Ejecutiva de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 23, nombre_institucion: "Secretaría de Inteligencia Estratégica del Estado", siglas: "SIE", tipo_dependencia: "Secretarías", sector: "Inteligencia", link_tablero: "https://www.sie.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Inteligencia Estratégica del Estado.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 24, nombre_institucion: "Secretaría de Obras Sociales de la Esposa del Presidente", siglas: "SOSEP", tipo_dependencia: "Secretarías", sector: "Social", link_tablero: "https://www.sosep.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Obras Sociales de la Esposa del Presidente.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 25, nombre_institucion: "Secretaría de Planificación y Programación de la Presidencia", siglas: "SEGEPLAN", tipo_dependencia: "Secretarías", sector: "Planificación", link_tablero: "https://www.segeplan.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Planificación y Programación de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 26, nombre_institucion: "Secretaría de Seguridad Alimentaria y Nutricional", siglas: "SESAN", tipo_dependencia: "Secretarías", sector: "Social", link_tablero: "https://www.sesan.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría de Seguridad Alimentaria y Nutricional.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 27, nombre_institucion: "Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas", siglas: "SECCATID", tipo_dependencia: "Secretarías", sector: "Seguridad", link_tablero: "https://www.seccatid.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 28, nombre_institucion: "Secretaría General de la Presidencia", siglas: "SGP", tipo_dependencia: "Secretarías", sector: "Presidencia", link_tablero: "https://www.sgp.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría General de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 29, nombre_institucion: "Secretaría Nacional de Ciencia y Tecnología", siglas: "SENACYT", tipo_dependencia: "Secretarías", sector: "Ciencia", link_tablero: "https://www.senacyt.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Nacional de Ciencia y Tecnología.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 30, nombre_institucion: "Secretaría Presidencial de la Mujer", siglas: "SEPREM", tipo_dependencia: "Secretarías", sector: "Género", link_tablero: "https://www.seprem.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Presidencial de la Mujer.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 31, nombre_institucion: "Secretaría Privada de la Presidencia", siglas: "SPRIV", tipo_dependencia: "Secretarías", sector: "Presidencia", link_tablero: "https://www.spriv.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Secretaría Privada de la Presidencia.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 32, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán", siglas: "AMSA", tipo_dependencia: "Otras dependencias", sector: "Ambiente", link_tablero: "https://www.amsa.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 33, nombre_institucion: "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno", siglas: "AMSCLAE", tipo_dependencia: "Otras dependencias", sector: "Ambiente", link_tablero: "https://www.amsclae.gob.gt/", descripcion: "Tablero de rendición de cuentas de la Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno.", fecha_actualizacion: "2025", estado: "Disponible" },
+    { id: 34, nombre_institucion: "Consejo Nacional de Áreas Protegidas", siglas: "CONAP", tipo_dependencia: "Otras dependencias", sector: "Ambiente", link_tablero: "https://www.conap.gob.gt/", descripcion: "Tablero de rendición de cuentas del Consejo Nacional de Áreas Protegidas.", fecha_actualizacion: "2025", estado: "Disponible" }
 ];
 
 /* ============================================================
@@ -2680,6 +2681,24 @@ function cleanText(t) {
     return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
+const TABLEROS_TIPO_CATALOG = [
+    'Vicepresidencia',
+    'Ministerios',
+    'Secretarías',
+    'Gobernaciones Departamentales',
+    'Otras dependencias'
+];
+
+function normalizeTableroTipo(raw) {
+    const norm = cleanText(String(raw || '').trim());
+    if (!norm) return 'Otras dependencias';
+    if (norm === 'vicepresidencia') return 'Vicepresidencia';
+    if (norm === 'ministerio' || norm === 'ministerios') return 'Ministerios';
+    if (norm === 'secretaria' || norm === 'secretarias') return 'Secretarías';
+    if (norm.includes('gobernacion')) return 'Gobernaciones Departamentales';
+    return 'Otras dependencias';
+}
+
 function getUniqueValues(arr, key) {
     return [...new Set(arr.map(i => i[key]).filter(Boolean))].sort((a,b) => a.localeCompare(b));
 }
@@ -2721,30 +2740,16 @@ function renderGlosarioTabs() {
    POBLAR FILTROS
 ============================================================ */
 function populateFilters() {
-    const tipos = getUniqueValues(instituciones, 'tipo_dependencia');
     const estados = getUniqueValues(instituciones, 'estado');
 
-    const catalogOrder = [
-        'Ministerio', 'Ministerios',
-        'Secretaría', 'Secretarías',
-        'Vicepresidencia',
-        'Otras dependencias',
-        'Dependencias temporales',
-        'Gobernación Departamental', 'Gobernaciones Departamentales',
-        'Autoridad', 'Consejo', 'Comisión'
-    ];
-    tipos.sort((a, b) => {
-        let ia = catalogOrder.findIndex(c => c.toLowerCase() === a.toLowerCase());
-        let ib = catalogOrder.findIndex(c => c.toLowerCase() === b.toLowerCase());
-        if (ia === -1) ia = 999;
-        if (ib === -1) ib = 999;
-        if (ia !== ib) return ia - ib;
-        return a.localeCompare(b);
-    });
-
     if ($tipoFilter) {
-        $tipoFilter.innerHTML = '<option value="">Todos los tipos de dependencia</option>';
-        tipos.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; $tipoFilter.appendChild(o); });
+        $tipoFilter.innerHTML = '<option value="">Todos los tipos de institución</option>';
+        TABLEROS_TIPO_CATALOG.forEach(v => {
+            const o = document.createElement('option');
+            o.value = v;
+            o.textContent = v;
+            $tipoFilter.appendChild(o);
+        });
     }
 
     if ($estadoFilter) {
@@ -2760,7 +2765,8 @@ function populateInstFilter(selectedTipo = '') {
     const prevVal = $institucionFilter.value;
     let list = instituciones;
     if (selectedTipo) {
-        list = list.filter(i => i.tipo_dependencia === selectedTipo);
+        const targetTipo = normalizeTableroTipo(selectedTipo);
+        list = list.filter(i => normalizeTableroTipo(i.tipo_dependencia) === targetTipo);
     }
     const insts = getUniqueValues(list, 'nombre_institucion');
     $institucionFilter.innerHTML = '<option value="">Todas las instituciones</option>';
@@ -2777,7 +2783,7 @@ function populateInstFilter(selectedTipo = '') {
 ============================================================ */
 function filtrar() {
     return instituciones.filter(i => {
-        if (currentFilters.tipo && i.tipo_dependencia !== currentFilters.tipo) return false;
+        if (currentFilters.tipo && normalizeTableroTipo(i.tipo_dependencia) !== currentFilters.tipo) return false;
         if (currentFilters.institucion && i.nombre_institucion !== currentFilters.institucion) return false;
         if (currentFilters.estado && i.estado !== currentFilters.estado) return false;
         if (currentFilters.search) {
@@ -2792,8 +2798,8 @@ function filtrar() {
 function contarPorTipo(list, tipo) {
     const q = cleanText(tipo);
     return list.filter(i => {
-        const val = cleanText(i.tipo_dependencia || '');
-        return val.includes(q) || q.includes(val);
+        const val = cleanText(normalizeTableroTipo(i.tipo_dependencia));
+        return val === q || val.includes(q) || q.includes(val);
     }).length;
 }
 
@@ -2883,9 +2889,8 @@ function renderBenchmarksChart() {
     let datasetBenchmarkPct = [];
 
     if (currentChartMode === 'tipo') {
-        const tipos = [...new Set(instituciones.map(i => i.tipo_dependencia).filter(Boolean))].sort();
-        tipos.forEach(tipo => {
-            const listFilt = filteredList.filter(i => i.tipo_dependencia === tipo);
+        TABLEROS_TIPO_CATALOG.forEach(tipo => {
+            const listFilt = filteredList.filter(i => normalizeTableroTipo(i.tipo_dependencia) === tipo);
             const availCount = listFilt.filter(i => i.link_tablero && i.link_tablero.trim() !== '').length;
             const totalCount = listFilt.length;
             if (totalCount > 0) {
@@ -2896,23 +2901,9 @@ function renderBenchmarksChart() {
             }
         });
     } else if (currentChartMode === 'sector') {
-        const sectoresMap = {
-            'Ministerio': 'Ministerios',
-            'Ministerios': 'Ministerios',
-            'Secretaría': 'Secretarías',
-            'Secretarías': 'Secretarías',
-            'Comisión': 'Comisiones y Autoridades',
-            'Autoridad': 'Comisiones y Autoridades',
-            'Gobernación Departamental': 'Gobernaciones Departamentales',
-            'Gobernaciones Departamentales': 'Gobernaciones Departamentales',
-            'Vicepresidencia': 'Otras Dependencias',
-            'Otras dependencias': 'Otras Dependencias',
-            'Dependencias temporales': 'Otras Dependencias'
-        };
         const sectorGrouped = {};
         filteredList.forEach(i => {
-            const t = i.tipo_dependencia || 'Otras Dependencias';
-            const groupName = sectoresMap[t] || 'Otras Dependencias';
+            const groupName = normalizeTableroTipo(i.tipo_dependencia);
             if (!sectorGrouped[groupName]) {
                 sectorGrouped[groupName] = { total: 0, avail: 0 };
             }
@@ -2921,9 +2912,9 @@ function renderBenchmarksChart() {
                 sectorGrouped[groupName].avail++;
             }
         });
-        Object.keys(sectorGrouped).sort().forEach(secName => {
+        TABLEROS_TIPO_CATALOG.forEach(secName => {
             const grp = sectorGrouped[secName];
-            if (grp.total > 0) {
+            if (grp && grp.total > 0) {
                 labels.push(secName);
                 datasetAvailable.push(grp.avail);
                 datasetTotal.push(grp.total);
@@ -3251,7 +3242,7 @@ window._openModal = function(nombre) {
     document.getElementById('modalDetailGrid').innerHTML = `
         <div class="modal-detail-item"><div class="lbl">Institución</div><div class="val">${inst.nombre_institucion}</div></div>
         <div class="modal-detail-item"><div class="lbl">Siglas</div><div class="val">${inst.siglas || '—'}</div></div>
-        <div class="modal-detail-item"><div class="lbl">Tipo dependencia</div><div class="val">${inst.tipo_dependencia || '—'}</div></div>
+        <div class="modal-detail-item"><div class="lbl">Tipo institución</div><div class="val">${inst.tipo_dependencia || '—'}</div></div>
         <div class="modal-detail-item"><div class="lbl">Sector</div><div class="val">${inst.sector || '—'}</div></div>
         <div class="modal-detail-item full"><div class="lbl">Descripción</div><div class="val">${inst.descripcion || 'No disponible'}</div></div>
         <div class="modal-detail-item"><div class="lbl">Fecha actualización</div><div class="val">${inst.fecha_actualizacion || '—'}</div></div>
@@ -3739,7 +3730,7 @@ async function cargarDatosYIniciar() {
     const pathsToTry = ['/gobierno_en_numeros/data_tableros.json', 'data_tableros.json', './data_tableros.json'];
     for (const p of pathsToTry) {
         try {
-            const response = await fetch(p);
+            const response = await fetch(p, { cache: 'no-store' });
             if (response.ok) {
                 const data = await response.json();
                 if (Array.isArray(data) && data.length > 0) {
@@ -3753,11 +3744,17 @@ async function cargarDatosYIniciar() {
     }
 
     if (loadedData) {
-        instituciones = loadedData;
+        instituciones = loadedData.map(item => ({
+            ...item,
+            tipo_dependencia: normalizeTableroTipo(item.tipo_dependencia)
+        }));
         console.log('Datos cargados desde JSON:', instituciones.length);
     } else {
         console.warn('No se pudo cargar data_tableros.json desde red, usando datos de respaldo.');
-        instituciones = FALLBACK_DATA;
+        instituciones = FALLBACK_DATA.map(item => ({
+            ...item,
+            tipo_dependencia: normalizeTableroTipo(item.tipo_dependencia)
+        }));
         showToast('⚠️ Usando datos de respaldo integrados.');
     }
 

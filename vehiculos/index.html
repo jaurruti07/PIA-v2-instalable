@@ -3410,7 +3410,7 @@
 
     async function loadData() {
         try {
-            const response = await fetch('vehiculos.json');
+            const response = await fetch('vehiculos.json', { cache: 'no-store' });
             if (!response.ok) {
                 throw new Error('No se pudo cargar el archivo vehiculos.json');
             }

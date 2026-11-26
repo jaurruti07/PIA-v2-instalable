@@ -145,7 +145,7 @@
         .hero::after { content:''; position:absolute; inset:0; z-index:1; background-image: linear-gradient(rgba(0,194,224,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,194,224,0.04) 1px, transparent 1px); background-size:48px 48px; pointer-events:none; }
         .hero-inner { position:relative; z-index:2; width:100%; padding:2.8rem 1.5rem 2.2rem; display:grid; grid-template-columns:1fr 1fr; gap:2.2rem; align-items:center; }
         .hero-eyebrow { display:inline-flex; align-items:center; gap:8px; padding:6px 18px; border-radius:50px; border:1px solid rgba(0,194,224,0.35); background:rgba(0,194,224,0.08); font-size:0.75rem; font-weight:600; text-transform:uppercase; color:var(--cyan); margin-bottom:1.5rem; }
-        .hero-eyebrow span { width:6px; height:6px; border-radius:50%; background:var(--cyan); animation:blink 1.8s infinite; }
+        .hero-eyebrow > span:first-child { width:6px; height:6px; border-radius:50%; background:var(--cyan); animation:blink 1.8s infinite; flex-shrink:0; }
         @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
         .hero h1 { font-family:var(--font-head); font-size:clamp(2.4rem,5vw,3.8rem); font-weight:800; line-height:1.1; color:#fff; letter-spacing:-0.03em; margin-bottom:1.2rem; }
         .hero h1 em { font-style:normal; background:linear-gradient(90deg,var(--cyan),var(--blue-bright)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
@@ -761,7 +761,7 @@
 
             <ul class="nav-menu" id="navMenu">
                 <li class="menu-group">
-                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_accede">Accede</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
                         <!-- Transparencia Vehicular no visible temporalmente -->
@@ -769,7 +769,7 @@
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_explora">Explora</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
@@ -779,14 +779,14 @@
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_aprende">Aprende</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
                     </ul>
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_reporta">Reporta</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
                         <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
@@ -813,39 +813,39 @@
     </div>
     <div class="container hero-inner">
         <div class="hero-text">
-            <div class="hero-eyebrow"><span></span> Gestión de Riesgos - Gobierno de Guatemala · Organismo Ejecutivo</div>
+            <div class="hero-eyebrow"><span></span> <data data-pia-text="hero.eyebrow">Gestión de Riesgos - Gobierno de Guatemala · Organismo Ejecutivo</data></div>
             <div style="margin-bottom:1.4rem;">
                 <img src="/img/nuevoLogoRiesgo.png" alt="Riesgo en la Mira" style="max-width:340px; width:100%; height:auto; filter:drop-shadow(0 6px 24px rgba(0,194,224,0.25));" />
             </div>
             <!-- SUBTÍTULO ACTUALIZADO -->
             <p style="font-size:1.1rem; font-weight:600; color:var(--cyan); margin-bottom:1rem; letter-spacing:0.02em;">
-                <i class="fas fa-check-circle" style="margin-right:8px;"></i>Identificación de riesgos, análisis y presentación a máxima autoridad
+                <i class="fas fa-check-circle" style="margin-right:8px;"></i><span data-pia-text="hero.lema">Identificación de riesgos, análisis y presentación a máxima autoridad</span>
             </p>
-            <p class="hero-sub">Monitoreo público de la debida gestión de riesgos de Corrupción (GRC) en las Instituciones del Organismo Ejecutivo de Guatemala, que puedan afectar la integridad, transparencia y adecuada administración de los recursos públicos.</p>
+            <p class="hero-sub" data-pia-text="hero.sub">Monitoreo público de la debida gestión de riesgos de Corrupción (GRC) en las Instituciones del Organismo Ejecutivo de Guatemala, que puedan afectar la integridad, transparencia y adecuada administración de los recursos públicos.</p>
             <div class="hero-pills">
-                <span class="hero-pill"><i class="fas fa-search"></i> Identificación</span>
-                <span class="hero-pill"><i class="fas fa-chart-line"></i> Análisis y evaluación</span>
-                <span class="hero-pill"><i class="fas fa-shield-alt"></i> Tratamiento</span>
-                <span class="hero-pill"><i class="fas fa-eye"></i> Monitoreo</span>
+                <span class="hero-pill"><i class="fas fa-search"></i> <span data-pia-text="hero.pill1">Identificación</span></span>
+                <span class="hero-pill"><i class="fas fa-chart-line"></i> <span data-pia-text="hero.pill2">Análisis y evaluación</span></span>
+                <span class="hero-pill"><i class="fas fa-shield-alt"></i> <span data-pia-text="hero.pill3">Tratamiento</span></span>
+                <span class="hero-pill"><i class="fas fa-eye"></i> <span data-pia-text="hero.pill4">Monitoreo</span></span>
             </div>
             <div class="hero-actions">
-                <a href="#catalogo" class="btn-primary"><i class="fas fa-table"></i> Ver catálogo</a>
-                <a href="#datos-gestion" class="btn-outline-hero"><i class="fas fa-chart-pie"></i> Ver datos</a>
+                <a href="#catalogo" class="btn-primary"><i class="fas fa-table"></i> <span data-pia-text="hero.cta_primary">Ver catálogo</span></a>
+                <a href="#datos-gestion" class="btn-outline-hero"><i class="fas fa-chart-pie"></i> <span data-pia-text="hero.cta_secondary">Ver datos</span></a>
             </div>
         </div>
         <div class="hero-panel">
-            <div class="hero-panel-title"><i class="fas fa-traffic-light"></i> Estado de cumplimiento</div>
+            <div class="hero-panel-title"><i class="fas fa-traffic-light"></i> <span data-pia-text="hero.panel_title">Estado de cumplimiento</span></div>
             <div class="semaforo-grid">
-                <div class="sem-cell verde"><div class="sem-dot"></div><div class="sem-num" id="heroNumCumple">—</div><div class="sem-lbl">Cumplen</div></div>
-                <div class="sem-cell amarillo"><div class="sem-dot"></div><div class="sem-num" id="heroNumParcial">—</div><div class="sem-lbl">Parcial</div></div>
-                <div class="sem-cell naranja"><div class="sem-dot"></div><div class="sem-num" id="heroNumNoCumple">—</div><div class="sem-lbl">En proceso</div></div>
-                <div class="sem-cell rojo"><div class="sem-dot"></div><div class="sem-num" id="heroTotal">—</div><div class="sem-lbl">Total instituciones</div></div>
+                <div class="sem-cell verde"><div class="sem-dot"></div><div class="sem-num" id="heroNumCumple">—</div><div class="sem-lbl" data-pia-text="hero.sem_cumple">Cumplen</div></div>
+                <div class="sem-cell amarillo"><div class="sem-dot"></div><div class="sem-num" id="heroNumParcial">—</div><div class="sem-lbl" data-pia-text="hero.sem_parcial">Parcial</div></div>
+                <div class="sem-cell naranja"><div class="sem-dot"></div><div class="sem-num" id="heroNumNoCumple">—</div><div class="sem-lbl" data-pia-text="hero.sem_proceso">En proceso</div></div>
+                <div class="sem-cell rojo"><div class="sem-dot"></div><div class="sem-num" id="heroTotal">—</div><div class="sem-lbl" data-pia-text="hero.sem_total">Total instituciones</div></div>
             </div>
-            <div class="mini-bar"><div class="mini-bar-icon"><i class="fas fa-star"></i></div><div class="mini-bar-text">Aplicación de buenas prácticas GRC</div><div class="mini-bar-val" id="heroBuenas">—</div></div>
-            <div class="mini-bar"><div class="mini-bar-icon"><i class="fas fa-check-circle"></i></div><div class="mini-bar-text">Nivel avanzado</div><div class="mini-bar-val" id="heroAvanzado">—</div></div>
+            <div class="mini-bar"><div class="mini-bar-icon"><i class="fas fa-star"></i></div><div class="mini-bar-text" data-pia-text="hero.bar_buenas">Aplicación de buenas prácticas GRC</div><div class="mini-bar-val" id="heroBuenas">—</div></div>
+            <div class="mini-bar"><div class="mini-bar-icon"><i class="fas fa-check-circle"></i></div><div class="mini-bar-text" data-pia-text="hero.bar_avanzado">Nivel avanzado</div><div class="mini-bar-val" id="heroAvanzado">—</div></div>
             
             <div class="year-buttons" id="yearButtonsContainer"></div>
-            <div class="hero-update">Datos verificados por CNC</div>
+            <div class="hero-update" data-pia-text="hero.update_note">Datos verificados por CNC</div>
         </div>
     </div>
 </section>
@@ -853,7 +853,7 @@
 <div class="stats-ribbon">
     <div class="container">
         <div class="pia-stats-ribbon-head">
-            <span class="pia-stats-ribbon-tag">Indicadores del módulo</span>
+            <span class="pia-stats-ribbon-tag" data-pia-text="stats.ribbon_tag">Indicadores del módulo</span>
             <div id="piaStatsCarouselControls" class="pia-stats-carousel-controls">
                 <button type="button" class="pia-stats-nav-btn" id="piaStatsPrevBtn" aria-label="Indicadores anteriores"><i class="fas fa-chevron-left"></i></button>
                 <div id="piaStatsPagination" class="pia-stats-pagination"></div>
@@ -870,10 +870,10 @@
     <!-- SECCIÓN: QUÉ MIDE -->
     <section class="section" id="que-mide">
         <div class="card fade-up">
-            <div class="section-header"><div class="section-tag">El sistema</div><h2 class="section-title">¿Qué mide este sistema?</h2><p class="section-sub">Conoce exactamente qué evalúa y qué no evalúa la plataforma, garantizando objetividad en la metodología.</p></div>
+            <div class="section-header"><div class="section-tag" data-pia-text="que_mide.tag">El sistema</div><h2 class="section-title" data-pia-text="que_mide.title">¿Qué mide este sistema?</h2><p class="section-sub" data-pia-text="que_mide.sub">Conoce exactamente qué evalúa y qué no evalúa la plataforma, garantizando objetividad en la metodología.</p></div>
             <div class="mide-grid">
-                <div class="mide-card si"><div class="mide-card-icon"><i class="fas fa-check-circle"></i></div><h3>✅ Lo que SÍ mide</h3><p>Cada entidad del Organismo Ejecutivo debe agotar la metodología internamente, que consiste en la <strong>identificación, análisis y presentación</strong> a la máxima autoridad, esto último es lo verificado por la Comisión Nacional contra la Corrupción.</p></div>
-                <div class="mide-card no"><div class="mide-card-icon"><i class="fas fa-ban"></i></div><h3>🚫 Lo que NO mide</h3><p>La implementación de controles internos específicos. Los documentos de análisis de riesgos son de uso interno de cada entidad con el fin de preservar la objetividad del proceso y evitar ejercicios meramente formales de cumplimiento.</p></div>
+                <div class="mide-card si"><div class="mide-card-icon"><i class="fas fa-check-circle"></i></div><h3 data-pia-text="que_mide.si_title">✅ Lo que SÍ mide</h3><p><span data-pia-text="que_mide.si_prefix">Cada entidad del Organismo Ejecutivo debe agotar la metodología internamente, que consiste en la</span> <strong data-pia-text="que_mide.si_emphasis">identificación, análisis y presentación</strong> <span data-pia-text="que_mide.si_suffix">a la máxima autoridad, esto último es lo verificado por la Comisión Nacional contra la Corrupción.</span></p></div>
+                <div class="mide-card no"><div class="mide-card-icon"><i class="fas fa-ban"></i></div><h3 data-pia-text="que_mide.no_title">🚫 Lo que NO mide</h3><p data-pia-text="que_mide.no_desc">La implementación de controles internos específicos. Los documentos de análisis de riesgos son de uso interno de cada entidad con el fin de preservar la objetividad del proceso y evitar ejercicios meramente formales de cumplimiento.</p></div>
             </div>
         </div>
     </section>
@@ -881,13 +881,13 @@
     <!-- SECCIÓN: CUMPLIR -->
     <section class="section" style="padding-top:0;" id="cumplir">
         <div class="card fade-up">
-            <div class="section-header"><div class="section-tag">Proceso</div><h2 class="section-title">¿Qué significa cumplir?</h2><p class="section-sub">Tres pasos verificados que definen el cumplimiento del lineamiento de gestión de riesgos de corrupción.</p></div>
+            <div class="section-header"><div class="section-tag" data-pia-text="cumplir.tag">Proceso</div><h2 class="section-title" data-pia-text="cumplir.title">¿Qué significa cumplir?</h2><p class="section-sub" data-pia-text="cumplir.sub">Tres pasos verificados que definen el cumplimiento del lineamiento de gestión de riesgos de corrupción.</p></div>
             <div class="steps-row">
-                <div class="step-card"><div class="step-num">01</div><div class="step-icon"><i class="fas fa-search"></i></div><h4>Identificación de riesgos</h4><p>Elaboración de un catálogo de eventos de corrupción potenciales específicos de la institución, por proceso y área crítica.</p><span class="step-badge">Paso fundamental</span></div>
-                <div class="step-card"><div class="step-num">02</div><div class="step-icon"><i class="fas fa-chart-line"></i></div><h4>Análisis de riesgos</h4><p>Valoración de la probabilidad e impacto de cada riesgo identificado para priorizar y enfocar los esfuerzos de mitigación.</p><span class="step-badge">Priorización</span></div>
-                <div class="step-card"><div class="step-num">03</div><div class="step-icon"><i class="fas fa-users"></i></div><h4>Presentación a máxima autoridad</h4><p>Validación formal ante la autoridad superior de la institución, verificada por la CNC mediante acta documentada.</p><span class="step-badge">Verificado CNC</span></div>
+                <div class="step-card"><div class="step-num">01</div><div class="step-icon"><i class="fas fa-search"></i></div><h4 data-pia-text="cumplir.step1_title">Identificación de riesgos</h4><p data-pia-text="cumplir.step1_desc">Elaboración de un catálogo de eventos de corrupción potenciales específicos de la institución, por proceso y área crítica.</p><span class="step-badge" data-pia-text="cumplir.step1_badge">Paso fundamental</span></div>
+                <div class="step-card"><div class="step-num">02</div><div class="step-icon"><i class="fas fa-chart-line"></i></div><h4 data-pia-text="cumplir.step2_title">Análisis de riesgos</h4><p data-pia-text="cumplir.step2_desc">Valoración de la probabilidad e impacto de cada riesgo identificado para priorizar y enfocar los esfuerzos de mitigación.</p><span class="step-badge" data-pia-text="cumplir.step2_badge">Priorización</span></div>
+                <div class="step-card"><div class="step-num">03</div><div class="step-icon"><i class="fas fa-users"></i></div><h4 data-pia-text="cumplir.step3_title">Presentación a máxima autoridad</h4><p data-pia-text="cumplir.step3_desc">Validación formal ante la autoridad superior de la institución, verificada por la CNC mediante acta documentada.</p><span class="step-badge" data-pia-text="cumplir.step3_badge">Verificado CNC</span></div>
             </div>
-            <div class="method-note" style="margin-top:1.5rem; text-align:center;"><i class="fas fa-lock" style="color:var(--blue-bright); margin-right:6px;"></i>Los documentos de análisis de riesgos son de uso interno de cada entidad con el fin de preservar la objetividad del proceso y evitar ejercicios meramente formales de cumplimiento.</div>
+            <div class="method-note" style="margin-top:1.5rem; text-align:center;"><i class="fas fa-lock" style="color:var(--blue-bright); margin-right:6px;"></i><span data-pia-text="cumplir.note">Los documentos de análisis de riesgos son de uso interno de cada entidad con el fin de preservar la objetividad del proceso y evitar ejercicios meramente formales de cumplimiento.</span></div>
         </div>
     </section>
 
@@ -895,19 +895,19 @@
     <section class="section" style="padding-top:0;">
         <div class="card fade-up">
             <div class="section-header">
-                <div class="section-tag">Contexto</div>
-                <h2 class="section-title"><i class="fas fa-exclamation-triangle" style="color:var(--orange);margin-right:8px;"></i>Riesgos de corrupción más frecuentes</h2>
-                <p class="section-sub">Patrones de corrupción identificados por la CNC en el Organismo Ejecutivo. Haz clic en "Ver más" para conocer el detalle.</p>
+                <div class="section-tag" data-pia-text="riesgos.tag">Contexto</div>
+                <h2 class="section-title"><i class="fas fa-exclamation-triangle" style="color:var(--orange);margin-right:8px;"></i><span data-pia-text="riesgos.title">Riesgos de corrupción más frecuentes</span></h2>
+                <p class="section-sub" data-pia-text="riesgos.sub">Patrones de corrupción identificados por la CNC en el Organismo Ejecutivo. Haz clic en "Ver más" para conocer el detalle.</p>
             </div>
             <div id="riesgosContainer" class="risks-grid"></div>
-            <div class="method-note" style="margin-top:1.2rem;"><i class="fas fa-database" style="color:var(--blue-bright);margin-right:6px;"></i>Estos patrones se actualizan periódicamente considerando los actos de corrupción reportados y las tendencias de denuncia.</div>
+            <div class="method-note" style="margin-top:1.2rem;"><i class="fas fa-database" style="color:var(--blue-bright);margin-right:6px;"></i><span data-pia-text="riesgos.note">Estos patrones se actualizan periódicamente considerando los actos de corrupción reportados y las tendencias de denuncia.</span></div>
         </div>
     </section>
 
     <!-- DATOS DE LA GESTIÓN (KPI) -->
     <section class="section" style="padding-top:0;" id="datos-gestion">
         <div class="card fade-up">
-            <div class="section-header"><div class="section-tag">Indicadores</div><h2 class="section-title">📊 Datos de la gestión</h2><p class="section-sub">Resumen del estado de cumplimiento del ciclo actual, verificado conforme al lineamiento vigente.</p></div>
+            <div class="section-header"><div class="section-tag" data-pia-text="datos.tag">Indicadores</div><h2 class="section-title" data-pia-text="datos.title">📊 Datos de la gestión</h2><p class="section-sub" data-pia-text="datos.sub">Resumen del estado de cumplimiento del ciclo actual, verificado conforme al lineamiento vigente.</p></div>
             <div class="kpi-row" id="indicatorsMetrics"></div>
             <div id="kpiStatusContainer" class="kpi-status-row"></div>
             <div class="method-note" style="margin-top:1.2rem;"><i class="fas fa-file-alt" style="color:var(--blue-bright); margin-right:6px;"></i><span style="color:var(--text-light); margin-left:0.5rem; font-size:0.78rem;"><i class="fas fa-sync-alt"></i> Datos actualizados: <span id="globalFechaActualizacion">--</span></span></div>
@@ -917,7 +917,7 @@
     <!-- CATÁLOGO DE INSTITUCIONES -->
     <section class="section" style="padding-top:0;" id="catalogo">
         <div class="card fade-up">
-            <div class="section-header"><div class="section-tag">Directorio</div><h2 class="section-title">Catálogo de instituciones</h2><p class="section-sub">Estado de cumplimiento en gestión de riesgos de corrupción por institución, sector y nivel de adopción.</p></div>
+            <div class="section-header"><div class="section-tag" data-pia-text="catalogo.tag">Directorio</div><h2 class="section-title" data-pia-text="catalogo.title">Catálogo de instituciones</h2><p class="section-sub" data-pia-text="catalogo.sub">Estado de cumplimiento en gestión de riesgos de corrupción por institución, sector y nivel de adopción.</p></div>
             
             
 
@@ -949,7 +949,7 @@
                 </table>
             </div>
             <div class="pagination" id="catalogoPagination"></div>
-            <div class="table-note"><i class="fas fa-info-circle"></i> "El proceso de adopción de buenas prácticas de Gestión de Riesgos de Corrupción GRC" y "Verificación hallazgos CGC" son indicadores adicionales no obligatorios.</div>
+            <div class="table-note"><i class="fas fa-info-circle"></i> <span data-pia-text="catalogo.note">"El proceso de adopción de buenas prácticas de Gestión de Riesgos de Corrupción GRC" y "Verificación hallazgos CGC" son indicadores adicionales no obligatorios.</span></div>
         </div>
     </section>
 
@@ -957,9 +957,9 @@
     <section class="section" style="padding-top:0;" id="cumplimiento">
         <div class="card fade-up">
             <div class="section-header">
-                <div class="section-tag">Visualización</div>
-                <h2 class="section-title">📋 Nivel de cumplimiento por institución</h2>
-                <p class="section-sub">Compara el grado de cumplimiento entre años. Selecciona el tipo de gráfico: barras, líneas, áreas o pastel.</p>
+                <div class="section-tag" data-pia-text="comparador.tag">Visualización</div>
+                <h2 class="section-title" data-pia-text="comparador.title">📋 Nivel de cumplimiento por institución</h2>
+                <p class="section-sub" data-pia-text="comparador.sub">Compara el grado de cumplimiento entre años. Selecciona el tipo de gráfico: barras, líneas, áreas o pastel.</p>
             </div>
 
             <!-- Panel de filtros y controles -->
@@ -1001,7 +1001,7 @@
             <!-- Paginación del gráfico -->
             <div class="graph-pagination" id="graphPagination" style="display: none;"></div>
             <div class="table-note" style="margin-top:0.6rem;">
-                <i class="fas fa-info-circle"></i> Para gráficos de barras/líneas/áreas: seleccione hasta 3 años y use paginación. Para gráfico de pastel: se muestra la distribución del primer año seleccionado.
+                <i class="fas fa-info-circle"></i> <span data-pia-text="comparador.note">Para gráficos de barras/líneas/áreas: seleccione hasta 3 años y use paginación. Para gráfico de pastel: se muestra la distribución del primer año seleccionado.</span>
             </div>
         </div>
     </section>
@@ -1009,14 +1009,14 @@
     <!-- ABORDAJE TÉCNICO -->
     <section class="section" style="padding-top:0;" id="abordaje">
         <div class="card fade-up">
-            <div class="section-header"><div class="section-tag">Metodología</div><h2 class="section-title"><i class="fas fa-microscope" style="margin-right:8px;color:var(--blue-bright);"></i>Abordaje técnico</h2><p class="section-sub">La CNC verifica la presentación a la máxima autoridad sin divulgar contenido analítico sensible, garantizando objetividad y solidez metodológica.</p></div>
+            <div class="section-header"><div class="section-tag" data-pia-text="abordaje.tag">Metodología</div><h2 class="section-title"><i class="fas fa-microscope" style="margin-right:8px;color:var(--blue-bright);"></i><span data-pia-text="abordaje.title">Abordaje técnico</span></h2><p class="section-sub" data-pia-text="abordaje.sub">La CNC verifica la presentación a la máxima autoridad sin divulgar contenido analítico sensible, garantizando objetividad y solidez metodológica.</p></div>
             <div class="abordaje-grid">
-                <div class="abordaje-card"><div class="abordaje-icon"><i class="fas fa-file-alt"></i></div><h4>Lineamiento vigente</h4><p>Marco normativo actualizado para la gestión de riesgos de corrupción en el Organismo Ejecutivo.</p></div>
-                <div class="abordaje-card"><div class="abordaje-icon"><i class="fas fa-book-open"></i></div><h4>Guía metodológica</h4><p>Documento técnico para identificar, analizar y priorizar riesgos con criterios verificables.</p></div>
-                <div class="abordaje-card"><div class="abordaje-icon"><i class="fas fa-shield-alt"></i></div><h4>Verificación CNC</h4><p>La CNC valida mediante actas la presentación formal a la máxima autoridad institucional.</p></div>
-                <div class="abordaje-card"><div class="abordaje-icon"><i class="fas fa-chart-pie"></i></div><h4>Patrones de corrupción</h4><p>Análisis de datos históricos de denuncias para generar alertas tempranas y tendencias.</p></div>
+                <div class="abordaje-card"><div class="abordaje-icon"><i class="fas fa-file-alt"></i></div><h4 data-pia-text="abordaje.card1_title">Lineamiento vigente</h4><p data-pia-text="abordaje.card1_desc">Marco normativo actualizado para la gestión de riesgos de corrupción en el Organismo Ejecutivo.</p></div>
+                <div class="abordaje-card"><div class="abordaje-icon"><i class="fas fa-book-open"></i></div><h4 data-pia-text="abordaje.card2_title">Guía metodológica</h4><p data-pia-text="abordaje.card2_desc">Documento técnico para identificar, analizar y priorizar riesgos con criterios verificables.</p></div>
+                <div class="abordaje-card"><div class="abordaje-icon"><i class="fas fa-shield-alt"></i></div><h4 data-pia-text="abordaje.card3_title">Verificación CNC</h4><p data-pia-text="abordaje.card3_desc">La CNC valida mediante actas la presentación formal a la máxima autoridad institucional.</p></div>
+                <div class="abordaje-card"><div class="abordaje-icon"><i class="fas fa-chart-pie"></i></div><h4 data-pia-text="abordaje.card4_title">Patrones de corrupción</h4><p data-pia-text="abordaje.card4_desc">Análisis de datos históricos de denuncias para generar alertas tempranas y tendencias.</p></div>
             </div>
-            <div class="abordaje-quote"><i class="fas fa-check-circle"></i>"Publicamos el cumplimiento de la gestión de riesgos de corrupción y explicamos el método."</div>
+            <div class="abordaje-quote"><i class="fas fa-check-circle"></i><span data-pia-text="abordaje.quote">"Publicamos el cumplimiento de la gestión de riesgos de corrupción y explicamos el método."</span></div>
         </div>
     </section>
 </div>
@@ -1028,11 +1028,11 @@
             <div class="footer-brand">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala" />
                 <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;" />
-                <p>Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
+                <p data-pia-text="footer.brand_phrase">Tu Gobierno en Números — Tableros de Rendición de Cuentas del Organismo Ejecutivo.</p>
             </div>
 
             <div class="footer-col">
-                <h4>Reporta irregularidades</h4>
+                <h4 data-pia-text="footer.col1_title">Reporta irregularidades</h4>
                 <ul class="footer-links">
                     <li><a href="../canales-por-la-integridad/">Canales por la Integridad</a></li>
                     <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
@@ -1040,7 +1040,7 @@
             </div>
 
             <div class="footer-col">
-                <h4>Explora datos</h4>
+                <h4 data-pia-text="footer.col2_title">Explora datos</h4>
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
@@ -1049,23 +1049,23 @@
             </div>
 
             <div class="footer-col">
-                <h4>Accede a la información</h4>
+                <h4 data-pia-text="footer.col3_title">Accede a la información</h4>
                 <ul class="footer-links">
                     <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
                     <!-- <li><a href="../vehiculos/">Transparencia Vehicular</a></li> -->
                     <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
-                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <h4 style="margin-top:1.5rem;" data-pia-text="footer.col4_title">Aprende</h4>
                 <ul class="footer-links">
                     <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
                 </ul>
             </div>
 
             <div class="footer-col">
-                <h4>Contacto</h4>
+                <h4 data-pia-text="footer.col5_title">Contacto</h4>
                 <div class="footer-contact">
-                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
-                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt" data-pia-text="footer.contact_email">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/" data-pia-text="footer.contact_web">pia.gob.gt</a></span>
                 </div>
                 <div class="social-row">
                     <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
@@ -1077,7 +1077,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>© Gobierno de Guatemala 2026. Comprometidos con la integridad pública.</p>
+            <p data-pia-text="footer.copyright">© Gobierno de Guatemala 2026. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala" />
                 <img src="/img/nuevoLogoRiesgo.png" alt="Riesgo en la Mira" />
@@ -1182,6 +1182,7 @@
 <!-- ========== SCRIPTS ========== -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script src="/js/pia-ui-runtime.js"></script>
+<script src="/js/pia-module-texts.js" data-module="riesgo"></script>
 <script>
 /* ============================================================
    LÓGICA GENERAL DE LA APLICACIÓN
@@ -1290,7 +1291,7 @@ function getAlertaData(status) {
 
 async function cargarDatos() {
     try {
-        const response = await fetch('datos.json');
+        const response = await fetch('datos.json', { cache: 'no-store' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         globalData = await response.json();
 

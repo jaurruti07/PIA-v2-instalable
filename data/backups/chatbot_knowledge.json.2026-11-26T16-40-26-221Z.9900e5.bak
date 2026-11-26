@@ -1,0 +1,66 @@
+[
+  {
+    "id": "kb-1",
+    "title": "Portal de Integridad Activa (PIA) - Misión y Definición",
+    "category": "General",
+    "content": "El Portal de Integridad Activa (PIA) es la plataforma oficial del Gobierno de Guatemala dedicada a la transparencia, la rendición de cuentas y la lucha contra la corrupción. Reúne información pública de acceso abierto sobre oficinas de probidad, canales de denuncia confidencial, estadísticas gubernamentales, mapa de riesgos, vehículos oficiales y directorio ejecutivo.",
+    "keywords": ["que es pia", "portal integridad activa", "mision", "gobierno guatemala", "transparencia", "corrupcion"],
+    "link": "/"
+  },
+  {
+    "id": "kb-2",
+    "title": "Canales por la Integridad y Denuncias de Corrupción",
+    "category": "Denuncias",
+    "content": "En la sección de Canales por la Integridad los ciudadanos pueden presentar denuncias por actos de corrupción, sobornos, abuso de autoridad o nepotismo de manera completamente segura y confidencial o anónima. Hay registrados más de 200 canales y un reporte de denuncias remitidas a instancias legales.",
+    "keywords": ["denunciar", "como denunciar", "denuncia anonima", "corrupcion", "canales por la integridad", "soborno", "nepotismo"],
+    "link": "/canales-por-la-integridad/"
+  },
+  {
+    "id": "kb-3",
+    "title": "Oficinas de Probidad",
+    "category": "Probidad",
+    "content": "El portal cuenta con un registro interactivo de más de 65 Oficinas de Probidad habilitadas en ministerios, secretarías y dependencias del Ejecutivo. En ellas se asesora a los servidores públicos sobre el cumplimiento de la Ley de Probidad, declaraciones juradas patrimoniales y código de ética.",
+    "keywords": ["oficinas probidad", "ley probidad", "declaracion jurada", "servidores publicos", "etica"],
+    "link": "/directorio/"
+  },
+  {
+    "id": "kb-4",
+    "title": "Directorio Ejecutivo del Gobierno de Guatemala",
+    "category": "Directorio",
+    "content": "El Directorio Ejecutivo contiene la lista detallada de autoridades, ministros, viceministros, directores y encargados de transparencia de las instituciones públicas de Guatemala, junto con sus datos institucionales de contacto y puestos.",
+    "keywords": ["directorio", "ministros", "autoridades", "contactos", "funcionarios", "quien es"],
+    "link": "/directorio/"
+  },
+  {
+    "id": "kb-5",
+    "title": "Tu Gobierno en Números - Estadísticas de Transparencia",
+    "category": "Estadísticas",
+    "content": "El tablero 'Tu Gobierno en Números' presenta indicadores cuantitativos clave: 65+ oficinas de probidad activas, 200+ canales de denuncia habilitados, más de 440 denuncias penales planteadas y 9 plataformas digitales de integridad en funcionamiento continuo.",
+    "keywords": ["estadisticas", "gobierno en numeros", "indicadores", "cuantas denuncias", "datos abiertos", "plataformas"],
+    "link": "/gobierno_en_numeros/"
+  },
+  {
+    "id": "kb-6",
+    "title": "Riesgo en la Mira - Mapa Institucional de Riesgos",
+    "category": "Riesgos",
+    "content": "El módulo 'Riesgo en la Mira' evalúa y monitorea las áreas de compras públicas, contratación de personal y asignación presupuestaria vulnerables a la corrupción, permitiendo establecer alertas preventivas e intervenciones institucionales.",
+    "keywords": ["riesgo", "mapa de riesgo", "compras publicas", "alertas", "contrataciones", "presupuesto"],
+    "link": "/riesgo/"
+  },
+  {
+    "id": "kb-7",
+    "title": "Transparencia Vehicular - Vehículos Oficiales",
+    "category": "Vehículos",
+    "content": "La herramienta 'Transparencia Vehicular' permite a la ciudadanía verificar si un vehículo con placas oficiales pertenece al Estado, consultar su asignación institucional y reportar usos indebidos fuera de horario de trabajo o fines personales.",
+    "keywords": ["vehiculos", "placas oficiales", "transparencia vehicular", "placa transparente", "uso indebido", "carro del gobierno"],
+    "link": "/vehiculos/"
+  },
+  {
+    "id": "kb-8",
+    "title": "Paso a paso para llenar un formulario de denuncia",
+    "category": "Procedimientos",
+    "content": "Para presentar una denuncia en el portal PIA: 1) Ingrese al módulo 'Canales por la Integridad'. 2) Seleccione si desea hacer una denuncia confidencial o anónima. 3) Describa los hechos indicando fecha, lugar e institución involucrada. 4) Adjunte pruebas o documentos (opcional). 5) Presione 'Enviar Denuncia' para recibir su código de seguimiento.",
+    "keywords": ["como llenar formulario", "pasos denuncia", "formulario", "instrucciones", "pruebas"],
+    "link": "/canales-por-la-integridad/"
+  }
+]

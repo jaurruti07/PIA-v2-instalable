@@ -86,6 +86,23 @@ async function loadAllChatbotData() {
     ]);
 }
 
+function getAuthHeaders(extra = {}) {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json', ...extra };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+}
+
+async function handleUnauthorizedResponse(res) {
+    if (res && res.status === 401) {
+        if (typeof window.logout === 'function') {
+            await window.logout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+        }
+        return true;
+    }
+    return false;
+}
+
 // -------------------------------------------------------------
 // TAB 1: METRICS & STATS
 // -------------------------------------------------------------
@@ -96,7 +113,8 @@ async function loadStatsTab() {
     try {
         let stats = null;
         try {
-            const res = await fetch('/api/admin/chatbot/stats');
+            const res = await fetch('/api/admin/chatbot/stats', { headers: getAuthHeaders(), cache: 'no-store' });
+            if (await handleUnauthorizedResponse(res)) return;
             if (res.ok) stats = await res.json();
         } catch (e) {}
 
@@ -276,25 +294,15 @@ async function loadKnowledgeTab() {
 
     try {
         let loaded = false;
-        try {
-            const res = await fetch('/api/admin/chatbot/knowledge');
-            if (res.ok) {
-                cachedKnowledge = await res.json();
-                loaded = true;
-            }
-        } catch (e) {}
+        const res = await fetch('/api/admin/chatbot/knowledge', { headers: getAuthHeaders(), cache: 'no-store' });
+        if (await handleUnauthorizedResponse(res)) return;
+        if (res.ok) {
+            cachedKnowledge = await res.json();
+            loaded = true;
+        }
 
         if (!loaded) {
-            for (const p of ['../chatbot_knowledge.json', '/chatbot_knowledge.json', 'chatbot_knowledge.json']) {
-                try {
-                    const res = await fetch(p);
-                    if (res.ok) {
-                        cachedKnowledge = await res.json();
-                        loaded = true;
-                        break;
-                    }
-                } catch (e) {}
-            }
+            throw new Error('No se pudo cargar la base de conocimiento desde el servidor.');
         }
 
         const badge = document.getElementById('cbKbBadge');
@@ -364,8 +372,10 @@ async function loadLogsTab() {
     if (!container) return;
 
     try {
-        const res = await fetch('/api/admin/chatbot/conversations');
-        const logs = await res.json();
+        const res = await fetch('/api/admin/chatbot/conversations', { headers: getAuthHeaders(), cache: 'no-store' });
+        if (await handleUnauthorizedResponse(res)) return;
+        const payload = res.ok ? await res.json().catch(() => []) : [];
+        const logs = Array.isArray(payload) ? payload : [];
 
         const rowsHTML = logs.map(log => `
             <tr>
@@ -422,23 +432,10 @@ async function loadSettingsTab() {
 
     try {
         let settings = null;
-        try {
-            const res = await fetch('/api/admin/chatbot/settings');
-            if (res.ok) settings = await res.json();
-        } catch (e) {}
-
-        if (!settings) {
-            for (const p of ['../chatbot_settings.json', '/chatbot_settings.json', 'chatbot_settings.json']) {
-                try {
-                    const res = await fetch(p);
-                    if (res.ok) {
-                        settings = await res.json();
-                        break;
-                    }
-                } catch (e) {}
-            }
-        }
-        if (!settings) settings = { enabled: true, model: 'gemini-3.6-flash', temperature: 0.3 };
+        const res = await fetch('/api/admin/chatbot/settings', { headers: getAuthHeaders(), cache: 'no-store' });
+        if (await handleUnauthorizedResponse(res)) return;
+        if (res.ok) settings = await res.json();
+        if (!settings) settings = { enabled: true, model: 'gemini-2.5-flash', temperature: 0.2, maxTokens: 1024, systemPrompt: '' };
 
         container.innerHTML = `
             <div class="card" style="padding: 1.5rem; max-width: 800px;">
@@ -504,18 +501,21 @@ async function loadSettingsTab() {
             try {
                 const updateRes = await fetch('/api/admin/chatbot/settings', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getAuthHeaders(),
+                    cache: 'no-store',
                     body: JSON.stringify({ model, temperature, systemPrompt, maxTokens, enabled })
                 });
+                if (await handleUnauthorizedResponse(updateRes)) return;
 
                 if (updateRes.ok) {
-                    showToast('¡Configuración del Asistente IA actualizada con éxito!', 'success');
+                    showToast('¡Configuración del Asistente IA actualizada en servidor!', 'success');
                 } else {
-                    showToast('Error al guardar configuración', 'error');
+                    const errData = await updateRes.json().catch(() => ({}));
+                    showToast(errData.error || 'Error al guardar configuración', 'error');
                 }
             } catch (err) {
                 console.error('Error saving chatbot settings:', err);
-                showToast('Error de conexión', 'error');
+                showToast('Error de conexión al guardar configuración', 'error');
             }
         });
     } catch (e) {
@@ -526,19 +526,26 @@ async function loadSettingsTab() {
 // -------------------------------------------------------------
 // KNOWLEDGE BASE MODAL & ACTIONS
 // -------------------------------------------------------------
-function openAddKbModal(prefillQuery = '') {
+function openAddKbModal(prefillQuery = '', editItem = null) {
+    const isEdit = Boolean(editItem && editItem.id);
+    const titleVal = isEdit ? (editItem.title || '') : prefillQuery;
+    const categoryVal = isEdit ? (editItem.category || 'General') : 'General';
+    const linkVal = isEdit ? (editItem.link || '/') : '/';
+    const contentVal = isEdit ? (editItem.content || '') : '';
+    const keywordsVal = isEdit ? ((editItem.keywords || []).join(', ')) : prefillQuery;
+
     const modalHTML = `
         <div id="kbModal" style="position: fixed; inset: 0; background: rgba(5,17,31,0.6); backdrop-filter: blur(4px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
             <div class="card" style="width: 100%; max-width: 600px; padding: 1.5rem; background: var(--surface);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--navy); margin: 0;">Agregar Artículo a la Base de Conocimiento</h3>
+                    <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--navy); margin: 0;">${isEdit ? 'Editar Artículo de Conocimiento' : 'Agregar Artículo a la Base de Conocimiento'}</h3>
                     <button onclick="document.getElementById('kbModal').remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">&times;</button>
                 </div>
 
                 <form id="addKbForm">
                     <div style="margin-bottom: 1rem;">
                         <label class="form-label" style="font-weight: 700;">Título / Tema</label>
-                        <input type="text" id="kbModalTitle" class="form-control" required value="${escapeHTML(prefillQuery)}">
+                        <input type="text" id="kbModalTitle" class="form-control" required value="${escapeHTML(titleVal)}">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -556,23 +563,23 @@ function openAddKbModal(prefillQuery = '') {
                         </div>
                         <div>
                             <label class="form-label" style="font-weight: 700;">Enlace Interno (Ruta)</label>
-                            <input type="text" id="kbModalLink" class="form-control" value="/" placeholder="/canales-por-la-integridad/">
+                            <input type="text" id="kbModalLink" class="form-control" value="${escapeHTML(linkVal)}" placeholder="/canales-por-la-integridad/">
                         </div>
                     </div>
 
                     <div style="margin-bottom: 1rem;">
                         <label class="form-label" style="font-weight: 700;">Contenido Explicativo / Respuesta</label>
-                        <textarea id="kbModalContent" class="form-control" rows="4" required placeholder="Redacte la explicación oficial que el bot entregará a los usuarios..."></textarea>
+                        <textarea id="kbModalContent" class="form-control" rows="4" required placeholder="Redacte la explicación oficial que el bot entregará a los usuarios...">${escapeHTML(contentVal)}</textarea>
                     </div>
 
                     <div style="margin-bottom: 1.25rem;">
                         <label class="form-label" style="font-weight: 700;">Palabras Clave (Separadas por coma)</label>
-                        <input type="text" id="kbModalKeywords" class="form-control" placeholder="denuncia, tramite, pasos, corrupcion" value="${escapeHTML(prefillQuery)}">
+                        <input type="text" id="kbModalKeywords" class="form-control" placeholder="denuncia, tramite, pasos, corrupcion" value="${escapeHTML(keywordsVal)}">
                     </div>
 
                     <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
                         <button type="button" class="btn-secondary" onclick="document.getElementById('kbModal').remove()">Cancelar</button>
-                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Guardar Artículo</button>
+                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> ${isEdit ? 'Actualizar Artículo' : 'Guardar Artículo'}</button>
                     </div>
                 </form>
             </div>
@@ -583,6 +590,8 @@ function openAddKbModal(prefillQuery = '') {
     if (existing) existing.remove();
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const catSelect = document.getElementById('kbModalCategory');
+    if (catSelect) catSelect.value = categoryVal;
 
     document.getElementById('addKbForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -593,22 +602,28 @@ function openAddKbModal(prefillQuery = '') {
         const keywords = document.getElementById('kbModalKeywords').value;
 
         try {
-            const saveRes = await fetch('/api/admin/chatbot/knowledge', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const url = isEdit
+                ? `/api/admin/chatbot/knowledge/${encodeURIComponent(editItem.id)}`
+                : '/api/admin/chatbot/knowledge';
+            const saveRes = await fetch(url, {
+                method: isEdit ? 'PUT' : 'POST',
+                headers: getAuthHeaders(),
+                cache: 'no-store',
                 body: JSON.stringify({ title, category, link, content, keywords })
             });
+            if (await handleUnauthorizedResponse(saveRes)) return;
 
             if (saveRes.ok) {
-                showToast('Artículo guardado en la Base de Conocimiento', 'success');
+                showToast(isEdit ? 'Artículo actualizado en la Base de Conocimiento' : 'Artículo guardado en la Base de Conocimiento', 'success');
                 document.getElementById('kbModal').remove();
                 await loadKnowledgeTab();
             } else {
-                showToast('Error al guardar el artículo', 'error');
+                const errData = await saveRes.json().catch(() => ({}));
+                showToast(errData.error || 'Error al guardar el artículo', 'error');
             }
         } catch (err) {
-            console.error('Error adding knowledge item:', err);
-            showToast('Error de red', 'error');
+            console.error('Error saving knowledge item:', err);
+            showToast('Error de red al guardar artículo', 'error');
         }
     });
 }
@@ -616,13 +631,22 @@ function openAddKbModal(prefillQuery = '') {
 async function deleteKbItem(id) {
     if (!confirm('¿Está seguro de eliminar este artículo de la base de conocimiento del chatbot?')) return;
     try {
-        const res = await fetch(`/api/admin/chatbot/knowledge/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/api/admin/chatbot/knowledge/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+            cache: 'no-store'
+        });
+        if (await handleUnauthorizedResponse(res)) return;
         if (res.ok) {
             showToast('Artículo eliminado de la base de conocimiento', 'info');
             await loadKnowledgeTab();
+        } else {
+            const errData = await res.json().catch(() => ({}));
+            showToast(errData.error || 'Error al eliminar artículo', 'error');
         }
     } catch (e) {
         console.error('Error deleting KB item:', e);
+        showToast('Error de conexión al eliminar artículo', 'error');
     }
 }
 
@@ -658,16 +682,9 @@ window.PIA_CHATBOT_ADMIN = {
     deleteKbItem,
     filterKnowledge,
     editKbItem: (id) => {
-        const item = cachedKnowledge.find(k => k.id === id);
+        const item = cachedKnowledge.find(k => String(k.id) === String(id));
         if (item) {
-            openAddKbModal(item.title);
-            // Pre-fill fields
-            setTimeout(() => {
-                if (document.getElementById('kbModalCategory')) document.getElementById('kbModalCategory').value = item.category || 'General';
-                if (document.getElementById('kbModalLink')) document.getElementById('kbModalLink').value = item.link || '/';
-                if (document.getElementById('kbModalContent')) document.getElementById('kbModalContent').value = item.content || '';
-                if (document.getElementById('kbModalKeywords')) document.getElementById('kbModalKeywords').value = (item.keywords || []).join(', ');
-            }, 100);
+            openAddKbModal(item.title, item);
         }
     }
 };

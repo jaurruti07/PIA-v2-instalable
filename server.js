@@ -12,6 +12,20 @@ import { StorageConfigManager, CONFIGURABLE_MODULES, VALID_STORAGE_MODES, VALID_
 import { createHybridStorage } from './db/hybridStorage.js';
 import { importJsonToSql, exportSqlToJson } from './db/migrationService.js';
 import { createDatabaseManager } from './admin/database-manager.js';
+import {
+  PORTAL_TEXT_SECTIONS,
+  PORTAL_TEXT_CATALOG,
+  PORTAL_TEXT_CATALOG_MAP,
+  sanitizeAndValidatePortalText,
+  normalizePortalTextsDoc
+} from './db/portalTextsCatalog.js';
+import {
+  TEXT_MODULES_ORDER,
+  normalizeTextModuleKey,
+  getModuleTextsDefinition,
+  sanitizeAndValidateModuleText,
+  normalizeModuleTextsDoc
+} from './db/moduleTextsCatalog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +57,7 @@ const VISITS_FILE = path.join(DATA_DIR, 'page_visits.json');
 const USERS_FILE = path.join(DATA_DIR, 'users_roles.json');
 const CANALES_SETTINGS_FILE = path.join(DATA_DIR, 'canales_settings.json');
 const MODULES_UI_CONFIG_FILE = path.join(DATA_DIR, 'modules_ui_config.json');
+const PORTAL_TEXTS_FILE = path.join(DATA_DIR, 'portal_texts.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const UPLOADS_BG_DIR = path.join(UPLOADS_DIR, 'backgrounds');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -250,7 +265,7 @@ function recordPageVisit(pagePath = '/', req = {}) {
       data.recentVisits = data.recentVisits.slice(0, 60);
     }
 
-    const tempFile = path.join(DATA_DIR, `.tmp_visits_${Date.now()}`);
+    const tempFile = path.join(DATA_DIR, `.tmp_visits_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`);
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
     fs.renameSync(tempFile, VISITS_FILE);
   } catch (err) {
@@ -1284,6 +1299,21 @@ function saveModuleRecords(module, records, user = 'sistema', expectedHash = nul
     if (!fullData.years) fullData.years = {};
     if (!fullData.years['2025']) fullData.years['2025'] = { instituciones: [] };
     fullData.years['2025'].instituciones = records;
+    fullData.years['2025'].fechaActualizacion = new Date().toISOString().split('T')[0];
+    const total = records.length;
+    const cumple = records.filter(i => i.estado === 'cumple').length;
+    const noCumple = records.filter(i => i.estado === 'no_cumple' || i.estado === 'En proceso').length;
+    const buenas = records.filter(i => i.buenasPracticas === true).length;
+    const pCumple = total ? Math.round((cumple / total) * 100) : 0;
+    const pNo = total ? Math.round((noCumple / total) * 100) : 0;
+    const pBuenas = total ? Math.round((buenas / total) * 100) : 0;
+    fullData.years['2025'].ribbonStats = [
+      { icono: 'building', valor: total, etiqueta: 'Instituciones' },
+      { icono: 'check-circle', valor: `${pCumple}%`, etiqueta: 'Cumplen' },
+      { icono: 'loader-2', valor: `${pNo}%`, etiqueta: 'En proceso' },
+      { icono: 'star', valor: `${pBuenas}%`, etiqueta: 'Buenas prácticas GRC' },
+      { icono: 'clock', valor: '2025', etiqueta: 'Ciclo activo' }
+    ];
     return atomicWriteJson(filePath, fullData, expectedHash, user);
   }
 
@@ -3420,6 +3450,574 @@ app.post('/api/admin/ui/:module/reset-defaults', requireAuth, requireOperator, c
   }
 });
 
+// ========================================================
+// 5.F ADMINISTRACIÓN DE TEXTOS ESTÁTICOS DEL PORTAL PRINCIPAL
+// ========================================================
+
+function readPortalTextsState() {
+  if (!fs.existsSync(PORTAL_TEXTS_FILE)) {
+    const emptyDoc = { overrides: {}, updatedAt: null, updatedBy: null };
+    atomicWriteJson(PORTAL_TEXTS_FILE, emptyDoc, null, 'sistema');
+  }
+  const raw = readJsonFile(PORTAL_TEXTS_FILE);
+  const doc = normalizePortalTextsDoc(raw);
+  const etag = computeFileHash(PORTAL_TEXTS_FILE);
+  return { doc, etag };
+}
+
+function buildAdminPortalTextsPayload(doc) {
+  const sectionLabelMap = new Map(PORTAL_TEXT_SECTIONS.map(s => [s.id, s.label]));
+  const items = PORTAL_TEXT_CATALOG.map(entry => {
+    const currentValue = doc.texts[entry.key] ?? entry.defaultText;
+    const isModified = Object.prototype.hasOwnProperty.call(doc.overrides, entry.key) && currentValue !== entry.defaultText;
+    return {
+      key: entry.key,
+      section: entry.section,
+      sectionLabel: sectionLabelMap.get(entry.section) || entry.section,
+      label: entry.label,
+      description: entry.description,
+      defaultText: entry.defaultText,
+      currentValue,
+      isModified,
+      maxLength: entry.maxLength,
+      multiline: Boolean(entry.multiline)
+    };
+  });
+  const modifiedCount = items.filter(i => i.isModified).length;
+  return {
+    sections: PORTAL_TEXT_SECTIONS,
+    items,
+    texts: doc.texts,
+    stats: {
+      total: items.length,
+      modified: modifiedCount
+    },
+    updatedAt: doc.updatedAt,
+    updatedBy: doc.updatedBy
+  };
+}
+
+function writePortalTextsState(nextOverrides, userUpn, expectedHash = null) {
+  const normalized = normalizePortalTextsDoc({
+    overrides: nextOverrides,
+    updatedAt: new Date().toISOString(),
+    updatedBy: userUpn || 'sistema'
+  });
+  const writeRes = atomicWriteJson(PORTAL_TEXTS_FILE, {
+    overrides: normalized.overrides,
+    updatedAt: normalized.updatedAt,
+    updatedBy: normalized.updatedBy
+  }, expectedHash, userUpn);
+  return {
+    doc: normalized,
+    newHash: writeRes.newHash,
+    backupCreated: writeRes.backupCreated
+  };
+}
+
+// Consulta pública de textos estáticos vigentes del Portal Principal
+app.get('/api/portal/texts', (req, res) => {
+  try {
+    const { doc, etag } = readPortalTextsState();
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.json({
+      success: true,
+      texts: doc.texts,
+      modifiedKeys: Object.keys(doc.overrides),
+      updatedAt: doc.updatedAt
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible obtener los textos del portal.' });
+  }
+});
+
+// Lectura administrativa completa de textos estáticos editables del Portal Principal
+app.get('/api/admin/portal/texts', requireAuth, requireOperator, requireModuleAccess('portal'), (req, res) => {
+  try {
+    const { doc, etag } = readPortalTextsState();
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.json({
+      success: true,
+      ...buildAdminPortalTextsPayload(doc)
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible obtener la configuración de textos del portal.' });
+  }
+});
+
+// Actualización controlada (individual o por lote) de textos estáticos del Portal Principal
+app.put('/api/admin/portal/texts', requireAuth, requireOperator, requireModuleAccess('portal'), (req, res) => {
+  const rawUpdates = req.body?.updates;
+  if (!rawUpdates || typeof rawUpdates !== 'object' || Array.isArray(rawUpdates)) {
+    return res.status(400).json({ error: 'Debe enviar un objeto "updates" con los textos a actualizar.' });
+  }
+
+  const updateEntries = Object.entries(rawUpdates);
+  if (updateEntries.length === 0) {
+    return res.status(400).json({ error: 'No se incluyeron textos para actualizar.' });
+  }
+  if (updateEntries.length > PORTAL_TEXT_CATALOG.length) {
+    return res.status(400).json({ error: 'La cantidad de claves enviadas excede el catálogo permitido.' });
+  }
+
+  const validatedUpdates = {};
+  const errors = [];
+  for (const [key, val] of updateEntries) {
+    const check = sanitizeAndValidatePortalText(key, val);
+    if (!check.valid) {
+      errors.push(check.error);
+    } else {
+      validatedUpdates[check.entry.key] = {
+        value: check.value,
+        entry: check.entry
+      };
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  try {
+    const { doc } = readPortalTextsState();
+    const nextOverrides = { ...doc.overrides };
+    const changedKeys = [];
+
+    for (const [key, info] of Object.entries(validatedUpdates)) {
+      const prevVal = doc.texts[key] ?? info.entry.defaultText;
+      if (info.value === info.entry.defaultText) {
+        delete nextOverrides[key];
+      } else {
+        nextOverrides[key] = info.value;
+      }
+      if (prevVal !== info.value) {
+        changedKeys.push(key);
+      }
+    }
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const userUpn = req.user.upn || req.user.email || 'sistema';
+    const writeRes = writePortalTextsState(nextOverrides, userUpn, ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: 'portal',
+      target: 'portal_texts.json',
+      recordId: changedKeys.length === 1 ? changedKeys[0] : 'batch_texts',
+      details: changedKeys.length > 0
+        ? `Textos estáticos del portal actualizados (${changedKeys.length}): ${changedKeys.slice(0, 6).join(', ')}${changedKeys.length > 6 ? '...' : ''}`
+        : `Guardado de textos estáticos del portal (${updateEntries.length} elementos revisados)`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      changedCount: changedKeys.length,
+      ...buildAdminPortalTextsPayload(writeRes.doc)
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudieron guardar los textos del portal.' });
+  }
+});
+
+// Restaurar texto individual, por sección o todo el catálogo a los valores originales
+app.post('/api/admin/portal/texts/reset', requireAuth, requireOperator, requireModuleAccess('portal'), (req, res) => {
+  const scope = req.body?.scope;
+  const key = typeof req.body?.key === 'string' ? req.body.key.trim() : '';
+  const section = typeof req.body?.section === 'string' ? req.body.section.trim() : '';
+
+  if (!['key', 'section', 'all'].includes(scope)) {
+    return res.status(400).json({ error: 'El parámetro "scope" debe ser "key", "section" o "all".' });
+  }
+  if (scope === 'key' && !PORTAL_TEXT_CATALOG_MAP.has(key)) {
+    return res.status(400).json({ error: 'La clave indicada no existe en el catálogo de textos del portal.' });
+  }
+  if (scope === 'section' && !PORTAL_TEXT_SECTIONS.some(s => s.id === section)) {
+    return res.status(400).json({ error: 'La sección indicada no existe en el catálogo.' });
+  }
+
+  try {
+    const { doc } = readPortalTextsState();
+    let nextOverrides = { ...doc.overrides };
+
+    if (scope === 'all') {
+      nextOverrides = {};
+    } else if (scope === 'key') {
+      delete nextOverrides[key];
+    } else if (scope === 'section') {
+      for (const entry of PORTAL_TEXT_CATALOG) {
+        if (entry.section === section) {
+          delete nextOverrides[entry.key];
+        }
+      }
+    }
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const userUpn = req.user.upn || req.user.email || 'sistema';
+    const writeRes = writePortalTextsState(nextOverrides, userUpn, ifMatch || null);
+
+    const detailTarget = scope === 'all'
+      ? 'todos los textos del portal'
+      : scope === 'section'
+        ? `sección '${section}'`
+        : `clave '${key}'`;
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'RESTAURACIÓN',
+      module: 'portal',
+      target: 'portal_texts.json',
+      recordId: scope === 'key' ? key : (scope === 'section' ? section : 'all'),
+      details: `Textos estáticos del portal restaurados a valores originales (${detailTarget})`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      ...buildAdminPortalTextsPayload(writeRes.doc)
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudieron restaurar los textos del portal.' });
+  }
+});
+
+// ========================================================
+// 5.G ADMINISTRACIÓN DE TEXTOS ESTÁTICOS POR MÓDULO
+// (Directorio, Tu Gobierno en Números, Canales, Riesgo)
+// ========================================================
+
+function getModuleTextsFilePath(moduleKey) {
+  const def = getModuleTextsDefinition(moduleKey);
+  if (!def) throw new Error(`Módulo de textos no soportado: ${moduleKey}`);
+  return path.join(DATA_DIR, def.fileName);
+}
+
+function readModuleTextsState(moduleKey) {
+  const def = getModuleTextsDefinition(moduleKey);
+  if (!def) throw new Error(`Módulo de textos no soportado: ${moduleKey}`);
+  const filePath = getModuleTextsFilePath(def.key);
+  if (!fs.existsSync(filePath)) {
+    const emptyDoc = { overrides: {}, updatedAt: null, updatedBy: null };
+    atomicWriteJson(filePath, emptyDoc, null, 'sistema');
+  }
+  const raw = readJsonFile(filePath);
+  const doc = normalizeModuleTextsDoc(def.key, raw);
+  const etag = computeFileHash(filePath);
+  return { def, doc, etag, filePath };
+}
+
+function buildAdminModuleTextsPayload(def, doc) {
+  const sectionLabelMap = new Map(def.sections.map(s => [s.id, s.label]));
+  const items = def.catalog.map(entry => {
+    const currentValue = doc.texts[entry.key] ?? entry.defaultText;
+    const isModified = Object.prototype.hasOwnProperty.call(doc.overrides, entry.key) && currentValue !== entry.defaultText;
+    return {
+      key: entry.key,
+      section: entry.section,
+      sectionLabel: sectionLabelMap.get(entry.section) || entry.section,
+      label: entry.label,
+      description: entry.description,
+      defaultText: entry.defaultText,
+      currentValue,
+      isModified,
+      maxLength: entry.maxLength,
+      multiline: Boolean(entry.multiline)
+    };
+  });
+  const modifiedCount = items.filter(i => i.isModified).length;
+  return {
+    module: def.key,
+    moduleMeta: {
+      key: def.key,
+      title: def.title,
+      shortLabel: def.shortLabel,
+      description: def.description,
+      publicUrl: def.publicUrl,
+      icon: def.icon
+    },
+    sections: def.sections,
+    items,
+    texts: doc.texts,
+    stats: {
+      total: items.length,
+      modified: modifiedCount
+    },
+    updatedAt: doc.updatedAt,
+    updatedBy: doc.updatedBy
+  };
+}
+
+function writeModuleTextsState(moduleKey, nextOverrides, userUpn, expectedHash = null) {
+  const def = getModuleTextsDefinition(moduleKey);
+  const filePath = getModuleTextsFilePath(def.key);
+  const normalized = normalizeModuleTextsDoc(def.key, {
+    overrides: nextOverrides,
+    updatedAt: new Date().toISOString(),
+    updatedBy: userUpn || 'sistema'
+  });
+  const writeRes = atomicWriteJson(filePath, {
+    overrides: normalized.overrides,
+    updatedAt: normalized.updatedAt,
+    updatedBy: normalized.updatedBy
+  }, expectedHash, userUpn);
+  return {
+    def,
+    doc: normalized,
+    newHash: writeRes.newHash,
+    backupCreated: writeRes.backupCreated
+  };
+}
+
+function checkTextModuleAccess(req, res, next) {
+  const modKey = normalizeTextModuleKey(req.params.module);
+  if (!modKey) {
+    return res.status(400).json({ error: 'Módulo de textos no reconocido.' });
+  }
+  req.textModuleKey = modKey;
+  const modules = Array.isArray(req.user?.modules) ? req.user.modules : [];
+  if (req.user?.role !== 'admin' && !modules.includes(modKey)) {
+    return res.status(403).json({ error: `No posee permisos asignados para gestionar los textos del módulo "${modKey}".` });
+  }
+  next();
+}
+
+// Consulta pública de textos estáticos vigentes para cada módulo
+app.get('/api/module-texts/:module', (req, res) => {
+  const modKey = normalizeTextModuleKey(req.params.module);
+  if (!modKey) {
+    return res.status(404).json({ error: 'Módulo de textos no encontrado.' });
+  }
+  try {
+    const { def, doc, etag } = readModuleTextsState(modKey);
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.json({
+      success: true,
+      module: def.key,
+      texts: doc.texts,
+      modifiedKeys: Object.keys(doc.overrides),
+      updatedAt: doc.updatedAt
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible obtener los textos del módulo.' });
+  }
+});
+
+// Catálogo resumen de módulos con textos administrables accesibles al operador autenticado
+app.get('/api/admin/module-texts/catalog', requireAuth, requireOperator, (req, res) => {
+  try {
+    const userModules = Array.isArray(req.user?.modules) ? req.user.modules : [];
+    const isAdmin = req.user?.role === 'admin';
+    const summaries = [];
+    for (const key of TEXT_MODULES_ORDER) {
+      if (!isAdmin && !userModules.includes(key)) continue;
+      const { def, doc } = readModuleTextsState(key);
+      summaries.push({
+        key: def.key,
+        title: def.title,
+        shortLabel: def.shortLabel,
+        description: def.description,
+        publicUrl: def.publicUrl,
+        icon: def.icon,
+        stats: {
+          total: def.catalog.length,
+          modified: Object.keys(doc.overrides).length
+        },
+        updatedAt: doc.updatedAt,
+        updatedBy: doc.updatedBy
+      });
+    }
+    res.json({ success: true, modules: summaries });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible listar los módulos de textos disponibles.' });
+  }
+});
+
+// Lectura administrativa completa de textos estáticos editables de un módulo
+app.get('/api/admin/module-texts/:module', requireAuth, requireOperator, checkTextModuleAccess, (req, res) => {
+  try {
+    const { def, doc, etag } = readModuleTextsState(req.textModuleKey);
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.json({
+      success: true,
+      ...buildAdminModuleTextsPayload(def, doc)
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible obtener la configuración de textos del módulo.' });
+  }
+});
+
+// Actualización controlada (individual o por lote) de textos estáticos de un módulo
+app.put('/api/admin/module-texts/:module', requireAuth, requireOperator, checkTextModuleAccess, (req, res) => {
+  const modKey = req.textModuleKey;
+  const def = getModuleTextsDefinition(modKey);
+  const rawUpdates = req.body?.updates;
+
+  if (!rawUpdates || typeof rawUpdates !== 'object' || Array.isArray(rawUpdates)) {
+    return res.status(400).json({ error: 'Debe enviar un objeto "updates" con los textos a actualizar.' });
+  }
+
+  const updateEntries = Object.entries(rawUpdates);
+  if (updateEntries.length === 0) {
+    return res.status(400).json({ error: 'No se incluyeron textos para actualizar.' });
+  }
+  if (updateEntries.length > def.catalog.length) {
+    return res.status(400).json({ error: 'La cantidad de claves enviadas excede el catálogo permitido.' });
+  }
+
+  const validatedUpdates = {};
+  const errors = [];
+  for (const [key, val] of updateEntries) {
+    const check = sanitizeAndValidateModuleText(modKey, key, val);
+    if (!check.valid) {
+      errors.push(check.error);
+    } else {
+      validatedUpdates[check.entry.key] = {
+        value: check.value,
+        entry: check.entry
+      };
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  try {
+    const { doc } = readModuleTextsState(modKey);
+    const nextOverrides = { ...doc.overrides };
+    const changedKeys = [];
+
+    for (const [key, info] of Object.entries(validatedUpdates)) {
+      const prevVal = doc.texts[key] ?? info.entry.defaultText;
+      if (info.value === info.entry.defaultText) {
+        delete nextOverrides[key];
+      } else {
+        nextOverrides[key] = info.value;
+      }
+      if (prevVal !== info.value) {
+        changedKeys.push(key);
+      }
+    }
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const userUpn = req.user.upn || req.user.email || 'sistema';
+    const writeRes = writeModuleTextsState(modKey, nextOverrides, userUpn, ifMatch || null);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: modKey,
+      target: def.fileName,
+      recordId: changedKeys.length === 1 ? changedKeys[0] : 'batch_texts',
+      details: changedKeys.length > 0
+        ? `Textos estáticos de '${def.shortLabel}' actualizados (${changedKeys.length}): ${changedKeys.slice(0, 6).join(', ')}${changedKeys.length > 6 ? '...' : ''}`
+        : `Guardado de textos estáticos de '${def.shortLabel}' (${updateEntries.length} elementos revisados)`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      changedCount: changedKeys.length,
+      ...buildAdminModuleTextsPayload(writeRes.def, writeRes.doc)
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudieron guardar los textos del módulo.' });
+  }
+});
+
+// Restaurar texto individual, por sección o todo el catálogo de un módulo a valores originales
+app.post('/api/admin/module-texts/:module/reset', requireAuth, requireOperator, checkTextModuleAccess, (req, res) => {
+  const modKey = req.textModuleKey;
+  const def = getModuleTextsDefinition(modKey);
+  const scope = req.body?.scope;
+  const key = typeof req.body?.key === 'string' ? req.body.key.trim() : '';
+  const section = typeof req.body?.section === 'string' ? req.body.section.trim() : '';
+
+  if (!['key', 'section', 'all'].includes(scope)) {
+    return res.status(400).json({ error: 'El parámetro "scope" debe ser "key", "section" o "all".' });
+  }
+  if (scope === 'key' && !def.catalogMap.has(key)) {
+    return res.status(400).json({ error: `La clave indicada no existe en el catálogo de "${def.shortLabel}".` });
+  }
+  if (scope === 'section' && !def.sections.some(s => s.id === section)) {
+    return res.status(400).json({ error: 'La sección indicada no existe en el catálogo del módulo.' });
+  }
+
+  try {
+    const { doc } = readModuleTextsState(modKey);
+    let nextOverrides = { ...doc.overrides };
+
+    if (scope === 'all') {
+      nextOverrides = {};
+    } else if (scope === 'key') {
+      delete nextOverrides[key];
+    } else if (scope === 'section') {
+      for (const entry of def.catalog) {
+        if (entry.section === section) {
+          delete nextOverrides[entry.key];
+        }
+      }
+    }
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const userUpn = req.user.upn || req.user.email || 'sistema';
+    const writeRes = writeModuleTextsState(modKey, nextOverrides, userUpn, ifMatch || null);
+
+    const detailTarget = scope === 'all'
+      ? `todos los textos de '${def.shortLabel}'`
+      : scope === 'section'
+        ? `sección '${section}' de '${def.shortLabel}'`
+        : `clave '${key}' de '${def.shortLabel}'`;
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'RESTAURACIÓN',
+      module: modKey,
+      target: def.fileName,
+      recordId: scope === 'key' ? key : (scope === 'section' ? section : 'all'),
+      details: `Textos estáticos restaurados a valores originales (${detailTarget})`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      ...buildAdminModuleTextsPayload(writeRes.def, writeRes.doc)
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudieron restaurar los textos del módulo.' });
+  }
+});
+
 // Lectura de módulos (Público y Operadores) con ETag y soporte híbrido JSON / SQL
 app.get('/api/:module', async (req, res, next) => {
   const { module } = req.params;
@@ -3427,6 +4025,9 @@ app.get('/api/:module', async (req, res, next) => {
   try {
     const { source, records, etag } = await hybridStorage.readModule(module);
     if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.setHeader('X-PIA-Storage-Source', source);
     res.json(records);
   } catch (err) {
@@ -3440,6 +4041,9 @@ app.get('/api/:module/:id', async (req, res, next) => {
   try {
     const { source, item, etag } = await hybridStorage.readRecordById(module, id);
     if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.setHeader('X-PIA-Storage-Source', source);
     if (!item) return res.status(404).json({ error: 'Registro no encontrado' });
     res.json(item);
@@ -3655,6 +4259,7 @@ app.post('/api/analytics/visit', (req, res) => {
 
 const CHATBOT_SETTINGS_FILE = path.join(__dirname, 'chatbot_settings.json');
 const CHATBOT_KNOWLEDGE_FILE = path.join(__dirname, 'chatbot_knowledge.json');
+const CHATBOT_CONVERSATIONS_FILE = path.join(__dirname, 'chatbot_conversations.json');
 
 let genAIInstance = null;
 function getGenAI() {
@@ -3678,7 +4283,104 @@ function getChatbotSettings() {
 }
 
 function getChatbotKnowledge() {
-  return readJsonFile(CHATBOT_KNOWLEDGE_FILE) || [];
+  const data = readJsonFile(CHATBOT_KNOWLEDGE_FILE);
+  return Array.isArray(data) ? data : [];
+}
+
+function getChatbotConversations() {
+  const data = readJsonFile(CHATBOT_CONVERSATIONS_FILE);
+  return Array.isArray(data) ? data : [];
+}
+
+function handleCreateChatbotKnowledge(req, res) {
+  const { title, category, content, keywords, link } = req.body || {};
+  if (!title || !content) return res.status(400).json({ error: 'Título y contenido son obligatorios' });
+
+  const knowledge = getChatbotKnowledge();
+  const newItem = {
+    id: `kb_${Date.now()}`,
+    title: String(title).trim(),
+    category: category ? String(category).trim() : 'General',
+    content: String(content).trim(),
+    keywords: Array.isArray(keywords) ? keywords.map(k => String(k).trim()).filter(Boolean) : String(keywords || '').split(',').map(k => k.trim()).filter(Boolean),
+    link: link ? String(link).trim() : '/'
+  };
+
+  knowledge.unshift(newItem);
+  atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, knowledge, null, req.user.upn || req.user.email);
+
+  logAudit({
+    user: req.user.upn || req.user.email,
+    userOid: req.user.oid,
+    userRole: `data_operator_${req.user.operatorIndex}`,
+    action: 'CREACIÓN CONOCIMIENTO IA',
+    module: 'chatbot',
+    target: newItem.id,
+    details: `Artículo agregado a la base de Lupita por Operador ${req.user.operatorIndex}: '${newItem.title}'`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.status(201).json(newItem);
+}
+
+function handleUpdateChatbotKnowledge(req, res) {
+  const { id } = req.params;
+  const { title, category, content, keywords, link } = req.body || {};
+  if (!title || !content) return res.status(400).json({ error: 'Título y contenido son obligatorios' });
+
+  const knowledge = getChatbotKnowledge();
+  const idx = knowledge.findIndex(k => String(k.id) === String(id));
+  if (idx === -1) return res.status(404).json({ error: 'Artículo no encontrado' });
+
+  const updated = {
+    ...knowledge[idx],
+    title: String(title).trim(),
+    category: category ? String(category).trim() : (knowledge[idx].category || 'General'),
+    content: String(content).trim(),
+    keywords: Array.isArray(keywords)
+      ? keywords.map(k => String(k).trim()).filter(Boolean)
+      : String(keywords || '').split(',').map(k => k.trim()).filter(Boolean),
+    link: link ? String(link).trim() : (knowledge[idx].link || '/')
+  };
+
+  knowledge[idx] = updated;
+  atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, knowledge, null, req.user.upn || req.user.email);
+
+  logAudit({
+    user: req.user.upn || req.user.email,
+    userOid: req.user.oid,
+    userRole: `data_operator_${req.user.operatorIndex}`,
+    action: 'ACTUALIZACIÓN CONOCIMIENTO IA',
+    module: 'chatbot',
+    target: id,
+    details: `Artículo actualizado en la base de Lupita por Operador ${req.user.operatorIndex}: '${updated.title}'`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json(updated);
+}
+
+function handleDeleteChatbotKnowledge(req, res) {
+  const { id } = req.params;
+  let knowledge = getChatbotKnowledge();
+  const item = knowledge.find(k => String(k.id) === String(id));
+  if (!item) return res.status(404).json({ error: 'Artículo no encontrado' });
+
+  knowledge = knowledge.filter(k => String(k.id) !== String(id));
+  atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, knowledge, null, req.user.upn || req.user.email);
+
+  logAudit({
+    user: req.user.upn || req.user.email,
+    userOid: req.user.oid,
+    userRole: `data_operator_${req.user.operatorIndex}`,
+    action: 'ELIMINACIÓN CONOCIMIENTO IA',
+    module: 'chatbot',
+    target: id,
+    details: `Artículo eliminado de la base de Lupita por Operador ${req.user.operatorIndex}: '${item.title}'`,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json({ success: true });
 }
 
 function searchKnowledgeBase(query) {
@@ -3736,57 +4438,9 @@ app.get('/api/chatbot/knowledge', (req, res) => {
 });
 
 // Adición y modificación de conocimiento: Requiere ser uno de los dos operadores autorizados
-app.post('/api/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
-  const { title, category, content, keywords, link } = req.body || {};
-  if (!title || !content) return res.status(400).json({ error: 'Título y contenido son obligatorios' });
-
-  const knowledge = getChatbotKnowledge();
-  const newItem = {
-    id: `kb_${Date.now()}`,
-    title: String(title).trim(),
-    category: category ? String(category).trim() : 'General',
-    content: String(content).trim(),
-    keywords: Array.isArray(keywords) ? keywords : (keywords || '').split(',').map(k => k.trim()).filter(Boolean),
-    link: link || '/'
-  };
-
-  knowledge.unshift(newItem);
-  atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, knowledge, null, req.user.upn);
-
-  logAudit({
-    user: req.user.upn,
-    userOid: req.user.oid,
-    userRole: `data_operator_${req.user.operatorIndex}`,
-    action: 'CREACIÓN CONOCIMIENTO IA',
-    module: 'chatbot',
-    target: newItem.id,
-    details: `Artículo agregado a la base de Lupita por Operador ${req.user.operatorIndex}: '${newItem.title}'`
-  });
-
-  res.status(201).json(newItem);
-});
-
-app.delete('/api/chatbot/knowledge/:id', requireAuth, requireOperator, (req, res) => {
-  const { id } = req.params;
-  let knowledge = getChatbotKnowledge();
-  const item = knowledge.find(k => k.id === id);
-  if (!item) return res.status(404).json({ error: 'Artículo no encontrado' });
-
-  knowledge = knowledge.filter(k => k.id !== id);
-  atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, knowledge, null, req.user.upn);
-
-  logAudit({
-    user: req.user.upn,
-    userOid: req.user.oid,
-    userRole: `data_operator_${req.user.operatorIndex}`,
-    action: 'ELIMINACIÓN CONOCIMIENTO IA',
-    module: 'chatbot',
-    target: id,
-    details: `Artículo eliminado de la base de Lupita por Operador ${req.user.operatorIndex}: '${item.title}'`
-  });
-
-  res.json({ success: true });
-});
+app.post('/api/chatbot/knowledge', requireAuth, requireOperator, handleCreateChatbotKnowledge);
+app.put('/api/chatbot/knowledge/:id', requireAuth, requireOperator, handleUpdateChatbotKnowledge);
+app.delete('/api/chatbot/knowledge/:id', requireAuth, requireOperator, handleDeleteChatbotKnowledge);
 
 // Fallback heurístico institucional sin conexión externa
 function generateFallbackResponse(query, knowledgeItems) {
@@ -3917,11 +4571,66 @@ app.get('/api/admin/chatbot/stats', requireAuth, requireOperator, (req, res) => 
 });
 
 app.get('/api/admin/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.json(getChatbotKnowledge());
 });
 
+app.post('/api/admin/chatbot/knowledge', requireAuth, requireOperator, handleCreateChatbotKnowledge);
+app.put('/api/admin/chatbot/knowledge/:id', requireAuth, requireOperator, handleUpdateChatbotKnowledge);
+app.delete('/api/admin/chatbot/knowledge/:id', requireAuth, requireOperator, handleDeleteChatbotKnowledge);
+
+app.get('/api/admin/chatbot/conversations', requireAuth, requireOperator, (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.json(getChatbotConversations());
+});
+
 app.get('/api/admin/chatbot/settings', requireAuth, requireOperator, (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.json(getChatbotSettings());
+});
+
+app.put('/api/admin/chatbot/settings', requireAuth, requireOperator, (req, res) => {
+  const { model, temperature, maxTokens, systemPrompt, enabled } = req.body || {};
+  const current = getChatbotSettings();
+
+  const cleanModel = typeof model === 'string' && model.trim() ? model.trim().slice(0, 80) : current.model;
+  const parsedTemp = Number(temperature);
+  if (temperature !== undefined && (!Number.isFinite(parsedTemp) || parsedTemp < 0 || parsedTemp > 1)) {
+    return res.status(400).json({ error: 'La temperatura debe estar entre 0 y 1.' });
+  }
+  const parsedMaxTokens = Number(maxTokens);
+  if (maxTokens !== undefined && (!Number.isInteger(parsedMaxTokens) || parsedMaxTokens < 128 || parsedMaxTokens > 8192)) {
+    return res.status(400).json({ error: 'El límite de tokens debe ser un entero entre 128 y 8192.' });
+  }
+  const cleanPrompt = typeof systemPrompt === 'string' && systemPrompt.trim()
+    ? systemPrompt.trim().slice(0, 4000)
+    : current.systemPrompt;
+
+  const updated = {
+    ...current,
+    model: cleanModel,
+    temperature: temperature !== undefined ? parsedTemp : current.temperature,
+    maxTokens: maxTokens !== undefined ? parsedMaxTokens : current.maxTokens,
+    systemPrompt: cleanPrompt,
+    enabled: enabled !== undefined ? Boolean(enabled) : current.enabled,
+    updatedAt: new Date().toISOString()
+  };
+
+  const writeRes = atomicWriteJson(CHATBOT_SETTINGS_FILE, updated, null, req.user.upn || req.user.email);
+
+  logAudit({
+    user: req.user.upn || req.user.email,
+    userOid: req.user.oid,
+    userRole: `data_operator_${req.user.operatorIndex}`,
+    action: 'ACTUALIZACIÓN CONFIGURACIÓN IA',
+    module: 'chatbot',
+    target: 'chatbot_settings.json',
+    details: `Parámetros de Lupita actualizados (modelo: ${updated.model}, activo: ${updated.enabled})`,
+    backupCreated: writeRes.backupCreated,
+    ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+  });
+
+  res.json({ success: true, settings: updated });
 });
 
 // Archivo upload endpoint autenticado para operadores (con validación real de imagen)
@@ -4119,7 +4828,22 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Ocurrió un error interno en el servidor.' });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+const httpServer = app.listen(PORT, '0.0.0.0', () => {
   console.log(`[PIA Institutional Backend] Servidor ejecutándose en http://0.0.0.0:${PORT}`);
   console.log(`[Seguridad] Modelo para DOS Operadores Activo con Firebase Auth (Proyecto: ${FIREBASE_PROJECT_ID})`);
 });
+
+httpServer.on('error', (err) => {
+  console.error(`[PIA Institutional Backend] Error al iniciar el servidor en puerto ${PORT}:`, err.message);
+  process.exit(1);
+});
+
+const shutdownGracefully = () => {
+  httpServer.close(() => {
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(0), 2000).unref();
+};
+
+process.on('SIGTERM', shutdownGracefully);
+process.on('SIGINT', shutdownGracefully);

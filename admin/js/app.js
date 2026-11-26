@@ -6,6 +6,8 @@ import { initTechnicalGuide } from './technical-guide.js';
 import { validateModuleRecord } from './schema-validator.js';
 import { loginWithFirebase, sendFirebasePasswordReset, verifyToken, logout as authLogout, validateInstitutionalEmail } from './auth.js';
 import { mountModuleUiTabs } from './module-ui-manager.js';
+import { initPortalTextsManager } from './portal-texts-manager.js';
+import { initModuleTextsManager } from './module-texts-manager.js';
 
 // Session Inactivity Timer Configuration (30 minutos)
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
@@ -345,6 +347,14 @@ function hasAccessToModule(moduleName) {
         return false;
     }
 
+    if (moduleName === 'portal-texts') {
+        return hasAccessToModule('portal');
+    }
+
+    if (moduleName === 'module-texts') {
+        return ['directorio', 'tableros', 'canales', 'riesgo'].some(m => hasAccessToModule(m));
+    }
+
     // Verificar si el módulo está en la lista asignada por el administrador
     if (Array.isArray(currentUser.modules) && currentUser.modules.length > 0) {
         return currentUser.modules.includes(moduleName);
@@ -367,6 +377,13 @@ function updateSidebarPermissions() {
             parent.style.display = 'block';
         } else if (mod === 'security' || mod === 'users') {
             parent.style.display = (isAdmin || userModules.includes('users')) ? 'block' : 'none';
+        } else if (mod === 'portal-texts') {
+            const hasPerm = isAdmin || userModules.length === 0 || userModules.includes('portal');
+            parent.style.display = hasPerm ? 'block' : 'none';
+        } else if (mod === 'module-texts') {
+            const textMods = ['directorio', 'tableros', 'canales', 'riesgo'];
+            const hasPerm = isAdmin || userModules.length === 0 || textMods.some(m => userModules.includes(m));
+            parent.style.display = hasPerm ? 'block' : 'none';
         } else {
             const hasPerm = isAdmin || userModules.length === 0 || userModules.includes(mod);
             parent.style.display = hasPerm ? 'block' : 'none';
@@ -482,6 +499,23 @@ window.navigateTo = async function(module, options = {}) {
         return;
     }
 
+    if (module === 'portal-texts') {
+        await initPortalTextsManager({ getHeaders, showToast, authLogout });
+        return;
+    }
+
+    if (module === 'module-texts') {
+        await initModuleTextsManager({
+            containerId: 'contentArea',
+            module: options?.module || null,
+            embedded: false,
+            getHeaders,
+            showToast,
+            authLogout
+        });
+        return;
+    }
+
     // Dynamic CRUD Module (canales, directorio, tableros, riesgo, vehiculos)
     renderCrudView(module);
     await fetchAndRenderTable(module);
@@ -549,6 +583,8 @@ function renderDashboardView() {
                 <button onclick="navigateTo('directorio')" style="padding: 0.6rem 1rem; background: #1A5C8F; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-address-book"></i> Directorio</button>
                 <button onclick="navigateTo('tableros')" style="padding: 0.6rem 1rem; background: #22C55E; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-chart-bar"></i> Tableros</button>
                 <button onclick="navigateTo('riesgo')" style="padding: 0.6rem 1rem; background: #F97316; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-bullseye"></i> Riesgos</button>
+                ${hasAccessToModule('portal') ? `<button onclick="navigateTo('portal-texts')" style="padding: 0.6rem 1rem; background: #0f4c75; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-file-signature"></i> Textos del Portal</button>` : ''}
+                ${hasAccessToModule('module-texts') ? `<button onclick="navigateTo('module-texts')" style="padding: 0.6rem 1rem; background: #145374; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-file-alt"></i> Textos de Páginas</button>` : ''}
                 <button onclick="navigateTo('visits')" style="padding: 0.6rem 1rem; background: #2B82C9; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-chart-line"></i> Contador de Visitas</button>
                 <button onclick="navigateTo('chatbot')" style="padding: 0.6rem 1rem; background: #8B5CF6; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-robot"></i> Asistente Lupita</button>
                 <button onclick="navigateTo('security')" style="padding: 0.6rem 1rem; background: #05111F; color: #00C2E0; border: 1px solid rgba(0,194,224,0.3); font-weight: 700; border-radius: 8px;"><i class="fas fa-user-shield"></i> Identidades y Seguridad</button>
@@ -1212,7 +1248,12 @@ function closeAuditModal() {
 }
 
 function escapeHtml(str) {
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return String(str ?? '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
 
 function exportAuditJson() {
@@ -1429,7 +1470,7 @@ function renderCrudView(module) {
             </div>
         </div>
 
-        <!-- Selector de Pestañas del Módulo: Registros | KPIs | Imágenes de Fondo -->
+        <!-- Selector de Pestañas del Módulo: Registros | KPIs | Imágenes de Fondo | Textos de la Página -->
         <div id="moduleSubTabsBar" style="display:flex; gap:0.55rem; margin-bottom:1.35rem; flex-wrap:wrap; background:#fff; padding:0.45rem; border-radius:14px; border:1px solid rgba(26,92,143,0.14); width:fit-content; max-width:100%;">
             <button type="button" class="mod-subtab-btn active" data-subtab="records" style="padding:0.55rem 1.05rem; border-radius:10px; font-weight:700; font-size:0.86rem; background:#05111F; color:#00C2E0; cursor:pointer; border:none;">
                 <i class="fas fa-table" style="margin-right:6px;"></i>Registros del Módulo
@@ -1440,6 +1481,11 @@ function renderCrudView(module) {
             <button type="button" class="mod-subtab-btn" data-subtab="backgrounds" style="padding:0.55rem 1.05rem; border-radius:10px; font-weight:700; font-size:0.86rem; background:transparent; color:#5E7A8E; cursor:pointer; border:none;">
                 <i class="fas fa-images" style="margin-right:6px;"></i>Imágenes de Fondo
             </button>
+            ${['directorio', 'tableros', 'canales', 'riesgo'].includes(module) ? `
+            <button type="button" class="mod-subtab-btn" data-subtab="texts" style="padding:0.55rem 1.05rem; border-radius:10px; font-weight:700; font-size:0.86rem; background:transparent; color:#5E7A8E; cursor:pointer; border:none;">
+                <i class="fas fa-pen-nib" style="margin-right:6px;"></i>Textos de la Página
+            </button>
+            ` : ''}
         </div>
 
         <div id="moduleTabRecords">
@@ -1571,6 +1617,7 @@ function renderCrudView(module) {
 
         <div id="moduleTabKpis" style="display:none;"></div>
         <div id="moduleTabBackgrounds" style="display:none;"></div>
+        <div id="moduleTabTexts" style="display:none;"></div>
     `;
 
     document.getElementById('btnNewRecord')?.addEventListener('click', () => openCrudModal());
@@ -1583,6 +1630,7 @@ function renderCrudView(module) {
 
     const uiTargetModule = module === 'vehiculos_instituciones' ? 'vehiculos' : module;
     let uiTabsInitialized = false;
+    let textsTabInitialized = false;
     document.querySelectorAll('#moduleSubTabsBar .mod-subtab-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
             const tab = btn.dataset.subtab;
@@ -1594,9 +1642,11 @@ function renderCrudView(module) {
             const pRec = document.getElementById('moduleTabRecords');
             const pKpi = document.getElementById('moduleTabKpis');
             const pBg = document.getElementById('moduleTabBackgrounds');
+            const pTxt = document.getElementById('moduleTabTexts');
             if (pRec) pRec.style.display = tab === 'records' ? 'block' : 'none';
             if (pKpi) pKpi.style.display = tab === 'kpis' ? 'block' : 'none';
             if (pBg) pBg.style.display = tab === 'backgrounds' ? 'block' : 'none';
+            if (pTxt) pTxt.style.display = tab === 'texts' ? 'block' : 'none';
 
             if (!uiTabsInitialized && (tab === 'kpis' || tab === 'backgrounds')) {
                 uiTabsInitialized = true;
@@ -1605,6 +1655,18 @@ function renderCrudView(module) {
                     kpisContainerId: 'moduleTabKpis',
                     backgroundsContainerId: 'moduleTabBackgrounds',
                     deps: { getHeaders, showToast, authLogout }
+                });
+            }
+
+            if (!textsTabInitialized && tab === 'texts' && ['directorio', 'tableros', 'canales', 'riesgo'].includes(module)) {
+                textsTabInitialized = true;
+                await initModuleTextsManager({
+                    containerId: 'moduleTabTexts',
+                    module,
+                    embedded: true,
+                    getHeaders,
+                    showToast,
+                    authLogout
                 });
             }
         });
@@ -1715,7 +1777,11 @@ async function fetchAndRenderTable(module) {
         if (window.PiaDataEngine) {
             currentModuleData = await window.PiaDataEngine.fetchModuleRecords(module);
         } else {
-            const res = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders() });
+            const res = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders(), cache: 'no-store' });
+            if (res.status === 401) {
+                await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                return;
+            }
             if (!res.ok) throw new Error('Error al cargar módulo');
             currentModuleData = await res.json();
         }
@@ -1885,7 +1951,7 @@ function renderTableRows(data) {
                     ${row.descripcion ? `<div style="font-size:0.78rem; color:#5E7A8E; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(row.descripcion)}">${escapeHtml(row.descripcion)}</div>` : ''}
                 </td>
                 <td style="padding: 0.85rem 1rem;">
-                    <div style="font-size:0.85rem; font-weight:600; color:#1A5C8F;">${escapeHtml(row.tipo_dependencia || 'Ministerio')}</div>
+                    <div style="font-size:0.85rem; font-weight:600; color:#1A5C8F;">${escapeHtml(row.tipo_dependencia || 'Ministerios')}</div>
                     <small style="color:#5E7A8E;">${escapeHtml(row.sector || '')}</small>
                 </td>
                 <td style="padding: 0.85rem 1rem;">
@@ -1917,17 +1983,17 @@ function renderTableRows(data) {
 
     let bodyHtml = data.map(row => {
         return `<tr style="border-bottom: 1px solid #E8EEF7;">
-            <td style="padding: 0.85rem 1rem; font-weight: 700; color: #1A5C8F;">#${row.id}</td>
+            <td style="padding: 0.85rem 1rem; font-weight: 700; color: #1A5C8F;">#${escapeHtml(row.id)}</td>
             ${displayKeys.map(k => {
                 let val = row[k];
                 if (typeof val === 'boolean') val = val ? '✅ Sí' : '❌ No';
                 if (typeof val === 'object' && val !== null) val = JSON.stringify(val);
-                if (val && String(val).length > 40) val = String(val).substring(0, 40) + '...';
-                return `<td style="padding: 0.85rem 1rem;">${val !== undefined ? val : ''}</td>`;
+                if (val !== undefined && val !== null && String(val).length > 40) val = String(val).substring(0, 40) + '...';
+                return `<td style="padding: 0.85rem 1rem;">${val !== undefined && val !== null ? escapeHtml(val) : ''}</td>`;
             }).join('')}
             <td style="padding: 0.85rem 1rem; text-align: right;">
-                <button onclick="window.editRecord(${row.id})" style="padding: 0.4rem 0.75rem; background: #00C2E0; color: #05111F; border-radius: 6px; font-weight: 600; margin-right: 0.3rem;"><i class="fas fa-edit"></i></button>
-                <button onclick="window.deleteRecord(${row.id})" style="padding: 0.4rem 0.75rem; background: #EF4444; color: #fff; border-radius: 6px; font-weight: 600;"><i class="fas fa-trash"></i></button>
+                <button onclick="window.editRecord(${Number(row.id) || 0})" style="padding: 0.4rem 0.75rem; background: #00C2E0; color: #05111F; border-radius: 6px; font-weight: 600; margin-right: 0.3rem;"><i class="fas fa-edit"></i></button>
+                <button onclick="window.deleteRecord(${Number(row.id) || 0})" style="padding: 0.4rem 0.75rem; background: #EF4444; color: #fff; border-radius: 6px; font-weight: 600;"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
     }).join('');
@@ -1966,11 +2032,19 @@ window.deleteRecord = async function(id) {
         if (window.PiaDataEngine) {
             await window.PiaDataEngine.deleteRecord(currentModule, id);
         } else {
-            const res = await fetch(`${getApiBase()}/${currentModule}/${id}`, {
+            const res = await fetch(`${getApiBase()}/${currentModule}/${encodeURIComponent(id)}`, {
                 method: 'DELETE',
-                headers: getHeaders()
+                headers: getHeaders(),
+                cache: 'no-store'
             });
-            if (!res.ok) throw new Error('Error al eliminar');
+            if (res.status === 401) {
+                await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                return;
+            }
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || 'Error al eliminar');
+            }
         }
         showToast('Registro eliminado y auditado correctamente', 'success');
         await fetchAndRenderTable(currentModule);
@@ -2180,54 +2254,69 @@ function openCrudModal(record = null) {
             `;
         }
 
+        const dirSectoresBase = [
+            'MINISTERIO',
+            'SECRETARÍA',
+            'VICEPRESIDENCIA',
+            'GOBERNACIÓN DEPARTAMENTAL',
+            'OTRAS DEPENDENCIAS',
+            'DEPENDENCIAS TEMPORALES'
+        ];
+        const currentDirSector = String(record?.sector || 'MINISTERIO').trim();
+        const dirSectorOptions = dirSectoresBase.includes(currentDirSector)
+            ? dirSectoresBase
+            : [...dirSectoresBase, currentDirSector];
+
         fieldsContainer.innerHTML = `
             <h4 style="margin: 0 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">Datos Generales de la Institución</h4>
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Nombre de la Institución</label>
-                <input type="text" name="nombre_institucion" value="${record?.nombre_institucion || ''}" placeholder="Ej. Ministerio de Finanzas Públicas" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Nombre de la Institución <span style="color:#EF4444;">*</span></label>
+                <input type="text" name="nombre_institucion" value="${escapeHtml(record?.nombre_institucion || '')}" placeholder="Ej. Ministerio de Finanzas Públicas" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Siglas</label>
-                    <input type="text" name="siglas" value="${record?.siglas || ''}" placeholder="Ej. MINFIN" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Siglas <span style="color:#EF4444;">*</span></label>
+                    <input type="text" name="siglas" value="${escapeHtml(record?.siglas || '')}" placeholder="Ej. MINFIN" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
                 </div>
                 <div>
-                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Tipo dependencia / Sector</label>
-                    <input type="text" name="sector" value="${record?.sector || ''}" placeholder="Ej. MINISTERIO, SECRETARÍA" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Tipo dependencia / Sector <span style="color:#EF4444;">*</span></label>
+                    <select name="sector" required style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px; background: #fff;">
+                        ${dirSectorOptions.map(s => `<option value="${escapeHtml(s)}" ${currentDirSector === s ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('')}
+                    </select>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
                     <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Correo Electrónico (UIP)</label>
-                    <input type="email" name="correo" value="${record?.correo || ''}" placeholder="Ej. uip@minfin.gob.gt" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <input type="email" name="correo" value="${escapeHtml(record?.correo || '')}" placeholder="Ej. uip@minfin.gob.gt" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
                 </div>
                 <div>
                     <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Teléfono</label>
-                    <input type="text" name="telefono" value="${record?.telefono || ''}" placeholder="Ej. 2374-3000 ext. 100" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <input type="text" name="telefono" value="${escapeHtml(record?.telefono || '')}" placeholder="Ej. 2374-3000 ext. 100" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
                     <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Departamento</label>
-                    <input type="text" name="departamento" value="${record?.departamento || 'Guatemala'}" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <input type="text" name="departamento" value="${escapeHtml(record?.departamento || 'Guatemala')}" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
                 </div>
                 <div>
                     <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Sitio Web Institucional</label>
-                    <input type="url" name="sitio_web" value="${record?.sitio_web || ''}" placeholder="https://www.minfin.gob.gt" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <input type="url" name="sitio_web" value="${escapeHtml(record?.sitio_web || '')}" placeholder="https://www.minfin.gob.gt" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
                 </div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Dirección Física</label>
-                <input type="text" name="direccion" value="${record?.direccion || ''}" placeholder="Ej. 8a Avenida 20-87 Zona 1, Ciudad de Guatemala" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                <input type="text" name="direccion" value="${escapeHtml(record?.direccion || '')}" placeholder="Ej. 8a Avenida 20-87 Zona 1, Ciudad de Guatemala" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">Horario de Atención</label>
-                <input type="text" name="horario_atencion" value="${record?.horario_atencion || 'Lunes a viernes de 08:00 a 16:00 hrs.'}" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                <input type="text" name="horario_atencion" value="${escapeHtml(record?.horario_atencion || 'Lunes a viernes de 08:00 a 16:00 hrs.')}" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
             </div>
 
             <h4 style="margin: 1.2rem 0 0.8rem; color: #1A5C8F; border-bottom: 1px solid #E8EEF7; padding-bottom: 0.3rem;">Acceso a la Información (Hasta 5 enlaces directos)</h4>
@@ -2342,8 +2431,7 @@ function openCrudModal(record = null) {
                         <option value="Ministerios" ${record?.tipo === 'Ministerios' ? 'selected' : ''}>Ministerios</option>
                         <option value="Secretarías" ${record?.tipo === 'Secretarías' ? 'selected' : ''}>Secretarías</option>
                         <option value="Gobernaciones Departamentales" ${(record?.tipo === 'Gobernaciones Departamentales' || record?.tipo === 'Gobernaciones') ? 'selected' : ''}>Gobernaciones Departamentales</option>
-                        <option value="Otras dependencias" ${(record?.tipo === 'Otras dependencias' || record?.tipo === 'Presidencia' || record?.tipo === 'Entidades Descentralizadas' || record?.tipo === 'Entidades descentralizadas') ? 'selected' : ''}>Otras dependencias</option>
-                        <option value="Dependencias temporales" ${record?.tipo === 'Dependencias temporales' ? 'selected' : ''}>Dependencias temporales</option>
+                        <option value="Otras dependencias" ${(record?.tipo === 'Otras dependencias' || record?.tipo === 'Presidencia' || record?.tipo === 'Entidades Descentralizadas' || record?.tipo === 'Entidades descentralizadas' || record?.tipo === 'Dependencias temporales') ? 'selected' : ''}>Otras dependencias</option>
                         ${(record?.tipo && !['Ministerios','Secretarías','Gobernaciones Departamentales','Gobernaciones','Otras dependencias','Dependencias temporales','Presidencia','Entidades Descentralizadas','Entidades descentralizadas'].includes(record.tipo)) ? `<option value="${escapeHtml(record.tipo)}" selected>${escapeHtml(record.tipo)}</option>` : ''}
                     </select>
                 </div>
@@ -2472,22 +2560,22 @@ function openCrudModal(record = null) {
     if (currentModule === 'tableros') {
         const defaultInstList = [
             { name: "Vicepresidencia de la República", siglas: "VICE", tipo: "Vicepresidencia", sector: "Presidencia", link: "https://www.vicepresidencia.gob.gt/", desc: "Tablero de rendición de cuentas e indicadores de gestión estratégica de la Vicepresidencia de la República." },
-            { name: "Ministerio de Agricultura, Ganadería y Alimentación", siglas: "MAGA", tipo: "Ministerio", sector: "Agricultura", link: "https://www.maga.gob.gt/", desc: "Tablero de ejecuciones presupuestarias, metas agrícolas y programas de apoyo a la agricultura familiar." },
-            { name: "Ministerio de Ambiente y Recursos Naturales", siglas: "MARN", tipo: "Ministerio", sector: "Ambiente", link: "https://www.marn.gob.gt/", desc: "Tablero de proyectos ambientales, licencias y monitoreo de recursos naturales." },
-            { name: "Ministerio de Comunicaciones, Infraestructura y Vivienda", siglas: "CIV", tipo: "Ministerio", sector: "Infraestructura", link: "https://www.civ.gob.gt/", desc: "Tablero de ejecución de obra pública, conservación vial e infraestructura nacional." },
-            { name: "Ministerio de Cultura y Deportes", siglas: "MICUDE", tipo: "Ministerio", sector: "Cultura", link: "https://mcd.gob.gt/", desc: "Tablero numérico de desarrollo cultural, parques nacionales y proyectos deportivos." },
-            { name: "Ministerio de la Defensa Nacional", siglas: "MINDEF", tipo: "Ministerio", sector: "Defensa", link: "https://www.mindef.gob.gt/", desc: "Tablero de rendición de cuentas en seguridad nacional y apoyo a la ciudadanía." },
-            { name: "Ministerio de Desarrollo Social", siglas: "MIDES", tipo: "Ministerio", sector: "Desarrollo Social", link: "https://mides.gob.gt/", desc: "Tablero de programas sociales, comedores sociales y transferencias monetarias condicionadas." },
-            { name: "Ministerio de Economía", siglas: "MINECO", tipo: "Ministerio", sector: "Economía", link: "https://www.mineco.gob.gt/", desc: "Tablero de atracción de inversiones, apoyo a MIPYMES y comercio exterior." },
-            { name: "Ministerio de Educación", siglas: "MINEDUC", tipo: "Ministerio", sector: "Educación", link: "https://www.mineduc.gob.gt/", desc: "Tablero de cobertura educativa, remozamiento de escuelas y programas de alimentación escolar." },
-            { name: "Ministerio de Energía y Minas", siglas: "MEM", tipo: "Ministerio", sector: "Energía", link: "https://mem.gob.gt/", desc: "Tablero de electrificación rural, licencias mineras y matriz energética." },
-            { name: "Ministerio de Finanzas Públicas", siglas: "MINFIN", tipo: "Ministerio", sector: "Finanzas", link: "https://www.minfin.gob.gt/", desc: "Tablero portal de transparencia fiscal, ejecución presupuestaria general y deuda pública." },
-            { name: "Ministerio de Gobernación", siglas: "MINGOB", tipo: "Ministerio", sector: "Gobernación", link: "https://mingob.gob.gt/", desc: "Tablero de estadísticas de seguridad ciudadana, incidencia criminal y fortalecimiento policial." },
-            { name: "Ministerio de Relaciones Exteriores", siglas: "MINEX", tipo: "Ministerio", sector: "Relaciones Exteriores", link: "https://minex.gob.gt/", desc: "Tablero de atención consular, servicios para la diáspora y diplomacia comercial." },
-            { name: "Ministerio de Salud Pública y Asistencia Social", siglas: "MSPAS", tipo: "Ministerio", sector: "Salud", link: "https://mspas.gob.gt/", desc: "Tablero de abastecimiento de medicamentos, red hospitalaria e indicadores sanitarios." },
-            { name: "Ministerio de Trabajo y Previsión Social", siglas: "MINTRAB", tipo: "Ministerio", sector: "Trabajo", link: "https://mintrabajo.gob.gt/", desc: "Tablero de empleo, programa de aporte al adulto mayor e inspecciones laborales." },
-            { name: "Secretaría de Planificación y Programación de la Presidencia", siglas: "SEGEPLAN", tipo: "Secretaría", sector: "Presidencia", link: "https://segeplan.gob.gt/", desc: "Tablero de seguimiento al Plan Nacional de Desarrollo y prioridades presidenciales." },
-            { name: "Superintendencia de Administración Tributaria", siglas: "SAT", tipo: "Entidad Descentralizada", sector: "Finanzas", link: "https://sat.gob.gt/", desc: "Tablero de recaudación tributaria, facilitación del comercio y metas fiscales." }
+            { name: "Ministerio de Agricultura, Ganadería y Alimentación", siglas: "MAGA", tipo: "Ministerios", sector: "Agricultura", link: "https://www.maga.gob.gt/", desc: "Tablero de ejecuciones presupuestarias, metas agrícolas y programas de apoyo a la agricultura familiar." },
+            { name: "Ministerio de Ambiente y Recursos Naturales", siglas: "MARN", tipo: "Ministerios", sector: "Ambiente", link: "https://www.marn.gob.gt/", desc: "Tablero de proyectos ambientales, licencias y monitoreo de recursos naturales." },
+            { name: "Ministerio de Comunicaciones, Infraestructura y Vivienda", siglas: "CIV", tipo: "Ministerios", sector: "Infraestructura", link: "https://www.civ.gob.gt/", desc: "Tablero de ejecución de obra pública, conservación vial e infraestructura nacional." },
+            { name: "Ministerio de Cultura y Deportes", siglas: "MICUDE", tipo: "Ministerios", sector: "Cultura", link: "https://mcd.gob.gt/", desc: "Tablero numérico de desarrollo cultural, parques nacionales y proyectos deportivos." },
+            { name: "Ministerio de la Defensa Nacional", siglas: "MINDEF", tipo: "Ministerios", sector: "Defensa", link: "https://www.mindef.gob.gt/", desc: "Tablero de rendición de cuentas en seguridad nacional y apoyo a la ciudadanía." },
+            { name: "Ministerio de Desarrollo Social", siglas: "MIDES", tipo: "Ministerios", sector: "Desarrollo Social", link: "https://mides.gob.gt/", desc: "Tablero de programas sociales, comedores sociales y transferencias monetarias condicionadas." },
+            { name: "Ministerio de Economía", siglas: "MINECO", tipo: "Ministerios", sector: "Economía", link: "https://www.mineco.gob.gt/", desc: "Tablero de atracción de inversiones, apoyo a MIPYMES y comercio exterior." },
+            { name: "Ministerio de Educación", siglas: "MINEDUC", tipo: "Ministerios", sector: "Educación", link: "https://www.mineduc.gob.gt/", desc: "Tablero de cobertura educativa, remozamiento de escuelas y programas de alimentación escolar." },
+            { name: "Ministerio de Energía y Minas", siglas: "MEM", tipo: "Ministerios", sector: "Energía", link: "https://mem.gob.gt/", desc: "Tablero de electrificación rural, licencias mineras y matriz energética." },
+            { name: "Ministerio de Finanzas Públicas", siglas: "MINFIN", tipo: "Ministerios", sector: "Finanzas", link: "https://www.minfin.gob.gt/", desc: "Tablero portal de transparencia fiscal, ejecución presupuestaria general y deuda pública." },
+            { name: "Ministerio de Gobernación", siglas: "MINGOB", tipo: "Ministerios", sector: "Gobernación", link: "https://mingob.gob.gt/", desc: "Tablero de estadísticas de seguridad ciudadana, incidencia criminal y fortalecimiento policial." },
+            { name: "Ministerio de Relaciones Exteriores", siglas: "MINEX", tipo: "Ministerios", sector: "Relaciones Exteriores", link: "https://minex.gob.gt/", desc: "Tablero de atención consular, servicios para la diáspora y diplomacia comercial." },
+            { name: "Ministerio de Salud Pública y Asistencia Social", siglas: "MSPAS", tipo: "Ministerios", sector: "Salud", link: "https://mspas.gob.gt/", desc: "Tablero de abastecimiento de medicamentos, red hospitalaria e indicadores sanitarios." },
+            { name: "Ministerio de Trabajo y Previsión Social", siglas: "MINTRAB", tipo: "Ministerios", sector: "Trabajo", link: "https://mintrabajo.gob.gt/", desc: "Tablero de empleo, programa de aporte al adulto mayor e inspecciones laborales." },
+            { name: "Secretaría de Planificación y Programación de la Presidencia", siglas: "SEGEPLAN", tipo: "Secretarías", sector: "Presidencia", link: "https://segeplan.gob.gt/", desc: "Tablero de seguimiento al Plan Nacional de Desarrollo y prioridades presidenciales." },
+            { name: "Superintendencia de Administración Tributaria", siglas: "SAT", tipo: "Otras dependencias", sector: "Finanzas", link: "https://sat.gob.gt/", desc: "Tablero de recaudación tributaria, facilitación del comercio y metas fiscales." }
         ];
 
         let catalogOptionsHtml = defaultInstList.map((inst, idx) => `
@@ -2541,16 +2629,14 @@ function openCrudModal(record = null) {
                 </div>
                 <div>
                     <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.3rem;">
-                        Tipo de Dependencia
+                        Tipo de Institución
                     </label>
                     <select id="tableros_tipo" name="tipo_dependencia" style="width: 100%; padding: 0.65rem; border: 1px solid #A8BFCC; border-radius: 8px;">
-                        <option value="Ministerio" ${record?.tipo_dependencia === 'Ministerio' ? 'selected' : ''}>Ministerio</option>
-                        <option value="Secretaría" ${record?.tipo_dependencia === 'Secretaría' ? 'selected' : ''}>Secretaría</option>
-                        <option value="Gobernación" ${record?.tipo_dependencia === 'Gobernación' ? 'selected' : ''}>Gobernación</option>
-                        <option value="Presidencia" ${record?.tipo_dependencia === 'Presidencia' ? 'selected' : ''}>Presidencia</option>
                         <option value="Vicepresidencia" ${record?.tipo_dependencia === 'Vicepresidencia' ? 'selected' : ''}>Vicepresidencia</option>
-                        <option value="Entidad Descentralizada" ${record?.tipo_dependencia === 'Entidad Descentralizada' ? 'selected' : ''}>Entidad Descentralizada</option>
-                        <option value="Empresa Pública" ${record?.tipo_dependencia === 'Empresa Pública' ? 'selected' : ''}>Empresa Pública</option>
+                        <option value="Ministerios" ${(record?.tipo_dependencia === 'Ministerios' || record?.tipo_dependencia === 'Ministerio') ? 'selected' : ''}>Ministerios</option>
+                        <option value="Secretarías" ${(record?.tipo_dependencia === 'Secretarías' || record?.tipo_dependencia === 'Secretaría') ? 'selected' : ''}>Secretarías</option>
+                        <option value="Gobernaciones Departamentales" ${(record?.tipo_dependencia === 'Gobernaciones Departamentales' || record?.tipo_dependencia === 'Gobernación Departamental' || record?.tipo_dependencia === 'Gobernación' || record?.tipo_dependencia === 'Gobernaciones') ? 'selected' : ''}>Gobernaciones Departamentales</option>
+                        <option value="Otras dependencias" ${(record?.tipo_dependencia === 'Otras dependencias' || record?.tipo_dependencia === 'Autoridad' || record?.tipo_dependencia === 'Consejo' || record?.tipo_dependencia === 'Comisión' || record?.tipo_dependencia === 'Presidencia' || record?.tipo_dependencia === 'Entidad Descentralizada' || record?.tipo_dependencia === 'Empresa Pública' || record?.tipo_dependencia === 'Dependencias temporales') ? 'selected' : ''}>Otras dependencias</option>
                     </select>
                 </div>
                 <div>
@@ -2639,23 +2725,23 @@ function openCrudModal(record = null) {
             fieldsHtml += `
                 <div style="margin-bottom: 1.2rem;">
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #0C1F30;">
-                        <input type="checkbox" name="${key}" ${currentVal ? 'checked' : ''} style="width: 18px; height: 18px;" />
-                        ${capitalize(key)}
+                        <input type="checkbox" name="${escapeHtml(key)}" ${currentVal ? 'checked' : ''} style="width: 18px; height: 18px;" />
+                        ${escapeHtml(capitalize(key))}
                     </label>
                 </div>
             `;
         } else if (isObj) {
             fieldsHtml += `
                 <div style="margin-bottom: 1.2rem;">
-                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">${capitalize(key)} (JSON/Objeto)</label>
-                    <textarea name="${key}" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #A8BFCC; border-radius: 8px; font-family: monospace;">${JSON.stringify(currentVal || val, null, 2)}</textarea>
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">${escapeHtml(capitalize(key))} (JSON/Objeto)</label>
+                    <textarea name="${escapeHtml(key)}" data-json-object="1" rows="4" style="width: 100%; padding: 0.75rem; border: 1px solid #A8BFCC; border-radius: 8px; font-family: monospace;">${escapeHtml(JSON.stringify(currentVal || val, null, 2))}</textarea>
                 </div>
             `;
         } else {
             fieldsHtml += `
                 <div style="margin-bottom: 1.2rem;">
-                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">${capitalize(key)}</label>
-                    <input type="text" name="${key}" value="${currentVal !== undefined ? currentVal : ''}" style="width: 100%; padding: 0.75rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
+                    <label style="display: block; font-weight: 600; color: #0C1F30; margin-bottom: 0.4rem;">${escapeHtml(capitalize(key))}</label>
+                    <input type="text" name="${escapeHtml(key)}" value="${escapeHtml(currentVal !== undefined ? currentVal : '')}" style="width: 100%; padding: 0.75rem; border: 1px solid #A8BFCC; border-radius: 8px;" />
                 </div>
             `;
         }
@@ -2716,10 +2802,15 @@ async function saveCrudRecord(e) {
                 const res = await fetch(url, {
                     method,
                     headers: getHeaders(),
+                    cache: 'no-store',
                     body: JSON.stringify(recordObj)
                 });
+                if (res.status === 401) {
+                    await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                    return;
+                }
                 if (!res.ok) {
-                    const err = await res.json();
+                    const err = await res.json().catch(() => ({}));
                     throw new Error(err.error || 'Error al guardar');
                 }
             }
@@ -2774,10 +2865,15 @@ async function saveCrudRecord(e) {
                 const res = await fetch(url, {
                     method,
                     headers: getHeaders(),
+                    cache: 'no-store',
                     body: JSON.stringify(recordObj)
                 });
+                if (res.status === 401) {
+                    await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                    return;
+                }
                 if (!res.ok) {
-                    const err = await res.json();
+                    const err = await res.json().catch(() => ({}));
                     throw new Error(err.error || 'Error al guardar');
                 }
             }
@@ -2846,10 +2942,15 @@ async function saveCrudRecord(e) {
                 const res = await fetch(url, {
                     method,
                     headers: getHeaders(),
+                    cache: 'no-store',
                     body: JSON.stringify(recordObj)
                 });
+                if (res.status === 401) {
+                    await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                    return;
+                }
                 if (!res.ok) {
-                    const err = await res.json();
+                    const err = await res.json().catch(() => ({}));
                     throw new Error(err.error || 'Error al guardar');
                 }
             }
@@ -2911,10 +3012,15 @@ async function saveCrudRecord(e) {
                 const res = await fetch(url, {
                     method,
                     headers: getHeaders(),
+                    cache: 'no-store',
                     body: JSON.stringify(recordObj)
                 });
+                if (res.status === 401) {
+                    await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                    return;
+                }
                 if (!res.ok) {
-                    const err = await res.json();
+                    const err = await res.json().catch(() => ({}));
                     throw new Error(err.error || 'Error al guardar');
                 }
             }
@@ -2934,7 +3040,7 @@ async function saveCrudRecord(e) {
         const recordObj = {
             nombre_institucion: getVal('nombre_institucion'),
             siglas: getVal('siglas'),
-            tipo_dependencia: getVal('tipo_dependencia') || 'Ministerio',
+            tipo_dependencia: getVal('tipo_dependencia') || 'Ministerios',
             sector: getVal('sector') || 'Presidencia',
             link_tablero: getVal('link_tablero'),
             descripcion: getVal('descripcion'),
@@ -2962,10 +3068,15 @@ async function saveCrudRecord(e) {
                 const res = await fetch(url, {
                     method,
                     headers: getHeaders(),
+                    cache: 'no-store',
                     body: JSON.stringify(recordObj)
                 });
+                if (res.status === 401) {
+                    await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                    return;
+                }
                 if (!res.ok) {
-                    const err = await res.json();
+                    const err = await res.json().catch(() => ({}));
                     throw new Error(err.error || 'Error al guardar');
                 }
             }
@@ -2980,22 +3091,43 @@ async function saveCrudRecord(e) {
     }
 
     const bodyObj = {};
+    let jsonFieldError = null;
 
     form.querySelectorAll('[name]').forEach(input => {
+        if (jsonFieldError) return;
         const name = input.getAttribute('name');
         if (input.type === 'checkbox') {
             bodyObj[name] = input.checked;
         } else if (input.tagName.toLowerCase() === 'textarea') {
-            try {
-                bodyObj[name] = JSON.parse(input.value);
-            } catch {
-                bodyObj[name] = input.value;
+            if (input.dataset.jsonObject === '1') {
+                try {
+                    const parsed = JSON.parse(input.value);
+                    if (typeof parsed !== 'object' || parsed === null) {
+                        jsonFieldError = `El campo '${name}' debe contener un objeto JSON válido.`;
+                        return;
+                    }
+                    bodyObj[name] = parsed;
+                } catch {
+                    jsonFieldError = `El campo '${name}' contiene JSON inválido. Verifica llaves y comillas.`;
+                    return;
+                }
+            } else {
+                try {
+                    bodyObj[name] = JSON.parse(input.value);
+                } catch {
+                    bodyObj[name] = input.value;
+                }
             }
         } else {
             const val = input.value;
             bodyObj[name] = !isNaN(val) && val.trim() !== '' ? Number(val) : val;
         }
     });
+
+    if (jsonFieldError) {
+        showToast(jsonFieldError, 'error');
+        return;
+    }
 
     const validation = validateModuleRecord(currentModule, bodyObj);
     if (!validation.isValid) {
@@ -3016,10 +3148,15 @@ async function saveCrudRecord(e) {
             const res = await fetch(url, {
                 method,
                 headers: getHeaders(),
+                cache: 'no-store',
                 body: JSON.stringify(bodyObj)
             });
+            if (res.status === 401) {
+                await authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
+                return;
+            }
             if (!res.ok) {
-                const err = await res.json();
+                const err = await res.json().catch(() => ({}));
                 throw new Error(err.error || 'Error al guardar');
             }
         }

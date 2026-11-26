@@ -1998,8 +1998,11 @@ function closeModal() {
 
 // EDITOR JSON DIRECTO CON VALIDACIÓN EN TIEMPO REAL
 
+let currentJsonEtag = null;
+
 async function openJsonEditor(jsonPath) {
   currentJsonPath = jsonPath;
+  currentJsonEtag = null;
   const f = AVAILABLE_JSON_FILES.find(x => x.path === jsonPath) || { name: jsonPath, label: 'JSON' };
 
   let currentData = {};
@@ -2008,13 +2011,24 @@ async function openJsonEditor(jsonPath) {
       headers: getAuthHeaders(),
       cache: 'no-store'
     });
+    if (res.status === 401 && typeof window.logout === 'function') {
+      window.logout('Tu sesión ha expirado. Inicia sesión nuevamente.');
+      return;
+    }
     if (res.ok) {
+      currentJsonEtag = res.headers.get('ETag');
       currentData = await res.json();
-    } else if (window.PiaDataEngine) {
+    } else if (window.location.protocol === 'file:' && window.PiaDataEngine) {
       currentData = (await window.PiaDataEngine.fetchRawJson(jsonPath)) || {};
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || `No se pudo cargar ${f.name} desde el servidor.`, 'error');
+      return;
     }
   } catch (err) {
     console.error('Error al cargar JSON:', err);
+    showToast('Error de conexión al cargar el archivo JSON del servidor.', 'error');
+    return;
   }
 
   const initialJsonStr = JSON.stringify(currentData, null, 2);
@@ -2157,20 +2171,7 @@ async function saveJsonEditor() {
   }
 
   try {
-    let saved = false;
-    try {
-      const res = await fetch('/api/raw-json', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          path: currentJsonPath,
-          data: syntaxResult.data
-        })
-      });
-      if (res.ok) saved = true;
-    } catch (_) {}
-
-    if (!saved) {
+    if (window.location.protocol === 'file:') {
       localStorage.setItem('pia_custom_json_' + currentJsonPath, JSON.stringify(syntaxResult.data));
       const blob = new Blob([JSON.stringify(syntaxResult.data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -2182,15 +2183,61 @@ async function saveJsonEditor() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast('Fichero JSON actualizado localmente y descargado a tu equipo', 'success');
-    } else {
-      await fetchStorageStatus();
-      showToast('Fichero JSON validado y actualizado en el servidor', 'success');
+      closeJsonModal();
+      await renderMockFiles();
+      return;
     }
+
+    const sendRawSave = (etagOverride = null) => {
+      const headers = getAuthHeaders();
+      const etag = etagOverride || currentJsonEtag;
+      if (etag) headers['If-Match'] = etag;
+      return fetch('/api/raw-json', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          path: currentJsonPath,
+          data: syntaxResult.data
+        }),
+        cache: 'no-store'
+      });
+    };
+
+    let res = await sendRawSave();
+    if (res.status === 409) {
+      const freshRes = await fetch(`/api/raw-json?path=${encodeURIComponent(currentJsonPath)}`, {
+        headers: getAuthHeaders(),
+        cache: 'no-store'
+      });
+      if (freshRes.ok) {
+        const freshEtag = freshRes.headers.get('ETag');
+        if (freshEtag) {
+          currentJsonEtag = freshEtag;
+          res = await sendRawSave(freshEtag);
+        }
+      }
+    }
+
+    if (res.status === 401 && typeof window.logout === 'function') {
+      window.logout('Tu sesión ha expirado. Inicia sesión nuevamente.');
+      return;
+    }
+
+    const resData = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(resData.error || `Error al guardar el archivo JSON en el servidor (HTTP ${res.status}).`);
+    }
+
+    const newEtag = res.headers.get('ETag');
+    if (newEtag) currentJsonEtag = newEtag;
+    localStorage.removeItem('pia_custom_json_' + currentJsonPath);
+    await fetchStorageStatus();
+    showToast('Fichero JSON validado y guardado correctamente en el servidor', 'success');
 
     closeJsonModal();
     await renderMockFiles();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Error al guardar el archivo JSON.', 'error');
   }
 }
 
@@ -2198,6 +2245,7 @@ function closeJsonModal() {
   const modal = document.getElementById('jsonEditorModal');
   if (modal) modal.style.display = 'none';
   currentJsonPath = null;
+  currentJsonEtag = null;
 }
 
 function showToast(message, type = 'info') {

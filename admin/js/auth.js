@@ -191,46 +191,48 @@ export async function loginWithFirebase(email, password) {
         console.warn('Backend API no disponible directamente en la red local. Evaluando autenticación directa...');
     }
 
-    // Intento 2: Autenticación en modo descargado / standalone sin backend activo
-    // Verifica cuentas registradas localmente (cuentas base o creadas en modo offline)
-    const fallbackUsers = (typeof window !== 'undefined' && window.PiaDataEngine && typeof window.PiaDataEngine.getFallbackUsers === 'function')
-        ? window.PiaDataEngine.getFallbackUsers()
-        : [];
-    const matchedOfflineUser = fallbackUsers.find(u => (u.email || '').toLowerCase() === cleanEmail);
-    const isSeedAccount = ALLOWED_ADMIN_EMAILS.includes(cleanEmail);
+    // Intento 2: Autenticación en modo descargado / standalone sin backend activo (únicamente protocolo file://)
+    const isFileProtocol = typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
+    if (isFileProtocol) {
+        const fallbackUsers = (typeof window !== 'undefined' && window.PiaDataEngine && typeof window.PiaDataEngine.getFallbackUsers === 'function')
+            ? window.PiaDataEngine.getFallbackUsers()
+            : [];
+        const matchedOfflineUser = fallbackUsers.find(u => (u.email || '').toLowerCase() === cleanEmail);
+        const isSeedAccount = ALLOWED_ADMIN_EMAILS.includes(cleanEmail);
 
-    if (isSeedAccount || matchedOfflineUser) {
-        const customStoredPwd = localStorage.getItem('pia_pwd_' + cleanEmail);
-        const isLocalPasswordValid = (cleanPassword === '12345' || (customStoredPwd && cleanPassword === customStoredPwd));
+        if (isSeedAccount || matchedOfflineUser) {
+            const customStoredPwd = localStorage.getItem('pia_pwd_' + cleanEmail);
+            const isLocalPasswordValid = (cleanPassword === '12345' || (customStoredPwd && cleanPassword === customStoredPwd));
 
-        if (isLocalPasswordValid) {
-            const isDagi = cleanEmail === 'deteccionydenuncia@cnc.gob.gt';
-            const offlineUser = matchedOfflineUser ? {
-                id: matchedOfflineUser.id || 'usr_cnc_local',
-                uid: matchedOfflineUser.id || 'usr_cnc_local',
-                oid: matchedOfflineUser.id || 'usr_cnc_local',
-                email: cleanEmail,
-                upn: cleanEmail,
-                displayName: matchedOfflineUser.displayName || 'Operador Institucional (CNC)',
-                role: matchedOfflineUser.role || 'admin',
-                modules: matchedOfflineUser.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
-                operatorIndex: matchedOfflineUser.operatorIndex || 1
-            } : {
-                id: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-                uid: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-                oid: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
-                email: cleanEmail,
-                upn: cleanEmail,
-                displayName: isDagi ? 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI' : 'Apoyo a la Gestión de Irregularidades (CNC)',
-                role: 'admin',
-                modules: ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
-                operatorIndex: isDagi ? 1 : 2
-            };
-            const offlineToken = 'pia_sess_offline_' + btoa(JSON.stringify(offlineUser));
-            localStorage.setItem('token', offlineToken);
-            sessionStorage.setItem('token', offlineToken);
-            localStorage.setItem('user', JSON.stringify(offlineUser));
-            return { token: offlineToken, user: offlineUser };
+            if (isLocalPasswordValid) {
+                const isDagi = cleanEmail === 'deteccionydenuncia@cnc.gob.gt';
+                const offlineUser = matchedOfflineUser ? {
+                    id: matchedOfflineUser.id || 'usr_cnc_local',
+                    uid: matchedOfflineUser.id || 'usr_cnc_local',
+                    oid: matchedOfflineUser.id || 'usr_cnc_local',
+                    email: cleanEmail,
+                    upn: cleanEmail,
+                    displayName: matchedOfflineUser.displayName || 'Operador Institucional (CNC)',
+                    role: matchedOfflineUser.role || 'admin',
+                    modules: matchedOfflineUser.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+                    operatorIndex: matchedOfflineUser.operatorIndex || 1
+                } : {
+                    id: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
+                    uid: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
+                    oid: isDagi ? 'usr_cnc_01' : 'usr_cnc_02',
+                    email: cleanEmail,
+                    upn: cleanEmail,
+                    displayName: isDagi ? 'Dirección de Apoyo en la Gestión de Irregularidades - DAGI' : 'Apoyo a la Gestión de Irregularidades (CNC)',
+                    role: 'admin',
+                    modules: ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+                    operatorIndex: isDagi ? 1 : 2
+                };
+                const offlineToken = 'pia_sess_offline_' + btoa(JSON.stringify(offlineUser));
+                localStorage.setItem('token', offlineToken);
+                sessionStorage.setItem('token', offlineToken);
+                localStorage.setItem('user', JSON.stringify(offlineUser));
+                return { token: offlineToken, user: offlineUser };
+            }
         }
     }
 

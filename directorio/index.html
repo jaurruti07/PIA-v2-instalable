@@ -366,7 +366,7 @@
             text-transform: uppercase; color: var(--cyan);
             margin-bottom: 1.6rem;
         }
-        .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; }
+        .hero-eyebrow > span:first-child { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; flex-shrink: 0; }
         @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
 
         .hero h1 {
@@ -2145,7 +2145,7 @@
 
             <ul class="nav-menu" id="navMenu">
                 <li class="menu-group">
-                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_accede">Accede</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
                         <!-- Transparencia Vehicular no visible temporalmente -->
@@ -2153,7 +2153,7 @@
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_explora">Explora</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
@@ -2163,13 +2163,13 @@
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_aprende">Aprende</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
                     </ul>
                 </li>
                 <li class="menu-group">
-                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_reporta">Reporta</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
                         <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
@@ -2198,13 +2198,13 @@
         <button class="hero-dot" aria-label="Diapositiva 4"></button>
     </div>
     <div class="container hero-inner">
-        <div class="hero-eyebrow"><span></span>Transparencia y Acceso a la Información</div>
-        <h1>Directorio:<br><em>Acceso al Ejecutivo</em></h1>
-        <p class="hero-lema">Acceso a la Información Pública</p>
-        <p class="hero-sub">Esta herramienta pone a disposición de la ciudadanía un directorio consolidado de las dependencias responsables de garantizar el acceso a la información pública en las instituciones del Organismo Ejecutivo. Su objetivo es facilitar la localización de enlaces institucionales, mecanismos de solicitud de información y datos de contacto de las unidades responsables.</p>
+        <div class="hero-eyebrow"><span></span><data data-pia-text="hero.eyebrow">Transparencia y Acceso a la Información</data></div>
+        <h1><span data-pia-text="hero.title_prefix">Directorio:</span><br><em data-pia-text="hero.title_highlight">Acceso al Ejecutivo</em></h1>
+        <p class="hero-lema" data-pia-text="hero.lema">Acceso a la Información Pública</p>
+        <p class="hero-sub" data-pia-text="hero.sub">Esta herramienta pone a disposición de la ciudadanía un directorio consolidado de las dependencias responsables de garantizar el acceso a la información pública en las instituciones del Organismo Ejecutivo. Su objetivo es facilitar la localización de enlaces institucionales, mecanismos de solicitud de información y datos de contacto de las unidades responsables.</p>
         <div class="hero-actions">
-            <a href="#directorio" class="btn-primary" id="heroCTA"><i class="fas fa-search"></i> Consultar Directorio</a>
-            <a href="#sobre" class="btn-outline"><i class="fas fa-info-circle"></i> Conocer más</a>
+            <a href="#directorio" class="btn-primary" id="heroCTA"><i class="fas fa-search"></i> <span data-pia-text="hero.cta_primary">Consultar Directorio</span></a>
+            <a href="#sobre" class="btn-outline"><i class="fas fa-info-circle"></i> <span data-pia-text="hero.cta_secondary">Conocer más</span></a>
         </div>
     </div>
 </section>
@@ -2215,7 +2215,7 @@
 <div class="stats-ribbon">
     <div class="container">
         <div class="pia-stats-ribbon-head">
-            <span class="pia-stats-ribbon-tag">Indicadores del módulo</span>
+            <span class="pia-stats-ribbon-tag" data-pia-text="stats.ribbon_tag">Indicadores del módulo</span>
             <div id="piaStatsCarouselControls" class="pia-stats-carousel-controls">
                 <button type="button" class="pia-stats-nav-btn" id="piaStatsPrevBtn" aria-label="Indicadores anteriores"><i class="fas fa-chevron-left"></i></button>
                 <div id="piaStatsPagination" class="pia-stats-pagination"></div>
@@ -2242,24 +2242,24 @@
     <section class="section" id="sobre">
         <div class="info-band">
             <div class="info-band-text">
-                <div class="section-tag on-dark" style="color:var(--cyan);">Sobre la plataforma</div>
-                <p class="lead">El <em>Directorio Acceso al Ejecutivo</em> centraliza información clave de las dependencias encargadas de información pública en el Organismo Ejecutivo para fortalecer la transparencia y facilitar el ejercicio del derecho de acceso a la información a ciudadanas, ciudadanos, periodistas, sociedad civil, sector público e investigadores.</p>
+                <div class="section-tag on-dark" style="color:var(--cyan);" data-pia-text="sobre.tag">Sobre la plataforma</div>
+                <p class="lead"><span data-pia-text="sobre.lead_prefix">El</span> <em data-pia-text="sobre.lead_highlight">Directorio Acceso al Ejecutivo</em> <span data-pia-text="sobre.lead_suffix">centraliza información clave de las dependencias encargadas de información pública en el Organismo Ejecutivo para fortalecer la transparencia y facilitar el ejercicio del derecho de acceso a la información a ciudadanas, ciudadanos, periodistas, sociedad civil, sector público e investigadores.</span></p>
                 <div class="accordion">
                     <div class="accordion-item open">
-                        <button class="accordion-q">¿Qué es la plataforma? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Es una herramienta digital centralizada de consulta pública que unifica los datos de contacto, ubicaciones y canales oficiales para solicitar acceso a la información pública en todas las dependencias e instituciones del Organismo Ejecutivo de Guatemala.</div>
+                        <button class="accordion-q"><span data-pia-text="sobre.acc1_q">¿Qué es la plataforma?</span> <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a" data-pia-text="sobre.acc1_a">Es una herramienta digital centralizada de consulta pública que unifica los datos de contacto, ubicaciones y canales oficiales para solicitar acceso a la información pública en todas las dependencias e instituciones del Organismo Ejecutivo de Guatemala.</div>
                     </div>
                     <div class="accordion-item">
-                        <button class="accordion-q">¿Quiénes pueden ingresar y utilizarla? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Toda la ciudadanía, estudiantes, investigadores, periodistas, servidores públicos y cualquier persona interesada en consultar información o contactar a las entidades estatales. El acceso es totalmente libre, público y gratuito, sin necesidad de registro ni credenciales.</div>
+                        <button class="accordion-q"><span data-pia-text="sobre.acc2_q">¿Quiénes pueden ingresar y utilizarla?</span> <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a" data-pia-text="sobre.acc2_a">Toda la ciudadanía, estudiantes, investigadores, periodistas, servidores públicos y cualquier persona interesada en consultar información o contactar a las entidades estatales. El acceso es totalmente libre, público y gratuito, sin necesidad de registro ni credenciales.</div>
                     </div>
                     <div class="accordion-item">
-                        <button class="accordion-q">¿Qué puedes encontrar aquí? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Encontrarás para cada entidad información relacionada con el electrónico institucional, número de teléfono, dirección y ubicación de la Unidad, enlace para poder realizar solicitudes en línea y para información pública de oficio de cada institución.</div>
+                        <button class="accordion-q"><span data-pia-text="sobre.acc3_q">¿Qué puedes encontrar aquí?</span> <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a" data-pia-text="sobre.acc3_a">Encontrarás para cada entidad información relacionada con el electrónico institucional, número de teléfono, dirección y ubicación de la Unidad, enlace para poder realizar solicitudes en línea y para información pública de oficio de cada institución.</div>
                     </div>
                     <div class="accordion-item">
-                        <button class="accordion-q">¿Cómo usar y navegar en el directorio? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Puedes buscar instituciones por nombre o palabras clave, filtrar por sector gubernamental o por disponibilidad de servicios (solicitud en línea o de oficio), alternar entre vista de tarjetas o de lista, realizar búsquedas por voz y descargar la información consolidada en reportes PDF o Excel.</div>
+                        <button class="accordion-q"><span data-pia-text="sobre.acc4_q">¿Cómo usar y navegar en el directorio?</span> <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a" data-pia-text="sobre.acc4_a">Puedes buscar instituciones por nombre o palabras clave, filtrar por sector gubernamental o por disponibilidad de servicios (solicitud en línea o de oficio), alternar entre vista de tarjetas o de lista, realizar búsquedas por voz y descargar la información consolidada en reportes PDF o Excel.</div>
                     </div>
                 </div>
             </div>
@@ -2274,34 +2274,34 @@
     ============================================================ -->
     <section class="section">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Conceptos clave</div>
-            <h2 class="section-title">Glosario de términos</h2>
+            <div class="section-tag" style="justify-content:center;" data-pia-text="glosario.tag">Conceptos clave</div>
+            <h2 class="section-title" data-pia-text="glosario.title">Glosario de términos</h2>
         </div>
         <div class="glosario-grid">
             <div class="glosario-card">
                 <div class="glosario-icon"><i class="fas fa-info-circle"></i></div>
-                <h3>Acceso a la información pública</h3>
-                <p>Derecho de toda persona a solicitar y recibir información generada por el Estado, salvo las excepciones establecidas por ley.</p>
+                <h3 data-pia-text="glosario.card1_title">Acceso a la información pública</h3>
+                <p data-pia-text="glosario.card1_desc">Derecho de toda persona a solicitar y recibir información generada por el Estado, salvo las excepciones establecidas por ley.</p>
             </div>
             <div class="glosario-card">
                 <div class="glosario-icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <h3>Transparencia</h3>
-                <p>Principio que obliga a las instituciones a publicar y facilitar el acceso a la información de su gestión, promoviendo la rendición de cuentas.</p>
+                <h3 data-pia-text="glosario.card2_title">Transparencia</h3>
+                <p data-pia-text="glosario.card2_desc">Principio que obliga a las instituciones a publicar y facilitar el acceso a la información de su gestión, promoviendo la rendición de cuentas.</p>
             </div>
             <div class="glosario-card">
                 <div class="glosario-icon"><i class="fas fa-file-alt"></i></div>
-                <h3>Información Pública de Oficio</h3>
-                <p>Información que las entidades deben publicar de forma proactiva, sin necesidad de que sea solicitada, para garantizar la transparencia.</p>
+                <h3 data-pia-text="glosario.card3_title">Información Pública de Oficio</h3>
+                <p data-pia-text="glosario.card3_desc">Información que las entidades deben publicar de forma proactiva, sin necesidad de que sea solicitada, para garantizar la transparencia.</p>
             </div>
             <div class="glosario-card">
                 <div class="glosario-icon"><i class="fas fa-envelope"></i></div>
-                <h3>Solicitud de información</h3>
-                <p>Petición formal que realiza un ciudadano a una institución para obtener información pública, a través de los canales habilitados.</p>
+                <h3 data-pia-text="glosario.card4_title">Solicitud de información</h3>
+                <p data-pia-text="glosario.card4_desc">Petición formal que realiza un ciudadano a una institución para obtener información pública, a través de los canales habilitados.</p>
             </div>
             <div class="glosario-card">
                 <div class="glosario-icon"><i class="fas fa-university"></i></div>
-                <h3>Organismo Ejecutivo</h3>
-                <p>Rama del Estado encargada de la administración pública, conformada por ministerios, secretarías y otras dependencias.</p>
+                <h3 data-pia-text="glosario.card5_title">Organismo Ejecutivo</h3>
+                <p data-pia-text="glosario.card5_desc">Rama del Estado encargada de la administración pública, conformada por ministerios, secretarías y otras dependencias.</p>
             </div>
         </div>
     </section>
@@ -2311,16 +2311,16 @@
     ============================================================ -->
     <section class="section" style="padding-top:0;">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Servicios disponibles</div>
-            <h2 class="section-title">Mecanismos de acceso a la información</h2>
-            <p class="section-sub">Cada institución ofrece diferentes canales para ejercer tu derecho a la información.</p>
+            <div class="section-tag" style="justify-content:center;" data-pia-text="servicios.tag">Servicios disponibles</div>
+            <h2 class="section-title" data-pia-text="servicios.title">Mecanismos de acceso a la información</h2>
+            <p class="section-sub" data-pia-text="servicios.sub">Cada institución ofrece diferentes canales para ejercer tu derecho a la información.</p>
         </div>
         <div class="channels-row">
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-envelope"></i></div><span>Correo electrónico</span></div>
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-phone-alt"></i></div><span>Teléfono</span></div>
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-globe"></i></div><span>Solicitud en línea</span></div>
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-file-alt"></i></div><span>Información de oficio</span></div>
-            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-building"></i></div><span>Atención presencial</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-envelope"></i></div><span data-pia-text="servicios.pill1">Correo electrónico</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-phone-alt"></i></div><span data-pia-text="servicios.pill2">Teléfono</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-globe"></i></div><span data-pia-text="servicios.pill3">Solicitud en línea</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-file-alt"></i></div><span data-pia-text="servicios.pill4">Información de oficio</span></div>
+            <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-building"></i></div><span data-pia-text="servicios.pill5">Atención presencial</span></div>
         </div>
     </section>
 
@@ -2330,8 +2330,11 @@
     <section class="section" id="directorio">
         <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
             <div>
-                <div class="section-tag">Directorio</div>
-                <h2 class="section-title">Directorio de Acceso al Ejecutivo</h2>
+                <div class="section-tag" data-pia-text="directorio.tag">Directorio</div>
+                <h2 class="section-title" data-pia-text="directorio.title">Directorio de Acceso al Ejecutivo</h2>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem; max-width:650px;">
+                    <i class="fas fa-info-circle"></i> <span data-pia-text="directorio.disclaimer">La información que se presenta ha sido proporcionada por las Unidades de Acceso a la Información Pública del Organismo Ejecutivo. La actualización de la misma es notificada por las mismas Unidades y se realiza de forma periódica.</span>
+                </div>
             </div>
             <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
                 <div class="view-toggle-group" id="viewToggleGroup" role="group" aria-label="Modo de visualización">
@@ -2355,7 +2358,7 @@
 <div class="filter-bar">
             <div class="filter-bar-header">
                 <div class="filter-bar-title">
-                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
+                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> <span data-pia-text="directorio.filters_title">Filtros de Búsqueda</span>
                 </div>
                 <div class="filter-active-count" id="activeFilterBadge" style="display:none;">
                     <i class="fas fa-filter"></i> <span id="activeFilterCountText">0 filtros activos</span>
@@ -2456,16 +2459,16 @@
     ============================================================ -->
     <section class="section" id="faq" style="padding-top:0;">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Preguntas frecuentes</div>
-            <h2 class="section-title">Resolvemos tus dudas</h2>
-            <p class="section-sub">Respuestas a las consultas más comunes sobre el directorio y el acceso a la información pública.</p>
+            <div class="section-tag" style="justify-content:center;" data-pia-text="faq.tag">Preguntas frecuentes</div>
+            <h2 class="section-title" data-pia-text="faq.title">Resolvemos tus dudas</h2>
+            <p class="section-sub" data-pia-text="faq.sub">Respuestas a las consultas más comunes sobre el directorio y el acceso a la información pública.</p>
         </div>
         <div class="faq-wrap">
-            <div class="faq-item"><button class="faq-q">¿Qué es una solicitud de acceso a la información pública? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Es el derecho que tiene toda persona, sin necesidad de justificar su interés, de solicitar y obtener información que se encuentre en posesión de las instituciones públicas, de acuerdo con lo establecido en la Ley de Acceso a la Información Pública (Decreto 57-2008). Las entidades obligadas deben proporcionar la información solicitada, salvo las excepciones expresamente reguladas por la ley.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Qué es la Información Pública de Oficio? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Es la información que las instituciones públicas están obligadas a publicar y mantener actualizada de forma permanente, sin necesidad de que exista una solicitud previa. Esta información incluye aspectos como estructura organizacional, directorios de funcionarios, presupuesto, contrataciones, programas, informes de gestión y otros datos definidos en el artículo 10 de la Ley de Acceso a la Información Pública.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Cómo encuentro la institución que necesito? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Puede utilizar el buscador y los filtros disponibles en el directorio para localizar la institución de su interés. También puede navegar por categoría, nombre de la entidad o sector gubernamental hasta encontrar la dependencia correspondiente y consultar su información de contacto y acceso a la información pública.</div></div>
-            <div class="faq-item"><button class="faq-q">¿La información del directorio está actualizada? <i class="fas fa-chevron-down"></i></button><div class="faq-a">La información publicada proviene de las fuentes oficiales de cada institución y es actualizada periódicamente. No obstante, debido a cambios administrativos, organizacionales o tecnológicos que puedan ocurrir en las entidades públicas, se recomienda verificar directamente con la institución correspondiente cualquier dato que requiera confirmación inmediata.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Puedo realizar solicitudes directamente desde esta plataforma? <i class="fas fa-chevron-down"></i></button><div class="faq-a">No. Esta plataforma tiene un carácter informativo y de consulta. Su objetivo es facilitar el acceso a los datos de contacto, enlaces y canales oficiales de las instituciones públicas. Las solicitudes de acceso a la información pública deben realizarse directamente ante la Unidad de Información Pública de la institución correspondiente, utilizando los medios que esta tenga habilitados para tal fin (portal web, formulario electrónico, correo electrónico, atención presencial u otros canales oficiales).</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q1">¿Qué es una solicitud de acceso a la información pública?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a1">Es el derecho que tiene toda persona, sin necesidad de justificar su interés, de solicitar y obtener información que se encuentre en posesión de las instituciones públicas, de acuerdo con lo establecido en la Ley de Acceso a la Información Pública (Decreto 57-2008). Las entidades obligadas deben proporcionar la información solicitada, salvo las excepciones expresamente reguladas por la ley.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q2">¿Qué es la Información Pública de Oficio?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a2">Es la información que las instituciones públicas están obligadas a publicar y mantener actualizada de forma permanente, sin necesidad de que exista una solicitud previa. Esta información incluye aspectos como estructura organizacional, directorios de funcionarios, presupuesto, contrataciones, programas, informes de gestión y otros datos definidos en el artículo 10 de la Ley de Acceso a la Información Pública.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q3">¿Cómo encuentro la institución que necesito?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a3">Puede utilizar el buscador y los filtros disponibles en el directorio para localizar la institución de su interés. También puede navegar por categoría, nombre de la entidad o sector gubernamental hasta encontrar la dependencia correspondiente y consultar su información de contacto y acceso a la información pública.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q4">¿La información del directorio está actualizada?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a4">La información publicada proviene de las fuentes oficiales de cada institución y es actualizada periódicamente. No obstante, debido a cambios administrativos, organizacionales o tecnológicos que puedan ocurrir en las entidades públicas, se recomienda verificar directamente con la institución correspondiente cualquier dato que requiera confirmación inmediata.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q5">¿Puedo realizar solicitudes directamente desde esta plataforma?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a5">No. Esta plataforma tiene un carácter informativo y de consulta. Su objetivo es facilitar el acceso a los datos de contacto, enlaces y canales oficiales de las instituciones públicas. Las solicitudes de acceso a la información pública deben realizarse directamente ante la Unidad de Información Pública de la institución correspondiente, utilizando los medios que esta tenga habilitados para tal fin (portal web, formulario electrónico, correo electrónico, atención presencial u otros canales oficiales).</div></div>
         </div>
     </section>
 
@@ -2480,11 +2483,11 @@
             <div class="footer-brand">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala">
                 <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
-                <p>Directorio de Acceso al Ejecutivo — Herramienta oficial para localizar los canales de acceso a la información pública del Organismo Ejecutivo.</p>
+                <p data-pia-text="footer.brand_phrase">Directorio de Acceso al Ejecutivo — Herramienta oficial para localizar los canales de acceso a la información pública del Organismo Ejecutivo.</p>
             </div>
 
             <div class="footer-col">
-                <h4>Reporta irregularidades</h4>
+                <h4 data-pia-text="footer.col1_title">Reporta irregularidades</h4>
                 <ul class="footer-links">
                     <li><a href="canales-por-la-integridad/">Canales por la Integridad</a></li>
                     <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
@@ -2492,7 +2495,7 @@
             </div>
 
             <div class="footer-col">
-                <h4>Explora datos</h4>
+                <h4 data-pia-text="footer.col2_title">Explora datos</h4>
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
@@ -2501,23 +2504,23 @@
             </div>
 
             <div class="footer-col">
-                <h4>Accede a la información</h4>
+                <h4 data-pia-text="footer.col3_title">Accede a la información</h4>
                 <ul class="footer-links">
                     <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
                     <!-- <li><a href="../vehiculos/">Transparencia Vehicular</a></li> -->
                     <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
-                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <h4 style="margin-top:1.5rem;" data-pia-text="footer.col4_title">Aprende</h4>
                 <ul class="footer-links">
                     <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
                 </ul>
             </div>
 
             <div class="footer-col">
-                <h4>Contacto</h4>
+                <h4 data-pia-text="footer.col5_title">Contacto</h4>
                 <div class="footer-contact">
-                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
-                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt" data-pia-text="footer.contact_email">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/" data-pia-text="footer.contact_web">pia.gob.gt</a></span>
                 </div>
                 <div class="social-row">
                     <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
@@ -2529,7 +2532,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
+            <p data-pia-text="footer.copyright">© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala">
                 <img src="/img/logodirectorio2.png" alt="Directorio de Acceso al Ejecutivo" style="height:36px; width:auto; opacity:0.6;">
@@ -2566,6 +2569,7 @@
 ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script src="/js/pia-ui-runtime.js"></script>
+<script src="/js/pia-module-texts.js" data-module="directorio"></script>
 <script>
 /* ============================================================
    HERO BANNER BACKGROUND SLIDER
@@ -2799,7 +2803,7 @@ function renderCards(list) {
         list.forEach(inst => {
             const phone = cleanPhone(inst.telefono);
             const addr  = encodeURIComponent(inst.direccion || '');
-            const safe  = inst.nombre_institucion.replace(/'/g,"\\'");
+            const safe  = String(inst.nombre_institucion || '').replace(/'/g,"\\'");
             const tieneSolicitud = inst.solicitud_en_linea === true;
             const tieneOficio = inst.informacion_publica_oficio === true;
             const solicitudClase = tieneSolicitud ? 'si' : 'no';
@@ -3204,7 +3208,7 @@ function renderList(list, resetPage = false) {
 
     pageList.forEach(inst => {
         const phone = cleanPhone(inst.telefono);
-        const safe  = inst.nombre_institucion.replace(/'/g,"\\'");
+        const safe  = String(inst.nombre_institucion || '').replace(/'/g,"\\'");
         const tieneSolicitud = inst.solicitud_en_linea === true;
         const tieneOficio = inst.informacion_publica_oficio === true;
 
@@ -3873,12 +3877,12 @@ document.querySelectorAll('.faq-q').forEach(btn => {
 ============================================================ */
 async function cargarDatosYIniciar() {
     try {
-        const response = await fetch('data_acceso.json');
+        const response = await fetch('data_acceso.json', { cache: 'no-store' });
         if (!response.ok) throw new Error(`HTTP ${response.status} - ${response.statusText}`);
         const data = await response.json();
         if (!Array.isArray(data) || data.length === 0) throw new Error('El archivo JSON no contiene datos válidos.');
         instituciones = data;
-        instituciones.sort((a,b) => a.nombre_institucion.localeCompare(b.nombre_institucion));
+        instituciones.sort((a,b) => (a.nombre_institucion || '').localeCompare(b.nombre_institucion || ''));
         populateFilters();
         applyTheme();
         currentView = 'list';

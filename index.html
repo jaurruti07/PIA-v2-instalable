@@ -1768,8 +1768,8 @@
                          class="gov-logo">
                 </a>
                 <a href="#inicio" class="pia-wordmark">
-                    <span class="pia-abbr">PIA</span>
-                    <span class="pia-name">Portal Integridad Activa</span>
+                    <span class="pia-abbr" data-pia-text="header.pia_abbr">PIA</span>
+                    <span class="pia-name" data-pia-text="header.pia_name">Portal Integridad Activa</span>
                 </a>
             </div>
 
@@ -1781,7 +1781,7 @@
 
                 <!-- Acceso a la Información -->
                 <li class="menu-group">
-                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_accede">Accede</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
                         <!-- Transparencia Vehicular no visible temporalmente mientras se completa su validación institucional -->
@@ -1789,7 +1789,7 @@
                  </li>
                 <!-- Explora -->
                 <li class="menu-group">
-                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_explora">Explora</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
                         <li><a href="gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
@@ -1799,14 +1799,14 @@
                 </li>
                <!-- Aprende -->
                 <li class="menu-group">
-                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_aprende">Aprende</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
                     </ul>
                 </li>
                 <!-- Reporta irregularidades -->
                 <li class="menu-group">
-                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_reporta">Reporta</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
                         <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
@@ -1838,14 +1838,14 @@
     <div class="container hero-inner">
         <div class="hero-eyebrow">
             <span></span>
-            Transparencia — Gobierno de Guatemala · Organismo Ejecutivo
+            <data data-pia-text="hero.eyebrow">Transparencia — Gobierno de Guatemala · Organismo Ejecutivo</data>
         </div>
-        <h1>Portal de<br><em>Integridad Activa</em></h1>
-        <p class="hero-sub">Accede a información pública, explora datos abiertos, fortalece tus conocimientos sobre integridad y reporta irregularidades administrativas, todo desde un mismo ecosistema digital.</p>
-        <div class="hero-contact"><i class="fas fa-envelope"></i> info@pia.gob.gt</div>
+        <h1><span data-pia-text="hero.title_prefix">Portal de</span><br><em data-pia-text="hero.title_highlight">Integridad Activa</em></h1>
+        <p class="hero-sub" data-pia-text="hero.subtitle">Accede a información pública, explora datos abiertos, fortalece tus conocimientos sobre integridad y reporta irregularidades administrativas, todo desde un mismo ecosistema digital.</p>
+        <div class="hero-contact"><i class="fas fa-envelope"></i> <span data-pia-text="hero.contact_label">info@pia.gob.gt</span></div>
         <div class="hero-actions">
-            <a href="#plataformas" class="btn-outline"><i class="fas fa-th-large"></i> Explorar plataformas</a>
-            <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="btn-primary"><i class="fas fa-flag-checkered"></i> Presentar denuncia</a>
+            <a href="#plataformas" class="btn-outline"><i class="fas fa-th-large"></i> <span data-pia-text="hero.cta_explore">Explorar plataformas</span></a>
+            <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="btn-primary"><i class="fas fa-flag-checkered"></i> <span data-pia-text="hero.cta_report">Presentar denuncia</span></a>
             </div>
     </div>
 </section>
@@ -1857,7 +1857,7 @@
 <div class="stats-ribbon">
     <div class="container">
         <div class="stats-ribbon-head">
-            <div class="section-tag on-dark" style="color:var(--cyan); margin-bottom:0;">El ecosistema en cifras</div>
+            <div class="section-tag on-dark" style="color:var(--cyan); margin-bottom:0;" data-pia-text="stats.section_tag">El ecosistema en cifras</div>
             <div class="stats-carousel-controls" id="statsCarouselControls" style="display:none;">
                 <button type="button" class="stats-nav-btn stats-prev" aria-label="Métrica anterior" title="Métrica anterior">
                     <i class="fas fa-chevron-left"></i>
@@ -1909,14 +1909,14 @@
                 <img id="portalPorqueExisteImg" src="/img/wallpaperdirectorio.jpg" alt="Portal de Integridad Activa - Gobierno de Guatemala" loading="lazy">
             </div>
             <div class="portal-band-text">
-                <div class="section-tag on-dark" style="color:var(--cyan);">¿Por qué existe?</div>
-                <p class="lead">El Portal de Integridad Activa (PIA) nace para reunir en un solo lugar las plataformas, herramientas y servicios digitales de la Comisión Nacional Contra la Corrupción al servicio del Organismo Ejecutivo, para promover la <em>transparencia, el acceso a la información pública, la integridad institucional y la participación ciudadana</em>.</p>
-                <p>Su propósito es facilitar el acceso a la información, fortalecer la cultura de integridad y brindar mecanismos para que cualquier persona pueda <strong style="color:var(--cyan);">consultar</strong>, <strong style="color:var(--cyan);">aprender</strong>, <strong style="color:var(--cyan);">participar</strong> y <strong style="color:var(--cyan);">reportar</strong> de forma sencilla y segura.</p>
+                <div class="section-tag on-dark" style="color:var(--cyan);" data-pia-text="porque.tag">¿Por qué existe?</div>
+                <p class="lead"><span data-pia-text="porque.lead_intro">El Portal de Integridad Activa (PIA) nace para reunir en un solo lugar las plataformas, herramientas y servicios digitales de la Comisión Nacional Contra la Corrupción al servicio del Organismo Ejecutivo, para promover la</span> <em data-pia-text="porque.lead_emphasis">transparencia, el acceso a la información pública, la integridad institucional y la participación ciudadana</em>.</p>
+                <p><span data-pia-text="porque.body_intro">Su propósito es facilitar el acceso a la información, fortalecer la cultura de integridad y brindar mecanismos para que cualquier persona pueda</span> <strong style="color:var(--cyan);" data-pia-text="porque.body_verb_1">consultar</strong>, <strong style="color:var(--cyan);" data-pia-text="porque.body_verb_2">aprender</strong>, <strong style="color:var(--cyan);" data-pia-text="porque.body_verb_3">participar</strong> y <strong style="color:var(--cyan);" data-pia-text="porque.body_verb_4">reportar</strong> <span data-pia-text="porque.body_outro">de forma sencilla y segura.</span></p>
                 <div class="portal-cta-row">
-                    <a href="#plataformas" class="btn-cyan"><i class="fas fa-th-large"></i> Explorar plataformas</a>
-                    <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="btn-ghost"><i class="fas fa-flag-checkered"></i> Denunciar</a>
+                    <a href="#plataformas" class="btn-cyan"><i class="fas fa-th-large"></i> <span data-pia-text="porque.cta_explore">Explorar plataformas</span></a>
+                    <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="btn-ghost"><i class="fas fa-flag-checkered"></i> <span data-pia-text="porque.cta_report">Denunciar</span></a>
                     <button type="button" class="btn-ghost" id="btnToggleInclusionModule" onclick="toggleInclusionModule()" style="border-color:rgba(0,194,224,0.4); color:var(--cyan); background:rgba(0,194,224,0.08);">
-                        <i class="fas fa-universal-access"></i> Inclusión Universal y Guiado
+                        <i class="fas fa-universal-access"></i> <span data-pia-text="porque.cta_inclusion">Inclusión Universal y Guiado</span><span class="inclusion-alt-label" style="display:none;">Ocultar Inclusión Universal</span>
                     </button>
                 </div>
             </div>
@@ -1934,12 +1934,10 @@
         </div>
         <div class="a11y-maya-header">
             <div class="section-tag" style="justify-content:center; background:rgba(0,194,224,0.15); color:var(--cyan); border-color:rgba(0,194,224,0.3); margin:0 auto 0.8rem;">
-                <i class="fas fa-universal-access"></i> Inclusión Universal y Guiado Auditivo
+                <i class="fas fa-universal-access"></i> <span data-pia-text="inclusion.badge">Inclusión Universal y Guiado Auditivo</span>
             </div>
-            <h2 class="section-title on-dark">Explicación del Portal en Idiomas Originarios e Inglés</h2>
-            <p class="section-sub" style="color:rgba(255,255,255,0.85); margin:0.5rem auto 0; max-width:800px;">
-                Consulte y escuche la síntesis del Portal de Integridad Activa en Español, Inglés e Idiomas Mayas originarios (K'iche', Q'eqchi', Kaqchikel y Mam).
-            </p>
+            <h2 class="section-title on-dark" data-pia-text="inclusion.title">Explicación del Portal en Idiomas Originarios e Inglés</h2>
+            <p class="section-sub" style="color:rgba(255,255,255,0.85); margin:0.5rem auto 0; max-width:800px;" data-pia-text="inclusion.subtitle">Consulte y escuche la síntesis del Portal de Integridad Activa en Español, Inglés e Idiomas Mayas originarios (K'iche', Q'eqchi', Kaqchikel y Mam).</p>
         </div>
 
         <!-- Pestañas Selectoras de Idioma -->
@@ -1997,11 +1995,14 @@
                             <i class="fas fa-shield-alt"></i> Resumen General
                         </button>
                         <button type="button" class="a11y-module-btn" data-mod="directorio" onclick="selectA11yModule('directorio')">
-                            <i class="fas fa-folder-open"></i> Directorio
+                            <i class="fas fa-folder-open"></i> Directorio Acceso Libre
                         </button>
                         <!-- Transparencia Vehicular no visible temporalmente -->
                         <button type="button" class="a11y-module-btn" data-mod="gobierno_numeros" onclick="selectA11yModule('gobierno_numeros')">
-                            <i class="fas fa-chart-line"></i> Gobierno en Números
+                            <i class="fas fa-chart-line"></i> Tu Gobierno en Números
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="transparencia_codede" onclick="selectA11yModule('transparencia_codede')">
+                            <i class="fas fa-file-alt"></i> Transparencia CODEDE
                         </button>
                         <button type="button" class="a11y-module-btn" data-mod="canales_denuncias" onclick="selectA11yModule('canales_denuncias')">
                             <i class="fas fa-bullhorn"></i> Canales de Denuncia
@@ -2010,7 +2011,7 @@
                             <i class="fas fa-binoculars"></i> Riesgo en la Mira
                         </button>
                         <button type="button" class="a11y-module-btn" data-mod="acadeti" onclick="selectA11yModule('acadeti')">
-                            <i class="fas fa-graduation-cap"></i> Acadeti
+                            <i class="fas fa-graduation-cap"></i> ACADETI
                         </button>
                     </div>
                 </div>
@@ -2206,22 +2207,18 @@ grid-template-columns:1fr;
 
 <div class="section-header center">
 
-<div class="section-tag" style="justify-content:center;">
-Portal de Integridad Activa
-</div>
+<div class="section-tag" style="justify-content:center;" data-pia-text="comienza.tag">Portal de Integridad Activa</div>
 
-<h2 class="section-title">
-Todo comienza aquí
-</h2>
+<h2 class="section-title" data-pia-text="comienza.title">Todo comienza aquí</h2>
 
 <p class="section-sub" style="max-width:760px;">
 
-Descubre las herramientas del Portal de Integridad Activa para
+<span data-pia-text="comienza.subtitle_prefix">Descubre las herramientas del Portal de Integridad Activa para</span>
 <strong style="color:var(--cyan);">acceder</strong>,
 <strong style="color:var(--cyan);">explorar</strong>,
 <strong style="color:var(--cyan);">aprender</strong> y
 <strong style="color:var(--cyan);">participar</strong>,
-fortaleciendo una gestión pública más transparente e íntegra.
+<span data-pia-text="comienza.subtitle_suffix">fortaleciendo una gestión pública más transparente e íntegra.</span>
 
 </p>
 
@@ -2234,13 +2231,9 @@ fortaleciendo una gestión pública más transparente e íntegra.
 
 <i class="fas fa-folder-open"></i>
 
-<h3>Accede</h3>
+<h3 data-pia-text="comienza.card1_title">Accede</h3>
 
-<p>
-
-Consulta información pública y servicios institucionales.
-
-</p>
+<p data-pia-text="comienza.card1_desc">Consulta información pública y servicios institucionales.</p>
 
 </div>
 
@@ -2249,13 +2242,9 @@ Consulta información pública y servicios institucionales.
 
 <i class="fas fa-chart-line"></i>
 
-<h3>Explora</h3>
+<h3 data-pia-text="comienza.card2_title">Explora</h3>
 
-<p>
-
-Visualiza datos, indicadores y plataformas de transparencia.
-
-</p>
+<p data-pia-text="comienza.card2_desc">Visualiza datos, indicadores y plataformas de transparencia.</p>
 
 </div>
 
@@ -2264,13 +2253,9 @@ Visualiza datos, indicadores y plataformas de transparencia.
 
 <i class="fas fa-graduation-cap"></i>
 
-<h3>Aprende</h3>
+<h3 data-pia-text="comienza.card3_title">Aprende</h3>
 
-<p>
-
-Fortalece tus conocimientos sobre integridad y ética pública.
-
-</p>
+<p data-pia-text="comienza.card3_desc">Fortalece tus conocimientos sobre integridad y ética pública.</p>
 
 </div>
 
@@ -2279,13 +2264,9 @@ Fortalece tus conocimientos sobre integridad y ética pública.
 
 <i class="fas fa-bullhorn"></i>
 
-<h3>Reporta</h3>
+<h3 data-pia-text="comienza.card4_title">Reporta</h3>
 
-<p>
-
-Utiliza los mecanismos oficiales para participar activamente.
-
-</p>
+<p data-pia-text="comienza.card4_desc">Utiliza los mecanismos oficiales para participar activamente.</p>
 
 </div>
 
@@ -2302,67 +2283,63 @@ Utiliza los mecanismos oficiales para participar activamente.
 ============================================================ -->
 <div style="margin-top: 3rem;">
     <!-- Badge / etiqueta -->
-    <div class="section-tag" style="justify-content:center; color:var(--cyan); margin-bottom: 0.5rem;">
-        Valor y beneficios
-    </div>
+    <div class="section-tag" style="justify-content:center; color:var(--cyan); margin-bottom: 0.5rem;" data-pia-text="obtienes.tag">Valor y beneficios</div>
     <!-- Título principal  -->
-    <h2 class="section-title" style="text-align:center; color:var(--text-main);">
-        ¿Qué obtienes?
-    </h2>
+    <h2 class="section-title" style="text-align:center; color:var(--text-main);" data-pia-text="obtienes.title">¿Qué obtienes?</h2>
 
     <div class="metrics-strip fade-up">
         <div class="metric-card">
             <div class="metric-icon"><i class="fas fa-layer-group"></i></div>
-            <div class="metric-num">9</div>
-            <div class="metric-lbl">Plataformas</div>
-            <div class="metric-sub">Integradas para la transparencia</div>
+            <div class="metric-num" data-pia-text="obtienes.highlight1_num">9</div>
+            <div class="metric-lbl" data-pia-text="obtienes.highlight1_lbl">Plataformas</div>
+            <div class="metric-sub" data-pia-text="obtienes.highlight1_sub">Integradas para la transparencia</div>
         </div>
         <div class="metric-card">
             <div class="metric-icon"><i class="fas fa-clock"></i></div>
-            <div class="metric-num">24/7</div>
-            <div class="metric-lbl">Disponibilidad</div>
-            <div class="metric-sub">Acceso permanente</div>
+            <div class="metric-num" data-pia-text="obtienes.highlight2_num">24/7</div>
+            <div class="metric-lbl" data-pia-text="obtienes.highlight2_lbl">Disponibilidad</div>
+            <div class="metric-sub" data-pia-text="obtienes.highlight2_sub">Acceso permanente</div>
         </div>
         <div class="metric-card">
             <div class="metric-icon"><i class="fas fa-check-circle"></i></div>
-            <div class="metric-num">100%</div>
-            <div class="metric-lbl">Gestión documentada</div>
-            <div class="metric-sub">Cada caso tiene trazabilidad</div>
+            <div class="metric-num" data-pia-text="obtienes.highlight3_num">100%</div>
+            <div class="metric-lbl" data-pia-text="obtienes.highlight3_lbl">Gestión documentada</div>
+            <div class="metric-sub" data-pia-text="obtienes.highlight3_sub">Cada caso tiene trazabilidad</div>
         </div>
         <div class="metric-card">
             <div class="metric-icon"><i class="fas fa-shield-alt"></i></div>
-            <div class="metric-num">100%</div>
-            <div class="metric-lbl">Segura</div>
-            <div class="metric-sub">Protección del denunciante</div>
+            <div class="metric-num" data-pia-text="obtienes.highlight4_num">100%</div>
+            <div class="metric-lbl" data-pia-text="obtienes.highlight4_lbl">Segura</div>
+            <div class="metric-sub" data-pia-text="obtienes.highlight4_sub">Protección del denunciante</div>
         </div>
     </div>
 
     <div class="info-cards fade-up">
         <div class="info-card">
             <div class="info-card-icon"><i class="fas fa-chart-line"></i></div>
-            <h3>¿Qué puedes hacer?</h3>
+            <h3 data-pia-text="obtienes.info1_title">¿Qué puedes hacer?</h3>
             <ul>
-                <li><i class="fas fa-circle"></i> Consultar información</li>
-                <li><i class="fas fa-circle"></i> Analizar datos</li>
-                <li><i class="fas fa-circle"></i> Acceder a recursos</li>
-                <li><i class="fas fa-circle"></i> Reportar irregularidades</li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info1_item1">Consultar información</span></li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info1_item2">Analizar datos</span></li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info1_item3">Acceder a recursos</span></li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info1_item4">Reportar irregularidades</span></li>
             </ul>
         </div>
         <div class="info-card">
             <div class="info-card-icon"><i class="fas fa-users"></i></div>
-            <h3>¿Quién puede utilizar PIA?</h3>
+            <h3 data-pia-text="obtienes.info2_title">¿Quién puede utilizar PIA?</h3>
             <ul>
-                <li><i class="fas fa-circle"></i> Población en general</li>
-                <li><i class="fas fa-circle"></i> Sociedad civil organizada</li>
-                <li><i class="fas fa-circle"></i> Periodistas y academia</li>
-                <li><i class="fas fa-circle"></i> Contratistas del Estado</li>
-                <li><i class="fas fa-circle"></i> Sectores fiscalizadores</li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info2_item1">Población en general</span></li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info2_item2">Sociedad civil organizada</span></li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info2_item3">Periodistas y academia</span></li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info2_item4">Contratistas del Estado</span></li>
+                <li><i class="fas fa-circle"></i> <span data-pia-text="obtienes.info2_item5">Sectores fiscalizadores</span></li>
             </ul>
         </div>
         <div class="info-card">
             <div class="info-card-icon"><i class="fas fa-gavel"></i></div>
-            <h3>¿Qué buscamos lograr?</h3>
-            <p>Fomentar una cultura de denuncia responsable, uso adecuado de canales, identificación de riesgos de corrupción y una ciudadanía vigilante y activa comprometida con la integridad pública.</p>
+            <h3 data-pia-text="obtienes.info3_title">¿Qué buscamos lograr?</h3>
+            <p data-pia-text="obtienes.info3_desc">Fomentar una cultura de denuncia responsable, uso adecuado de canales, identificación de riesgos de corrupción y una ciudadanía vigilante y activa comprometida con la integridad pública.</p>
         </div>
     </div>
 </div>
@@ -2375,17 +2352,17 @@ Utiliza los mecanismos oficiales para participar activamente.
 <section class="platforms-section" id="plataformas">
     <div class="container">
         <div class="section-header center">
-            <div class="section-tag on-dark" style="color:var(--cyan); justify-content:center;">Ecosistema digital</div>
-            <h2 class="section-title on-dark">Nuestras plataformas</h2>
-            <p class="section-sub" style="color:rgba(255,255,255,0.55); margin:0 auto;">Nueve componentes complementarios para denunciar, vigilar, analizar, prevenir, acceder a información y formarse en integridad.</p>
+            <div class="section-tag on-dark" style="color:var(--cyan); justify-content:center;" data-pia-text="plataformas.tag">Ecosistema digital</div>
+            <h2 class="section-title on-dark" data-pia-text="plataformas.title">Nuestras plataformas</h2>
+            <p class="section-sub" style="color:rgba(255,255,255,0.55); margin:0 auto;" data-pia-text="plataformas.subtitle">Nueve componentes complementarios para denunciar, vigilar, analizar, prevenir, acceder a información y formarse en integridad.</p>
             <p class="section-sub" style="color:rgba(255,255,255,0.55); margin:0 auto;">
-    Elige cómo quieres comenzar:
+    <span data-pia-text="plataformas.choose_label">Elige cómo quieres comenzar:</span>
     <strong style="color:var(--cyan);">Accede</strong>,
     <strong style="color:var(--cyan);">Explora</strong>,
     <strong style="color:var(--cyan);">Aprende</strong> y
     <strong style="color:var(--cyan);">Reporta</strong>.
 </p>
-            <div class="platform-hint"><i class="fas fa-hand-pointer"></i> Pasa el cursor o toca cada tarjeta para más información</div>
+            <div class="platform-hint"><i class="fas fa-hand-pointer"></i> <span data-pia-text="plataformas.hint">Pasa el cursor o toca cada tarjeta para más información</span></div>
         </div>
 
         <div style="position:relative; margin-top:1rem;">
@@ -2401,15 +2378,15 @@ Utiliza los mecanismos oficiales para participar activamente.
                                     <i class="fas fa-folder-open"></i>
                                 </div>
                                 <div class="plat-front-foot">
-                                    <h3>Directorio Acceso al Ejecutivo</h3>
+                                    <h3 data-pia-text="plataformas.directorio.title">Directorio Acceso al Ejecutivo</h3>
                                     <div class="plat-front-line"></div>
                                 </div>
                             </div>
                             <div class="plat-back">
-                                <div class="plat-back-quote">"Información pública al alcance de todos"</div>
-                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Consolida los datos de contacto y los mecanismos oficiales para solicitar acceso a la información pública en las instituciones del Organismo Ejecutivo.</p></div>
-                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Facilita la localización de enlaces institucionales y mecanismos de solicitud.</p></div>
-                                <a href="directorio/" class="plat-link"><i class="fas fa-arrow-right"></i> Visitar</a>
+                                <div class="plat-back-quote" data-pia-text="plataformas.directorio.quote">"Información pública al alcance de todos"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p data-pia-text="plataformas.directorio.what_is">Consolida los datos de contacto y los mecanismos oficiales para solicitar acceso a la información pública en las instituciones del Organismo Ejecutivo.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p data-pia-text="plataformas.directorio.why_matters">Facilita la localización de enlaces institucionales y mecanismos de solicitud.</p></div>
+                                <a href="directorio/" class="plat-link"><i class="fas fa-arrow-right"></i> <span data-pia-text="plataformas.directorio.cta">Visitar</span></a>
                             </div>
                         </div>
                     </div>
@@ -2423,15 +2400,15 @@ Utiliza los mecanismos oficiales para participar activamente.
                                     <i class="fas fa-file-alt"></i>
                                 </div>
                                 <div class="plat-front-foot">
-                                    <h3>Transparencia CODEDE</h3>
+                                    <h3 data-pia-text="plataformas.codede.title">Transparencia CODEDE</h3>
                                     <div class="plat-front-line"></div>
                                 </div>
                             </div>
                             <div class="plat-back">
-                                <div class="plat-back-quote">"Información pública de oficio al alcance"</div>
-                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Portal que consolida la información pública de oficio publicada por las instituciones del Organismo Ejecutivo.</p></div>
-                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Garantiza el acceso proactivo a la información sin necesidad de solicitud previa.</p></div>
-                                <a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> Consultar</a>
+                                <div class="plat-back-quote" data-pia-text="plataformas.codede.quote">"Información pública de oficio al alcance"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p data-pia-text="plataformas.codede.what_is">Portal que consolida la información pública de oficio publicada por las instituciones del Organismo Ejecutivo.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p data-pia-text="plataformas.codede.why_matters">Garantiza el acceso proactivo a la información sin necesidad de solicitud previa.</p></div>
+                                <a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> <span data-pia-text="plataformas.codede.cta">Consultar</span></a>
                             </div>
                         </div>
                     </div>
@@ -2445,15 +2422,15 @@ Utiliza los mecanismos oficiales para participar activamente.
                                     <i class="fas fa-chart-line"></i>
                                 </div>
                                 <div class="plat-front-foot">
-                                    <h3>Tu Gobierno en Números</h3>
+                                    <h3 data-pia-text="plataformas.gobierno.title">Tu Gobierno en Números</h3>
                                     <div class="plat-front-line"></div>
                                 </div>
                             </div>
                             <div class="plat-back">
-                                <div class="plat-back-quote">"Datos claros, gestión transparente"</div>
-                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Tableros de rendición de cuentas con indicadores de gestión, ejecución presupuestaria y resultados institucionales.</p></div>
-                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Permite a la ciudadanía consultar y compartir información pública de forma accesible.</p></div>
-                                <a href="gobierno_en_numeros/" class="plat-link"><i class="fas fa-arrow-right"></i> Explorar</a>
+                                <div class="plat-back-quote" data-pia-text="plataformas.gobierno.quote">"Datos claros, gestión transparente"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p data-pia-text="plataformas.gobierno.what_is">Tableros de rendición de cuentas con indicadores de gestión, ejecución presupuestaria y resultados institucionales.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p data-pia-text="plataformas.gobierno.why_matters">Permite a la ciudadanía consultar y compartir información pública de forma accesible.</p></div>
+                                <a href="gobierno_en_numeros/" class="plat-link"><i class="fas fa-arrow-right"></i> <span data-pia-text="plataformas.gobierno.cta">Explorar</span></a>
                             </div>
                         </div>
                     </div>
@@ -2467,15 +2444,15 @@ Utiliza los mecanismos oficiales para participar activamente.
                                     <i class="fas fa-chart-pie"></i>
                                 </div>
                                 <div class="plat-front-foot">
-                                    <h3>Radiografía de la Corrupción</h3>
+                                    <h3 data-pia-text="plataformas.radiografia.title">Radiografía de la Corrupción</h3>
                                     <div class="plat-front-line"></div>
                                 </div>
                             </div>
                             <div class="plat-back">
-                                <div class="plat-back-quote">"Los datos fortalecen el combate a la corrupción"</div>
-                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Plataforma que muestra información actualizada sobre denuncias, tendencias e instituciones.</p></div>
-                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Convierte datos en transparencia activa y permite la auditoría social.</p></div>
-                                <a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> Explorar</a>
+                                <div class="plat-back-quote" data-pia-text="plataformas.radiografia.quote">"Los datos fortalecen el combate a la corrupción"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p data-pia-text="plataformas.radiografia.what_is">Plataforma que muestra información actualizada sobre denuncias, tendencias e instituciones.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p data-pia-text="plataformas.radiografia.why_matters">Convierte datos en transparencia activa y permite la auditoría social.</p></div>
+                                <a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> <span data-pia-text="plataformas.radiografia.cta">Explorar</span></a>
                             </div>
                         </div>
                     </div>
@@ -2489,15 +2466,15 @@ Utiliza los mecanismos oficiales para participar activamente.
                                     <i class="fas fa-crosshairs"></i>
                                 </div>
                                 <div class="plat-front-foot">
-                                    <h3>Riesgo en la Mira</h3>
+                                    <h3 data-pia-text="plataformas.riesgo.title">Riesgo en la Mira</h3>
                                     <div class="plat-front-line"></div>
                                 </div>
                             </div>
                             <div class="plat-back">
-                                <div class="plat-back-quote">"La prevención comienza identificando los riesgos"</div>
-                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Plataforma que muestra el estado de cumplimiento institucional en gestión de riesgos, con semaforización.</p></div>
-                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Genera presión reputacional positiva y consolida la cultura de integridad preventiva.</p></div>
-                                <a href="riesgo/" class="plat-link"><i class="fas fa-arrow-right"></i> Ver</a>
+                                <div class="plat-back-quote" data-pia-text="plataformas.riesgo.quote">"La prevención comienza identificando los riesgos"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p data-pia-text="plataformas.riesgo.what_is">Plataforma que muestra el estado de cumplimiento institucional en gestión de riesgos, con semaforización.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p data-pia-text="plataformas.riesgo.why_matters">Genera presión reputacional positiva y consolida la cultura de integridad preventiva.</p></div>
+                                <a href="riesgo/" class="plat-link"><i class="fas fa-arrow-right"></i> <span data-pia-text="plataformas.riesgo.cta">Ver</span></a>
                             </div>
                         </div>
                     </div>
@@ -2546,15 +2523,15 @@ Utiliza los mecanismos oficiales para participar activamente.
                                     <i class="fas fa-graduation-cap"></i>
                                 </div>
                                 <div class="plat-front-foot">
-                                    <h3>Acadeti</h3>
+                                    <h3 data-pia-text="plataformas.acadeti.title">Acadeti</h3>
                                     <div class="plat-front-line"></div>
                                 </div>
                             </div>
                             <div class="plat-back">
-                                <div class="plat-back-quote">"Formación continua para la integridad"</div>
-                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Plataforma educativa con cursos, materiales y recursos para fortalecer competencias en transparencia y ética pública.</p></div>
-                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Capacita a servidores públicos y ciudadanía en buenas prácticas de integridad.</p></div>
-                                <a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> Entrar</a>
+                                <div class="plat-back-quote" data-pia-text="plataformas.acadeti.quote">"Formación continua para la integridad"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p data-pia-text="plataformas.acadeti.what_is">Plataforma educativa con cursos, materiales y recursos para fortalecer competencias en transparencia y ética pública.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p data-pia-text="plataformas.acadeti.why_matters">Capacita a servidores públicos y ciudadanía en buenas prácticas de integridad.</p></div>
+                                <a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> <span data-pia-text="plataformas.acadeti.cta">Entrar</span></a>
                             </div>
                         </div>
                     </div>
@@ -2568,15 +2545,15 @@ Utiliza los mecanismos oficiales para participar activamente.
                                     <i class="fas fa-bullhorn"></i>
                                 </div>
                                 <div class="plat-front-foot">
-                                    <h3>Canales por la Integridad</h3>
+                                    <h3 data-pia-text="plataformas.canales.title">Canales por la Integridad</h3>
                                     <div class="plat-front-line"></div>
                                 </div>
                             </div>
                             <div class="plat-back">
-                                <div class="plat-back-quote">"La integridad pública es un compromiso de todos"</div>
-                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Directorio interactivo que reúne todos los canales de denuncia administrativa del Organismo Ejecutivo.</p></div>
-                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Fortalece la transparencia, reduce barreras y centraliza la información.</p></div>
-                                <a href="canales-por-la-integridad/" class="plat-link"><i class="fas fa-arrow-right"></i> Visitar</a>
+                                <div class="plat-back-quote" data-pia-text="plataformas.canales.quote">"La integridad pública es un compromiso de todos"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p data-pia-text="plataformas.canales.what_is">Directorio interactivo que reúne todos los canales de denuncia administrativa del Organismo Ejecutivo.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p data-pia-text="plataformas.canales.why_matters">Fortalece la transparencia, reduce barreras y centraliza la información.</p></div>
+                                <a href="canales-por-la-integridad/" class="plat-link"><i class="fas fa-arrow-right"></i> <span data-pia-text="plataformas.canales.cta">Visitar</span></a>
                             </div>
                         </div>
                     </div>
@@ -2590,15 +2567,15 @@ Utiliza los mecanismos oficiales para participar activamente.
                                     <i class="fas fa-eye"></i>
                                 </div>
                                 <div class="plat-front-foot">
-                                    <h3>Vigilando la Integridad</h3>
+                                    <h3 data-pia-text="plataformas.vigilando.title">Vigilando la Integridad</h3>
                                     <div class="plat-front-line"></div>
                                 </div>
                             </div>
                             <div class="plat-back">
-                                <div class="plat-back-quote">"Ante irregularidades, denunciar es clave"</div>
-                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p>Plataforma oficial para canalizar denuncias administrativas en línea, disponible 24/7.</p></div>
-                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p>Centraliza denuncias, mejora tiempos de respuesta.</p></div>
-                                <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> Denunciar</a>
+                                <div class="plat-back-quote" data-pia-text="plataformas.vigilando.quote">"Ante irregularidades, denunciar es clave"</div>
+                                <div class="plat-back-item"><h4><i class="fas fa-question-circle"></i> ¿Qué es?</h4><p data-pia-text="plataformas.vigilando.what_is">Plataforma oficial para canalizar denuncias administrativas en línea, disponible 24/7.</p></div>
+                                <div class="plat-back-item"><h4><i class="fas fa-star-of-life"></i> ¿Por qué importa?</h4><p data-pia-text="plataformas.vigilando.why_matters">Centraliza denuncias, mejora tiempos de respuesta.</p></div>
+                                <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="plat-link"><i class="fas fa-arrow-right"></i> <span data-pia-text="plataformas.vigilando.cta">Denunciar</span></a>
                             </div>
                         </div>
                     </div>
@@ -3011,11 +2988,9 @@ Utiliza los mecanismos oficiales para participar activamente.
     <section class="section">
         <div class="flow-infographic-container fade-up">
             <div class="flow-header">
-                <div class="flow-badge"><i class="fas fa-diagram-project"></i> Flujo de navegación e interacción</div>
-                <h2 class="section-title on-dark" style="margin-bottom: 0.8rem;">Así funciona PIA</h2>
-                <p class="section-sub" style="color: rgba(255,255,255,0.7); margin: 0 auto;">
-                    Un proceso guiado e intuitivo en 6 etapas que conecta las necesidades ciudadanas con el ecosistema de datos abiertos, fiscalización y denuncia.
-                </p>
+                <div class="flow-badge"><i class="fas fa-diagram-project"></i> <span data-pia-text="funciona.badge">Flujo de navegación e interacción</span></div>
+                <h2 class="section-title on-dark" style="margin-bottom: 0.8rem;" data-pia-text="funciona.title">Así funciona PIA</h2>
+                <p class="section-sub" style="color: rgba(255,255,255,0.7); margin: 0 auto;" data-pia-text="funciona.subtitle">Un proceso guiado e intuitivo en 6 etapas que conecta las necesidades ciudadanas con el ecosistema de datos abiertos, fiscalización y denuncia.</p>
             </div>
 
             <!-- Línea de Tiempo Interactiva en 6 Pasos -->
@@ -3028,11 +3003,11 @@ Utiliza los mecanismos oficiales para participar activamente.
                     </div>
                     <div class="timeline-card">
                         <div class="timeline-card-header">
-                            <span class="timeline-step-tag">Paso 01</span>
+                            <span class="timeline-step-tag" data-pia-text="funciona.step1_tag">Paso 01</span>
                             <span style="font-size: 0.75rem; color: var(--cyan); font-weight: 600;"><i class="fas fa-circle-play"></i> Inicio</span>
                         </div>
-                        <h3>1. Identificación de necesidad</h3>
-                        <p>Reconoce qué tipo de información pública o servicio requieres: solicitudes de datos, consulta vehicular, monitoreo de riesgos o denuncias.</p>
+                        <h3 data-pia-text="funciona.step1_title">1. Identificación de necesidad</h3>
+                        <p data-pia-text="funciona.step1_desc">Reconoce qué tipo de información pública o servicio requieres: solicitudes de datos, consulta vehicular, monitoreo de riesgos o denuncias.</p>
                     </div>
                 </div>
 
@@ -3044,11 +3019,11 @@ Utiliza los mecanismos oficiales para participar activamente.
                     </div>
                     <div class="timeline-card">
                         <div class="timeline-card-header">
-                            <span class="timeline-step-tag">Paso 02</span>
+                            <span class="timeline-step-tag" data-pia-text="funciona.step2_tag">Paso 02</span>
                             <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"><i class="fas fa-layer-group"></i> Ecosistema</span>
                         </div>
-                        <h3>2. Selección de plataforma</h3>
-                        <p>Navega entre las 9 plataformas del ecosistema PIA y elige la especializada para tu consulta (Transparencia Vehicular, Radiografía, Vigilando, etc.).</p>
+                        <h3 data-pia-text="funciona.step2_title">2. Selección de plataforma</h3>
+                        <p data-pia-text="funciona.step2_desc">Navega entre las 9 plataformas del ecosistema PIA y elige la especializada para tu consulta (Transparencia Vehicular, Radiografía, Vigilando, etc.).</p>
                     </div>
                 </div>
 
@@ -3060,11 +3035,11 @@ Utiliza los mecanismos oficiales para participar activamente.
                     </div>
                     <div class="timeline-card">
                         <div class="timeline-card-header">
-                            <span class="timeline-step-tag">Paso 03</span>
+                            <span class="timeline-step-tag" data-pia-text="funciona.step3_tag">Paso 03</span>
                             <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"><i class="fas fa-mouse-pointer"></i> Acción</span>
                         </div>
-                        <h3>3. Consulta o interacción</h3>
-                        <p>Accede directamente a tableros, buscadores interactivos, módulos de formación o al formulario seguro de denuncias 24/7.</p>
+                        <h3 data-pia-text="funciona.step3_title">3. Consulta o interacción</h3>
+                        <p data-pia-text="funciona.step3_desc">Accede directamente a tableros, buscadores interactivos, módulos de formación o al formulario seguro de denuncias 24/7.</p>
                     </div>
                 </div>
 
@@ -3076,11 +3051,11 @@ Utiliza los mecanismos oficiales para participar activamente.
                     </div>
                     <div class="timeline-card">
                         <div class="timeline-card-header">
-                            <span class="timeline-step-tag">Paso 04</span>
+                            <span class="timeline-step-tag" data-pia-text="funciona.step4_tag">Paso 04</span>
                             <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"><i class="fas fa-database"></i> Resultados</span>
                         </div>
-                        <h3>4. Obtención de datos</h3>
-                        <p>Visualiza datos abiertos, indicadores institucionales, certificaciones de cursos o números de correlativo de seguimiento.</p>
+                        <h3 data-pia-text="funciona.step4_title">4. Obtención de datos</h3>
+                        <p data-pia-text="funciona.step4_desc">Visualiza datos abiertos, indicadores institucionales, certificaciones de cursos o números de correlativo de seguimiento.</p>
                     </div>
                 </div>
 
@@ -3092,11 +3067,11 @@ Utiliza los mecanismos oficiales para participar activamente.
                     </div>
                     <div class="timeline-card">
                         <div class="timeline-card-header">
-                            <span class="timeline-step-tag">Paso 05</span>
+                            <span class="timeline-step-tag" data-pia-text="funciona.step5_tag">Paso 05</span>
                             <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"><i class="fas fa-user-check"></i> Ciudadanía</span>
                         </div>
-                        <h3>5. Participación activa</h3>
-                        <p>Utiliza la información para auditar la gestión pública, ejercer tu derecho de petición o alertar sobre posibles anomalías de forma segura.</p>
+                        <h3 data-pia-text="funciona.step5_title">5. Participación activa</h3>
+                        <p data-pia-text="funciona.step5_desc">Utiliza la información para auditar la gestión pública, ejercer tu derecho de petición o alertar sobre posibles anomalías de forma segura.</p>
                     </div>
                 </div>
 
@@ -3108,11 +3083,11 @@ Utiliza los mecanismos oficiales para participar activamente.
                     </div>
                     <div class="timeline-card">
                         <div class="timeline-card-header">
-                            <span class="timeline-step-tag" style="background:var(--cyan); color:var(--navy);">Paso Final</span>
+                            <span class="timeline-step-tag" style="background:var(--cyan); color:var(--navy);" data-pia-text="funciona.step6_tag">Paso Final</span>
                             <span style="font-size: 0.75rem; color: var(--cyan); font-weight: 700;"><i class="fas fa-star"></i> Integridad Activa</span>
                         </div>
-                        <h3>6. Fortalecimiento de Integridad</h3>
-                        <p>Cada consulta, denuncia y acción fiscalizadora impulsa la cultura de probidad, reduce la opacidad y fortalece el Estado de Derecho.</p>
+                        <h3 data-pia-text="funciona.step6_title">6. Fortalecimiento de Integridad</h3>
+                        <p data-pia-text="funciona.step6_desc">Cada consulta, denuncia y acción fiscalizadora impulsa la cultura de probidad, reduce la opacidad y fortalece el Estado de Derecho.</p>
                     </div>
                 </div>
             </div>
@@ -3122,29 +3097,29 @@ Utiliza los mecanismos oficiales para participar activamente.
                 <div class="flow-feature-box">
                     <i class="fas fa-user-shield"></i>
                     <div class="flow-feature-text">
-                        <h4>Anonimato Garantizado</h4>
-                        <p>Protección total del denunciante</p>
+                        <h4 data-pia-text="funciona.feat1_title">Anonimato Garantizado</h4>
+                        <p data-pia-text="funciona.feat1_desc">Protección total del denunciante</p>
                     </div>
                 </div>
                 <div class="flow-feature-box">
                     <i class="fas fa-clock"></i>
                     <div class="flow-feature-text">
-                        <h4>Disponible 24/7</h4>
-                        <p>Plataformas digitales activas</p>
+                        <h4 data-pia-text="funciona.feat2_title">Disponible 24/7</h4>
+                        <p data-pia-text="funciona.feat2_desc">Plataformas digitales activas</p>
                     </div>
                 </div>
                 <div class="flow-feature-box">
                     <i class="fas fa-chart-pie"></i>
                     <div class="flow-feature-text">
-                        <h4>Datos Abiertos</h4>
-                        <p>Visualización transparente</p>
+                        <h4 data-pia-text="funciona.feat3_title">Datos Abiertos</h4>
+                        <p data-pia-text="funciona.feat3_desc">Visualización transparente</p>
                     </div>
                 </div>
                 <div class="flow-feature-box">
                     <i class="fas fa-gavel"></i>
                     <div class="flow-feature-text">
-                        <h4>Seguimiento Oficial</h4>
-                        <p>Canales institucionales</p>
+                        <h4 data-pia-text="funciona.feat4_title">Seguimiento Oficial</h4>
+                        <p data-pia-text="funciona.feat4_desc">Canales institucionales</p>
                     </div>
                 </div>
             </div>
@@ -3159,25 +3134,25 @@ Utiliza los mecanismos oficiales para participar activamente.
     <section class="section" style="padding-top: 0.5rem; padding-bottom: 3rem;">
         <div class="principles-band fade-up">
             <div class="section-header center" style="margin-bottom:0;">
-                <div class="section-tag" style="justify-content:center;">¿En qué se basa este ecosistema?</div>
-                <h2 class="section-title">Principios y Metodología</h2>
-                <p class="section-sub" style="margin:0.6rem auto 0; max-width:760px;">La lucha contra la corrupción constituye un pilar esencial para el desarrollo sostenible y el bienestar de la población guatemalteca. Este proyecto nace con el propósito de fortalecer a las instituciones del Estado y de promover la transparencia en cada una de sus acciones.</p>
+                <div class="section-tag" style="justify-content:center;" data-pia-text="principios.tag">¿En qué se basa este ecosistema?</div>
+                <h2 class="section-title" data-pia-text="principios.title">Principios y Metodología</h2>
+                <p class="section-sub" style="margin:0.6rem auto 0; max-width:760px;" data-pia-text="principios.subtitle">La lucha contra la corrupción constituye un pilar esencial para el desarrollo sostenible y el bienestar de la población guatemalteca. Este proyecto nace con el propósito de fortalecer a las instituciones del Estado y de promover la transparencia en cada una de sus acciones.</p>
             </div>
             <div class="principles-grid">
                 <div class="principle-card">
                     <div class="principle-icon"><i class="fas fa-hand-holding-heart"></i></div>
-                    <h3>Gestión y acompañamiento especializado</h3>
-                    <p>Las denuncias son recibidas y gestionadas por Instancias de Probidad, con seguimiento continuo y protocolos establecidos.</p>
+                    <h3 data-pia-text="principios.card1_title">Gestión y acompañamiento especializado</h3>
+                    <p data-pia-text="principios.card1_desc">Las denuncias son recibidas y gestionadas por Instancias de Probidad, con seguimiento continuo y protocolos establecidos.</p>
                 </div>
                 <div class="principle-card">
                     <div class="principle-icon"><i class="fas fa-handshake"></i></div>
-                    <h3>Compromiso con la lucha anticorrupción</h3>
-                    <p>Impulso a la rendición de cuentas, transformando cada denuncia en acción concreta y visible para la ciudadanía.</p>
+                    <h3 data-pia-text="principios.card2_title">Compromiso con la lucha anticorrupción</h3>
+                    <p data-pia-text="principios.card2_desc">Impulso a la rendición de cuentas, transformando cada denuncia en acción concreta y visible para la ciudadanía.</p>
                 </div>
                 <div class="principle-card">
                     <div class="principle-icon"><i class="fas fa-globe-americas"></i></div>
-                    <h3>Alineados con la agenda global</h3>
-                    <p>Guatemala ratificó la Convención Interamericana contra la Corrupción, reafirmando su compromiso con los estándares internacionales.</p>
+                    <h3 data-pia-text="principios.card3_title">Alineados con la agenda global</h3>
+                    <p data-pia-text="principios.card3_desc">Guatemala ratificó la Convención Interamericana contra la Corrupción, reafirmando su compromiso con los estándares internacionales.</p>
                 </div>
             </div>
         </div>
@@ -3190,9 +3165,9 @@ Utiliza los mecanismos oficiales para participar activamente.
 <div class="container">
     <section class="section" style="padding-top:0;">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Acceso directo</div>
-            <h2 class="section-title">Accede a nuestras plataformas</h2>
-            <p class="section-sub">Cada plataforma cumple una función diferente, pero juntas conforman un ecosistema digital para fortalecer la integridad pública. Puedes ingresar por cualquiera de ellas o recorrerlas según tu necesidad.</p>
+            <div class="section-tag" style="justify-content:center;" data-pia-text="acceso.tag">Acceso directo</div>
+            <h2 class="section-title" data-pia-text="acceso.title">Accede a nuestras plataformas</h2>
+            <p class="section-sub" data-pia-text="acceso.subtitle">Cada plataforma cumple una función diferente, pero juntas conforman un ecosistema digital para fortalecer la integridad pública. Puedes ingresar por cualquiera de ellas o recorrerlas según tu necesidad.</p>
         </div>
 
         <!-- Depth Carousel Container -->
@@ -3204,10 +3179,10 @@ Utiliza los mecanismos oficiales para participar activamente.
                         <div class="depth-card-badge">
                             <i class="fas fa-folder-open"></i>
                         </div>
-                        <div class="logo-card-name">Directorio Acceso al Ejecutivo</div>
-                        <div class="logo-card-desc">Consolida datos de contacto y mecanismos de acceso a la información.</div>
+                        <div class="logo-card-name" data-pia-text="acceso.directorio.name">Directorio Acceso al Ejecutivo</div>
+                        <div class="logo-card-desc" data-pia-text="acceso.directorio.desc">Consolida datos de contacto y mecanismos de acceso a la información.</div>
                         <div class="depth-card-footer">
-                            <span class="btn-capsula">Accede <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                            <span class="btn-capsula"><span data-pia-text="acceso.directorio.pill">Accede</span> <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
                         </div>
                     </div>
                     <span class="depth-carousel__tint"></span>
@@ -3219,10 +3194,10 @@ Utiliza los mecanismos oficiales para participar activamente.
                         <div class="depth-card-badge">
                             <i class="fas fa-file-alt"></i>
                         </div>
-                        <div class="logo-card-name">Transparencia CODEDE</div>
-                        <div class="logo-card-desc">Información pública de oficio del Organismo Ejecutivo.</div>
+                        <div class="logo-card-name" data-pia-text="acceso.codede.name">Transparencia CODEDE</div>
+                        <div class="logo-card-desc" data-pia-text="acceso.codede.desc">Información pública de oficio del Organismo Ejecutivo.</div>
                         <div class="depth-card-footer">
-                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                            <span class="btn-capsula"><span data-pia-text="acceso.codede.pill">Explora</span> <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
                         </div>
                     </div>
                     <span class="depth-carousel__tint"></span>
@@ -3234,10 +3209,10 @@ Utiliza los mecanismos oficiales para participar activamente.
                         <div class="depth-card-badge">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="logo-card-name">Tu Gobierno en Números</div>
-                        <div class="logo-card-desc">Tableros de rendición de cuentas con indicadores de gestión.</div>
+                        <div class="logo-card-name" data-pia-text="acceso.gobierno.name">Tu Gobierno en Números</div>
+                        <div class="logo-card-desc" data-pia-text="acceso.gobierno.desc">Tableros de rendición de cuentas con indicadores de gestión.</div>
                         <div class="depth-card-footer">
-                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                            <span class="btn-capsula"><span data-pia-text="acceso.gobierno.pill">Explora</span> <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
                         </div>
                     </div>
                     <span class="depth-carousel__tint"></span>
@@ -3249,10 +3224,10 @@ Utiliza los mecanismos oficiales para participar activamente.
                         <div class="depth-card-badge">
                             <i class="fas fa-chart-pie"></i>
                         </div>
-                        <div class="logo-card-name">Radiografía de la Corrupción</div>
-                        <div class="logo-card-desc">Visualización de datos abiertos sobre denuncias y tendencias.</div>
+                        <div class="logo-card-name" data-pia-text="acceso.radiografia.name">Radiografía de la Corrupción</div>
+                        <div class="logo-card-desc" data-pia-text="acceso.radiografia.desc">Visualización de datos abiertos sobre denuncias y tendencias.</div>
                         <div class="depth-card-footer">
-                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                            <span class="btn-capsula"><span data-pia-text="acceso.radiografia.pill">Explora</span> <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
                         </div>
                     </div>
                     <span class="depth-carousel__tint"></span>
@@ -3264,10 +3239,10 @@ Utiliza los mecanismos oficiales para participar activamente.
                         <div class="depth-card-badge">
                             <i class="fas fa-crosshairs"></i>
                         </div>
-                        <div class="logo-card-name">Riesgo en la Mira</div>
-                        <div class="logo-card-desc">Transparencia en la gestión de riesgos institucionales.</div>
+                        <div class="logo-card-name" data-pia-text="acceso.riesgo.name">Riesgo en la Mira</div>
+                        <div class="logo-card-desc" data-pia-text="acceso.riesgo.desc">Transparencia en la gestión de riesgos institucionales.</div>
                         <div class="depth-card-footer">
-                            <span class="btn-capsula">Explora <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                            <span class="btn-capsula"><span data-pia-text="acceso.riesgo.pill">Explora</span> <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
                         </div>
                     </div>
                     <span class="depth-carousel__tint"></span>
@@ -3295,10 +3270,10 @@ Utiliza los mecanismos oficiales para participar activamente.
                         <div class="depth-card-badge">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <div class="logo-card-name">Acadeti</div>
-                        <div class="logo-card-desc">Plataforma educativa para la formación en integridad.</div>
+                        <div class="logo-card-name" data-pia-text="acceso.acadeti.name">Acadeti</div>
+                        <div class="logo-card-desc" data-pia-text="acceso.acadeti.desc">Plataforma educativa para la formación en integridad.</div>
                         <div class="depth-card-footer">
-                            <span class="btn-capsula">Aprende <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                            <span class="btn-capsula"><span data-pia-text="acceso.acadeti.pill">Aprende</span> <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
                         </div>
                     </div>
                     <span class="depth-carousel__tint"></span>
@@ -3310,10 +3285,10 @@ Utiliza los mecanismos oficiales para participar activamente.
                         <div class="depth-card-badge">
                             <i class="fas fa-bullhorn"></i>
                         </div>
-                        <div class="logo-card-name">Canales por la Integridad</div>
-                        <div class="logo-card-desc">Directorio interactivo de canales de denuncia administrativa.</div>
+                        <div class="logo-card-name" data-pia-text="acceso.canales.name">Canales por la Integridad</div>
+                        <div class="logo-card-desc" data-pia-text="acceso.canales.desc">Directorio interactivo de canales de denuncia administrativa.</div>
                         <div class="depth-card-footer">
-                            <span class="btn-capsula">Reporta <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                            <span class="btn-capsula"><span data-pia-text="acceso.canales.pill">Reporta</span> <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
                         </div>
                     </div>
                     <span class="depth-carousel__tint"></span>
@@ -3325,10 +3300,10 @@ Utiliza los mecanismos oficiales para participar activamente.
                         <div class="depth-card-badge">
                             <i class="fas fa-eye"></i>
                         </div>
-                        <div class="logo-card-name">Vigilando la Integridad</div>
-                        <div class="logo-card-desc">Canal oficial 24/7 para presentar denuncias de forma segura.</div>
+                        <div class="logo-card-name" data-pia-text="acceso.vigilando.name">Vigilando la Integridad</div>
+                        <div class="logo-card-desc" data-pia-text="acceso.vigilando.desc">Canal oficial 24/7 para presentar denuncias de forma segura.</div>
                         <div class="depth-card-footer">
-                            <span class="btn-capsula">Reporta <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
+                            <span class="btn-capsula"><span data-pia-text="acceso.vigilando.pill">Reporta</span> <i class="fas fa-arrow-right" style="margin-left:4px; font-size:0.75rem;"></i></span>
                         </div>
                     </div>
                     <span class="depth-carousel__tint"></span>
@@ -3359,7 +3334,7 @@ Utiliza los mecanismos oficiales para participar activamente.
             <div class="footer-brand">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala">
                 <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
-                <p>Dónde hay vigilancia, hay menos corrupción. La integridad del Organismo Ejecutivo empieza con una denuncia bien canalizada.</p>
+                <p data-pia-text="footer.brand_phrase">Dónde hay vigilancia, hay menos corrupción. La integridad del Organismo Ejecutivo empieza con una denuncia bien canalizada.</p>
                 <!-- Enlace Admin discreto justo debajo del párrafo -->
                 <div class="footer-admin" style="margin-top:0.5rem;">
                     <a href="/admin/" style="font-size:0.75rem; opacity:0.5; color:#aaa; text-decoration:none; transition: opacity 0.2s;">
@@ -3369,7 +3344,7 @@ Utiliza los mecanismos oficiales para participar activamente.
             </div>
 
             <div class="footer-col">
-                <h4>Reporta irregularidades</h4>
+                <h4 data-pia-text="footer.col1_title">Reporta irregularidades</h4>
                 <ul class="footer-links">
                     <li><a href="canales-por-la-integridad/">Canales por la Integridad</a></li>
                     <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
@@ -3377,7 +3352,7 @@ Utiliza los mecanismos oficiales para participar activamente.
             </div>
 
             <div class="footer-col">
-                <h4>Explora datos</h4>
+                <h4 data-pia-text="footer.col2_title">Explora datos</h4>
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="riesgo/">Riesgo en la Mira</a></li>
@@ -3386,23 +3361,23 @@ Utiliza los mecanismos oficiales para participar activamente.
             </div>
 
             <div class="footer-col">
-                <h4>Accede a la información</h4>
+                <h4 data-pia-text="footer.col3_title">Accede a la información</h4>
                 <ul class="footer-links">
                     <li><a href="directorio/">Directorio acceso al ejecutivo</a></li>
                     <!-- <li><a href="vehiculos/">Transparencia Vehicular</a></li> -->
                     <li><a href="gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
-                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <h4 style="margin-top:1.5rem;" data-pia-text="footer.col4_title">Aprende</h4>
                 <ul class="footer-links">
                     <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
                 </ul>
             </div>
 
             <div class="footer-col">
-                <h4>Contacto</h4>
+                <h4 data-pia-text="footer.col5_title">Contacto</h4>
                 <div class="footer-contact">
-                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
-                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt" data-pia-text="footer.contact_email">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/" data-pia-text="footer.contact_web">pia.gob.gt</a></span>
                 </div>
                 <div class="social-row">
                     <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
@@ -3414,7 +3389,7 @@ Utiliza los mecanismos oficiales para participar activamente.
         </div>
 
         <div class="footer-bottom">
-            <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
+            <p data-pia-text="footer.copyright">© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala">
                 <img src="/img/logoPIA.png" alt="Portal Integridad Activa" style="height:36px; width:auto; opacity:0.6;">
@@ -3775,11 +3750,16 @@ Utiliza los mecanismos oficiales para participar activamente.
         const btn = document.getElementById('btnToggleInclusionModule');
         if (!mod) return;
         const isHidden = (mod.style.display === 'none' || !mod.style.display);
+        const iconEl = btn ? btn.querySelector('i') : null;
+        const defaultLbl = btn ? btn.querySelector('[data-pia-text="porque.cta_inclusion"]') : null;
+        const altLbl = btn ? btn.querySelector('.inclusion-alt-label') : null;
         if (isHidden) {
             mod.style.display = 'block';
             if (btn) {
                 btn.style.background = 'rgba(0,194,224,0.22)';
-                btn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar Inclusión Universal';
+                if (iconEl) iconEl.className = 'fas fa-eye-slash';
+                if (defaultLbl) defaultLbl.style.display = 'none';
+                if (altLbl) altLbl.style.display = 'inline';
             }
             setTimeout(() => {
                 mod.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3788,7 +3768,9 @@ Utiliza los mecanismos oficiales para participar activamente.
             mod.style.display = 'none';
             if (btn) {
                 btn.style.background = 'rgba(0,194,224,0.08)';
-                btn.innerHTML = '<i class="fas fa-universal-access"></i> Inclusión Universal y Guiado';
+                if (iconEl) iconEl.className = 'fas fa-universal-access';
+                if (defaultLbl) defaultLbl.style.display = 'inline';
+                if (altLbl) altLbl.style.display = 'none';
             }
         }
     }
@@ -3835,16 +3817,20 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: 'El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial de la Comisión Nacional contra la Corrupción (CNC) que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia del Gobierno de Guatemala. A través del portal, los ciudadanos pueden acceder al Directorio Institucional, consultar Datos Abiertos sobre presupuestos y vehículos oficiales, analizar indicadores de Riesgo en la Mira y presentar denuncias confidenciales las 24 horas.'
                 },
                 'directorio': {
-                    title: 'Directorio de Acceso al Ejecutivo',
-                    text: 'El módulo Directorio de Acceso al Ejecutivo concentra la información oficial de contacto, ubicación, autoridades y Oficinas de Probidad de más de 65 instituciones, ministerios y secretarías del Organismo Ejecutivo de Guatemala. Permite localizar funcionarios públicos y consultar los enlaces de acceso a la información pública de cada dependencia.'
+                    title: 'Directorio Acceso Libre',
+                    text: 'Esta plataforma permite contar con un directorio que recopila información importante y clave de las dependencias encargadas de información pública en los órganos del Organismo Ejecutivo. El directorio busca mejorar la transparencia, fortalecer la gestión pública y facilitar el acceso a la información pública.'
                 },
                 'vehiculos': {
                     title: 'Transparencia Vehicular Oficial',
                     text: 'El módulo de Transparencia Vehicular ofrece la fiscalización ciudadana de la flota de vehículos oficiales del Gobierno de Guatemala. Los ciudadanos pueden verificar números de placa, tipo de vehículo, dependencia asignada y estado de uso, facilitando la detección y denuncia confidencial de cualquier uso indebido de los bienes del Estado.'
                 },
                 'gobierno_numeros': {
-                    title: 'Tu Gobierno en Números - Datos Abiertos',
-                    text: 'Tu Gobierno en Números es la herramienta interactiva de Datos Abiertos que visualiza la asignación y ejecución del presupuesto general de la Nación. Muestra gráficos en tiempo real sobre gastos por dependencia, programas de inversión social y transparencia en las contrataciones públicas.'
+                    title: 'Tu Gobierno en Números',
+                    text: 'Constituye una herramienta de prevención que busca favorecer la rendición de cuentas, centraliza y publica, de manera proactiva, información importante sobre la gestión de recursos en las instituciones que conforman el Organismo Ejecutivo. El portal permite visualizar datos institucionales de forma clara, comprensible y accesible, facilitando el monitoreo ciudadano y fortaleciendo la cultura de integridad en la administración pública.'
+                },
+                'transparencia_codede': {
+                    title: 'Transparencia CODEDE',
+                    text: 'Es una plataforma integrada por tableros de monitoreo que permiten visualizar, de manera ágil y comprensible, la ejecución presupuestaria y el avance físico-financiero de los proyectos financiados por los Consejos Departamentales de Desarrollo.'
                 },
                 'canales_denuncias': {
                     title: 'Canales por la Integridad y Denuncia Segura',
@@ -3855,8 +3841,8 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: 'Riesgo en la Mira monitorea indicadores preventivos de transparencia y cumplimiento en contrataciones públicas del Estado. Permite identificar anomalías, sobrecostos o concentración de proveedores antes de que comprometan los fondos públicos.'
                 },
                 'acadeti': {
-                    title: 'Acadeti - Escuela de Probidad e Integridad Pública',
-                    text: 'Acadeti es la plataforma educativa de la Comisión Nacional contra la Corrupción orientada a la formación continua de servidores públicos y ciudadanos en materia de ética pública, prevención de la corrupción, probidad y transparencia.'
+                    title: 'ACADETI',
+                    text: 'ACADETI es una plataforma 100% virtual de formación especializada en ética, integridad y prevención de la corrupción, diseñada para desarrollar procesos de enseñanza-aprendizaje a través de contenidos estructurados, recursos de multimedia, actividades interactivas y espacios de intercambio digital.'
                 }
             }
         },
@@ -3869,16 +3855,20 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: 'The Active Integrity Portal (PIA) is the official digital platform of Guatemala\'s National Commission Against Corruption. It provides citizen access to institutional directories, open data on public budgets and government fleet management, corruption risk indicators, and 24/7 confidential reporting channels to promote transparency and accountability.'
                 },
                 'directorio': {
-                    title: 'Executive Branch Directory',
-                    text: 'The Executive Access Directory consolidates official contact details, addresses, leadership information, and integrity offices across more than 65 ministries, secretariats, and government agencies of Guatemala\'s Executive Branch.'
+                    title: 'Open Access Directory',
+                    text: 'This platform provides a directory that compiles key information on the public information offices across the agencies of the Executive Branch. The directory aims to improve transparency, strengthen public management, and facilitate access to public information.'
                 },
                 'vehiculos': {
                     title: 'Official Vehicle Fleet Transparency',
                     text: 'The Vehicle Transparency module enables public oversight of the official state vehicle fleet in Guatemala. Citizens can verify license plates, vehicle models, assigned government departments, and usage status to prevent and report improper asset use.'
                 },
                 'gobierno_numeros': {
-                    title: 'Government in Numbers - Open Data',
-                    text: 'Government in Numbers is an interactive Open Data visualization tool monitoring national budget allocation and expenditure. It features real-time charts on spending per agency, social investment programs, and public procurement transparency.'
+                    title: 'Government in Numbers',
+                    text: 'It is a preventive tool designed to promote accountability by proactively centralizing and publishing key information on resource management across the institutions of the Executive Branch. The portal presents institutional data clearly and accessibly, facilitating citizen oversight and strengthening a culture of integrity in public administration.'
+                },
+                'transparencia_codede': {
+                    title: 'CODEDE Transparency',
+                    text: 'It is a platform made up of monitoring dashboards that make it easy and clear to view budget execution and the physical and financial progress of projects funded by the Departmental Development Councils.'
                 },
                 'canales_denuncias': {
                     title: 'Integrity Channels & Safe Whistleblowing',
@@ -3889,8 +3879,8 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: 'Risk Spotlight tracks preventive integrity and compliance metrics within government procurement systems, identifying irregularities, cost overruns, or supplier monopolies before public funds are compromised.'
                 },
                 'acadeti': {
-                    title: 'Acadeti - Public Ethics & Integrity Academy',
-                    text: 'Acadeti is the educational platform of the National Commission Against Corruption, dedicated to training public servants and citizens in anti-corruption principles, public ethics, probity, and open governance.'
+                    title: 'ACADETI',
+                    text: 'ACADETI is a 100% virtual training platform specializing in ethics, integrity, and corruption prevention, designed to support teaching and learning processes through structured content, multimedia resources, interactive activities, and digital exchange spaces.'
                 }
             }
         },
@@ -3903,16 +3893,20 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: "Ri Portal de Integridad Activa (PIA) rech ri Comisión Nacional contra la Corrupción xutz'aqatisaj ri utzilaj chak rech k'o q'alajisanik pa le qatinamit Guatemala. Chuxe' ri PIA, ri winaq kakwinik kakiriq uq'alajisaxik ri patanib'al rech ri q'atb'al tzij, kakitz'et ri chakub'al xaqje' kakik'am b'i tz'ujonik pa jikomal."
                 },
                 'directorio': {
-                    title: "K'olbal K'iyisamaj rech Tak'alib'al (K'iche')",
-                    text: "Ri K'olbal K'iyisamaj rech Tak'alib'al k'o chi upam ri kimo's, ri kib'i' ri nimak'amalb'e rech ri poponem rech qatinamit Guatemala. Kakwinik kakiriq ri k'olbal rech taqem patanil pa uxak q'alajisanik."
+                    title: "Directorio Acceso Libre (K'iche')",
+                    text: "We chakub'al ri' kuya' jun k'olbal tzij ri kumol ri nimak'amalb'e ex ri patanib'al rech q'alajisanik tzij pa ri Organismo Ejecutivo, rech utz uk'amik ri saqilal, uchuq'ab'ixik ri chak ex k'o b'ey chi ke ri winaq."
                 },
                 'vehiculos': {
                     title: "Q'alajisanik rech Ch'ich' rech Q'atb'al Tzij (K'iche')",
                     text: "Ri chakub'al rech Q'alajisanik rech Ch'ich' kuya' q'alajisanik pa wi' ri ch'ich' rech ri q'atb'al tzij pa Guatemala. Ri winaq kakwinik kakitz'et ri retal ch'ich' ex kakib'an tz'ujonik we k'o uq'asaxik chak pa kijas."
                 },
                 'gobierno_numeros': {
-                    title: "Ri Qatinamit pa Ajlab'al (K'iche')",
-                    text: "Ri Qatinamit pa Ajlab'al k'o q'alajisanik pa wi' ri pwaq rech qatinamit, ri uxak sachoj ex ri cholchak rech patanil. Kuk'ut pa wachb'al ri uxak sachoj rech ri k'iyik amaq'."
+                    title: "Tu Gobierno en Números (K'iche')",
+                    text: "Are jun chakub'al rech q'atenik rech kuya' rutzil ub'anik ri q'alajisanik, kumol ex kuk'ut ri tzij pa wi' ri pwaq ex tob'al pa ri patanib'al rech ri Organismo Ejecutivo, rech ri winaq kakitz'et pa saqilal."
+                },
+                'transparencia_codede': {
+                    title: "Transparencia CODEDE (K'iche')",
+                    text: "Are jun chakub'al ruk' wachb'al rech tz'etonem ri kuk'ut pa saqilal ri ub'anik ri pwaq ex ri uq'axik ri chak tob'al b'anom kumal ri Consejos Departamentales de Desarrollo."
                 },
                 'canales_denuncias': {
                     title: "B'e rech Tz'ujonik rech Jikomal (K'iche')",
@@ -3923,8 +3917,8 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: "Ri Q'atb'al Elq'anem kutz'et ri retal sachoj xaqje' ri loq'oj pa ri patanib'al rech qatinamit rech kuq'atej ri elaq' pwaq chuxe' xq'axik."
                 },
                 'acadeti': {
-                    title: "Acadeti - Tijob'al rech Jikomal (K'iche')",
-                    text: "Ri Acadeti uya'om tijonik xaqje' eta'manik chi rech ri pataninelib'al xaqje' ri winaq pa wi' ri utzilaj ch'ob'onik, jikomal xaqje' q'atenik elaq' pa qatinamit."
+                    title: "ACADETI (K'iche')",
+                    text: "ACADETI are jun tijob'al pa kematz'ib' rech eta'manik pa wi' ri utzilaj b'ey, jikomal ex q'atenik elaq', ruk' utzilaj tzij, wachb'al ex chakub'al rech tijonik pa kematz'ib'."
                 }
             }
         },
@@ -3937,16 +3931,20 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: "Li Portal de Integridad Activa (PIA) a'an li xk'anjelil li Comisión Nacional contra la Corrupción re xch'olch'ob'il li yaal ut li yaalil k'anjel sa' li tenamit Guatemala. Sa' li PIA, chixjunil li tenamit truko'q xk'anjelob'al li tenamit, xk'anjelob'al li xch'och' ut tz'aqal k'anjel xbanunkil li yaalil atin sa' mukmuil."
                 },
                 'directorio': {
-                    title: "Xtenamitil li Jolominelib' (Q'eqchi')",
-                    text: "Li tenamitil li jolominelib' xch'oleb' chixjunil li rochochil k'anjel, li c'a'uxb'il xjolom ut xch'olch'ob'il xk'anjelil li rochoch k'anjel sa' Guatemala re xyaalalil k'anjel."
+                    title: "Directorio Acceso Libre (Q'eqchi')",
+                    text: "A'in li k'anjelob'aal naxk'ut chixjunil li xyaalalil eb' li rochochil k'anjel li neke'xk'e xch'olch'ob'il li esil sa' li Organismo Ejecutivo, re xchaab'ilob'resinkil li saqil k'anjel ut xtenq'ankil li tenamit."
                 },
                 'vehiculos': {
                     title: "Xyaalalil li B'eleba'aal re Tenamit (Q'eqchi')",
                     text: "Li Xyaalalil li B'eleba'aal kixk'utub' chixjunil li b'eleba'aal xk'anjelil li tenamit Guatemala. Li tenamit tuko'q xk'e xyaalalil li placas ut xk'anjelil re xramb'al li maak."
                 },
                 'gobierno_numeros': {
-                    title: "Li Tenamit sa' Ajl (Q'eqchi')",
-                    text: "Li Tenamit sa' Ajl k'o sa' tz'aqal tz'ilok re xk'utb'al xch'ina'usil tumin, xk'anjelob'al li tumin re tenamit ut li loq'ok k'anjel xbanunkil."
+                    title: "Tu Gobierno en Números (Q'eqchi')",
+                    text: "A'an jun k'anjelob'aal re xkolb'al li yaalil k'anjel li naxch'utub' ut naxk'ut chi saqil chan ru na'oksiman li tumin ut li k'anjel sa'eb' li rochochil li Organismo Ejecutivo."
+                },
+                'transparencia_codede': {
+                    title: "Transparencia CODEDE (Q'eqchi')",
+                    text: "A'an jun k'anjelob'aal rik'in xk'utb'alil li tz'ilok li naxk'e chi ilok chi saqil chan ru yoo chi xik li tumin ut li k'anjel tenq'anb'il xb'aaneb' li Consejos Departamentales de Desarrollo."
                 },
                 'canales_denuncias': {
                     title: "Be re Yehok Maak sa' Yaal (Q'eqchi')",
@@ -3957,8 +3955,8 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: "Li Xk'amb'al li C'a'ux kixk'e xch'ina'usil retalil xkolbal li tumin re tenamit sa' li loq'ok k'anjel re xramb'al li elq' sa' k'anjel."
                 },
                 'acadeti': {
-                    title: "Acadeti - Tz'oleb'aal re Yaalil K'anjel (Q'eqchi')",
-                    text: "Acadeti a'an li tz'oleb'aal re xk'ebal tz'oleb'aal ut na'leb' chi re li k'anjelajel ut tenamit sa' li yaalil atin ut xcha'alil k'anjel."
+                    title: "ACADETI (Q'eqchi')",
+                    text: "ACADETI a'an jun tz'oleb'aal sa' li ulul ch'iich' re tz'olok sa' li chaab'il na'leb', yaalil k'anjel ut xramb'al li elq', rik'in tz'aqal esil, jalam u ut k'anjel sa' komonil."
                 }
             }
         },
@@ -3971,16 +3969,20 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: "Ri Portal de Integridad Activa (PIA) richin ri Comisión Nacional contra la Corrupción nuyo'oj rutzil samaj richin ruximik ri jikomal pa ri qatinamit Guatemala. Pa ri PIA, ri winaqi' tikel nkitzet ri samaj richin ri q'atb'al tzij, ri pwaq xq'asax ut nkiya' rutzijol samaj rech jikomal pa rutzilal."
                 },
                 'directorio': {
-                    title: "Ruk'olbal Rutzijol K'amalb'ey (Kaqchikel)",
-                    text: "Ruk'olbal Rutzijol K'amalb'ey k'o chi upam ri ruyo'onem, ri xq'atb'al tzij richin ri taqem samaj pa Guatemala richin ruto'ik ri winaqi' pa ri rutzijol."
+                    title: "Directorio Acceso Libre (Kaqchikel)",
+                    text: "Re samaj re' nuya' jun k'olbal tzij ri numol rutzijol ri taqem samaj pa ri Organismo Ejecutivo richin ruto'ik ri saqilal, rutzil samaj ex ruya'ik b'ey chi ke ri winaqi' pa rutzijol tinamit."
                 },
                 'vehiculos': {
                     title: "Ch'ich' richin Q'atb me Tzij pa Jikomal (Kaqchikel)",
                     text: "Ri ch'ich' richin Q'atb'al Tzij nuya' rutzijol ri ch'ich' richin ri q'atb'al tzij. Ri winaqi' tikil nkitz'et ri retal ch'ich' richin nkiq'atej ri elaq' samaj."
                 },
                 'gobierno_numeros': {
-                    title: "Ri Qatinamit pa Ajlab'al (Kaqchikel)",
-                    text: "Ri Qatinamit pa Ajlab'al nuk'ut ri pwaq xk'amob'eyij richin ri qatinamit, ri to'ik samaj xaqje' ri sachoj rech taqem loq'oj."
+                    title: "Tu Gobierno en Números (Kaqchikel)",
+                    text: "Are jun samaj richin q'atenik elaq' ri numol ex nuk'ut pa saqilal ri pwaq ex ri samaj pa ri Organismo Ejecutivo, richin ri winaqi' tikil nkitz'et pa jikomal."
+                },
+                'transparencia_codede': {
+                    title: "Transparencia CODEDE (Kaqchikel)",
+                    text: "Are jun samaj ruk' wachb'al richin tz'etoj ri nuk'ut pa saqilal ri pwaq ex ri ub'anik ri samaj to'on richin ri Consejos Departamentales de Desarrollo."
                 },
                 'canales_denuncias': {
                     title: "Ruk'olbal Ya'oj Tzij pa Mukche' (Kaqchikel)",
@@ -3991,8 +3993,8 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: "Ri Tz'etoj Ruyonal Elaq' nuk'am ri retal samaj pa loq'oj richin nuq'atej ri elaq' pwaq richin ri qatinamit Guatemala."
                 },
                 'acadeti': {
-                    title: "Acadeti - Tijob'al richin Jikomal (Kaqchikel)",
-                    text: "Acadeti nuya' tijonik xaqje' etamanik chi ke ri samajel richin q'atb'al tzij xaqje' ri winaqi' pa wi' ri jikomal xaqje' rutzil samaj."
+                    title: "ACADETI (Kaqchikel)",
+                    text: "ACADETI are jun tijob'al pa kematz'ib' richin tijonik pa wi' ri utzilaj b'ey, jikomal ex q'atenik elaq', ruk' tz'aqat tzij, wachb'al ex samaj pa komon."
                 }
             }
         },
@@ -4005,16 +4007,20 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: "Ju Portal de Integridad Activa (PIA) te ju Comisión Nacional contra la Corrupción nxq'uynen tnam tu'n t-tx'olil tzalajeb'il ex kolb'il te tnam Guatemala. Ju tnam jaku t-sje'n tijil t-tx'olil ajlab'il, t-jak'il ch'iyyb'il ex t-kolil tnam tu'n tzalajeb'il ex yaal."
                 },
                 'directorio': {
-                    title: "T-tx'olil Kavil Kavil te Tnam (Mam)",
-                    text: "Ju T-tx'olil Kavil Kavil xq'uynen chixjunil t-tx'olil ju ak'b'il, t-xakil Kavil Kavil te Guatemala tu'n t-kolb'il ex t-tzalajeb'il tnam."
+                    title: "Directorio Acceso Libre (Mam)",
+                    text: "Aju aq'untl lu' ntzaj tq'o'n jun u'j te tqanil kyi'j k'loj aq'untl nchi q'onte tqanil te tnam toj Organismo Ejecutivo, tu'ntzun tten xnaq'tzb'il ex saqil toj aq'untl."
                 },
                 'vehiculos': {
                     title: "T-kolil B'eleba'al te Kavil (Mam)",
                     text: "Ju T-kolil B'eleba'al nxq'uynen t-tx'olil b'eleba'al te Kavil te Guatemala, tu'n t-sje'n tnam ju placa ex tu'n t-kolil ja' t-sje'n elq'."
                 },
                 'gobierno_numeros': {
-                    title: "Ju Tnam sa' Ajlab'il (Mam)",
-                    text: "Ju Tnam sa' Ajlab'il nxq'uynen pwaq te tnam, ju t-jak'il ch'iyyb'il ex ju laq'ob'il t-xakil pwaq te Guatemala."
+                    title: "Tu Gobierno en Números (Mam)",
+                    text: "Aju lu' jun aq'untl te xq'uqil tu'n tten saqil ti'j pwaq ex aq'untl toj Organismo Ejecutivo, tu'ntzun t-xi kyka'yin xjal chi b'a'nxix."
+                },
+                'transparencia_codede': {
+                    title: "Transparencia CODEDE (Mam)",
+                    text: "Aju lu' jun aq'untl tuk'il ka'yb'il ntzaj tq'o'n tu'n t-xi ka'yit chi b'a'nxix tza'n n-ajb'en pwaq ex tza'n nxi b'et aq'untl kyu'n Consejos Departamentales de Desarrollo."
                 },
                 'canales_denuncias': {
                     title: "Be te Q'i'n Tzij sa' Kolb'il (Mam)",
@@ -4025,8 +4031,8 @@ Utiliza los mecanismos oficiales para participar activamente.
                     text: "Ju T-tz'etb'il Elq' nxq'uynen t-tx'olil laq'ob'il pwaq tu'n t-kolil pwaq te tnam ch'atx t-elq'ij."
                 },
                 'acadeti': {
-                    title: "Acadeti - Ja te Xnaq'tzb'il Jikomal (Mam)",
-                    text: "Acadeti nq'on xnaq'tzb'il ex t-tx'olil chi e ak'el te Kavil ex tnam tu'n t-tzalajeb'il, jikomal ex t-kolil elq'."
+                    title: "ACADETI (Mam)",
+                    text: "ACADETI jun ja te xnaq'tzb'il toj kematz'ib' ti'j b'a'n b'e, jikomal ex kolb'il ti'j elq', tuk'il tqanil, tilb'ilal ex aq'untl toj komon."
                 }
             }
         }
@@ -4460,6 +4466,7 @@ Utiliza los mecanismos oficiales para participar activamente.
 
     cargarDatos();
 </script>
+<script src="/js/pia-portal-texts.js"></script>
 <script src="/js/pia-ui-runtime.js"></script>
 <script>
 if (window.PIA_UI) {

@@ -783,6 +783,378 @@ async function runTests() {
     recordTest('14. KPIs e Imágenes de Fondo por Módulo + Portal', false, err.message);
   }
 
+  // Test 15: Administración de textos estáticos del portal principal (RBAC, XSS/validación, ETag OCC, persistencia y reset)
+  try {
+    const resPubTexts = await fetch(`${BASE_URL}/api/portal/texts`);
+    const pubTextsData = await resPubTexts.json().catch(() => ({}));
+    const pubTextsOk = resPubTexts.status === 200 &&
+      pubTextsData.success === true &&
+      pubTextsData.texts &&
+      typeof pubTextsData.texts['hero.title_highlight'] === 'string' &&
+      typeof pubTextsData.texts['footer.copyright'] === 'string';
+    recordTest('15.1 Consulta pública GET /api/portal/texts retorna catálogo normalizado (200)', pubTextsOk);
+
+    const resTextsNoAuthGet = await fetch(`${BASE_URL}/api/admin/portal/texts`);
+    const resTextsNoAuthPut = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ updates: { 'hero.title_prefix': 'Portal' } })
+    });
+    const resTextsNoAuthReset = await fetch(`${BASE_URL}/api/admin/portal/texts/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scope: 'all' })
+    });
+    recordTest(
+      '15.2 Bloqueo sin autenticación en GET/PUT /api/admin/portal/texts y POST /reset (401)',
+      resTextsNoAuthGet.status === 401 &&
+      resTextsNoAuthPut.status === 401 &&
+      resTextsNoAuthReset.status === 401
+    );
+
+    const resLoginTextsAdmin = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: textsAdminToken } = await resLoginTextsAdmin.json();
+
+    // Operador sin permiso 'portal' recibe 403 Forbidden
+    const restrictedTextsEmail = 'operador_sin_portal_textos@cnc.gob.gt';
+    await fetch(`${BASE_URL}/api/admin/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+      body: JSON.stringify({
+        email: restrictedTextsEmail,
+        displayName: 'Operador Sin Portal Test',
+        role: 'data_operator',
+        modules: ['canales'],
+        password: 'TestPortalTexts2026!'
+      })
+    });
+    const resLoginRestricted = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: restrictedTextsEmail, password: 'TestPortalTexts2026!' })
+    });
+    const { token: restrictedTextsToken } = await resLoginRestricted.json();
+
+    const resRestrictedGet = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      headers: { 'Authorization': `Bearer ${restrictedTextsToken}` }
+    });
+    const resRestrictedPut = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${restrictedTextsToken}` },
+      body: JSON.stringify({ updates: { 'hero.title_prefix': 'Prueba' } })
+    });
+    const resRestrictedReset = await fetch(`${BASE_URL}/api/admin/portal/texts/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${restrictedTextsToken}` },
+      body: JSON.stringify({ scope: 'key', key: 'hero.title_prefix' })
+    });
+
+    await fetch(`${BASE_URL}/api/admin/users/${encodeURIComponent(restrictedTextsEmail)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${textsAdminToken}` }
+    });
+
+    recordTest(
+      '15.3 Operador sin permiso "portal" bloqueado en endpoints admin de textos (403 Forbidden)',
+      resRestrictedGet.status === 403 &&
+      resRestrictedPut.status === 403 &&
+      resRestrictedReset.status === 403
+    );
+
+    // Validación estricta de claves desconocidas, HTML/script, javascript: y vacío
+    const resBadScript = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+      body: JSON.stringify({ updates: { 'hero.subtitle': '<script>alert(1)</script>' } })
+    });
+    const resBadImg = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+      body: JSON.stringify({ updates: { 'hero.subtitle': '<img src=x onerror=alert(1)>' } })
+    });
+    const resBadJsProto = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+      body: JSON.stringify({ updates: { 'hero.subtitle': 'javascript:alert(1)' } })
+    });
+    const resBadKey = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+      body: JSON.stringify({ updates: { 'clave.inexistente': 'Valor' } })
+    });
+    const resBadEmpty = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+      body: JSON.stringify({ updates: { 'hero.title_prefix': '   ' } })
+    });
+    recordTest(
+      '15.4 Rechazo estricto de HTML/script, javascript:, clave fuera de catálogo y valor vacío (400)',
+      resBadScript.status === 400 &&
+      resBadImg.status === 400 &&
+      resBadJsProto.status === 400 &&
+      resBadKey.status === 400 &&
+      resBadEmpty.status === 400
+    );
+
+    // Flujo completo: obtener ETag, probar 409 con ETag obsoleto, actualizar texto, verificar en GET admin + GET público y restaurar original
+    const resAdminGetTexts = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      headers: { 'Authorization': `Bearer ${textsAdminToken}` }
+    });
+    const validEtag = resAdminGetTexts.headers.get('ETag');
+    const adminTextsData = await resAdminGetTexts.json().catch(() => ({}));
+
+    const resStaleEtag = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${textsAdminToken}`,
+        'If-Match': `"${'0'.repeat(64)}"`
+      },
+      body: JSON.stringify({ updates: { 'hero.eyebrow': 'Prueba conflicto ETag' } })
+    });
+
+    const testEyebrowValue = 'Transparencia Activa — Guatemala QA 2026';
+    const resSaveText = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${textsAdminToken}`,
+        ...(validEtag ? { 'If-Match': validEtag } : {})
+      },
+      body: JSON.stringify({ updates: { 'hero.eyebrow': testEyebrowValue } })
+    });
+    const saveTextData = await resSaveText.json().catch(() => ({}));
+
+    const resPubAfterSave = await fetch(`${BASE_URL}/api/portal/texts`);
+    const pubAfterSave = await resPubAfterSave.json().catch(() => ({}));
+
+    const resAdminAfterSave = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+      headers: { 'Authorization': `Bearer ${textsAdminToken}` }
+    });
+    const adminAfterSave = await resAdminAfterSave.json().catch(() => ({}));
+
+    // Restaurar todos los textos originales para no dejar datos de prueba
+    const resResetAll = await fetch(`${BASE_URL}/api/admin/portal/texts/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+      body: JSON.stringify({ scope: 'all' })
+    });
+    const resetAllData = await resResetAll.json().catch(() => ({}));
+
+    const resPubAfterReset = await fetch(`${BASE_URL}/api/portal/texts`);
+    const pubAfterReset = await resPubAfterReset.json().catch(() => ({}));
+
+    const fullTextsFlowOk = resAdminGetTexts.status === 200 &&
+      Array.isArray(adminTextsData.items) &&
+      adminTextsData.items.length >= 100 &&
+      resStaleEtag.status === 409 &&
+      resSaveText.status === 200 &&
+      saveTextData.success === true &&
+      pubAfterSave.texts?.['hero.eyebrow'] === testEyebrowValue &&
+      adminAfterSave.texts?.['hero.eyebrow'] === testEyebrowValue &&
+      resResetAll.status === 200 &&
+      resetAllData.stats?.modified === 0 &&
+      pubAfterReset.modifiedKeys?.length === 0;
+
+    recordTest('15.5 Control de concurrencia ETag (409), guardado, reflejo público y restauración limpia (200)', fullTextsFlowOk);
+  } catch (err) {
+    recordTest('15. Administración de textos estáticos del portal principal', false, err.message);
+  }
+
+  // Test 16: Administración de textos estáticos por módulo (directorio, tableros, canales, riesgo)
+  try {
+    const modSamples = [
+      { mod: 'directorio', sampleKey: 'hero.eyebrow', sampleVal: 'Directorio QA 2026' },
+      { mod: 'tableros', sampleKey: 'hero.eyebrow', sampleVal: 'Tableros QA 2026' },
+      { mod: 'canales', sampleKey: 'hero.eyebrow', sampleVal: 'Canales QA 2026' },
+      { mod: 'riesgo', sampleKey: 'hero.eyebrow', sampleVal: 'Riesgo QA 2026' }
+    ];
+
+    let allPublicOk = true;
+    for (const { mod, sampleKey } of modSamples) {
+      const r = await fetch(`${BASE_URL}/api/module-texts/${mod}`);
+      const d = await r.json().catch(() => ({}));
+      if (r.status !== 200 || d.success !== true || d.module !== mod || typeof d.texts?.[sampleKey] !== 'string') {
+        allPublicOk = false;
+      }
+    }
+    const rBadMod = await fetch(`${BASE_URL}/api/module-texts/inexistente`);
+    recordTest('16.1 Consulta pública GET /api/module-texts/:module válida para los 4 módulos y 404 en inválido', allPublicOk && rBadMod.status === 404);
+
+    // 16.2 Bloqueo 401 sin autenticación
+    const rNoAuthCat = await fetch(`${BASE_URL}/api/admin/module-texts/catalog`);
+    const rNoAuthGet = await fetch(`${BASE_URL}/api/admin/module-texts/directorio`);
+    const rNoAuthPut = await fetch(`${BASE_URL}/api/admin/module-texts/canales`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ updates: { 'hero.eyebrow': 'Prueba' } })
+    });
+    const rNoAuthReset = await fetch(`${BASE_URL}/api/admin/module-texts/riesgo/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scope: 'all' })
+    });
+    recordTest(
+      '16.2 Bloqueo sin autenticación en endpoints admin de textos por módulo (401)',
+      rNoAuthCat.status === 401 && rNoAuthGet.status === 401 && rNoAuthPut.status === 401 && rNoAuthReset.status === 401
+    );
+
+    const resLoginModAdmin = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: modAdminToken } = await resLoginModAdmin.json();
+
+    // 16.3 RBAC por módulo: operador restringido solo a ['directorio'] bloqueado en tableros/canales/riesgo
+    const restrictedModEmail = 'operador_solo_directorio_textos@cnc.gob.gt';
+    await fetch(`${BASE_URL}/api/admin/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
+      body: JSON.stringify({
+        email: restrictedModEmail,
+        displayName: 'Operador Solo Directorio Test',
+        role: 'data_operator',
+        modules: ['directorio'],
+        password: 'TestModTexts2026!'
+      })
+    });
+    const resLoginModRestricted = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: restrictedModEmail, password: 'TestModTexts2026!' })
+    });
+    const { token: restrictedModToken } = await resLoginModRestricted.json();
+
+    const rCatRestricted = await fetch(`${BASE_URL}/api/admin/module-texts/catalog`, {
+      headers: { 'Authorization': `Bearer ${restrictedModToken}` }
+    });
+    const dCatRestricted = await rCatRestricted.json().catch(() => ({}));
+    const rAllowDir = await fetch(`${BASE_URL}/api/admin/module-texts/directorio`, {
+      headers: { 'Authorization': `Bearer ${restrictedModToken}` }
+    });
+    const rDenyTab = await fetch(`${BASE_URL}/api/admin/module-texts/tableros`, {
+      headers: { 'Authorization': `Bearer ${restrictedModToken}` }
+    });
+    const rDenyCan = await fetch(`${BASE_URL}/api/admin/module-texts/canales`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${restrictedModToken}` },
+      body: JSON.stringify({ updates: { 'hero.eyebrow': 'No autorizado' } })
+    });
+    const rDenyRie = await fetch(`${BASE_URL}/api/admin/module-texts/riesgo/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${restrictedModToken}` },
+      body: JSON.stringify({ scope: 'all' })
+    });
+
+    await fetch(`${BASE_URL}/api/admin/users/${encodeURIComponent(restrictedModEmail)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${modAdminToken}` }
+    });
+
+    const catRestrictedOk = rCatRestricted.status === 200 &&
+      Array.isArray(dCatRestricted.modules) &&
+      dCatRestricted.modules.length === 1 &&
+      dCatRestricted.modules[0].key === 'directorio';
+
+    recordTest(
+      '16.3 RBAC granular por módulo: operador con permiso únicamente en directorio bloqueado en los otros 3 (403)',
+      catRestrictedOk && rAllowDir.status === 200 && rDenyTab.status === 403 && rDenyCan.status === 403 && rDenyRie.status === 403
+    );
+
+    // 16.4 Validación estricta XSS / HTML / clave inválida / vacío
+    const rModScript = await fetch(`${BASE_URL}/api/admin/module-texts/tableros`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
+      body: JSON.stringify({ updates: { 'hero.sub': '<script>alert(1)</script>' } })
+    });
+    const rModJs = await fetch(`${BASE_URL}/api/admin/module-texts/canales`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
+      body: JSON.stringify({ updates: { 'hero.sub': 'javascript:void(0)' } })
+    });
+    const rModUnknownKey = await fetch(`${BASE_URL}/api/admin/module-texts/riesgo`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
+      body: JSON.stringify({ updates: { 'clave.no.existe': 'Valor' } })
+    });
+    const rModEmpty = await fetch(`${BASE_URL}/api/admin/module-texts/directorio`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
+      body: JSON.stringify({ updates: { 'hero.eyebrow': '   ' } })
+    });
+    recordTest(
+      '16.4 Rechazo estricto de script, javascript:, clave inválida y texto vacío en textos por módulo (400)',
+      rModScript.status === 400 && rModJs.status === 400 && rModUnknownKey.status === 400 && rModEmpty.status === 400
+    );
+
+    // 16.5 ETag OCC (409), guardado PUT, reflejo público GET y restauración limpia POST /reset para los 4 módulos
+    let allFlowsOk = true;
+    for (const { mod, sampleKey, sampleVal } of modSamples) {
+      const rGet = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
+        headers: { 'Authorization': `Bearer ${modAdminToken}` }
+      });
+      const etag = rGet.headers.get('ETag');
+      const getData = await rGet.json().catch(() => ({}));
+
+      const rStale = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${modAdminToken}`,
+          'If-Match': `"${'0'.repeat(64)}"`
+        },
+        body: JSON.stringify({ updates: { [sampleKey]: 'Conflicto QA' } })
+      });
+
+      const rPut = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${modAdminToken}`,
+          ...(etag ? { 'If-Match': etag } : {})
+        },
+        body: JSON.stringify({ updates: { [sampleKey]: sampleVal } })
+      });
+      const putData = await rPut.json().catch(() => ({}));
+
+      const rPub = await fetch(`${BASE_URL}/api/module-texts/${mod}`);
+      const pubData = await rPub.json().catch(() => ({}));
+
+      const rReset = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}/reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
+        body: JSON.stringify({ scope: 'all' })
+      });
+      const resetData = await rReset.json().catch(() => ({}));
+
+      const rPubAfterReset = await fetch(`${BASE_URL}/api/module-texts/${mod}`);
+      const pubAfterResetData = await rPubAfterReset.json().catch(() => ({}));
+
+      if (
+        rGet.status !== 200 ||
+        !Array.isArray(getData.items) ||
+        getData.items.length < 40 ||
+        rStale.status !== 409 ||
+        rPut.status !== 200 ||
+        putData.success !== true ||
+        pubData.texts?.[sampleKey] !== sampleVal ||
+        rReset.status !== 200 ||
+        resetData.stats?.modified !== 0 ||
+        pubAfterResetData.modifiedKeys?.length !== 0
+      ) {
+        allFlowsOk = false;
+      }
+    }
+    recordTest('16.5 Control ETag (409), guardado, reflejo público y restauración limpia en los 4 módulos (200)', allFlowsOk);
+  } catch (err) {
+    recordTest('16. Administración de textos estáticos por módulo', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(` RESUMEN DE PRUEBAS: ${results.passed} SUPERADAS / ${results.failed} FALLIDAS`);
   console.log('=============================================================\n');

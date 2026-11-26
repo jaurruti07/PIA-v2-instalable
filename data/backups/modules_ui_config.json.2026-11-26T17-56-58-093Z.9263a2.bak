@@ -1,0 +1,577 @@
+{
+  "backgrounds": {
+    "portal": [
+      {
+        "id": 1,
+        "url": "/img/wallpaper_directorio_acceso_ejecutivo.png",
+        "titulo": "Acceso Ejecutivo",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "url": "/img/gobiernoNumerosWall.jpg",
+        "titulo": "Gobierno en Números",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "url": "/img/wallpaperportal2.png",
+        "titulo": "Portal Integridad 2",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "url": "/img/wallpaperportal3.jpg",
+        "titulo": "Portal Integridad 3",
+        "activo": true,
+        "orden": 4
+      },
+      {
+        "id": 5,
+        "url": "/img/numeros.png",
+        "titulo": "Datos y Cifras",
+        "activo": true,
+        "orden": 5
+      }
+    ],
+    "canales": [
+      {
+        "id": 1,
+        "url": "/img/canalesfondobanner.png",
+        "titulo": "Canales Banner Principal",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "url": "/img/wallpapercanales1.jpg",
+        "titulo": "Canales Fondo 1",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "url": "/img/wallpapercanales4.jpg",
+        "titulo": "Canales Fondo 4",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "url": "/img/wallpapercanales5.jpg",
+        "titulo": "Canales Fondo 5",
+        "activo": true,
+        "orden": 4
+      },
+      {
+        "id": 5,
+        "url": "/img/L2.png",
+        "titulo": "Canales Institucional",
+        "activo": true,
+        "orden": 5
+      }
+    ],
+    "directorio": [
+      {
+        "id": 1,
+        "url": "/img/directoriov2.2.png",
+        "titulo": "Directorio Principal",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "url": "/img/wallpaperdirectorio.jpg",
+        "titulo": "Directorio Fondo 2",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "url": "/img/wallpaper_directorio_acceso_ejecutivo.png",
+        "titulo": "Acceso Ejecutivo",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "url": "/img/wallpaperportal3.jpg",
+        "titulo": "Portal 3",
+        "activo": true,
+        "orden": 4
+      },
+      {
+        "id": 5,
+        "url": "/img/logodirectorio2.png",
+        "titulo": "Directorio Institucional",
+        "activo": true,
+        "orden": 5
+      }
+    ],
+    "tableros": [
+      {
+        "id": 1,
+        "url": "/img/gobiernoNumerosWall2.jpg",
+        "titulo": "Gobierno en Números 2",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "url": "/img/gobiernoNumerosWall.jpg",
+        "titulo": "Gobierno en Números 1",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "url": "/img/gobiernoNumerosWall3.jpg",
+        "titulo": "Gobierno en Números 3",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "url": "/img/numeros.png",
+        "titulo": "Indicadores y Cifras",
+        "activo": true,
+        "orden": 4
+      }
+    ],
+    "riesgo": [
+      {
+        "id": 1,
+        "url": "/img/gestion-de-riesgo.png",
+        "titulo": "Gestión de Riesgo Principal",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "url": "/img/riesgo.png",
+        "titulo": "Riesgo en la Mira 1",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "url": "/img/riesgo2.png",
+        "titulo": "Riesgo en la Mira 2",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "url": "/img/riesgo3.jpg",
+        "titulo": "Riesgo en la Mira 3",
+        "activo": true,
+        "orden": 4
+      }
+    ],
+    "vehiculos": [
+      {
+        "id": 1,
+        "url": "/img/vehiculosOficiales.png",
+        "titulo": "Vehículos Oficiales",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "url": "/img/vehiculo1.jpg",
+        "titulo": "Vehículos Fondo 1",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "url": "/img/vehiculos2.jpg",
+        "titulo": "Vehículos Fondo 2",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "url": "/img/vehiculos3.jpg",
+        "titulo": "Vehículos Fondo 3",
+        "activo": true,
+        "orden": 4
+      },
+      {
+        "id": 5,
+        "url": "/img/vehiculos4.png",
+        "titulo": "Vehículos Fondo 4",
+        "activo": true,
+        "orden": 5
+      },
+      {
+        "id": 6,
+        "url": "/uploads/backgrounds/test_ui_bg_1795715818054_17ed5e.png",
+        "titulo": "Fondo Prueba QA",
+        "activo": true,
+        "orden": 6
+      }
+    ]
+  },
+  "sectionImages": {
+    "portal": {
+      "porqueExiste": "/img/wallpaperdirectorio.jpg"
+    }
+  },
+  "kpis": {
+    "canales": [
+      {
+        "id": 1,
+        "clave": "totalCanales",
+        "modoValor": "auto",
+        "autoKey": "totalCanales",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Canales disponibles",
+        "descripcion": "Total de canales habilitados por las instituciones del Organismo Ejecutivo para recepcionar denuncias administrativas.",
+        "icono": "fas fa-phone-alt",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "clave": "totalInstituciones",
+        "modoValor": "auto",
+        "autoKey": "totalInstituciones",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Instituciones",
+        "descripcion": "Cantidad total de dependencias e instituciones del Organismo Ejecutivo registradas en este directorio.",
+        "icono": "fas fa-building",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "clave": "totalProtocolos",
+        "modoValor": "auto",
+        "autoKey": "totalProtocolos",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Instituciones con protocolo de actuación",
+        "descripcion": "Instituciones del Organismo Ejecutivo que cuentan con un protocolo interno formalizado para tramitar denuncias administrativas.",
+        "icono": "fas fa-file-contract",
+        "activo": true,
+        "orden": 3,
+        "requiresConfigFlag": "showProtocolos"
+      },
+      {
+        "id": 4,
+        "clave": "accesoContinuo",
+        "modoValor": "manual",
+        "autoKey": null,
+        "valor": "24/7",
+        "sufijo": "",
+        "titulo": "Acceso continuo",
+        "descripcion": "Portal disponible en línea las 24 horas del día, los 7 días de la semana, para consultar los medios oficiales de denuncia.",
+        "icono": "fas fa-clock",
+        "activo": true,
+        "orden": 4
+      },
+      {
+        "id": 5,
+        "clave": "segura",
+        "modoValor": "manual",
+        "autoKey": null,
+        "valor": "100",
+        "sufijo": "%",
+        "titulo": "Segura",
+        "descripcion": "Consulta pública sin registro previo y acceso directo a los canales oficiales de cada entidad bajo resguardo confidencial.",
+        "icono": "fas fa-shield-alt",
+        "activo": true,
+        "orden": 5
+      },
+      {
+        "id": 6,
+        "clave": "actualizada",
+        "modoValor": "manual",
+        "autoKey": null,
+        "valor": "100",
+        "sufijo": "%",
+        "titulo": "Actualizada",
+        "descripcion": "Directorio en revisión continua conforme las instituciones reportan cambios en sus puntos y medios de atención.",
+        "icono": "fas fa-sync-alt",
+        "activo": true,
+        "orden": 6
+      },
+      {
+        "id": 7,
+        "clave": "validada",
+        "modoValor": "manual",
+        "autoKey": null,
+        "valor": "Validada",
+        "sufijo": "",
+        "titulo": "Datos validados por CNC",
+        "descripcion": "Información verificada por la Comisión Nacional contra la Corrupción en coordinación con las Instancias de Asuntos de Probidad.",
+        "icono": "fas fa-user-secret",
+        "activo": true,
+        "orden": 7
+      }
+    ],
+    "directorio": [
+      {
+        "id": 1,
+        "clave": "totalInstituciones",
+        "modoValor": "auto",
+        "autoKey": "totalInstituciones",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Instituciones registradas",
+        "descripcion": "Dependencias del Organismo Ejecutivo incluidas en el directorio",
+        "icono": "fas fa-building",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "clave": "totalCorreo",
+        "modoValor": "auto",
+        "autoKey": "totalCorreo",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Con correo electrónico",
+        "descripcion": "Unidades con dirección electrónica oficial de contacto",
+        "icono": "fas fa-envelope",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "clave": "totalTelefono",
+        "modoValor": "auto",
+        "autoKey": "totalTelefono",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Con teléfono",
+        "descripcion": "Instituciones con línea telefónica de atención ciudadana",
+        "icono": "fas fa-phone-alt",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "clave": "totalSolicitud",
+        "modoValor": "auto",
+        "autoKey": "totalSolicitud",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Con solicitud en línea",
+        "descripcion": "Cuentan con portal o formulario digital de acceso",
+        "icono": "fas fa-globe",
+        "activo": true,
+        "orden": 4
+      },
+      {
+        "id": 5,
+        "clave": "totalOficio",
+        "modoValor": "auto",
+        "autoKey": "totalOficio",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Con información de oficio",
+        "descripcion": "Disponen de enlace directo a su sección de información pública",
+        "icono": "fas fa-file-alt",
+        "activo": true,
+        "orden": 5
+      }
+    ],
+    "tableros": [
+      {
+        "id": 1,
+        "clave": "totalInstituciones",
+        "modoValor": "auto",
+        "autoKey": "totalInstituciones",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Instituciones registradas",
+        "descripcion": "Entidades públicas integradas en la plataforma",
+        "icono": "fas fa-building",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "clave": "totalTableros",
+        "modoValor": "auto",
+        "autoKey": "totalTableros",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Tableros disponibles",
+        "descripcion": "Tableros interactivos de rendición de cuentas publicados",
+        "icono": "fas fa-table",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "clave": "totalMinisterios",
+        "modoValor": "auto",
+        "autoKey": "totalMinisterios",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Ministerios",
+        "descripcion": "Ministerios del Organismo Ejecutivo con tablero activo",
+        "icono": "fas fa-university",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "clave": "totalSecretarias",
+        "modoValor": "auto",
+        "autoKey": "totalSecretarias",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Secretarías",
+        "descripcion": "Secretarías de la Presidencia con publicación activa",
+        "icono": "fas fa-file-signature",
+        "activo": true,
+        "orden": 4
+      },
+      {
+        "id": 5,
+        "clave": "totalOtras",
+        "modoValor": "auto",
+        "autoKey": "totalOtras",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Otras dependencias",
+        "descripcion": "Gobernaciones y dependencias descentralizadas",
+        "icono": "fas fa-sitemap",
+        "activo": true,
+        "orden": 5
+      }
+    ],
+    "riesgo": [
+      {
+        "id": 1,
+        "clave": "totalInstituciones",
+        "modoValor": "auto",
+        "autoKey": "totalInstituciones",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Instituciones",
+        "descripcion": "Instituciones evaluadas en el ciclo de gestión de riesgos",
+        "icono": "fas fa-building",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "clave": "pctCumplen",
+        "modoValor": "auto",
+        "autoKey": "pctCumplen",
+        "valor": "0",
+        "sufijo": "%",
+        "titulo": "Cumplen",
+        "descripcion": "Instituciones que cumplen el lineamiento completo",
+        "icono": "fas fa-check-circle",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "clave": "pctEnProceso",
+        "modoValor": "auto",
+        "autoKey": "pctEnProceso",
+        "valor": "0",
+        "sufijo": "%",
+        "titulo": "En proceso",
+        "descripcion": "Instituciones en fase de implementación o cumplimiento parcial",
+        "icono": "fas fa-spinner",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "clave": "pctBuenasPracticas",
+        "modoValor": "auto",
+        "autoKey": "pctBuenasPracticas",
+        "valor": "0",
+        "sufijo": "%",
+        "titulo": "Buenas prácticas GRC",
+        "descripcion": "Adopción voluntaria de buenas prácticas de gestión de riesgos",
+        "icono": "fas fa-star",
+        "activo": true,
+        "orden": 4
+      },
+      {
+        "id": 5,
+        "clave": "cicloActivo",
+        "modoValor": "auto",
+        "autoKey": "cicloActivo",
+        "valor": "2025",
+        "sufijo": "",
+        "titulo": "Ciclo activo",
+        "descripcion": "Año de evaluación seleccionado en la consulta",
+        "icono": "fas fa-clock",
+        "activo": true,
+        "orden": 5
+      }
+    ],
+    "vehiculos": [
+      {
+        "id": 1,
+        "clave": "kpiCumple",
+        "modoValor": "auto",
+        "autoKey": "kpiCumple",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "Cumple (7/7)",
+        "descripcion": "Instituciones que cumplen los 7 criterios evaluados",
+        "icono": "fas fa-check-circle",
+        "activo": true,
+        "orden": 1
+      },
+      {
+        "id": 2,
+        "clave": "kpiProceso",
+        "modoValor": "auto",
+        "autoKey": "kpiProceso",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "En proceso (1-6)",
+        "descripcion": "Instituciones con cumplimiento parcial de criterios",
+        "icono": "fas fa-clock",
+        "activo": true,
+        "orden": 2
+      },
+      {
+        "id": 3,
+        "clave": "kpiNoCumple",
+        "modoValor": "auto",
+        "autoKey": "kpiNoCumple",
+        "valor": "0",
+        "sufijo": "",
+        "titulo": "No cumple (0/7)",
+        "descripcion": "Instituciones sin criterios cumplidos registrados",
+        "icono": "fas fa-times-circle",
+        "activo": true,
+        "orden": 3
+      },
+      {
+        "id": 4,
+        "clave": "custom_4",
+        "modoValor": "manual",
+        "autoKey": null,
+        "valor": "98",
+        "sufijo": "%",
+        "titulo": "Cumplimiento QA Editado",
+        "descripcion": "Texto actualizado en módulo",
+        "icono": "fas fa-shield-alt",
+        "activo": true,
+        "orden": 4
+      }
+    ]
+  },
+  "updatedAt": "2026-11-26T17:56:58.083Z",
+  "updatedBy": "deteccionydenuncia@cnc.gob.gt"
+}

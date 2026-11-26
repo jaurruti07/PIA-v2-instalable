@@ -67,18 +67,35 @@ const PIA_DEFAULT_USERS = [
     }
 ];
 
+function isStandaloneFileMode() {
+    return typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
+}
+
+function handleSessionExpiredError(message = 'Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.') {
+    if (typeof window !== 'undefined' && typeof window.logout === 'function') {
+        window.logout(message);
+    }
+    return new Error(message);
+}
+
 window.PiaDataEngine = {
     isServerActive: null,
     moduleETags: {},
 
-    async checkServerHealth() {
-        if (this.isServerActive !== null) return this.isServerActive;
+    async checkServerHealth(forceCheck = false) {
+        if (isStandaloneFileMode()) {
+            this.isServerActive = false;
+            this.updateConnectionIndicator();
+            return false;
+        }
+        if (this.isServerActive === true && !forceCheck) return true;
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
             const res = await fetch(`${getApiBase()}/modules`, {
                 signal: controller.signal,
-                headers: getHeaders()
+                headers: getHeaders(),
+                cache: 'no-store'
             });
             clearTimeout(timeoutId);
             this.isServerActive = res.ok;
@@ -118,10 +135,23 @@ window.PiaDataEngine = {
     },
 
     async fetchRawJson(path) {
-        try {
-            const res = await fetch(`/api/raw-json?path=${encodeURIComponent(path)}`, { headers: getHeaders() });
-            if (res.ok) return await res.json();
-        } catch (e) {}
+        if (!isStandaloneFileMode()) {
+            const res = await fetch(`/api/raw-json?path=${encodeURIComponent(path)}`, {
+                headers: getHeaders(),
+                cache: 'no-store'
+            });
+            if (res.status === 401) {
+                throw handleSessionExpiredError();
+            }
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || `No se pudo leer el archivo JSON (${res.status})`);
+            }
+            this.isServerActive = true;
+            this.updateConnectionIndicator();
+            localStorage.removeItem('pia_custom_json_' + path);
+            return await res.json();
+        }
 
         const cleanPath = path.replace(/^\//, '');
         const pathsToTry = [
@@ -133,7 +163,7 @@ window.PiaDataEngine = {
 
         for (const p of pathsToTry) {
             try {
-                const res = await fetch(p);
+                const res = await fetch(p, { cache: 'no-store' });
                 if (res.ok) return await res.json();
             } catch (e) {}
         }
@@ -146,26 +176,42 @@ window.PiaDataEngine = {
     },
 
     async fetchModuleRecords(module) {
+        if (!isStandaloneFileMode()) {
+            let res;
+            try {
+                res = await fetch(`${getApiBase()}/${encodeURIComponent(module)}`, {
+                    headers: getHeaders(),
+                    cache: 'no-store'
+                });
+            } catch (e) {
+                this.isServerActive = false;
+                this.updateConnectionIndicator();
+                throw new Error('No se pudo conectar con el servidor para cargar los datos. Verifica la conexión e intenta nuevamente.');
+            }
+
+            if (res.status === 401) {
+                throw handleSessionExpiredError();
+            }
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || `Error al cargar el módulo '${module}' desde el servidor (HTTP ${res.status}).`);
+            }
+
+            this.isServerActive = true;
+            this.updateConnectionIndicator();
+            const etag = res.headers.get('ETag');
+            if (etag) this.moduleETags[module] = etag;
+            localStorage.removeItem('pia_offline_records_' + module);
+            const data = await res.json();
+            return Array.isArray(data) ? data : [data];
+        }
+
         const localMod = localStorage.getItem('pia_offline_records_' + module);
-        if (localMod && this.isServerActive === false) {
+        if (localMod) {
             try {
                 const parsed = JSON.parse(localMod);
                 if (Array.isArray(parsed) && parsed.length > 0) return parsed;
             } catch (e) {}
-        }
-
-        try {
-            const res = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders() });
-            if (res.ok) {
-                this.isServerActive = true;
-                this.updateConnectionIndicator();
-                const etag = res.headers.get('ETag');
-                if (etag) this.moduleETags[module] = etag;
-                const data = await res.json();
-                return Array.isArray(data) ? data : [data];
-            }
-        } catch (e) {
-            this.isServerActive = false;
         }
 
         this.isServerActive = false;
@@ -176,7 +222,7 @@ window.PiaDataEngine = {
 
         for (const candidatePath of fallbacks) {
             try {
-                const res = await fetch(candidatePath);
+                const res = await fetch(candidatePath, { cache: 'no-store' });
                 if (res.ok) {
                     rawData = await res.json();
                     break;
@@ -187,7 +233,7 @@ window.PiaDataEngine = {
         if (!rawData) {
             for (const candidatePath of fallbacks) {
                 try {
-                    const res = await fetch('/' + candidatePath.replace(/^(\.\.\/|\.\/)/, ''));
+                    const res = await fetch('/' + candidatePath.replace(/^(\.\.\/|\.\/)/, ''), { cache: 'no-store' });
                     if (res.ok) {
                         rawData = await res.json();
                         break;
@@ -218,21 +264,17 @@ window.PiaDataEngine = {
             ...item
         }));
 
-        if (localMod) {
-            try {
-                const localArr = JSON.parse(localMod);
-                if (Array.isArray(localArr) && localArr.length > 0) return localArr;
-            } catch (e) {}
-        }
-
         localStorage.setItem('pia_offline_records_' + module, JSON.stringify(parsedRecords));
         return parsedRecords;
     },
 
     async refreshModuleEtag(module) {
+        if (isStandaloneFileMode()) return;
         try {
-            const res = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders(), cache: 'no-store' });
+            const res = await fetch(`${getApiBase()}/${encodeURIComponent(module)}`, { headers: getHeaders(), cache: 'no-store' });
             if (res.ok) {
+                this.isServerActive = true;
+                this.updateConnectionIndicator();
                 const etag = res.headers.get('ETag');
                 if (etag) this.moduleETags[module] = etag;
             }
@@ -240,61 +282,73 @@ window.PiaDataEngine = {
     },
 
     async saveRecord(module, recordData, id = null) {
-        const isServer = await this.checkServerHealth();
-
-        if (isServer) {
-            let url = `${getApiBase()}/${module}`;
+        if (!isStandaloneFileMode()) {
+            let url = `${getApiBase()}/${encodeURIComponent(module)}`;
             let method = 'POST';
-            if (id) {
+            if (id !== null && id !== undefined && id !== '') {
                 url += `/${encodeURIComponent(id)}`;
                 method = 'PUT';
             }
-            const headers = getHeaders();
-            if (this.moduleETags[module]) headers['If-Match'] = this.moduleETags[module];
 
-            const res = await fetch(url, {
-                method,
-                headers,
-                body: JSON.stringify(recordData)
-            });
+            const sendSave = async (etagOverride = null) => {
+                const headers = getHeaders();
+                const etag = etagOverride || this.moduleETags[module];
+                if (etag) headers['If-Match'] = etag;
+                return fetch(url, {
+                    method,
+                    headers,
+                    body: JSON.stringify(recordData),
+                    cache: 'no-store'
+                });
+            };
 
-            if (res.ok) {
-                const newEtag = res.headers.get('ETag');
-                if (newEtag) this.moduleETags[module] = newEtag;
-                const saved = await res.json();
-                localStorage.removeItem('pia_offline_records_' + module);
-                return saved;
-            } else if (res.status === 409) {
-                // Auto-recuperación: resincronizar ETag fresco y reintentar inmediatamente
+            let res;
+            try {
+                res = await sendSave();
+            } catch (e) {
+                this.isServerActive = false;
+                this.updateConnectionIndicator();
+                throw new Error('No se pudo conectar con el servidor para guardar el registro en el archivo JSON.');
+            }
+
+            if (res.status === 409) {
                 try {
-                    const freshRes = await fetch(`${getApiBase()}/${module}`, { headers: getHeaders(), cache: 'no-store' });
+                    const freshRes = await fetch(`${getApiBase()}/${encodeURIComponent(module)}`, {
+                        headers: getHeaders(),
+                        cache: 'no-store'
+                    });
                     if (freshRes.ok) {
                         const freshEtag = freshRes.headers.get('ETag');
                         if (freshEtag) {
                             this.moduleETags[module] = freshEtag;
-                            const retryHeaders = getHeaders();
-                            retryHeaders['If-Match'] = freshEtag;
-                            const retryRes = await fetch(url, {
-                                method,
-                                headers: retryHeaders,
-                                body: JSON.stringify(recordData)
-                            });
-                            if (retryRes.ok) {
-                                const newEtag = retryRes.headers.get('ETag');
-                                if (newEtag) this.moduleETags[module] = newEtag;
-                                const saved = await retryRes.json();
-                                localStorage.removeItem('pia_offline_records_' + module);
-                                return saved;
-                            }
+                            res = await sendSave(freshEtag);
                         }
                     }
                 } catch (_) {}
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err.error || 'Conflicto de concurrencia: Los datos fueron modificados. Por favor intente guardar de nuevo.');
             }
+
+            if (res.status === 401) {
+                throw handleSessionExpiredError();
+            }
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                if (res.status === 409) {
+                    throw new Error(err.error || 'Conflicto de concurrencia: Los datos fueron modificados. Por favor intente guardar de nuevo.');
+                }
+                throw new Error(err.error || `Error al guardar en el archivo JSON del servidor (HTTP ${res.status}).`);
+            }
+
+            this.isServerActive = true;
+            this.updateConnectionIndicator();
+            const newEtag = res.headers.get('ETag');
+            if (newEtag) this.moduleETags[module] = newEtag;
+            const saved = await res.json();
+            localStorage.removeItem('pia_offline_records_' + module);
+            return saved;
         }
 
-        // Modo local/descargado
+        // Modo local/descargado únicamente para archivos locales (file://)
         let records = await this.fetchModuleRecords(module);
         let savedRecord = null;
 
@@ -308,8 +362,8 @@ window.PiaDataEngine = {
                 records.push(savedRecord);
             }
         } else {
-            const nextId = (records.length > 0) 
-                ? Math.max(...records.map(r => Number(r.id) || 0).filter(n => !isNaN(n)), 0) + 1 
+            const nextId = (records.length > 0)
+                ? Math.max(...records.map(r => Number(r.id) || 0).filter(n => !isNaN(n)), 0) + 1
                 : 1;
             savedRecord = { id: nextId, ...recordData };
             records.push(savedRecord);
@@ -327,27 +381,65 @@ window.PiaDataEngine = {
     },
 
     async deleteRecord(module, id) {
-        const isServer = await this.checkServerHealth();
+        if (!isStandaloneFileMode()) {
+            const url = `${getApiBase()}/${encodeURIComponent(module)}/${encodeURIComponent(id)}`;
+            const sendDelete = async (etagOverride = null) => {
+                const headers = getHeaders();
+                const etag = etagOverride || this.moduleETags[module];
+                if (etag) headers['If-Match'] = etag;
+                return fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                    cache: 'no-store'
+                });
+            };
 
-        if (isServer) {
-            let url = `${getApiBase()}/${module}/${encodeURIComponent(id)}`;
-            const headers = getHeaders();
-            if (this.moduleETags[module]) headers['If-Match'] = this.moduleETags[module];
-
-            const res = await fetch(url, {
-                method: 'DELETE',
-                headers
-            });
-
-            if (res.ok) {
-                const newEtag = res.headers.get('ETag');
-                if (newEtag) this.moduleETags[module] = newEtag;
-                localStorage.removeItem('pia_offline_records_' + module);
-                return true;
+            let res;
+            try {
+                res = await sendDelete();
+            } catch (e) {
+                this.isServerActive = false;
+                this.updateConnectionIndicator();
+                throw new Error('No se pudo conectar con el servidor para eliminar el registro del archivo JSON.');
             }
+
+            if (res.status === 409) {
+                try {
+                    const freshRes = await fetch(`${getApiBase()}/${encodeURIComponent(module)}`, {
+                        headers: getHeaders(),
+                        cache: 'no-store'
+                    });
+                    if (freshRes.ok) {
+                        const freshEtag = freshRes.headers.get('ETag');
+                        if (freshEtag) {
+                            this.moduleETags[module] = freshEtag;
+                            res = await sendDelete(freshEtag);
+                        }
+                    }
+                } catch (_) {}
+            }
+
+            if (res.status === 401) {
+                throw handleSessionExpiredError();
+            }
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                if (res.status === 409) {
+                    throw new Error(err.error || 'Conflicto de concurrencia: Los datos fueron modificados. Intenta eliminar nuevamente.');
+                }
+                throw new Error(err.error || `Error al eliminar en el servidor (HTTP ${res.status}).`);
+            }
+
+            this.isServerActive = true;
+            this.updateConnectionIndicator();
+            const newEtag = res.headers.get('ETag');
+            if (newEtag) this.moduleETags[module] = newEtag;
+            localStorage.removeItem('pia_offline_records_' + module);
+            return true;
         }
 
-        // Modo local/descargado
+        // Modo local/descargado únicamente para archivos locales (file://)
         let records = await this.fetchModuleRecords(module);
         const filtered = records.filter(r => String(r.id) !== String(id) && (!r.nombre || String(r.nombre) !== String(id)));
         localStorage.setItem('pia_offline_records_' + module, JSON.stringify(filtered));
@@ -363,13 +455,18 @@ window.PiaDataEngine = {
 
     async fetchDashboardStats() {
         try {
-            const res = await fetch('/api/dashboard/stats', { headers: getHeaders() });
+            const res = await fetch('/api/dashboard/stats', { headers: getHeaders(), cache: 'no-store' });
+            if (res.status === 401) {
+                throw handleSessionExpiredError();
+            }
             if (res.ok) {
                 this.isServerActive = true;
                 this.updateConnectionIndicator();
                 return await res.json();
             }
-        } catch (e) {}
+        } catch (e) {
+            if (!isStandaloneFileMode()) throw e;
+        }
 
         this.isServerActive = false;
         this.updateConnectionIndicator();
@@ -402,9 +499,14 @@ window.PiaDataEngine = {
 
     async fetchVisitsData() {
         try {
-            const res = await fetch('/api/admin/visits', { headers: getHeaders() });
+            const res = await fetch('/api/admin/visits', { headers: getHeaders(), cache: 'no-store' });
+            if (res.status === 401) {
+                throw handleSessionExpiredError();
+            }
             if (res.ok) return await res.json();
-        } catch (e) {}
+        } catch (e) {
+            if (!isStandaloneFileMode()) throw e;
+        }
 
         const paths = PIA_MODULE_FALLBACK_PATHS['visits'] || [];
         let data = null;
@@ -455,9 +557,14 @@ window.PiaDataEngine = {
 
     async fetchAuditData() {
         try {
-            const res = await fetch('/api/dashboard/audit', { headers: getHeaders() });
+            const res = await fetch('/api/dashboard/audit', { headers: getHeaders(), cache: 'no-store' });
+            if (res.status === 401) {
+                throw handleSessionExpiredError();
+            }
             if (res.ok) return await res.json();
-        } catch (e) {}
+        } catch (e) {
+            if (!isStandaloneFileMode()) throw e;
+        }
 
         const paths = PIA_MODULE_FALLBACK_PATHS['audit'] || [];
         let logs = [];
@@ -501,13 +608,14 @@ window.PiaDataEngine = {
     },
 
     async createUser(userData) {
-        const isServer = await this.checkServerHealth();
-        if (isServer) {
+        if (!isStandaloneFileMode()) {
             const res = await fetch('/api/admin/users', {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify(userData)
+                body: JSON.stringify(userData),
+                cache: 'no-store'
             });
+            if (res.status === 401) throw handleSessionExpiredError();
             if (res.ok) {
                 const data = await res.json();
                 return data.user;
@@ -516,7 +624,7 @@ window.PiaDataEngine = {
             throw new Error(err.error || 'Error al crear usuario en el servidor');
         }
 
-        // Modo offline / local
+        // Modo offline / local (solo file://)
         const currentUsers = this.getFallbackUsers();
         const cleanEmail = (userData.email || '').trim().toLowerCase();
         if (currentUsers.some(u => (u.email || '').toLowerCase() === cleanEmail)) {
@@ -551,12 +659,13 @@ window.PiaDataEngine = {
 
     async deleteUser(email) {
         const cleanEmail = (email || '').trim().toLowerCase();
-        const isServer = await this.checkServerHealth();
-        if (isServer) {
+        if (!isStandaloneFileMode()) {
             const res = await fetch(`/api/admin/users/${encodeURIComponent(cleanEmail)}`, {
                 method: 'DELETE',
-                headers: getHeaders()
+                headers: getHeaders(),
+                cache: 'no-store'
             });
+            if (res.status === 401) throw handleSessionExpiredError();
             if (res.ok) return true;
             const err = await res.json().catch(() => ({}));
             throw new Error(err.error || 'Error al eliminar usuario en el servidor');
@@ -574,37 +683,51 @@ window.PiaDataEngine = {
         return true;
     },
 
-    downloadModuleJson(module) {
-        const records = JSON.parse(localStorage.getItem('pia_offline_records_' + module) || '[]');
-        let outputData = records;
+    async downloadModuleJson(module) {
         let filename = `${module}.json`;
-
         if (module === 'canales') filename = 'data_directorio.json';
         else if (module === 'directorio') filename = 'data_acceso.json';
         else if (module === 'tableros') filename = 'data_tableros.json';
-        else if (module === 'riesgo') {
-            filename = 'datos.json';
-            outputData = { years: { "2025": { instituciones: records } } };
-        } else if (module === 'vehiculos' || module === 'vehiculos_instituciones') {
-            filename = 'vehiculos.json';
-            const cat = (module === 'vehiculos_instituciones') ? records : (JSON.parse(localStorage.getItem('pia_offline_records_vehiculos_instituciones') || '[]'));
-            const veh = (module === 'vehiculos') ? records : (JSON.parse(localStorage.getItem('pia_offline_records_vehiculos') || '[]'));
-            outputData = { catalogInstituciones: cat, vehicles: veh };
-        } else if (module === 'portal') {
-            filename = 'data_portal.json';
-            outputData = records[0] || {};
-        }
+        else if (module === 'riesgo') filename = 'datos.json';
+        else if (module === 'vehiculos' || module === 'vehiculos_instituciones') filename = 'vehiculos.json';
+        else if (module === 'portal') filename = 'data_portal.json';
 
-        const blob = new Blob([JSON.stringify(outputData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        window.showToast(`Archivo '${filename}' descargado exitosamente`, 'success');
+        try {
+            let outputData = null;
+            if (!isStandaloneFileMode()) {
+                try {
+                    outputData = await this.fetchRawJson(module === 'vehiculos_instituciones' ? 'vehiculos' : module);
+                } catch (_) {
+                    const records = await this.fetchModuleRecords(module);
+                    outputData = (module === 'portal') ? (records[0] || {}) : records;
+                }
+            } else {
+                const records = JSON.parse(localStorage.getItem('pia_offline_records_' + module) || '[]');
+                outputData = records;
+                if (module === 'riesgo') {
+                    outputData = { years: { "2025": { instituciones: records } } };
+                } else if (module === 'vehiculos' || module === 'vehiculos_instituciones') {
+                    const cat = (module === 'vehiculos_instituciones') ? records : (JSON.parse(localStorage.getItem('pia_offline_records_vehiculos_instituciones') || '[]'));
+                    const veh = (module === 'vehiculos') ? records : (JSON.parse(localStorage.getItem('pia_offline_records_vehiculos') || '[]'));
+                    outputData = { catalogInstituciones: cat, vehicles: veh };
+                } else if (module === 'portal') {
+                    outputData = records[0] || {};
+                }
+            }
+
+            const blob = new Blob([JSON.stringify(outputData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            window.showToast(`Archivo '${filename}' descargado exitosamente`, 'success');
+        } catch (err) {
+            window.showToast(err.message || `No se pudo descargar '${filename}'`, 'error');
+        }
     }
 };
 

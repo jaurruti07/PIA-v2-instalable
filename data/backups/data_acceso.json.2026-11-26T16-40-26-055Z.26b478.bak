@@ -1,0 +1,1543 @@
+[
+  {
+    "id": 1,
+    "nombre_institucion": "Vicepresidencia",
+    "siglas": "VICE",
+    "sector": "VICEPRESIDENCIA",
+    "departamento": "Guatemala",
+    "correo": "uip@vicepresidencia.gob.gt",
+    "telefono": "2321-2121 ext. 1004",
+    "direccion": "6ta. Ave. 4-19 Zona 1. Casa Presidencial, Puerta Norte",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://mail.vicepresidencia.gob.gt/form/solicitar-informacion-publica"
+    ],
+    "enlaces_oficio": [
+      "https://mail.vicepresidencia.gob.gt/informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 2,
+    "nombre_institucion": "Ministerio de Agricultura, Ganadería y Alimentación -MAGA-",
+    "siglas": "MAGA",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "uip@maga.gob.gt",
+    "telefono": "1557 ext. 7354",
+    "direccion": "7av 12-90 Zona 13, Unidad de Acceso a la Información Pública, primer nivel",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.maga.gob.gt/sitios/uip/solicitud-de-informacion/"
+    ],
+    "enlaces_oficio": [
+      "https://www.maga.gob.gt/sitios/uip/#"
+    ]
+  },
+  {
+    "id": 3,
+    "nombre_institucion": "Ministerio de Ambiente y Recursos Naturales -MARN-",
+    "siglas": "MARN",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "sip@marn.gob.gt",
+    "telefono": "2423-0500 ext. 1010",
+    "direccion": "7 avenida 03-67 Zona 13 Ciudad de Guatemala, Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://sip.marn.gob.gt/Solicitud.aspx"
+    ],
+    "enlaces_oficio": [
+      "https://sip.marn.gob.gt/Publico.aspx"
+    ]
+  },
+  {
+    "id": 4,
+    "nombre_institucion": "Ministerio de Comunicaciones, Infraestructura y Vivienda -MICIVI-",
+    "siglas": "MICIVI",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "uip@civ.gob.gt",
+    "telefono": "2304-2222 ext. 2228 y 0211",
+    "direccion": "8a avenida y 15 calle, Zona 13, Guatemala, C.A.",
+    "horario_atencion": "Lunes a viernes de 9:00 a 17:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.civ.gob.gt/web/guest/195?p_p_id=86&p_p_action=1&p_p_state=normal&p_p_mode=view&p_p_col_id=&p_p_col_pos=0&p_p_col_count=0&"
+    ],
+    "enlaces_oficio": [
+      "https://www.civ.gob.gt/web/guest/accesoalainformacion?p_p_id=86&p_p_action=1&p_p_state=normal&p_p_mode=view&p_p_col_id=&p_p_col_pos=0&p_p_col_count=2&"
+    ]
+  },
+  {
+    "id": 5,
+    "nombre_institucion": "Ministerio de Cultura y Deportes -MCD-",
+    "siglas": "MCD",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "informacionpublica@mcd.gob.gt",
+    "telefono": "2253-0540",
+    "direccion": "Sala no. 5 Patio de la Vida, Primer nivel, Palacio Nacional de la Cultura 6ta calle. Entre 6ta y 7ma avenida Zona 1 Guatemala",
+    "horario_atencion": "Lunes a viernes de 9:00 a 17:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://docs.google.com/forms/d/e/1FAIpQLSeJ7oTLlOvjbHvo9EJdJ_f62Hblpa_JCKExh43pDJ6247H7Xw/viewform"
+    ],
+    "enlaces_oficio": [
+      "https://site5.mcd.gob.gt/introduccion.aspx?_gl=1*1no3oyd*_ga*NTEwMTA1NzA0LjE3NTE0NzY4Mjg.*_ga_ZEWGHBQ41G*czE3NTE2NjMzNjUkbzQkZzEkdDE3NTE2NjQ3NzMkajU3JGwwJGgw"
+    ]
+  },
+  {
+    "id": 6,
+    "nombre_institucion": "Ministerio de Desarrollo Social -MIDES-",
+    "siglas": "MIDES",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "uipmides@mides.gob.gt",
+    "telefono": "2300-5400 ext. 1130 y 1131",
+    "direccion": "5a. AV. 8-78 Zona 9 Guatemala Edificio Plaza Lauderdale",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://informacionpublica.mides.gob.gt/Vista/InfoPublica/FrmSolicitudInformacionPublica.aspx"
+    ],
+    "enlaces_oficio": [
+      "https://www.mides.gob.gt/transparencia-2/mides/"
+    ]
+  },
+  {
+    "id": 7,
+    "nombre_institucion": "Ministerio de Economía -MINECO-",
+    "siglas": "MINECO",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "uip@mineco.gob.gt",
+    "telefono": "2412-0200 ext. 1305 y 5323",
+    "direccion": "8a Avenida 10-43 Zona 1 Ciudad de Guatemala, Guatemala, CA",
+    "horario_atencion": "Lunes a viernes 8:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://docs.google.com/forms/d/e/1FAIpQLSfrqqDtzK-irn9lX2IIfZcgm4WLLeS08AbtQ4XOnsO2t-vSdQ/viewform"
+    ],
+    "enlaces_oficio": [
+      "https://www.mineco.gob.gt/informacion-publica/informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 8,
+    "nombre_institucion": "Ministerio de Educación -MINEDUC-",
+    "siglas": "MINEDUC",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "infopublica@mineduc.gob.gt",
+    "telefono": "2411-9595 Ext. 1280 - 1284",
+    "direccion": "6a. Calle 1-87 Zona 10, 01010, Guatemala, C.A.",
+    "horario_atencion": "Lunes a viernes de 9:00 a 17:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.mineco.gob.gt/informacion-publica/informacion-publica-de-oficio"
+    ],
+    "enlaces_oficio": [
+      "https://infopublica.mineduc.gob.gt/mineduc/index.php?title=Informaci%C3%B3n_P%C3%BAblica_de_Oficio_-_Ministerio_de_Educaci%C3%B3n"
+    ]
+  },
+  {
+    "id": 9,
+    "nombre_institucion": "Ministerio de Energía y Minas -MEM-",
+    "siglas": "MEM",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "infopublica@mem.gob.gt, informacionpublica@mem.gob.gt",
+    "telefono": "2419-6464 ext. 1152 y 1153",
+    "direccion": "Diagonal 17, 29-78, Zona 11 Las Charcas, Guatemala",
+    "horario_atencion": "Lunes a viernes: de 07:00 a 15:00 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://mem.gob.gt/solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://mem.gob.gt/acceso-a-la-informacion-publica/informacion-publica-de-oficio-2/"
+    ]
+  },
+  {
+    "id": 10,
+    "nombre_institucion": "Ministerio de Finanzas Públicas -MINFIN-",
+    "siglas": "MINFIN",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "cau@minfin.gob.gt",
+    "telefono": "PBX: 2374-3000 Extensiones: 12140 y 12141",
+    "direccion": "8a. Avenida 20-59 Zona 1, Centro Cívico, Guatemala - 01001",
+    "horario_atencion": "Lunes a viernes, de 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://laip.minfin.gob.gt/#/public/ingreso"
+    ],
+    "enlaces_oficio": [
+      "https://laip.minfin.gob.gt/#/public/infopublica/Y"
+    ]
+  },
+  {
+    "id": 11,
+    "nombre_institucion": "Ministerio de Gobernación -MINGOB-",
+    "siglas": "MINGOB",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "uip@mingob.gob.gt",
+    "telefono": "2413-8888 Ext. 1541 y 1621",
+    "direccion": "6a Avenida 13-71 Zona 1, Primer nivel, Unidad de Información Pública Ministerio de Gobernación Guatemala, Guatemala",
+    "horario_atencion": "Lunes a viernes 8:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://uip.mingob.gob.gt/solicitar-informacion/"
+    ],
+    "enlaces_oficio": [
+      "https://uip.mingob.gob.gt/"
+    ]
+  },
+  {
+    "id": 12,
+    "nombre_institucion": "Ministerio de la Defensa Nacional -MINDEF-",
+    "siglas": "MINDEF",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "dip@mindef.mil.gt",
+    "telefono": "3570-1322, 3570-3349",
+    "direccion": "Avenida Reforma 1-45 Z.10 Antigua Escuela Politécnica, ingreso por la 2da. Avenida, entre la 1ra. y 2da. Calle",
+    "horario_atencion": "Lunes a viernes 8:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://dip.mindef.mil.gt/Publica/cp_publica/frm_formulario.php"
+    ],
+    "enlaces_oficio": [
+      "https://dip.mindef.mil.gt/cp_de_oficio/frm_art10.php"
+    ]
+  },
+  {
+    "id": 13,
+    "nombre_institucion": "Ministerio de Relaciones Exteriores -MINEX-",
+    "siglas": "MINEX",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "uip@minex.gob.gt",
+    "telefono": "2410-0025, 2410-0000 ext. 2118 y 2052",
+    "direccion": "2 av. 4-17 Zona 10, Ciudad de Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.minex.gob.gt/contacto"
+    ],
+    "enlaces_oficio": [
+      "https://www.minex.gob.gt/din/61-informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 14,
+    "nombre_institucion": "Ministerio de Salud Pública y Asistencia Social -MSPAS-",
+    "siglas": "MSPAS",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "consultas@mspas.gob.gt",
+    "telefono": "2444-7474 ext. 1297, 1720, 1719, 1227",
+    "direccion": "6 Av. 3-45 Zona 11 Ciudad de Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.mspas.gob.gt/solicitud-acceso-informacion-publica"
+    ],
+    "enlaces_oficio": [
+      "https://www.mspas.gob.gt/articulo-10-11-uip-mspas"
+    ]
+  },
+  {
+    "id": 15,
+    "nombre_institucion": "Ministerio de Trabajo y Previsión Social -MINTRAB-",
+    "siglas": "MINTRAB",
+    "sector": "MINISTERIO",
+    "departamento": "Guatemala",
+    "correo": "uip@mintrabajo.gob.gt",
+    "telefono": "2422-2534",
+    "direccion": "7 avenida 3-33 Zona 9 - Edificio Torre Empresarial Primer Nivel",
+    "horario_atencion": "Lunes a viernes de 9:00 a 17:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://solicitudesuip.mintrabajo.gob.gt/"
+    ],
+    "enlaces_oficio": [
+      "https://uip.mintrabajo.gob.gt/index.php/decreto-57-2008/articulo-10"
+    ]
+  },
+  {
+    "id": 16,
+    "nombre_institucion": "Secretaría Contra la Violencia Sexual, Explotación y Trata de Personas - SVET -",
+    "siglas": "SVET",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "infopubsvet@svet.gob.gt",
+    "telefono": "2504-8888 ext. 117",
+    "direccion": "4ta. calle 5-51 Zona 1, Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://docs.google.com/forms/d/e/1FAIpQLSfnWe3BLJdwZRWI205_9sOXzIoZRrsrRKNaCK6rhYutCqEYDg/viewform"
+    ],
+    "enlaces_oficio": [
+      "https://svet.gob.gt/inf-pub-2025/"
+    ]
+  },
+  {
+    "id": 17,
+    "nombre_institucion": "Secretaría de Asuntos Administrativos y de Seguridad - SAAS -",
+    "siglas": "SAAS",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "udip@saas.gob.gt",
+    "telefono": "4010-3099, 2327-6000 ext.. 1045 y 1044",
+    "direccion": "6 Av. \"A\" 4-18 Zona 1 Callejón \"Del Manchén\"",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://portal.saas.gob.gt/form/solicitar-informacion-publica"
+    ],
+    "enlaces_oficio": [
+      "https://portal.saas.gob.gt/informacion-publica-articulo-10?field_articulo_10_target_id=9&field_ano_target_id=1&field_mes_target_id=All"
+    ]
+  },
+  {
+    "id": 18,
+    "nombre_institucion": "Secretaría de Bienestar Social de la Presidencia - SBS -",
+    "siglas": "SBS",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "infopublica@sbs.gob.gt",
+    "telefono": "2414-3535 ext. 3534",
+    "direccion": "32 calle 9-34 Zona 11, colonia Las Charcas, Guatemala",
+    "horario_atencion": "Lunes a viernes, de 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "http://laip.sbs.gob.gt/solicitud-de-informacion-publica-2/"
+    ],
+    "enlaces_oficio": [
+      "http://laip.sbs.gob.gt/"
+    ]
+  },
+  {
+    "id": 19,
+    "nombre_institucion": "Secretaría de Comunicación Social de la Presidencia - SCS -",
+    "siglas": "SCSPR",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "informacionpublica@scspr.gob.gt",
+    "telefono": "2461-4900 ext. 936",
+    "direccion": "7 av. 1-17 Zona 4 Edificio INGUAT Nivel 13",
+    "horario_atencion": "Lunes a viernes de 9:00 a 17:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.scspr.gob.gt/informacion-publica/solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://www.scspr.gob.gt/informacion-publica/"
+    ]
+  },
+  {
+    "id": 20,
+    "nombre_institucion": "Secretaría de Coordinación Ejecutiva de la Presidencia - SCEP -",
+    "siglas": "SCEP",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "informacionpublica@scep.gob.gt",
+    "telefono": "2410-4141 ext. 602",
+    "direccion": "5ta. Avenida 6-06 Zona 1, Edifico IPM, 3er. y 4to nivel Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://scep.gob.gt/formulario-de-solicitud-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://scep.gob.gt/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 21,
+    "nombre_institucion": "Secretaría de Inteligencia Estratégica del Estado - SIE -",
+    "siglas": "SIE",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "aip@sie.gob.gt",
+    "telefono": "2222-7500 ext. 1007",
+    "direccion": "7a. Ave. 3-54, Zona 1, Ciudad de Guatemala",
+    "horario_atencion": "Lunes a viernes, de 9:00 a 17:00",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.sie.gob.gt/portal/index.php?p=5748561fb7446106f1dc74b47d156eb6"
+    ],
+    "enlaces_oficio": [
+      "https://www.sie.gob.gt/portal/index.php?p=9E9F4C9830BE41DF89DDFC1331137BEB"
+    ]
+  },
+  {
+    "id": 22,
+    "nombre_institucion": "Secretaría de Obras Sociales de la Esposa del Presidente - SOSEP -",
+    "siglas": "SOSEP",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "sescobar@sosep.gob.gt, laipsosep@gmail.com",
+    "telefono": "3072-3542",
+    "direccion": "6 av. 1-41 Casa Administrativa",
+    "horario_atencion": "Lunes a viernes de 07:00 a 15:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://sosep.gob.gt/index.php/solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://sosep.gob.gt/index.php/libre-acceso-a-la-informacion-publica/"
+    ]
+  },
+  {
+    "id": 23,
+    "nombre_institucion": "Secretaría de Planificación y Programación de la Presidencia - SEGEPLAN -",
+    "siglas": "SEGEPLAN",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "laip@segeplan.gob.gt",
+    "telefono": "2504-4330",
+    "direccion": "9a. calle 10-44 Zona 1, Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://saip.segeplan.gob.gt/laip/FormSolicitudInfo.aspx#contact"
+    ],
+    "enlaces_oficio": [
+      "https://saip.segeplan.gob.gt/laip/WebForm4.aspx"
+    ]
+  },
+  {
+    "id": 24,
+    "nombre_institucion": "Secretaría de Seguridad Alimentaria y Nutricional - SESAN -",
+    "siglas": "SESAN",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "informacionpublica@sesan.gob.gt",
+    "telefono": "2411-1900. ext. 170",
+    "direccion": "8 avenida 13-06, Zona 1, Ciudad de Guatemala, Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://portal.sesan.gob.gt/solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://portal.sesan.gob.gt/informacion-publica-de-oficio/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 25,
+    "nombre_institucion": "Secretaría Ejecutiva de la Comisión Contra las Adicciones y el Tráfico Ilícito de Drogas - SECCATID -",
+    "siglas": "SECCATID",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "uip@seccatid.gob.gt",
+    "telefono": "2504-6000 ext. 119",
+    "direccion": "2a. Calle 1-00, Zona 10 Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://seccatid.gob.gt/form/solicitar-informacion-publica"
+    ],
+    "enlaces_oficio": [
+      "https://seccatid.gob.gt/acceso-informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 26,
+    "nombre_institucion": "Secretaría General de la Presidencia - SGP -",
+    "siglas": "SGP",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "libreacceso@sgp.gob.gt",
+    "telefono": "2318-4600 ext. 5153",
+    "direccion": "6 a.v. 5-34 Zona 1",
+    "horario_atencion": "Lunes a viernes de 09:00 a 17:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://sgp.gob.gt/web/index.php/uip/solicitud-de-informacion-publica/formulario-de-solicitud-de-informacion-publica"
+    ],
+    "enlaces_oficio": [
+      "https://sgp.gob.gt/web/index.php/uip/informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 27,
+    "nombre_institucion": "Secretaría Nacional de Ciencia y Tecnología - SENACYT -",
+    "siglas": "SENACYT",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "uip@senacyt.gob.gt",
+    "telefono": "2317-2600, ext. 138",
+    "direccion": "3av. 13-28 Zona 1, Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.senacyt.gob.gt/index.php/informacion-publica/solicitud-informacion"
+    ],
+    "enlaces_oficio": [
+      "https://uip.senacyt.gob.gt/decreto-57-2008-ley-de-acceso-a-la-informacion-publica-articulos-10-y-11"
+    ]
+  },
+  {
+    "id": 28,
+    "nombre_institucion": "Secretaría Presidencial de la Mujer - SEPREM -",
+    "siglas": "SEPREM",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "informacionpublica@seprem.gob.gt",
+    "telefono": "2207-9400v ext. 1005",
+    "direccion": "4a. Calle 7-37 Zona 1 Ciudad de Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://forms.office.com/pages/responsepage.aspx?id=LNSFp-%20lfhk28P5YxpYbYHfrg8DZ8_QpHqnGn7-%20R68rtUN0hTUkhFNjdPRkdVTTQzRjk2VzY3RENBOS4u&route=&idchked=true"
+    ],
+    "enlaces_oficio": [
+      "https://seprem.gob.gt/informacion-publica/"
+    ]
+  },
+  {
+    "id": 29,
+    "nombre_institucion": "Secretaría Privada de la Presidencia - SPRIV -",
+    "siglas": "SPRIV",
+    "sector": "SECRETARÍA",
+    "departamento": "Guatemala",
+    "correo": "informacionpublica@secretariaprivada.gob.gt",
+    "telefono": "2502-6363 extensión 1024",
+    "direccion": "6ta. Avenida 4-46, Zona 1 Guatemala, Guatemala",
+    "horario_atencion": "Lunes a viernes de 9:00 a 17:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.secretariaprivada.gob.gt/solicitud-de-informacion/"
+    ],
+    "enlaces_oficio": [
+      "https://www.secretariaprivada.gob.gt/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 30,
+    "nombre_institucion": "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Amatitlán - AMSA -",
+    "siglas": "AMSA",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "accesoinfop@amsa.gob.gt",
+    "telefono": "6624-1700 ext. 165",
+    "direccion": "Km, 22 CA Pacífico, Villa Nueva, Guatemala",
+    "horario_atencion": "Lunes a viernes 07:30 - 15:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://infop.amsa.gob.gt/formulario/"
+    ],
+    "enlaces_oficio": [
+      "https://infop.amsa.gob.gt/?_gl=1%2A11u4zlo%2A_ga%2AMTI2NDY1OTIyNy4xNzU1NjEyNzE5%2A_ga_CHSDM2V50B%2AczE3NjgzMzUzNzAkbzc5JGcwJHQxNzY4MzM1MzcwJGo2MCRsMCRoMA.."
+    ]
+  },
+  {
+    "id": 31,
+    "nombre_institucion": "Autoridad para el Manejo Sustentable de la Cuenca del Lago de Atitlán y su Entorno – AMSCLAE -",
+    "siglas": "AMSCLAE",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Sololá",
+    "correo": "informacion@amsclae.gob.gt",
+    "telefono": "7961-6464",
+    "direccion": "Vía Principal 3-56, Zona 2, Plaza San Lorenzo. Panajachel, Sololá, Guatemala, C.A.",
+    "horario_atencion": "Lunes a viernes, de 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.amsclae.gob.gt/informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://www.amsclae.gob.gt/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 32,
+    "nombre_institucion": "Consejo Nacional de Áreas Protegidas – CONAP -",
+    "siglas": "CONAP",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "uip@conap.gob.gt",
+    "telefono": "1547 ext. 1731",
+    "direccion": "Edificio Instituto Previsión Militar, 5A avenida 6-06, Cdad. De Guatemala, Séptimo nivel",
+    "horario_atencion": "Lunes a viernes 08:00 - 15:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://sip.conap.gob.gt/?page_id=384"
+    ],
+    "enlaces_oficio": [
+      "https://sip.conap.gob.gt/"
+    ]
+  },
+  {
+    "id": 33,
+    "nombre_institucion": "Consejo Nacional de la Juventud – CONJUVE -",
+    "siglas": "CONJUVE",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "info@conjuve.gob.gt",
+    "telefono": "2498-0800 ext. 30",
+    "direccion": "32 calle 9-10 Colinia Granai 1 Zona 11",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://conjuve.gob.gt/formulario-para-solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://conjuve.gob.gt/informacion-publica-2-2/"
+    ]
+  },
+  {
+    "id": 34,
+    "nombre_institucion": "Defensoría de la Mujer Indígena - DEMI -",
+    "siglas": "DEMI",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "informacionpublica@demi.gob.gt",
+    "telefono": "2315-8610 ext. 201",
+    "direccion": "10 Calle 10-14 Zona 1, Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://docs.google.com/forms/d/e/1FAIpQLSebcZpa0IlqyzBBTBrBeoW7bigHildrrwwNoj4iKMLs4j0kHg/viewform"
+    ],
+    "enlaces_oficio": [
+      "https://demi.gob.gt/informacion.php"
+    ]
+  },
+  {
+    "id": 35,
+    "nombre_institucion": "Fondo de Desarrollo Indígena Guatemalteco – FODIGUA -",
+    "siglas": "FODIGUA",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "uip@fodigua.gob.gt",
+    "telefono": "2414-1818 ext. 102",
+    "direccion": "6ta Avenida ¨A¨ 8-43 Zona 9, Ciudad de Guatemala",
+    "horario_atencion": "Lunes a viernes de 09:00 a 17:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://fodigua.gob.gt/FormularioUIP.aspx"
+    ],
+    "enlaces_oficio": [
+      "https://mail.fodigua.gob.gt/oficial/"
+    ]
+  },
+  {
+    "id": 36,
+    "nombre_institucion": "Inspectoría General del Sistema Nacional de Seguridad – IGSNS -",
+    "siglas": "IGSNS",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "uip@igsns.gob.gt",
+    "telefono": "2504-8383 ext. 1211",
+    "direccion": "5ta. Avenida 1-78 Zona 1, Guatemala, Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:30 a 16:30 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://igsns.gob.gt/wp/index.php/solicitudinfopublica/"
+    ],
+    "enlaces_oficio": [
+      "https://igsns.gob.gt/wp/index.php/infopublica/"
+    ]
+  },
+  {
+    "id": 37,
+    "nombre_institucion": "Instituto Nacional de Estudios Estratégicos de Seguridad – INEES -",
+    "siglas": "INEES",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "uip@inees.gob.gt",
+    "telefono": "2496-2900 ext. 204",
+    "direccion": "5a. Calle 5-61, Zona 1, Ciudad de Guatemala, Segundo Nivel, Oficina 205",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://site.inees.gob.gt/solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://site.inees.gob.gt/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 38,
+    "nombre_institucion": "Oficina Nacional de Servicio Civil – ONSEC -",
+    "siglas": "ONSEC",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "informacionpublica@onsec.gob.gt",
+    "telefono": "2321 – 4800 ext. 1202",
+    "direccion": "13 calle 6-77 Zona 1, Edificio Panamericano, 8vo nivel",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.onsec.gob.gt/w/index.php/solicitud-de-informacion-publica-3/"
+    ],
+    "enlaces_oficio": [
+      "https://www.onsec.gob.gt/w/index.php/ley-de-acceso-a-la-informacion-publica/"
+    ]
+  },
+  {
+    "id": 39,
+    "nombre_institucion": "Secretaría Nacional de Administración de Bienes de Extinción de Dominio – SENABED -",
+    "siglas": "SENABED",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "accesoalainformacion@senabed.gob.gt",
+    "telefono": "2495-0600 ext. 218 y 257",
+    "direccion": "Diagonal 6 10-26 Zona 10, Edificio Plaza República, Lobby del edificio",
+    "horario_atencion": "Lunes a viernes 07:00 - 15:00 hrs.",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://laip.senabed.gob.gt/2025/index.php/informacion-publica/formulario-de-informacion-publica"
+    ],
+    "enlaces_oficio": [
+      "https://laip.senabed.gob.gt/2025/index.php/informacion-publica/informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 40,
+    "nombre_institucion": "Secretaría Técnica del Consejo Nacional de Seguridad – STCNS –",
+    "siglas": "STCNS",
+    "sector": "OTRAS DEPENDENCIAS",
+    "departamento": "Guatemala",
+    "correo": "nmlopez@stcns.gob.gt",
+    "telefono": "2504-4800 ext. 204",
+    "direccion": "3ra calle 4-08 Zona 1, Ciudad de Guatemala",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://stcns.gob.gt/solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://stcns.gob.gt/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 41,
+    "nombre_institucion": "Comisión Nacional Contra la Corrupción - CNC -",
+    "siglas": "CNC",
+    "sector": "DEPENDENCIAS TEMPORALES",
+    "departamento": "Guatemala",
+    "correo": "libreacceso@cnc.gob.gt",
+    "telefono": "3572-2213",
+    "direccion": "6a. avenida \"A\" 4-18, Zona 1,Casa Presidencial, Interior Callejón Manchen-",
+    "horario_atencion": "Lunes a viernes de 08:00 a 16:00 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://cnc.gob.gt/ley-de-acceso-a-la-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://cnc.gob.gt/solicitud-en-linea/"
+    ]
+  },
+  {
+    "id": 42,
+    "nombre_institucion": "Comisión Presidencial contra la Discriminación y el Racismo Contra los Pueblos Indígenas en Guatemala – CODISRA -",
+    "siglas": "CODISRA",
+    "sector": "DEPENDENCIAS TEMPORALES",
+    "departamento": "Guatemala",
+    "correo": "domingo.cholotio@codisra.gob.gt, uip@codisra.gob.gt",
+    "telefono": "2494-5300 ext. 101",
+    "direccion": "14 calle 9-64 zona 1",
+    "horario_atencion": "Lunes a viernes 08:30 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://codisra.gob.gt/index.php/informacion-publica/solicitud-de-informacion-publica"
+    ],
+    "enlaces_oficio": [
+      "https://codisra.gob.gt/index.php/informacion-publica/informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 43,
+    "nombre_institucion": "Comisión Presidencial de Asuntos Municipales – COPRESAM -",
+    "siglas": "COPRESAM",
+    "sector": "DEPENDENCIAS TEMPORALES",
+    "departamento": "Guatemala",
+    "correo": "",
+    "telefono": "",
+    "direccion": "Avenida Simeón Cañas 1-30 Zona 2 Guatemala, Guatemala",
+    "horario_atencion": "",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://sgp.gob.gt/web/index.php/uip/informacion-publica-de-oficio/category/1-articulo-10"
+    ],
+    "enlaces_oficio": [
+      "https://sgp.gob.gt/web/index.php/uip/informacion-publica-de-oficio/category/2-articulo-11"
+    ]
+  },
+  {
+    "id": 44,
+    "nombre_institucion": "Comisión Presidencial de Gobierno Abierto y Electrónico– GAE -",
+    "siglas": "GAE",
+    "sector": "DEPENDENCIAS TEMPORALES",
+    "departamento": "Guatemala",
+    "correo": "informacion.publica@transparencia.gob.gt",
+    "telefono": "2220-5383 ext. 1030",
+    "direccion": "4ta. Calle 6-17 Zona 1, Guatemala",
+    "horario_atencion": "Lunes a viernes, de 9:00 a 17:00",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gae.gob.gt/formulario-de-solicitud/"
+    ],
+    "enlaces_oficio": [
+      "https://gae.gob.gt/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 45,
+    "nombre_institucion": "Comisión Presidencial por la Paz y los Derechos Humanos – COPADEH -",
+    "siglas": "COPADEH",
+    "sector": "DEPENDENCIAS TEMPORALES",
+    "departamento": "Guatemala",
+    "correo": "informacion.publica@copadeh.gob.gt",
+    "telefono": "2316-5500 Ext. 5512",
+    "direccion": "13 Calle 15-38, Zona 13 Ciudad Guatemala, Guatemala C.A.",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:00 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://informacionpublica.copadeh.gob.gt/instrucciones/"
+    ],
+    "enlaces_oficio": [
+      "https://informacionpublica.copadeh.gob.gt/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 46,
+    "nombre_institucion": "Gobernación Departamental de Alta Verapaz",
+    "siglas": "ALTA VERAPAZ",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Alta Verapaz",
+    "correo": "goberaltaverapaz@gmail.com",
+    "telefono": "7952-1369, 7951-4311",
+    "direccion": "2ª. Calle 2-11, Palacio Departamental, Cobán Alta Verapaz, Guatemala, C.A.",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.gobernacionaltaverapaz.laip.gt/index.php/informacion-publica/solicitudes-en-linea"
+    ],
+    "enlaces_oficio": [
+      "https://www.gobernacionaltaverapaz.laip.gt/index.php/informacion-publica/informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 47,
+    "nombre_institucion": "Gobernación Departamental de Baja Verapaz",
+    "siglas": "BAJA VERAPAZ",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Baja Verapaz",
+    "correo": "udi_bv@gobernacionbajaverapaz.gob.gt",
+    "telefono": "7940-0060, 7725-4594 ext. 110",
+    "direccion": "2da. Calle 5-35 Zona 1, Barrio \"El Centro\", Salamá Baja Verapaz",
+    "horario_atencion": "Lunes a viernes, de 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": false,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.gobernacionbajaverapaz.gob.gt/solicitud-2/"
+    ],
+    "enlaces_oficio": []
+  },
+  {
+    "id": 48,
+    "nombre_institucion": "Gobernación Departamental de Chimaltenango",
+    "siglas": "CHIMALTENANGO",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Chimaltenango",
+    "correo": "informacionpublica@goberchimaltenango.gob.gt",
+    "telefono": "7956-5000 ext. 114",
+    "direccion": "1a. avenida 2-15 Zona 3 Chimaltenango",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://goberchimaltenango.gob.gt/informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://goberchimaltenango.gob.gt/articulo-10/",
+      "https://goberchimaltenango.gob.gt/articulo-11-2/",
+      "https://goberchimaltenango.gob.gt/articulo-19/"
+    ]
+  },
+  {
+    "id": 49,
+    "nombre_institucion": "Gobernación Departamental de Chiquimula",
+    "siglas": "CHIQUIMULA",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Chiquimula",
+    "correo": "udip@gobernacionchiquimula.gob.gt",
+    "telefono": "7825-2200 ext. 113",
+    "direccion": "10 avenida entre Primera y Segunda calle zona 1 Chiquimula",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernacionchiquimula.gob.gt/transparencia/"
+    ],
+    "enlaces_oficio": [
+      "https://gobernacionchiquimula.gob.gt/presupuesto-y-finanzas/"
+    ]
+  },
+  {
+    "id": 50,
+    "nombre_institucion": "Gobernación Departamental de El Progreso",
+    "siglas": "EL PROGRESO",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "El Progreso",
+    "correo": "bagarcia@gobernacionelprogreso.gob.gt",
+    "telefono": "7945-1027",
+    "direccion": "Barrio Las Joyas, Guastatoya, El Progreso. Frente al Parque Central",
+    "horario_atencion": "Lunes a viernes 08:00 a 17:00 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://uip.gobernacionelprogreso.gob.gt/?solicitud=informacionPublica"
+    ],
+    "enlaces_oficio": [
+      "https://uip.gobernacionelprogreso.gob.gt/?solicitud=home"
+    ]
+  },
+  {
+    "id": 51,
+    "nombre_institucion": "Gobernación Departamental de Escuintla",
+    "siglas": "ESCUINTLA",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Escuintla",
+    "correo": "informacionpublica@gobernaciondeescuintla.gob.gt, infopublicagobesc@gmail.com",
+    "telefono": "7888-0225, 7888-0125",
+    "direccion": "9 calle 3-40 Zona 1, Ciudad de Escuintla",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernaciondeescuintla.gob.gt/solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://gobernaciondeescuintla.gob.gt/informacion-publica-de-oficio/"
+    ]
+  },
+  {
+    "id": 52,
+    "nombre_institucion": "Gobernación Departamental de Guatemala",
+    "siglas": "GUATEMALA",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Guatemala",
+    "correo": "accesoinformacion@gdg.gob.gt",
+    "telefono": "2209-4545",
+    "direccion": "6 Avenida 3-51 Zona 1",
+    "horario_atencion": "Lunes a viernes 09:00 a 17:00 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gdg.gob.gt/solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://gdg.gob.gt/informacion-publica/"
+    ]
+  },
+  {
+    "id": 53,
+    "nombre_institucion": "Gobernación Departamental de Huehuetenango",
+    "siglas": "HUEHUETENANGO",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Huehuetenango",
+    "correo": "infopub@gobernacionhuehuetenango.gob.gt",
+    "telefono": "7790-0600 ext. 105",
+    "direccion": "4ta Av. 2-25 Zona 1, Huehuetenango, Edifico de Gobernación",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.gobernacionhuehuetenango.gob.gt/sol-info-pub"
+    ],
+    "enlaces_oficio": [
+      "https://www.gobernacionhuehuetenango.gob.gt/info-publica"
+    ]
+  },
+  {
+    "id": 54,
+    "nombre_institucion": "Gobernación Departamental de Izabal",
+    "siglas": "IZABAL",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Izabal",
+    "correo": "rchinchilla@gobernacionizabal.gob.gt, udip@gobernacionizabal.gob.gt",
+    "telefono": "7790-9300 ext. 108",
+    "direccion": "7a. Calle 1a. Avenida, Puerto Barrios, Izabal",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernacionizabal.udip.gt/solicitud"
+    ],
+    "enlaces_oficio": [
+      "https://gobernacionizabal.udip.gt/institucion/informacion-publica"
+    ]
+  },
+  {
+    "id": 55,
+    "nombre_institucion": "Gobernación Departamental de Jalapa",
+    "siglas": "JALAPA",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Jalapa",
+    "correo": "udip@gobernacionjalapa.gob.gt",
+    "telefono": "5036-0107, 7922-4284",
+    "direccion": "6a. Avenida 0-91 Zona 1. Jalapa",
+    "horario_atencion": "Lunes a viernes 07:00 a 15:0 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://info.gobernacionjalapa.gob.gt/index.php/informacion-publica/solicitudes-en-linea"
+    ],
+    "enlaces_oficio": [
+      "https://info.gobernacionjalapa.gob.gt/index.php/informacion-publica/informacion-de-oficio"
+    ]
+  },
+  {
+    "id": 56,
+    "nombre_institucion": "Gobernación Departamental de Jutiapa",
+    "siglas": "JUTIAPA",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Jutiapa",
+    "correo": "udip@gobernacionjutiapa.gob.gt",
+    "telefono": "7844-1480",
+    "direccion": "Frente al parque central, Calle la ronda zona 1, Jutiapa",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernacionjutiapa.udip.gt/solicitud"
+    ],
+    "enlaces_oficio": [
+      "https://gobernacionjutiapa.udip.gt"
+    ]
+  },
+  {
+    "id": 57,
+    "nombre_institucion": "Gobernación Departamental de Petén",
+    "siglas": "PETÉN",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Petén",
+    "correo": "gobpetenaip@gmail.com, lorena.cruz@goberpeten.gob.gt",
+    "telefono": "7867-5301, 7867-5338 ext. 105",
+    "direccion": "Parque Central de Ciudad Flores, Petén, Guatemala, C.A.",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://goberpeten.udip.gt/solicitud"
+    ],
+    "enlaces_oficio": [
+      "https://goberpeten.udip.gt"
+    ]
+  },
+  {
+    "id": 58,
+    "nombre_institucion": "Gobernación Departamental de Quetzaltenango",
+    "siglas": "QUETZALTENANGO",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Quetzaltenango",
+    "correo": "accesoalainformacion@gobernacionquetzaltenango.gob.gt",
+    "telefono": "7763-0003, 7765-0327",
+    "direccion": "13 Avenida 5-19 Zona 1, Gobernación Departamental de Quetzaltenango",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernacionquetzaltenango.gob.gt/paginas/contacto/"
+    ],
+    "enlaces_oficio": [
+      "https://gobernacionquetzaltenango.gob.gt/paginas/informacion-publica-de-oficio"
+    ]
+  },
+  {
+    "id": 59,
+    "nombre_institucion": "Gobernación Departamental de Quiché",
+    "siglas": "QUICHÉ",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Quiché",
+    "correo": "m.mendez@gobernacionquiche.gob.gt",
+    "telefono": "7790-3700 ext. 107",
+    "direccion": "1ra. Ave. entre 2da y 3ra. Calle, Zona 1, Santa Cruz, Quiché, Guatemala, C.A.",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernacionquiche.udip.gt/solicitud"
+    ],
+    "enlaces_oficio": [
+      "https://gobernacionquiche.udip.gt/institucion/informacion-publica"
+    ]
+  },
+  {
+    "id": 60,
+    "nombre_institucion": "Gobernación Departamental de Retalhuleu",
+    "siglas": "RETALHULEU",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Retalhuleu",
+    "correo": "udip@gobernacionretalhuleu.gob.gt",
+    "telefono": "7771-0075",
+    "direccion": "6a. Ave. entre 5a y 6a calle Zona 1, Palacio Departamental Retalhuleu, Guatemala, C.A.",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.gobernacionretalhuleu.gob.gt/solicitud_de_informacion.php"
+    ],
+    "enlaces_oficio": [
+      "https://www.gobernacionretalhuleu.gob.gt/informacion_publica_de_oficio.php"
+    ]
+  },
+  {
+    "id": 61,
+    "nombre_institucion": "Gobernación Departamental de Sacatepéquez",
+    "siglas": "SACATEPÉQUEZ",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Sacatepéquez",
+    "correo": "infopublica@gobernacionsacatepequez.gob.gt",
+    "telefono": "7934-6783 ext. 106",
+    "direccion": "Lotificación El Panorama, Lotes 11 y 12-C, La Antigua Guatemala. (Carretera a Ciudad Vieja).",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernacionsacatepequez.gob.gt/formulario-de-solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://gobernacionsacatepequez.gob.gt/informacion-publica/"
+    ]
+  },
+  {
+    "id": 62,
+    "nombre_institucion": "Gobernación Departamental de San Marcos",
+    "siglas": "SAN MARCOS",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "San Marcos",
+    "correo": "infopublicasm@gmail.com",
+    "telefono": "7790-8900 ext. 110",
+    "direccion": "10ma. calle 8-54, Zona 1, San Marcos, Guatemala. C.A.",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernacionsanmarcos.gob.gt/wp/contacto/"
+    ],
+    "enlaces_oficio": [
+      "https://gobernacionsanmarcos.gob.gt/wp/informacion-publica-2025/"
+    ]
+  },
+  {
+    "id": 63,
+    "nombre_institucion": "Gobernación Departamental de Santa Rosa",
+    "siglas": "SANTA ROSA",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Santa Rosa",
+    "correo": "udipinfo@gobsantarosa.gob.gt",
+    "telefono": "7886-5546",
+    "direccion": "1ra. Ave. 3-19 Zona 1, Cuilapa, Santa Rosa.",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobsantarosa.udip.gt/solicitud"
+    ],
+    "enlaces_oficio": [
+      "https://gobsantarosa.udip.gt/institucion/informacion-publica"
+    ]
+  },
+  {
+    "id": 64,
+    "nombre_institucion": "Gobernación Departamental de Sololá",
+    "siglas": "SOLOLÁ",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Sololá",
+    "correo": "",
+    "telefono": "",
+    "direccion": "6ta. Avenida 10a. Calle Zona 2 Esquina Parque Central Sololá",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernaciondesolola.gob.gt/transparencia/"
+    ],
+    "enlaces_oficio": [
+      "https://gobernaciondesolola.gob.gt/transparencia/"
+    ]
+  },
+  {
+    "id": 65,
+    "nombre_institucion": "Gobernación Departamental de Suchitepéquez",
+    "siglas": "SUCHITEPÉQUEZ",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Suchitepéquez",
+    "correo": "rrhhsuchitepequez@gmail.com",
+    "telefono": "7793-7200, 3007-9804",
+    "direccion": "4a Avenida 5-18 Zona 1, Mazatenango, Suchitepéquez, Guatemala",
+    "horario_atencion": "Lunes a viernes 09:00 a 17:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://www.informacion-publica.com/"
+    ],
+    "enlaces_oficio": [
+      "https://www.informacion-publica.com/"
+    ]
+  },
+  {
+    "id": 66,
+    "nombre_institucion": "Gobernación Departamental de Totonicapán",
+    "siglas": "TOTONICAPÁN",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Totonicapán",
+    "correo": "mingob@gobernaciontotonicapan.gob.gt",
+    "telefono": "7766-1366",
+    "direccion": "17 Avenida Final Zona 2-16 Zona 2. Totonicapán. Totonicapán",
+    "horario_atencion": "Lunes a viernes, de 8:00 a 16:30",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernaciontotonicapan.gob.gt/Accesoinfopublica/solinfopublica"
+    ],
+    "enlaces_oficio": [
+      "https://gobernaciontotonicapan.gob.gt/Accesoinfopublicaoficio"
+    ]
+  },
+  {
+    "id": 67,
+    "nombre_institucion": "Gobernación Departamental de Zacapa",
+    "siglas": "ZACAPA",
+    "sector": "GOBERNACIÓN DEPARTAMENTAL",
+    "departamento": "Zacapa",
+    "correo": "ccortez@gobernacionzacapa.gob.gt",
+    "telefono": "3141-3737",
+    "direccion": "Edificio Centro de Gobierno Zacapa 13 Calle y 16 Av. Zona 3",
+    "horario_atencion": "Lunes a viernes 08:00 a 16:30 horas",
+    "solicitud_en_linea": true,
+    "informacion_publica_oficio": true,
+    "sitio_web": "",
+    "latitud": 0,
+    "longitud": 0,
+    "ultima_actualizacion": "2026-07-30",
+    "enlaces_solicitud": [
+      "https://gobernacionzacapa.gob.gt/formulario-de-solicitud-de-informacion-publica/"
+    ],
+    "enlaces_oficio": [
+      "https://gobernacionzacapa.gob.gt/informacion-publica-de-oficio/"
+    ]
+  }
+]

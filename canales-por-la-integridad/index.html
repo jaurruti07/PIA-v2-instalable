@@ -284,7 +284,7 @@
         text-transform: uppercase; color: var(--cyan);
         margin-bottom: 1.6rem;
     }
-    .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; }
+    .hero-eyebrow > span:first-child { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: blink 1.8s infinite; flex-shrink: 0; }
     @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
 
     .hero h1 {
@@ -3334,7 +3334,7 @@
 
             <ul class="nav-menu" id="navMenu">
                 <li class="menu-group">
-                    <a href="#">Accede <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_accede">Accede</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../directorio/"><i class="fas fa-folder-open"></i> Directorio acceso al ejecutivo</a></li>
                         <!-- Transparencia Vehicular no visible temporalmente -->
@@ -3342,7 +3342,7 @@
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Explora <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_explora">Explora</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://accesoalejecutivo.cnc.gob.gt/home.php" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> Transparencia CODEDE</a></li>
                         <li><a href="../gobierno_en_numeros/"><i class="fas fa-chart-line"></i> Tu Gobierno en números</a></li>
@@ -3352,13 +3352,13 @@
                 </li>
 
                 <li class="menu-group">
-                    <a href="#">Aprende <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_aprende">Aprende</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener"><i class="fas fa-graduation-cap"></i> Acadeti</a></li>
                     </ul>
                 </li>
                 <li class="menu-group">
-                    <a href="#">Reporta <i class="fas fa-chevron-down"></i></a>
+                    <a href="#"><span data-pia-text="header.nav_reporta">Reporta</span> <i class="fas fa-chevron-down"></i></a>
                     <ul class="submenu">
                         <li><a href="../canales-por-la-integridad/"><i class="fas fa-bullhorn"></i> Canales por la Integridad</a></li>
                         <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> Vigilando</a></li>
@@ -3389,14 +3389,14 @@
         <button class="hero-dot" aria-label="Diapositiva 6"></button>
     </div>
     <div class="container hero-inner">
-        <div class="hero-eyebrow"><span></span>Gobierno de Guatemala · Organismo Ejecutivo</div>
-        <h1>Canales por la<br><em>Integridad</em></h1>
-        <p class="hero-lema">Tu voz fortalece la integridad</p>
-        <p class="hero-sub">Listado público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo. Encuentra fácilmente dónde y cómo reportar posibles irregularidades.</p>
+        <div class="hero-eyebrow"><span></span><data data-pia-text="hero.eyebrow">Gobierno de Guatemala · Organismo Ejecutivo</data></div>
+        <h1><span data-pia-text="hero.title_prefix">Canales por la</span><br><em data-pia-text="hero.title_highlight">Integridad</em></h1>
+        <p class="hero-lema" data-pia-text="hero.lema">Tu voz fortalece la integridad</p>
+        <p class="hero-sub" data-pia-text="hero.sub">Listado público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo. Encuentra fácilmente dónde y cómo reportar posibles irregularidades.</p>
         <div class="hero-actions">
             <div class="hero-actions-primary">
                 <a href="#directorio" class="btn-hero-main" id="heroCTA" translate="no" data-no-translate="true">
-                    <i class="fas fa-search"></i> Consultar canales
+                    <i class="fas fa-search"></i> <span data-pia-text="hero.cta_primary">Consultar canales</span>
                 </a>
             </div>
             <div class="hero-actions-secondary">
@@ -3405,12 +3405,12 @@
                     <i class="fas fa-shield-alt" style="color:var(--cyan);"></i> Guía de Denuncia Segura
                 </a>
                 <a href="#sobre" class="btn-hero-sub">
-                    <i class="fas fa-info-circle" style="color:var(--cyan);"></i> ¿Qué es Canales por la Integridad?
+                    <i class="fas fa-info-circle" style="color:var(--cyan);"></i> <span data-pia-text="hero.cta_secondary">¿Qué es Canales por la Integridad?</span>
                 </a>
             </div>
             <div class="hero-security-notice" role="status">
                 <i class="fas fa-lock"></i>
-                <span><strong>Tratamiento seguro y confidencial:</strong> Se garantiza la protección de tu identidad y la gestión reservada de cada reporte de denuncia.</span>
+                <span><strong data-pia-text="hero.security_label">Tratamiento seguro y confidencial:</strong> <span data-pia-text="hero.security_text">Se garantiza la protección de tu identidad y la gestión reservada de cada reporte de denuncia.</span></span>
             </div>
         </div>
     </div>
@@ -3422,7 +3422,7 @@
 <div class="stats-ribbon">
     <div class="container">
         <div class="pia-stats-ribbon-head">
-            <span class="pia-stats-ribbon-tag">Indicadores del módulo</span>
+            <span class="pia-stats-ribbon-tag" data-pia-text="stats.ribbon_tag">Indicadores del módulo</span>
             <div id="piaStatsCarouselControls" class="pia-stats-carousel-controls">
                 <button type="button" class="pia-stats-nav-btn" id="piaStatsPrevBtn" aria-label="Indicadores anteriores"><i class="fas fa-chevron-left"></i></button>
                 <div id="piaStatsPagination" class="pia-stats-pagination"></div>
@@ -3477,16 +3477,16 @@
     <section class="section" id="directorio">
         <div class="section-header" style="margin-bottom:1.5rem;">
             <div>
-                <div class="section-tag">Canales de denuncia</div>
-                <h2 class="section-title">Listado de Canales de denuncia del Organismo Ejecutivo</h2>
-                <p class="section-sub">Cada institución puede tener uno o más de los siguientes canales habilitados para recepcionar únicamente <strong>denuncias administrativas del Organismo Ejecutivo</strong> (no aplica para denuncias penales ni para instituciones fuera del Organismo Ejecutivo).</p>
+                <div class="section-tag" data-pia-text="listado.tag">Canales de denuncia</div>
+                <h2 class="section-title" data-pia-text="listado.title">Listado de Canales de denuncia del Organismo Ejecutivo</h2>
+                <p class="section-sub"><span data-pia-text="listado.sub_prefix">Cada institución puede tener uno o más de los siguientes canales habilitados para recepcionar únicamente</span> <strong data-pia-text="listado.sub_emphasis">denuncias administrativas del Organismo Ejecutivo</strong> <span data-pia-text="listado.sub_suffix">(no aplica para denuncias penales ni para instituciones fuera del Organismo Ejecutivo).</span></p>
             </div>
             <div class="channels-row" aria-label="Canales de denuncia disponibles">
-                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-phone-alt"></i></div><span>Teléfono</span></div>
-                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-envelope"></i></div><span>Correo electrónico</span></div>
-                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-globe"></i></div><span>Formulario web</span></div>
-                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-building"></i></div><span>Presencial</span></div>
-                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-comment-dots"></i></div><span>Otro canal</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-phone-alt"></i></div><span data-pia-text="listado.pill1">Teléfono</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-envelope"></i></div><span data-pia-text="listado.pill2">Correo electrónico</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-globe"></i></div><span data-pia-text="listado.pill3">Formulario web</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-building"></i></div><span data-pia-text="listado.pill4">Presencial</span></div>
+                <div class="channel-pill"><div class="channel-pill-icon"><i class="fas fa-comment-dots"></i></div><span data-pia-text="listado.pill5">Otro canal</span></div>
             </div>
             <div class="dir-controls-bar">
                 <div class="dir-control-group">
@@ -3513,7 +3513,7 @@
         <div class="filter-bar">
             <div class="filter-bar-header">
                 <div class="filter-bar-title">
-                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> Filtros de Búsqueda
+                    <i class="fas fa-sliders-h" style="color:var(--cyan);"></i> <span data-pia-text="listado.filters_title">Filtros de Búsqueda</span>
                 </div>
                 <div class="filter-active-count" id="activeFilterBadge" style="display:none;">
                     <i class="fas fa-filter"></i> <span id="activeFilterCountText">0 filtros activos</span>
@@ -3616,20 +3616,20 @@
     <section class="section" id="sobre">
         <div class="info-band">
             <div class="info-band-text">
-                <div class="section-tag on-dark" style="color:var(--cyan);">Sobre la plataforma</div>
-                <p class="lead">En Guatemala, la integridad pública es un compromiso de <em>todos</em>. Por eso nace Canales por la Integridad.</p>
+                <div class="section-tag on-dark" style="color:var(--cyan);" data-pia-text="sobre.tag">Sobre la plataforma</div>
+                <p class="lead"><span data-pia-text="sobre.lead_prefix">En Guatemala, la integridad pública es un compromiso de</span> <em data-pia-text="sobre.lead_emphasis">todos</em><span data-pia-text="sobre.lead_suffix">. Por eso nace Canales por la Integridad.</span></p>
                 <div class="accordion">
                     <div class="accordion-item">
-                        <button class="accordion-q">¿Qué es Canales por la Integridad? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Listado interactivo que reúne los canales de denuncia administrativa del Organismo Ejecutivo.</div>
+                        <button class="accordion-q"><span data-pia-text="sobre.acc1_q">¿Qué es Canales por la Integridad?</span> <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a" data-pia-text="sobre.acc1_a">Listado interactivo que reúne los canales de denuncia administrativa del Organismo Ejecutivo.</div>
                     </div>
                     <div class="accordion-item">
-                        <button class="accordion-q">¿Por qué es importante? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">Fortalece la transparencia y la participación ciudadana en la rendición de cuentas pública.</div>
+                        <button class="accordion-q"><span data-pia-text="sobre.acc2_q">¿Por qué es importante?</span> <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a" data-pia-text="sobre.acc2_a">Fortalece la transparencia y la participación ciudadana en la rendición de cuentas pública.</div>
                     </div>
                     <div class="accordion-item">
-                        <button class="accordion-q">¿A quién está dirigida? <i class="fas fa-chevron-down acc-icon"></i></button>
-                        <div class="accordion-a">A toda la población y actores interesados en denunciar irregularidades en el Organismo Ejecutivo.</div>
+                        <button class="accordion-q"><span data-pia-text="sobre.acc3_q">¿A quién está dirigida?</span> <i class="fas fa-chevron-down acc-icon"></i></button>
+                        <div class="accordion-a" data-pia-text="sobre.acc3_a">A toda la población y actores interesados en denunciar irregularidades en el Organismo Ejecutivo.</div>
                     </div>
                 </div>
             </div>
@@ -3755,17 +3755,17 @@
     <!-- DEFINICIONES (carrusel) -->
     <section class="section">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Glosario</div>
-            <h2 class="section-title">Definiciones clave</h2>
-            <p class="section-sub">Conoce los conceptos fundamentales de la denuncia administrativa y la integridad pública.</p>
+            <div class="section-tag" style="justify-content:center;" data-pia-text="definiciones.tag">Glosario</div>
+            <h2 class="section-title" data-pia-text="definiciones.title">Definiciones clave</h2>
+            <p class="section-sub" data-pia-text="definiciones.sub">Conoce los conceptos fundamentales de la denuncia administrativa y la integridad pública.</p>
         </div>
         <div class="swiper def-swiper">
             <div class="swiper-wrapper">
-                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-gavel"></i></div><h3>Denuncia administrativa</h3><p>Aviso formal sobre posibles irregularidades cometidas en instituciones del Estado, que activa los mecanismos internos de investigación.</p></div></div>
-                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-exclamation-triangle"></i></div><h3>Irregularidad</h3><p>Acto u omisión que se aparta de normas, procedimientos o principios establecidos en el ordenamiento jurídico.</p></div></div>
-                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-balance-scale"></i></div><h3>Falta ética</h3><p>Conducta contraria a los principios de integridad, honestidad y transparencia que rigen la función pública.</p></div></div>
-                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Acto de corrupción</h3><p>Uso indebido de cargos, recursos públicos o influencias para obtener beneficios personales o de terceros.</p></div></div>
-                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-comment-dots"></i></div><h3>Canal de denuncia</h3><p>Mecanismo oficial habilitado por las instituciones del Organismo Ejecutivo para recibir reportes sobre irregularidades administrativas, promoviendo la transparencia y la rendición de cuentas.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-gavel"></i></div><h3 data-pia-text="definiciones.def1_title">Denuncia administrativa</h3><p data-pia-text="definiciones.def1_desc">Aviso formal sobre posibles irregularidades cometidas en instituciones del Estado, que activa los mecanismos internos de investigación.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-exclamation-triangle"></i></div><h3 data-pia-text="definiciones.def2_title">Irregularidad</h3><p data-pia-text="definiciones.def2_desc">Acto u omisión que se aparta de normas, procedimientos o principios establecidos en el ordenamiento jurídico.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-balance-scale"></i></div><h3 data-pia-text="definiciones.def3_title">Falta ética</h3><p data-pia-text="definiciones.def3_desc">Conducta contraria a los principios de integridad, honestidad y transparencia que rigen la función pública.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-hand-holding-usd"></i></div><h3 data-pia-text="definiciones.def4_title">Acto de corrupción</h3><p data-pia-text="definiciones.def4_desc">Uso indebido de cargos, recursos públicos o influencias para obtener beneficios personales o de terceros.</p></div></div>
+                <div class="swiper-slide"><div class="def-card"><div class="def-icon"><i class="fas fa-comment-dots"></i></div><h3 data-pia-text="definiciones.def5_title">Canal de denuncia</h3><p data-pia-text="definiciones.def5_desc">Mecanismo oficial habilitado por las instituciones del Organismo Ejecutivo para recibir reportes sobre irregularidades administrativas, promoviendo la transparencia y la rendición de cuentas.</p></div></div>
             </div>
             <div class="swiper-pagination"></div>
         </div>
@@ -3777,9 +3777,9 @@
     ============================================================ -->
     <section class="section" id="dashboardStats" style="display:none;" aria-hidden="true">
         <div class="section-header">
-            <div class="section-tag"><i class="fas fa-chart-pie"></i> Transparencia e Indicadores</div>
-            <h2 class="section-title">Dashboard de Cumplimiento del Protocolo CNC</h2>
-            <p class="section-sub">Monitoreo en tiempo real del grado de adopción del protocolo estándar de la Comisión Nacional contra la Corrupción (CNC) en el Organismo Ejecutivo.</p>
+            <div class="section-tag"><i class="fas fa-chart-pie"></i> <span data-pia-text="dashboard.tag">Transparencia e Indicadores</span></div>
+            <h2 class="section-title" data-pia-text="dashboard.title">Dashboard de Cumplimiento del Protocolo CNC</h2>
+            <p class="section-sub" data-pia-text="dashboard.sub">Monitoreo en tiempo real del grado de adopción del protocolo estándar de la Comisión Nacional contra la Corrupción (CNC) en el Organismo Ejecutivo.</p>
         </div>
 
         <!-- Botón de Toggle para Ocultar/Contraer Dashboard -->
@@ -3790,7 +3790,7 @@
                 <i class="fas fa-chevron-down" id="chevronToggleDash"></i>
             </button>
             <div class="dashboard-toggle-subtext">
-                <i class="fas fa-info-circle"></i> Haz clic para desplegar u ocultar las estadísticas y métricas de cumplimiento
+                <i class="fas fa-info-circle"></i> <span data-pia-text="dashboard.toggle_hint">Haz clic para desplegar u ocultar las estadísticas y métricas de cumplimiento</span>
             </div>
         </div>
 
@@ -3862,12 +3862,8 @@
             <div class="table-cnc-wrap">
                 <div class="cnc-table-controls">
                     <div>
-                        <h3 style="margin:0; font-size:1.1rem; font-family:var(--font-head); color:var(--text-main);">
-                            Detalle de Adopción por Institución
-                        </h3>
-                        <p style="margin:0.2rem 0 0; font-size:0.8rem; color:var(--text-muted);">
-                            Estado verificado de cada dependencia según los estándares de la Comisión Nacional contra la Corrupción
-                        </p>
+                        <h3 style="margin:0; font-size:1.1rem; font-family:var(--font-head); color:var(--text-main);" data-pia-text="dashboard.table_title">Detalle de Adopción por Institución</h3>
+                        <p style="margin:0.2rem 0 0; font-size:0.8rem; color:var(--text-muted);" data-pia-text="dashboard.table_sub">Estado verificado de cada dependencia según los estándares de la Comisión Nacional contra la Corrupción</p>
                     </div>
 
                     <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
@@ -3909,21 +3905,21 @@
     <section style="padding:0 0 1rem;">
         <div class="vigilando-section">
             <div class="vigilando-text">
-                <div class="vigilando-eyebrow"><i class="fas fa-circle" style="font-size:0.45rem;animation:blink 1.8s infinite;"></i> Plataforma oficial de denuncias</div>
-                <h2 class="vigilando-title">¿Identificaste una<br>irregularidad? <em>Denuncia<br>en línea</em></h2>
-                <p class="vigilando-desc"><strong style="color:rgba(255,255,255,0.85);">Vigilando la Integridad</strong> es el canal oficial del Gobierno de Guatemala para recibir y gestionar denuncias administrativas las 24 horas. Conoce qué puedes denunciar, cómo opera la plataforma y las herramientas a tu disposición.</p>
+                <div class="vigilando-eyebrow"><i class="fas fa-circle" style="font-size:0.45rem;animation:blink 1.8s infinite;"></i> <span data-pia-text="vigilando.eyebrow">Plataforma oficial de denuncias</span></div>
+                <h2 class="vigilando-title"><span data-pia-text="vigilando.title_line1">¿Identificaste una</span><br><span data-pia-text="vigilando.title_line2">irregularidad?</span> <em><span data-pia-text="vigilando.title_em1">Denuncia</span><br><span data-pia-text="vigilando.title_em2">en línea</span></em></h2>
+                <p class="vigilando-desc"><strong style="color:rgba(255,255,255,0.85);" data-pia-text="vigilando.desc_brand">Vigilando la Integridad</strong> <span data-pia-text="vigilando.desc_body">es el canal oficial del Gobierno de Guatemala para recibir y gestionar denuncias administrativas las 24 horas. Conoce qué puedes denunciar, cómo opera la plataforma y las herramientas a tu disposición.</span></p>
                 <div class="vigilando-actions">
-                    <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="vigilando-btn-primary"><i class="fas fa-flag-checkered"></i> Ir a denunciar</a>
-                    <a href="https://vigilando.pia.gob.gt/#/plataforma" target="_blank" rel="noopener noreferrer" class="vigilando-btn-secondary"><i class="fas fa-info-circle"></i> Conoce más</a>
+                    <a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener noreferrer" class="vigilando-btn-primary"><i class="fas fa-flag-checkered"></i> <span data-pia-text="vigilando.cta_primary">Ir a denunciar</span></a>
+                    <a href="https://vigilando.pia.gob.gt/#/plataforma" target="_blank" rel="noopener noreferrer" class="vigilando-btn-secondary"><i class="fas fa-info-circle"></i> <span data-pia-text="vigilando.cta_secondary">Conoce más</span></a>
                 </div>
             </div>
             <div class="vigilando-visual">
                 <div class="vigilando-cards-stack">
-                    <div class="vg-badge-wrap"><div class="vg-badge"><i class="fas fa-shield-alt"></i>100% Confidencial</div></div>
-                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-clock"></i></div><div class="vg-feature-text"><h4>Disponible 24/7</h4><p>Presenta tu denuncia en cualquier momento, desde cualquier dispositivo.</p></div></div>
-                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-user-shield"></i></div><div class="vg-feature-text"><h4>Protección al denunciante</h4><p>Tu identidad y datos personales están protegidos conforme a la ley.</p></div></div>
-                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-tasks"></i></div><div class="vg-feature-text"><h4>Seguimiento en línea</h4><p>Consulta el estado de tu denuncia directamente desde la plataforma.</p></div></div>
-                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-gavel"></i></div><div class="vg-feature-text"><h4>Gestión institucional</h4><p>Cada denuncia es recibida por la Instancia de Probidad correspondiente.</p></div></div>
+                    <div class="vg-badge-wrap"><div class="vg-badge"><i class="fas fa-shield-alt"></i><span data-pia-text="vigilando.badge">100% Confidencial</span></div></div>
+                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-clock"></i></div><div class="vg-feature-text"><h4 data-pia-text="vigilando.feat1_title">Disponible 24/7</h4><p data-pia-text="vigilando.feat1_desc">Presenta tu denuncia en cualquier momento, desde cualquier dispositivo.</p></div></div>
+                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-user-shield"></i></div><div class="vg-feature-text"><h4 data-pia-text="vigilando.feat2_title">Protección al denunciante</h4><p data-pia-text="vigilando.feat2_desc">Tu identidad y datos personales están protegidos conforme a la ley.</p></div></div>
+                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-tasks"></i></div><div class="vg-feature-text"><h4 data-pia-text="vigilando.feat3_title">Seguimiento en línea</h4><p data-pia-text="vigilando.feat3_desc">Consulta el estado de tu denuncia directamente desde la plataforma.</p></div></div>
+                    <div class="vg-feature-card"><div class="vg-feature-icon"><i class="fas fa-gavel"></i></div><div class="vg-feature-text"><h4 data-pia-text="vigilando.feat4_title">Gestión institucional</h4><p data-pia-text="vigilando.feat4_desc">Cada denuncia es recibida por la Instancia de Probidad correspondiente.</p></div></div>
                 </div>
             </div>
         </div>
@@ -3932,16 +3928,16 @@
     <!-- FAQ -->
     <section class="section" style="padding-top:0;">
         <div class="section-header center">
-            <div class="section-tag" style="justify-content:center;">Preguntas frecuentes</div>
-            <h2 class="section-title">Resolvemos tus dudas</h2>
-            <p class="section-sub">Respuestas a las consultas más comunes sobre la plataforma.</p>
+            <div class="section-tag" style="justify-content:center;" data-pia-text="faq.tag">Preguntas frecuentes</div>
+            <h2 class="section-title" data-pia-text="faq.title">Resolvemos tus dudas</h2>
+            <p class="section-sub" data-pia-text="faq.sub">Respuestas a las consultas más comunes sobre la plataforma.</p>
         </div>
         <div class="faq-wrap">
-            <div class="faq-item"><button class="faq-q">¿Puedo consultar los canales sin presentar una denuncia? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Sí. La plataforma permite explorar libremente todos los canales habilitados sin necesidad de ingresar datos personales.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Qué tipo de hechos puedo denunciar? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Actos que constituyan faltas éticas, corrupción, abuso de autoridad o irregularidades administrativas en el Organismo Ejecutivo.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Quién recibe la denuncia? <i class="fas fa-chevron-down"></i></button><div class="faq-a">La Instancia de Asuntos de Probidad de cada institución es la responsable de recibir y tramitar las denuncias administrativas.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Todas las instituciones tienen canales? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Aún no todas, pero la plataforma se actualiza constantemente conforme las instituciones habilitan sus mecanismos.</div></div>
-            <div class="faq-item"><button class="faq-q">¿Qué hacer si mi institución no aparece? <i class="fas fa-chevron-down"></i></button><div class="faq-a">Escríbenos a <a href="mailto:info@pia.gob.gt" style="color:var(--blue-bright);">info@pia.gob.gt</a> y gestionaremos la incorporación.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q1">¿Puedo consultar los canales sin presentar una denuncia?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a1">Sí. La plataforma permite explorar libremente todos los canales habilitados sin necesidad de ingresar datos personales.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q2">¿Qué tipo de hechos puedo denunciar?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a2">Actos que constituyan faltas éticas, corrupción, abuso de autoridad o irregularidades administrativas en el Organismo Ejecutivo.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q3">¿Quién recibe la denuncia?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a3">La Instancia de Asuntos de Probidad de cada institución es la responsable de recibir y tramitar las denuncias administrativas.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q4">¿Todas las instituciones tienen canales?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a" data-pia-text="faq.a4">Aún no todas, pero la plataforma se actualiza constantemente conforme las instituciones habilitan sus mecanismos.</div></div>
+            <div class="faq-item"><button class="faq-q"><span data-pia-text="faq.q5">¿Qué hacer si mi institución no aparece?</span> <i class="fas fa-chevron-down"></i></button><div class="faq-a"><span data-pia-text="faq.a5_prefix">Escríbenos a</span> <a href="mailto:info@pia.gob.gt" style="color:var(--blue-bright);">info@pia.gob.gt</a> <span data-pia-text="faq.a5_suffix">y gestionaremos la incorporación.</span></div></div>
         </div>
     </section>
 
@@ -3956,15 +3952,15 @@
             <div class="footer-brand">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala">
                 <img src="/img/logoPIA.png" alt="Portal Integridad Activa" class="logo-pia" style="height:52px; width:auto; object-fit:contain; opacity:0.9; margin-top:0.5rem;">
-                <p>Listado público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo de Guatemala.</p>
+                <p data-pia-text="footer.brand_phrase">Listado público y actualizado de canales de denuncia administrativa del Organismo Ejecutivo de Guatemala.</p>
                 <div style="margin-top:0.9rem; padding:0.6rem 0.9rem; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.25); border-radius:12px; font-size:0.78rem; color:#A7F3D0; line-height:1.45; display:flex; align-items:flex-start; gap:0.5rem;">
                     <i class="fas fa-user-shield" style="color:var(--green); margin-top:2px; font-size:0.9rem;"></i>
-                    <span><strong>Confidencialidad y Seguridad:</strong> Garantizamos el tratamiento reservado, seguro y protegido de cada denuncia administrativa en apego a los estándares de integridad pública.</span>
+                    <span><strong data-pia-text="footer.security_title">Confidencialidad y Seguridad:</strong> <span data-pia-text="footer.security_text">Garantizamos el tratamiento reservado, seguro y protegido de cada denuncia administrativa en apego a los estándares de integridad pública.</span></span>
                 </div>
             </div>
 
             <div class="footer-col">
-                <h4>Reporta irregularidades</h4>
+                <h4 data-pia-text="footer.col1_title">Reporta irregularidades</h4>
                 <ul class="footer-links">
                     <li><a href="canales-por-la-integridad/">Canales por la Integridad</a></li>
                     <li><a href="https://vigilando.pia.gob.gt/#/inicio" target="_blank" rel="noopener">Vigilando</a></li>
@@ -3972,7 +3968,7 @@
             </div>
 
             <div class="footer-col">
-                <h4>Explora datos</h4>
+                <h4 data-pia-text="footer.col2_title">Explora datos</h4>
                 <ul class="footer-links">
                     <li><a href="https://radiografia.pia.gob.gt/" target="_blank" rel="noopener">Radiografía de la Corrupción</a></li>
                     <li><a href="../riesgo/">Riesgo en la Mira</a></li>
@@ -3981,23 +3977,23 @@
             </div>
 
             <div class="footer-col">
-                <h4>Accede a la información</h4>
+                <h4 data-pia-text="footer.col3_title">Accede a la información</h4>
                 <ul class="footer-links">
                     <li><a href="../directorio/">Directorio acceso al ejecutivo</a></li>
                     <!-- <li><a href="../vehiculos/">Transparencia Vehicular</a></li> -->
                     <li><a href="../gobierno_en_numeros/">Tu Gobierno en números</a></li>
                 </ul>
-                <h4 style="margin-top:1.5rem;">Aprende</h4>
+                <h4 style="margin-top:1.5rem;" data-pia-text="footer.col4_title">Aprende</h4>
                 <ul class="footer-links">
                     <li><a href="https://acadeti.cnc.gob.gt/" target="_blank" rel="noopener">Acadeti</a></li>
                 </ul>
             </div>
 
             <div class="footer-col">
-                <h4>Contacto</h4>
+                <h4 data-pia-text="footer.col5_title">Contacto</h4>
                 <div class="footer-contact">
-                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt">info@pia.gob.gt</a></span>
-                    <span><i class="fas fa-globe"></i> <a href="/">pia.gob.gt</a></span>
+                    <span><i class="fas fa-envelope"></i> <a href="mailto:info@pia.gob.gt" data-pia-text="footer.contact_email">info@pia.gob.gt</a></span>
+                    <span><i class="fas fa-globe"></i> <a href="/" data-pia-text="footer.contact_web">pia.gob.gt</a></span>
                 </div>
                 <div class="social-row">
                     <a href="https://www.facebook.com/guatemalagob/" target="_blank" rel="noopener" class="social-btn"><i class="fab fa-facebook-f"></i></a>
@@ -4009,7 +4005,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
+            <p data-pia-text="footer.copyright">© Gobierno de Guatemala 2025. Comprometidos con la integridad pública.</p>
             <div class="footer-logos">
                 <img src="/img/L1.png" alt="Gobierno de Guatemala">
                 <img src="/img/L2.png" alt="Canales por la Integridad" style="height:36px; width:auto; opacity:0.6;">
@@ -4042,6 +4038,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script src="/js/pia-ui-runtime.js"></script>
+<script src="/js/pia-module-texts.js" data-module="canales"></script>
 <script>
 /* ============================================================
    DATA CARGA DESDE JSON EXTERNO
@@ -4209,11 +4206,10 @@ function populateTipoFilter() {
         'Ministerios',
         'Secretarías',
         'Gobernaciones Departamentales',
-        'Otras dependencias',
-        'Dependencias temporales'
+        'Otras dependencias'
     ];
     // Excluir tipos retirados del catálogo oficial
-    const excludedTypes = ['presidencia', 'entidades descentralizadas', 'entidades descentralizada'];
+    const excludedTypes = ['presidencia', 'entidades descentralizadas', 'entidades descentralizada', 'dependencias temporales'];
     // Normalizar tipos extraídos del dataset actual
     const uniqueFromData = [...new Set(instituciones.map(i => {
         const raw = (i.tipo || '').trim();
@@ -5286,8 +5282,8 @@ function validarDirectorioCanales(rawData) {
 async function cargarDatosYIniciar() {
     try {
         const [dirRes, cfgRes] = await Promise.allSettled([
-            fetch('data_directorio.json'),
-            fetch('/api/canales/config')
+            fetch('data_directorio.json', { cache: 'no-store' }),
+            fetch('/api/canales/config', { cache: 'no-store' })
         ]);
 
         if (cfgRes.status === 'fulfilled' && cfgRes.value.ok) {
