@@ -1,43 +1,155 @@
 {
   "entities": {
+    "published_texts_doc": {
+      "title": "Textos Estáticos Publicados por Página",
+      "description": "Sobrescrituras de textos estáticos institucionales sin datos personales (cero PII), sincronizadas entre Producción y Preview",
+      "type": "object",
+      "properties": {
+        "docId": {
+          "type": "string",
+          "enum": ["portal", "directorio", "tableros", "canales", "riesgo"],
+          "minLength": 5,
+          "maxLength": 16,
+          "pattern": "^(portal|directorio|tableros|canales|riesgo)$",
+          "description": "Identificador canónico del portal principal o módulo"
+        },
+        "overrides": {
+          "type": "object",
+          "description": "Mapa clave-valor de textos personalizados en texto plano"
+        },
+        "modifiedCount": {
+          "type": "integer",
+          "description": "Cantidad de claves personalizadas respecto al catálogo base"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "description": "Versión del esquema del documento de textos"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Marca de tiempo de servidor (request.time)"
+        },
+        "clientUpdatedAtIso": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 40,
+          "description": "Marca temporal ISO de referencia para comparación entre servidores"
+        }
+      },
+      "required": ["docId", "overrides", "modifiedCount", "schemaVersion", "updatedAt"]
+    },
+    "admin_text_snapshot": {
+      "title": "Respaldo Privado de Instantáneas de Textos",
+      "description": "Instantánea consolidada multi-módulo con atribución del operador autorizado",
+      "type": "object",
+      "properties": {
+        "snapshotId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Identificador de la instantánea"
+        },
+        "updatedBy": {
+          "type": "string",
+          "format": "email",
+          "minLength": 5,
+          "maxLength": 120,
+          "description": "Correo institucional del operador autorizado"
+        },
+        "updatedByUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "UID de Firebase Auth del operador autorizado"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Marca de tiempo de servidor (request.time)"
+        },
+        "clientUpdatedAtIso": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 40,
+          "description": "Marca temporal ISO de referencia"
+        },
+        "sourceEnv": {
+          "type": "string",
+          "enum": ["preview", "production", "local", "manual_import"],
+          "minLength": 5,
+          "maxLength": 32,
+          "description": "Entorno desde donde se originó la sincronización"
+        },
+        "modules": {
+          "type": "object",
+          "description": "Mapa de sobrescrituras por módulo y portal"
+        }
+      },
+      "required": ["snapshotId", "updatedBy", "updatedByUid", "updatedAt", "sourceEnv", "modules"]
+    },
     "admin_audit_log": {
       "title": "Registro de Auditoría de Operador",
-      "description": "Bitácora inmutable de acciones realizadas por los dos operadores autorizados",
+      "description": "Bitácora inmutable de acciones realizadas por los operadores autorizados",
       "type": "object",
       "properties": {
         "user": {
           "type": "string",
+          "format": "email",
+          "minLength": 5,
+          "maxLength": 120,
           "description": "Correo institucional del operador"
         },
         "uid": {
           "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
           "description": "UID inmutable de Firebase Auth"
         },
         "action": {
           "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
           "description": "Acción administrativa ejecutada"
         },
         "module": {
           "type": "string",
+          "minLength": 2,
+          "maxLength": 40,
           "description": "Módulo afectado"
         },
         "timestamp": {
           "type": "string",
           "format": "date-time",
-          "description": "Fecha y hora ISO"
+          "description": "Marca de tiempo de servidor (request.time)"
         },
         "ip": {
           "type": "string",
+          "maxLength": 64,
           "description": "Dirección IP origen"
+        },
+        "details": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Descripción resumida del evento"
         }
       },
       "required": ["user", "uid", "action", "module", "timestamp"]
     }
   },
   "firestore": {
+    "/published_texts/{docId}": {
+      "schema": "published_texts_doc",
+      "description": "Configuración pública de textos estáticos editables por módulo (cero PII)"
+    },
+    "/admin_text_snapshots/{snapshotId}": {
+      "schema": "admin_text_snapshot",
+      "description": "Instantáneas privadas de respaldo multi-módulo reservadas para operadores autorizados"
+    },
     "/admin_audit_logs/{logId}": {
       "schema": "admin_audit_log",
-      "description": "Registros de auditoría de los dos operadores del Organismo Ejecutivo"
+      "description": "Registros inmutables de auditoría de operadores autorizados"
     }
   }
 }

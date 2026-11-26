@@ -900,67 +900,87 @@ async function runTests() {
       resBadEmpty.status === 400
     );
 
-    // Flujo completo: obtener ETag, probar 409 con ETag obsoleto, actualizar texto, verificar en GET admin + GET público y restaurar original
-    const resAdminGetTexts = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+    // Flujo completo: respaldar overrides previos, obtener ETag, probar 409 con ETag obsoleto, actualizar texto, verificar en GET admin + GET público, probar reset y restaurar overrides previos
+    const resSnapBeforePortal = await fetch(`${BASE_URL}/api/admin/texts/export-bundle`, {
       headers: { 'Authorization': `Bearer ${textsAdminToken}` }
     });
-    const validEtag = resAdminGetTexts.headers.get('ETag');
-    const adminTextsData = await resAdminGetTexts.json().catch(() => ({}));
+    const snapBeforePortalData = await resSnapBeforePortal.json().catch(() => ({}));
+    const savedPortalSnapshot = snapBeforePortalData.modules?.portal || { overrides: {} };
 
-    const resStaleEtag = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${textsAdminToken}`,
-        'If-Match': `"${'0'.repeat(64)}"`
-      },
-      body: JSON.stringify({ updates: { 'hero.eyebrow': 'Prueba conflicto ETag' } })
-    });
+    let fullTextsFlowOk = false;
+    try {
+      const resAdminGetTexts = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+        headers: { 'Authorization': `Bearer ${textsAdminToken}` }
+      });
+      const validEtag = resAdminGetTexts.headers.get('ETag');
+      const adminTextsData = await resAdminGetTexts.json().catch(() => ({}));
 
-    const testEyebrowValue = 'Transparencia Activa — Guatemala QA 2026';
-    const resSaveText = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${textsAdminToken}`,
-        ...(validEtag ? { 'If-Match': validEtag } : {})
-      },
-      body: JSON.stringify({ updates: { 'hero.eyebrow': testEyebrowValue } })
-    });
-    const saveTextData = await resSaveText.json().catch(() => ({}));
+      const resStaleEtag = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${textsAdminToken}`,
+          'If-Match': `"${'0'.repeat(64)}"`
+        },
+        body: JSON.stringify({ updates: { 'hero.eyebrow': 'Prueba conflicto ETag' } })
+      });
 
-    const resPubAfterSave = await fetch(`${BASE_URL}/api/portal/texts`);
-    const pubAfterSave = await resPubAfterSave.json().catch(() => ({}));
+      const testEyebrowValue = 'Transparencia Activa — Guatemala QA 2026';
+      const resSaveText = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${textsAdminToken}`,
+          ...(validEtag ? { 'If-Match': validEtag } : {})
+        },
+        body: JSON.stringify({ updates: { 'hero.eyebrow': testEyebrowValue } })
+      });
+      const saveTextData = await resSaveText.json().catch(() => ({}));
 
-    const resAdminAfterSave = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
-      headers: { 'Authorization': `Bearer ${textsAdminToken}` }
-    });
-    const adminAfterSave = await resAdminAfterSave.json().catch(() => ({}));
+      const resPubAfterSave = await fetch(`${BASE_URL}/api/portal/texts`);
+      const pubAfterSave = await resPubAfterSave.json().catch(() => ({}));
 
-    // Restaurar todos los textos originales para no dejar datos de prueba
-    const resResetAll = await fetch(`${BASE_URL}/api/admin/portal/texts/reset`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
-      body: JSON.stringify({ scope: 'all' })
-    });
-    const resetAllData = await resResetAll.json().catch(() => ({}));
+      const resAdminAfterSave = await fetch(`${BASE_URL}/api/admin/portal/texts`, {
+        headers: { 'Authorization': `Bearer ${textsAdminToken}` }
+      });
+      const adminAfterSave = await resAdminAfterSave.json().catch(() => ({}));
 
-    const resPubAfterReset = await fetch(`${BASE_URL}/api/portal/texts`);
-    const pubAfterReset = await resPubAfterReset.json().catch(() => ({}));
+      const resResetAll = await fetch(`${BASE_URL}/api/admin/portal/texts/reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+        body: JSON.stringify({ scope: 'all' })
+      });
+      const resetAllData = await resResetAll.json().catch(() => ({}));
 
-    const fullTextsFlowOk = resAdminGetTexts.status === 200 &&
-      Array.isArray(adminTextsData.items) &&
-      adminTextsData.items.length >= 100 &&
-      resStaleEtag.status === 409 &&
-      resSaveText.status === 200 &&
-      saveTextData.success === true &&
-      pubAfterSave.texts?.['hero.eyebrow'] === testEyebrowValue &&
-      adminAfterSave.texts?.['hero.eyebrow'] === testEyebrowValue &&
-      resResetAll.status === 200 &&
-      resetAllData.stats?.modified === 0 &&
-      pubAfterReset.modifiedKeys?.length === 0;
+      const resPubAfterReset = await fetch(`${BASE_URL}/api/portal/texts`);
+      const pubAfterReset = await resPubAfterReset.json().catch(() => ({}));
 
-    recordTest('15.5 Control de concurrencia ETag (409), guardado, reflejo público y restauración limpia (200)', fullTextsFlowOk);
+      fullTextsFlowOk = resAdminGetTexts.status === 200 &&
+        Array.isArray(adminTextsData.items) &&
+        adminTextsData.items.length >= 100 &&
+        resStaleEtag.status === 409 &&
+        resSaveText.status === 200 &&
+        saveTextData.success === true &&
+        pubAfterSave.texts?.['hero.eyebrow'] === testEyebrowValue &&
+        adminAfterSave.texts?.['hero.eyebrow'] === testEyebrowValue &&
+        resResetAll.status === 200 &&
+        resetAllData.stats?.modified === 0 &&
+        pubAfterReset.modifiedKeys?.length === 0;
+    } finally {
+      // Restaurar las ediciones reales previas del portal para preservar cambios editoriales
+      if (resSnapBeforePortal.status === 200) {
+        const resRestorePortal = await fetch(`${BASE_URL}/api/admin/texts/import-bundle`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${textsAdminToken}` },
+          body: JSON.stringify({ mode: 'replace', modules: { portal: savedPortalSnapshot } })
+        });
+        if (resRestorePortal.status !== 200) {
+          fullTextsFlowOk = false;
+        }
+      }
+    }
+
+    recordTest('15.5 Control de concurrencia ETag (409), guardado, reflejo público, reset y preservación (200)', fullTextsFlowOk);
   } catch (err) {
     recordTest('15. Administración de textos estáticos del portal principal', false, err.message);
   }
@@ -1092,67 +1112,226 @@ async function runTests() {
       rModScript.status === 400 && rModJs.status === 400 && rModUnknownKey.status === 400 && rModEmpty.status === 400
     );
 
-    // 16.5 ETag OCC (409), guardado PUT, reflejo público GET y restauración limpia POST /reset para los 4 módulos
+    // 16.5 Respaldo previo, ETag OCC (409), guardado PUT, reflejo público GET, reset y restauración fiel en los 4 módulos
+    const resSnapBeforeMods = await fetch(`${BASE_URL}/api/admin/texts/export-bundle`, {
+      headers: { 'Authorization': `Bearer ${modAdminToken}` }
+    });
+    const snapBeforeModsData = await resSnapBeforeMods.json().catch(() => ({}));
+    const savedModsSnapshot = {
+      directorio: snapBeforeModsData.modules?.directorio || { overrides: {} },
+      tableros: snapBeforeModsData.modules?.tableros || { overrides: {} },
+      canales: snapBeforeModsData.modules?.canales || { overrides: {} },
+      riesgo: snapBeforeModsData.modules?.riesgo || { overrides: {} }
+    };
+
     let allFlowsOk = true;
-    for (const { mod, sampleKey, sampleVal } of modSamples) {
-      const rGet = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
-        headers: { 'Authorization': `Bearer ${modAdminToken}` }
-      });
-      const etag = rGet.headers.get('ETag');
-      const getData = await rGet.json().catch(() => ({}));
+    try {
+      for (const { mod, sampleKey, sampleVal } of modSamples) {
+        const rGet = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
+          headers: { 'Authorization': `Bearer ${modAdminToken}` }
+        });
+        const etag = rGet.headers.get('ETag');
+        const getData = await rGet.json().catch(() => ({}));
 
-      const rStale = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${modAdminToken}`,
-          'If-Match': `"${'0'.repeat(64)}"`
-        },
-        body: JSON.stringify({ updates: { [sampleKey]: 'Conflicto QA' } })
-      });
+        const rStale = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${modAdminToken}`,
+            'If-Match': `"${'0'.repeat(64)}"`
+          },
+          body: JSON.stringify({ updates: { [sampleKey]: 'Conflicto QA' } })
+        });
 
-      const rPut = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${modAdminToken}`,
-          ...(etag ? { 'If-Match': etag } : {})
-        },
-        body: JSON.stringify({ updates: { [sampleKey]: sampleVal } })
-      });
-      const putData = await rPut.json().catch(() => ({}));
+        const rPut = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${modAdminToken}`,
+            ...(etag ? { 'If-Match': etag } : {})
+          },
+          body: JSON.stringify({ updates: { [sampleKey]: sampleVal } })
+        });
+        const putData = await rPut.json().catch(() => ({}));
 
-      const rPub = await fetch(`${BASE_URL}/api/module-texts/${mod}`);
-      const pubData = await rPub.json().catch(() => ({}));
+        const rPub = await fetch(`${BASE_URL}/api/module-texts/${mod}`);
+        const pubData = await rPub.json().catch(() => ({}));
 
-      const rReset = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}/reset`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
-        body: JSON.stringify({ scope: 'all' })
-      });
-      const resetData = await rReset.json().catch(() => ({}));
+        const rReset = await fetch(`${BASE_URL}/api/admin/module-texts/${mod}/reset`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
+          body: JSON.stringify({ scope: 'all' })
+        });
+        const resetData = await rReset.json().catch(() => ({}));
 
-      const rPubAfterReset = await fetch(`${BASE_URL}/api/module-texts/${mod}`);
-      const pubAfterResetData = await rPubAfterReset.json().catch(() => ({}));
+        const rPubAfterReset = await fetch(`${BASE_URL}/api/module-texts/${mod}`);
+        const pubAfterResetData = await rPubAfterReset.json().catch(() => ({}));
 
-      if (
-        rGet.status !== 200 ||
-        !Array.isArray(getData.items) ||
-        getData.items.length < 40 ||
-        rStale.status !== 409 ||
-        rPut.status !== 200 ||
-        putData.success !== true ||
-        pubData.texts?.[sampleKey] !== sampleVal ||
-        rReset.status !== 200 ||
-        resetData.stats?.modified !== 0 ||
-        pubAfterResetData.modifiedKeys?.length !== 0
-      ) {
-        allFlowsOk = false;
+        if (
+          rGet.status !== 200 ||
+          !Array.isArray(getData.items) ||
+          getData.items.length < 40 ||
+          rStale.status !== 409 ||
+          rPut.status !== 200 ||
+          putData.success !== true ||
+          pubData.texts?.[sampleKey] !== sampleVal ||
+          rReset.status !== 200 ||
+          resetData.stats?.modified !== 0 ||
+          pubAfterResetData.modifiedKeys?.length !== 0
+        ) {
+          allFlowsOk = false;
+        }
+      }
+    } finally {
+      if (resSnapBeforeMods.status === 200) {
+        const resRestoreMods = await fetch(`${BASE_URL}/api/admin/texts/import-bundle`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${modAdminToken}` },
+          body: JSON.stringify({ mode: 'replace', modules: savedModsSnapshot })
+        });
+        if (resRestoreMods.status !== 200) {
+          allFlowsOk = false;
+        }
       }
     }
-    recordTest('16.5 Control ETag (409), guardado, reflejo público y restauración limpia en los 4 módulos (200)', allFlowsOk);
+    recordTest('16.5 Control ETag (409), guardado, reflejo público, reset y preservación en los 4 módulos (200)', allFlowsOk);
   } catch (err) {
     recordTest('16. Administración de textos estáticos por módulo', false, err.message);
+  }
+
+  // Test 17: Preservación consolidada de textos, sincronización nube (Firestore) y respaldo JSON
+  try {
+    // 17.1 Configuración pública de Firebase incluye firestoreDatabaseId
+    const resFbCfg = await fetch(`${BASE_URL}/api/auth/firebase-config`);
+    const fbCfgData = await resFbCfg.json().catch(() => ({}));
+    recordTest(
+      '17.1 GET /api/auth/firebase-config expone projectId y firestoreDatabaseId',
+      resFbCfg.status === 200 &&
+      Boolean(fbCfgData.projectId) &&
+      Boolean(fbCfgData.apiKey) &&
+      typeof fbCfgData.firestoreDatabaseId === 'string' &&
+      fbCfgData.firestoreDatabaseId.length > 0
+    );
+
+    // 17.2 Bloqueo 401 sin autenticación en export-bundle, import-bundle y sync-from-cloud
+    const rNoAuthExp = await fetch(`${BASE_URL}/api/admin/texts/export-bundle`);
+    const rNoAuthImp = await fetch(`${BASE_URL}/api/admin/texts/import-bundle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'merge', modules: { portal: { overrides: {} } } })
+    });
+    const rNoAuthSync = await fetch(`${BASE_URL}/api/admin/texts/sync-from-cloud`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ module: 'all', mode: 'replace' })
+    });
+    recordTest(
+      '17.2 Bloqueo sin autenticación (401) en export-bundle, import-bundle y sync-from-cloud',
+      rNoAuthExp.status === 401 && rNoAuthImp.status === 401 && rNoAuthSync.status === 401
+    );
+
+    const resLoginSyncAdmin = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: syncAdminToken } = await resLoginSyncAdmin.json();
+
+    // 17.3 Validación estricta de XSS/claves/módulo + RBAC por módulo en import-bundle + preservación íntegra en export/import
+    const rBadXssBundle = await fetch(`${BASE_URL}/api/admin/texts/import-bundle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncAdminToken}` },
+      body: JSON.stringify({
+        mode: 'merge',
+        modules: { portal: { overrides: { 'hero.subtitle': '<script>alert(1)</script>' } } }
+      })
+    });
+    const rBadModBundle = await fetch(`${BASE_URL}/api/admin/texts/import-bundle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncAdminToken}` },
+      body: JSON.stringify({
+        mode: 'merge',
+        modules: { modulo_falso: { overrides: { 'hero.eyebrow': 'X' } } }
+      })
+    });
+    const rBadKeyBundle = await fetch(`${BASE_URL}/api/admin/texts/import-bundle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncAdminToken}` },
+      body: JSON.stringify({
+        mode: 'merge',
+        modules: { portal: { overrides: { 'clave.inexistente': 'Valor' } } }
+      })
+    });
+
+    // RBAC en import-bundle para operador restringido solo a 'canales'
+    const rbacSyncEmail = 'operador_sync_rbac@cnc.gob.gt';
+    await fetch(`${BASE_URL}/api/admin/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncAdminToken}` },
+      body: JSON.stringify({
+        email: rbacSyncEmail,
+        displayName: 'Operador Sync RBAC Test',
+        role: 'data_operator',
+        modules: ['canales'],
+        password: 'TestSyncRbac2026!'
+      })
+    });
+    const resLoginSyncRestricted = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: rbacSyncEmail, password: 'TestSyncRbac2026!' })
+    });
+    const { token: syncRestrictedToken } = await resLoginSyncRestricted.json();
+
+    const rRbacDenyImport = await fetch(`${BASE_URL}/api/admin/texts/import-bundle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncRestrictedToken}` },
+      body: JSON.stringify({
+        mode: 'merge',
+        modules: { portal: { overrides: { 'hero.eyebrow': 'No autorizado' } } }
+      })
+    });
+    await fetch(`${BASE_URL}/api/admin/users/${encodeURIComponent(rbacSyncEmail)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${syncAdminToken}` }
+    });
+
+    // Exportar instantánea real, probar re-importación idempotente y verificar endpoint sync-from-cloud
+    const rExportReal = await fetch(`${BASE_URL}/api/admin/texts/export-bundle`, {
+      headers: { 'Authorization': `Bearer ${syncAdminToken}` }
+    });
+    const exportRealData = await rExportReal.json().catch(() => ({}));
+
+    const rImportRoundtrip = await fetch(`${BASE_URL}/api/admin/texts/import-bundle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncAdminToken}` },
+      body: JSON.stringify({ mode: 'replace', modules: exportRealData.modules || {} })
+    });
+    const importRoundtripData = await rImportRoundtrip.json().catch(() => ({}));
+
+    const rSyncCloudCall = await fetch(`${BASE_URL}/api/admin/texts/sync-from-cloud`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncAdminToken}` },
+      body: JSON.stringify({ module: 'portal', mode: 'merge' })
+    });
+    const syncCloudData = await rSyncCloudCall.json().catch(() => ({}));
+
+    recordTest(
+      '17.3 Validación XSS/claves/RBAC (400/403) y respaldo/importación/sincronización nube íntegra (200)',
+      rBadXssBundle.status === 400 &&
+      rBadModBundle.status === 400 &&
+      rBadKeyBundle.status === 400 &&
+      rRbacDenyImport.status === 403 &&
+      rExportReal.status === 200 &&
+      exportRealData.success === true &&
+      Boolean(exportRealData.modules?.portal) &&
+      rImportRoundtrip.status === 200 &&
+      importRoundtripData.success === true &&
+      rSyncCloudCall.status === 200 &&
+      syncCloudData.success === true
+    );
+  } catch (err) {
+    recordTest('17. Preservación consolidada de textos y sincronización nube', false, err.message);
   }
 
   console.log('\n=============================================================');

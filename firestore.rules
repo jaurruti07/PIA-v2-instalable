@@ -1,22 +1,156 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAuthenticated() {
+    // 1. Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Hardened Global Helpers
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
       return request.auth != null;
     }
 
     function isAuthorizedOperator() {
-      return isAuthenticated() && 
-        (request.auth.token.email == 'deteccionydenuncia@cnc.gob.gt' || 
+      return isSignedIn() &&
+        request.auth.token.email_verified == true &&
+        (request.auth.token.email == 'deteccionydenuncia@cnc.gob.gt' ||
          request.auth.token.email == 'apoyogi@cnc.gob.gt');
     }
 
-    match /admin_audit_logs/{logId} {
-      allow read, write: if isAuthorizedOperator();
+    function isValidId(id) {
+      return id is string &&
+        id.size() >= 1 &&
+        id.size() <= 128 &&
+        id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    match /{document=**} {
-      allow read, write: if false;
+    function isValidTextDocId(docId) {
+      return docId is string &&
+        docId.size() >= 5 &&
+        docId.size() <= 16 &&
+        docId in ['portal', 'directorio', 'tableros', 'canales', 'riesgo'];
+    }
+
+    // 3. Entity Validation Blueprints (Anti-Update-Gap)
+    function isValidPublishedTextsDoc(data, docId) {
+      return data.keys().hasAll(['docId', 'overrides', 'modifiedCount', 'schemaVersion', 'updatedAt']) &&
+        data.keys().hasOnly(['docId', 'overrides', 'modifiedCount', 'schemaVersion', 'updatedAt', 'clientUpdatedAtIso']) &&
+        isValidTextDocId(data.docId) &&
+        data.docId == docId &&
+        data.overrides is map &&
+        data.overrides.size() <= 200 &&
+        data.modifiedCount is int &&
+        data.modifiedCount >= 0 &&
+        data.modifiedCount <= 200 &&
+        data.modifiedCount == data.overrides.size() &&
+        data.schemaVersion is int &&
+        data.schemaVersion == 1 &&
+        data.updatedAt is timestamp &&
+        (!('clientUpdatedAtIso' in data) ||
+          (data.clientUpdatedAtIso is string &&
+           data.clientUpdatedAtIso.size() >= 10 &&
+           data.clientUpdatedAtIso.size() <= 40));
+    }
+
+    function isValidAdminTextSnapshot(data, snapshotId) {
+      return data.keys().hasAll(['snapshotId', 'updatedBy', 'updatedByUid', 'updatedAt', 'sourceEnv', 'modules']) &&
+        data.keys().hasOnly(['snapshotId', 'updatedBy', 'updatedByUid', 'updatedAt', 'clientUpdatedAtIso', 'sourceEnv', 'modules']) &&
+        isValidId(data.snapshotId) &&
+        data.snapshotId == snapshotId &&
+        data.updatedBy is string &&
+        data.updatedBy.size() >= 5 &&
+        data.updatedBy.size() <= 120 &&
+        data.updatedBy == request.auth.token.email &&
+        data.updatedByUid is string &&
+        data.updatedByUid.size() >= 1 &&
+        data.updatedByUid.size() <= 128 &&
+        data.updatedByUid == request.auth.uid &&
+        data.updatedAt is timestamp &&
+        (!('clientUpdatedAtIso' in data) ||
+          (data.clientUpdatedAtIso is string &&
+           data.clientUpdatedAtIso.size() >= 10 &&
+           data.clientUpdatedAtIso.size() <= 40)) &&
+        data.sourceEnv is string &&
+        data.sourceEnv in ['preview', 'production', 'local', 'manual_import'] &&
+        data.modules is map &&
+        data.modules.size() >= 1 &&
+        data.modules.size() <= 10;
+    }
+
+    function isValidAdminAuditLog(data) {
+      return data.keys().hasAll(['user', 'uid', 'action', 'module', 'timestamp']) &&
+        data.keys().hasOnly(['user', 'uid', 'action', 'module', 'timestamp', 'ip', 'details']) &&
+        data.user is string &&
+        data.user.size() >= 5 &&
+        data.user.size() <= 120 &&
+        data.user == request.auth.token.email &&
+        data.uid is string &&
+        data.uid.size() >= 1 &&
+        data.uid.size() <= 128 &&
+        data.uid == request.auth.uid &&
+        data.action is string &&
+        data.action.size() >= 2 &&
+        data.action.size() <= 80 &&
+        data.module is string &&
+        data.module.size() >= 2 &&
+        data.module.size() <= 40 &&
+        data.timestamp is timestamp &&
+        (!('ip' in data) || (data.ip is string && data.ip.size() <= 64)) &&
+        (!('details' in data) || (data.details is string && data.details.size() <= 500));
+    }
+
+    // 4. Published Website Copy (Zero PII, Fixed IDs, Public get-only)
+    match /published_texts/{docId} {
+      allow get: if isValidTextDocId(docId);
+      allow list: if false;
+      allow create: if isAuthorizedOperator() &&
+        isValidTextDocId(docId) &&
+        isValidPublishedTextsDoc(incoming(), docId) &&
+        incoming().updatedAt == request.time;
+      allow update: if isAuthorizedOperator() &&
+        isValidTextDocId(docId) &&
+        isValidPublishedTextsDoc(incoming(), docId) &&
+        incoming().docId == existing().docId &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['overrides', 'modifiedCount', 'updatedAt', 'clientUpdatedAtIso', 'schemaVersion']);
+      allow delete: if false;
+    }
+
+    // 5. Private Multi-Module Snapshot Storage (Strict Operator Isolation)
+    match /admin_text_snapshots/{snapshotId} {
+      allow get: if isValidId(snapshotId) && isAuthorizedOperator();
+      allow list: if false;
+      allow create: if isAuthorizedOperator() &&
+        isValidId(snapshotId) &&
+        isValidAdminTextSnapshot(incoming(), snapshotId) &&
+        incoming().updatedAt == request.time;
+      allow update: if isAuthorizedOperator() &&
+        isValidId(snapshotId) &&
+        isValidAdminTextSnapshot(incoming(), snapshotId) &&
+        incoming().snapshotId == existing().snapshotId &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['updatedBy', 'updatedByUid', 'updatedAt', 'clientUpdatedAtIso', 'sourceEnv', 'modules']);
+      allow delete: if false;
+    }
+
+    // 6. Immutable Admin Audit Logs (Strict Operator Isolation, Append-Only)
+    match /admin_audit_logs/{logId} {
+      allow get: if isValidId(logId) && isAuthorizedOperator();
+      allow list: if false;
+      allow create: if isAuthorizedOperator() &&
+        isValidId(logId) &&
+        isValidAdminAuditLog(incoming()) &&
+        incoming().timestamp == request.time;
+      allow update, delete: if false;
     }
   }
 }

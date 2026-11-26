@@ -1,6 +1,13 @@
 // admin/js/module-texts-manager.js
 // Administración de textos estáticos por módulo: Directorio, Tu Gobierno en Números, Canales y Riesgo
 
+import { getCloudSyncAuthState } from "./firebase-firestore.js";
+import {
+  syncSavedModuleToCloud,
+  renderSyncToolbarHtml,
+  wireSyncToolbarEvents
+} from "./texts-sync-ui.js";
+
 let state = {
   containerId: 'contentArea',
   embedded: false,
@@ -9,6 +16,9 @@ let state = {
   moduleMeta: null,
   sections: [],
   items: [],
+  overrides: {},
+  cloudSync: null,
+  cloudAuth: null,
   stats: { total: 0, modified: 0 },
   updatedAt: null,
   updatedBy: null,
@@ -88,8 +98,9 @@ function validateClientText(item, rawVal) {
   return { valid: true, value: normalized };
 }
 
-async function fetchModuleTextsCatalog() {
-  const res = await fetch('/api/admin/module-texts/catalog', {
+async function fetchModuleTextsCatalog({ forceSync = false } = {}) {
+  const url = forceSync ? '/api/admin/module-texts/catalog?sync=1' : '/api/admin/module-texts/catalog';
+  const res = await fetch(url, {
     headers: depsRef.getHeaders(),
     cache: 'no-store'
   });
@@ -104,11 +115,15 @@ async function fetchModuleTextsCatalog() {
   return Array.isArray(data.modules) ? data.modules : [];
 }
 
-async function fetchModuleTextsAdmin(moduleKey) {
-  const res = await fetch(`/api/admin/module-texts/${encodeURIComponent(moduleKey)}`, {
-    headers: depsRef.getHeaders(),
-    cache: 'no-store'
-  });
+async function fetchModuleTextsAdmin(moduleKey, { forceSync = false } = {}) {
+  const qs = forceSync ? '?sync=1' : '';
+  const [res, cloudAuth] = await Promise.all([
+    fetch(`/api/admin/module-texts/${encodeURIComponent(moduleKey)}${qs}`, {
+      headers: depsRef.getHeaders(),
+      cache: 'no-store'
+    }),
+    getCloudSyncAuthState().catch(() => null)
+  ]);
   if (res.status === 401) {
     await depsRef.authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
     return false;
@@ -124,6 +139,9 @@ async function fetchModuleTextsAdmin(moduleKey) {
   state.moduleMeta = data.moduleMeta || null;
   state.sections = Array.isArray(data.sections) ? data.sections : [];
   state.items = Array.isArray(data.items) ? data.items : [];
+  state.overrides = (data.overrides && typeof data.overrides === 'object') ? data.overrides : {};
+  state.cloudSync = data.cloudSync || null;
+  state.cloudAuth = cloudAuth;
   state.stats = data.stats || { total: state.items.length, modified: 0 };
   state.updatedAt = data.updatedAt || null;
   state.updatedBy = data.updatedBy || null;
@@ -181,6 +199,7 @@ async function mutateModuleTexts(pathSuffix, method, body) {
   if (data.moduleMeta) state.moduleMeta = data.moduleMeta;
   state.sections = Array.isArray(data.sections) ? data.sections : state.sections;
   state.items = Array.isArray(data.items) ? data.items : state.items;
+  state.overrides = (data.overrides && typeof data.overrides === 'object') ? data.overrides : state.overrides;
   state.stats = data.stats || state.stats;
   state.updatedAt = data.updatedAt || null;
   state.updatedBy = data.updatedBy || null;
@@ -523,8 +542,21 @@ async function performBatchSave(updates, successMessage) {
     renderModuleTabsBar();
     updateHeaderStats();
     renderSectionsList();
-    showInlineBanner('success', successMessage);
-    depsRef.showToast(successMessage, 'success');
+
+    const cloudRes = await syncSavedModuleToCloud(
+      state.activeModule,
+      result.overrides || state.overrides,
+      result.updatedAt,
+      depsRef.getHeaders,
+      depsRef.authLogout
+    );
+    await refreshSyncToolbar();
+
+    const finalMsg = cloudRes?.synced
+      ? `${successMessage} Sincronizado en la nube compartida.`
+      : successMessage;
+    showInlineBanner('success', finalMsg);
+    depsRef.showToast(finalMsg, 'success');
   } catch (err) {
     showInlineBanner('error', err.message || 'No se pudieron guardar los cambios.');
     depsRef.showToast(err.message || 'Error al guardar textos del módulo', 'error');
@@ -592,6 +624,14 @@ async function executeConfirmedAction() {
     renderModuleTabsBar();
     updateHeaderStats();
     renderSectionsList();
+    await syncSavedModuleToCloud(
+      state.activeModule,
+      result.overrides || state.overrides,
+      result.updatedAt,
+      depsRef.getHeaders,
+      depsRef.authLogout
+    );
+    await refreshSyncToolbar();
     const msg = 'Textos restaurados a su versión original correctamente.';
     showInlineBanner('success', msg);
     depsRef.showToast(msg, 'success');
@@ -628,6 +668,51 @@ function updateHeaderStats() {
   if (scopeNote && state.moduleMeta) {
     scopeNote.innerHTML = `<strong style="color:#00C2E0;">Alcance editorial controlado (${esc(state.moduleMeta.shortLabel)}):</strong> Los registros de la base de datos, KPIs e imágenes de fondo continúan administrándose en sus respectivas pestañas. Aquí únicamente se gestionan textos fijos de texto plano para proteger el diseño y funcionalidad del sitio.`;
   }
+}
+
+async function refreshSyncToolbar() {
+  const host = document.getElementById('mtSyncToolbarHost');
+  if (!host) return;
+  try {
+    state.cloudAuth = await getCloudSyncAuthState();
+  } catch (_) {}
+  host.innerHTML = renderSyncToolbarHtml('mt', state.cloudSync, state.cloudAuth);
+  wireSyncToolbarEvents({
+    prefix: 'mt',
+    getActiveDocId: () => state.activeModule || 'all',
+    getHeaders: depsRef.getHeaders,
+    authLogout: depsRef.authLogout,
+    showToast: depsRef.showToast,
+    onInlineAlert: showInlineBanner,
+    onReloadNeeded: async () => {
+      if (!state.embedded) {
+        const mods = await fetchModuleTextsCatalog({ forceSync: true }).catch(() => null);
+        if (Array.isArray(mods)) state.catalogModules = mods;
+      }
+      if (state.activeModule) {
+        const ok = await fetchModuleTextsAdmin(state.activeModule, { forceSync: true });
+        if (ok) {
+          renderModuleTabsBar();
+          populateSectionFilter();
+          updateHeaderStats();
+          renderSectionsList();
+          await refreshSyncToolbar();
+        }
+      }
+    },
+    onRefreshSyncBar: async () => {
+      if (state.activeModule) {
+        const ok = await fetchModuleTextsAdmin(state.activeModule, { forceSync: true });
+        if (ok) {
+          renderModuleTabsBar();
+          populateSectionFilter();
+          updateHeaderStats();
+          renderSectionsList();
+          await refreshSyncToolbar();
+        }
+      }
+    }
+  });
 }
 
 function populateSectionFilter() {
@@ -714,12 +799,13 @@ async function switchActiveModule(moduleKey) {
   }
 
   try {
-    const ok = await fetchModuleTextsAdmin(moduleKey);
+    const ok = await fetchModuleTextsAdmin(moduleKey, { forceSync: true });
     if (!ok) return;
     renderModuleTabsBar();
     populateSectionFilter();
     updateHeaderStats();
     renderSectionsList();
+    await refreshSyncToolbar();
   } catch (err) {
     showInlineBanner('error', err.message || 'No fue posible cargar los textos del módulo.');
     if (listEl) {
@@ -812,6 +898,9 @@ function renderShellView() {
           </div>
         </div>
       </div>
+
+      <!-- Sincronización Producción <-> Preview y Respaldo JSON -->
+      <div id="mtSyncToolbarHost"></div>
 
       <!-- Banner inline de confirmación o error -->
       <div id="mtAlertBanner" style="display:none; align-items:center; gap:0.65rem; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid; font-size:0.88rem; font-weight:600; margin-bottom:1rem;"></div>
@@ -916,12 +1005,13 @@ function renderShellView() {
   document.getElementById('mtReloadBtn')?.addEventListener('click', async () => {
     if (!state.activeModule) return;
     try {
-      const ok = await fetchModuleTextsAdmin(state.activeModule);
+      const ok = await fetchModuleTextsAdmin(state.activeModule, { forceSync: true });
       if (ok) {
         renderModuleTabsBar();
         populateSectionFilter();
         updateHeaderStats();
         renderSectionsList();
+        await refreshSyncToolbar();
         depsRef.showToast('Textos del módulo recargados', 'success');
       }
     } catch (err) {
@@ -977,7 +1067,7 @@ export async function initModuleTextsManager(options = {}) {
 
   try {
     if (!state.embedded) {
-      const modules = await fetchModuleTextsCatalog();
+      const modules = await fetchModuleTextsCatalog({ forceSync: true });
       if (modules === null) return;
       state.catalogModules = modules;
       if (modules.length === 0) {
@@ -998,12 +1088,13 @@ export async function initModuleTextsManager(options = {}) {
       throw new Error('No se especificó el módulo de textos a cargar.');
     }
 
-    const ok = await fetchModuleTextsAdmin(state.activeModule);
+    const ok = await fetchModuleTextsAdmin(state.activeModule, { forceSync: true });
     if (!ok) return;
     renderModuleTabsBar();
     populateSectionFilter();
     updateHeaderStats();
     renderSectionsList();
+    await refreshSyncToolbar();
   } catch (err) {
     showInlineBanner('error', err.message || 'No fue posible cargar los textos del módulo.');
     const listEl = document.getElementById('mtSectionsList');

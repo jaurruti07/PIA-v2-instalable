@@ -209,7 +209,7 @@
       },
       {
         "id": 6,
-        "url": "/uploads/backgrounds/test_ui_bg_1795635046899_aec2c2.png",
+        "url": "/uploads/backgrounds/test_ui_bg_1795726130024_6d3ef6.png",
         "titulo": "Fondo Prueba QA",
         "activo": true,
         "orden": 6
@@ -572,6 +572,6 @@
       }
     ]
   },
-  "updatedAt": "2026-11-25T19:30:46.920Z",
+  "updatedAt": "2026-11-26T20:48:50.053Z",
   "updatedBy": "deteccionydenuncia@cnc.gob.gt"
 }

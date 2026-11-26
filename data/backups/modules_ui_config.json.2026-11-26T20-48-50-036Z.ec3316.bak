@@ -206,13 +206,6 @@
         "titulo": "Vehículos Fondo 4",
         "activo": true,
         "orden": 5
-      },
-      {
-        "id": 6,
-        "url": "/uploads/backgrounds/test_ui_bg_1795634194389_f1f910.png",
-        "titulo": "Fondo Prueba QA",
-        "activo": true,
-        "orden": 6
       }
     ]
   },
@@ -559,6 +552,6 @@
       }
     ]
   },
-  "updatedAt": "2026-11-25T19:16:34.419Z",
+  "updatedAt": "2026-11-26T18:11:40.179Z",
   "updatedBy": "deteccionydenuncia@cnc.gob.gt"
 }

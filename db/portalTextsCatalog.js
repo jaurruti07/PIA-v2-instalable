@@ -976,17 +976,17 @@ export const PORTAL_TEXT_CATALOG = [
   {
     key: 'plataformas.acadeti.title',
     section: 'plataformas',
-    label: 'Tarjeta Acadeti — Nombre',
-    description: 'Título en el frente de la tarjeta Acadeti.',
-    defaultText: 'Acadeti',
+    label: 'Tarjeta ACADETI — Nombre',
+    description: 'Título en el frente de la tarjeta ACADETI.',
+    defaultText: 'ACADETI',
     maxLength: 80,
     multiline: false
   },
   {
     key: 'plataformas.acadeti.quote',
     section: 'plataformas',
-    label: 'Tarjeta Acadeti — Frase destacada',
-    description: 'Cita en el reverso de la tarjeta Acadeti.',
+    label: 'Tarjeta ACADETI — Frase destacada',
+    description: 'Cita en el reverso de la tarjeta ACADETI.',
     defaultText: '"Formación continua para la integridad"',
     maxLength: 140,
     multiline: false
@@ -994,8 +994,8 @@ export const PORTAL_TEXT_CATALOG = [
   {
     key: 'plataformas.acadeti.what_is',
     section: 'plataformas',
-    label: 'Tarjeta Acadeti — ¿Qué es?',
-    description: 'Descripción "¿Qué es?" en el reverso de Acadeti.',
+    label: 'Tarjeta ACADETI — ¿Qué es?',
+    description: 'Descripción "¿Qué es?" en el reverso de ACADETI.',
     defaultText: 'Plataforma educativa con cursos, materiales y recursos para fortalecer competencias en transparencia y ética pública.',
     maxLength: 320,
     multiline: true
@@ -1003,8 +1003,8 @@ export const PORTAL_TEXT_CATALOG = [
   {
     key: 'plataformas.acadeti.why_matters',
     section: 'plataformas',
-    label: 'Tarjeta Acadeti — ¿Por qué importa?',
-    description: 'Texto "¿Por qué importa?" en el reverso de Acadeti.',
+    label: 'Tarjeta ACADETI — ¿Por qué importa?',
+    description: 'Texto "¿Por qué importa?" en el reverso de ACADETI.',
     defaultText: 'Capacita a servidores públicos y ciudadanía en buenas prácticas de integridad.',
     maxLength: 260,
     multiline: true
@@ -1012,8 +1012,8 @@ export const PORTAL_TEXT_CATALOG = [
   {
     key: 'plataformas.acadeti.cta',
     section: 'plataformas',
-    label: 'Tarjeta Acadeti — Botón',
-    description: 'Texto del enlace en el reverso de Acadeti.',
+    label: 'Tarjeta ACADETI — Botón',
+    description: 'Texto del enlace en el reverso de ACADETI.',
     defaultText: 'Entrar',
     maxLength: 40,
     multiline: false
@@ -1623,17 +1623,17 @@ export const PORTAL_TEXT_CATALOG = [
   {
     key: 'acceso.acadeti.name',
     section: 'acceso_directo',
-    label: 'Carrusel 3D: Acadeti — Nombre',
-    description: 'Nombre visible en la tarjeta 3D de Acadeti.',
-    defaultText: 'Acadeti',
+    label: 'Carrusel 3D: ACADETI — Nombre',
+    description: 'Nombre visible en la tarjeta 3D de ACADETI.',
+    defaultText: 'ACADETI',
     maxLength: 80,
     multiline: false
   },
   {
     key: 'acceso.acadeti.desc',
     section: 'acceso_directo',
-    label: 'Carrusel 3D: Acadeti — Descripción',
-    description: 'Resumen breve en la tarjeta 3D de Acadeti.',
+    label: 'Carrusel 3D: ACADETI — Descripción',
+    description: 'Resumen breve en la tarjeta 3D de ACADETI.',
     defaultText: 'Plataforma educativa para la formación en integridad.',
     maxLength: 200,
     multiline: true
@@ -1641,8 +1641,8 @@ export const PORTAL_TEXT_CATALOG = [
   {
     key: 'acceso.acadeti.pill',
     section: 'acceso_directo',
-    label: 'Carrusel 3D: Acadeti — Botón',
-    description: 'Etiqueta del botón inferior de la tarjeta 3D de Acadeti.',
+    label: 'Carrusel 3D: ACADETI — Botón',
+    description: 'Etiqueta del botón inferior de la tarjeta 3D de ACADETI.',
     defaultText: 'Aprende',
     maxLength: 30,
     multiline: false

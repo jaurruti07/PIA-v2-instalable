@@ -209,7 +209,7 @@
       },
       {
         "id": 6,
-        "url": "/uploads/backgrounds/test_ui_bg_1795634139016_24d8e1.png",
+        "url": "/uploads/backgrounds/test_ui_bg_1795726883512_61a7cd.png",
         "titulo": "Fondo Prueba QA",
         "activo": true,
         "orden": 6
@@ -556,22 +556,9 @@
         "icono": "fas fa-times-circle",
         "activo": true,
         "orden": 3
-      },
-      {
-        "id": 4,
-        "clave": "custom_4",
-        "modoValor": "manual",
-        "autoKey": null,
-        "valor": "98",
-        "sufijo": "%",
-        "titulo": "Cumplimiento QA Editado",
-        "descripcion": "Texto actualizado en módulo",
-        "icono": "fas fa-shield-alt",
-        "activo": true,
-        "orden": 4
       }
     ]
   },
-  "updatedAt": "2026-11-25T19:15:39.036Z",
+  "updatedAt": "2026-11-26T21:01:23.551Z",
   "updatedBy": "deteccionydenuncia@cnc.gob.gt"
 }

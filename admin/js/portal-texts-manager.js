@@ -1,9 +1,19 @@
 // admin/js/portal-texts-manager.js
 // Sección administrativa independiente: Administración de textos del portal
 
+import { getCloudSyncAuthState } from "./firebase-firestore.js";
+import {
+  syncSavedModuleToCloud,
+  renderSyncToolbarHtml,
+  wireSyncToolbarEvents
+} from "./texts-sync-ui.js";
+
 let state = {
   sections: [],
   items: [],
+  overrides: {},
+  cloudSync: null,
+  cloudAuth: null,
   stats: { total: 0, modified: 0 },
   updatedAt: null,
   updatedBy: null,
@@ -71,11 +81,15 @@ function validateClientText(item, rawVal) {
   return { valid: true, value: normalized };
 }
 
-async function fetchPortalTextsAdmin() {
-  const res = await fetch('/api/admin/portal/texts', {
-    headers: depsRef.getHeaders(),
-    cache: 'no-store'
-  });
+async function fetchPortalTextsAdmin({ forceSync = false } = {}) {
+  const url = forceSync ? '/api/admin/portal/texts?sync=1' : '/api/admin/portal/texts';
+  const [res, cloudAuth] = await Promise.all([
+    fetch(url, {
+      headers: depsRef.getHeaders(),
+      cache: 'no-store'
+    }),
+    getCloudSyncAuthState().catch(() => null)
+  ]);
   if (res.status === 401) {
     await depsRef.authLogout('Tu sesión ha expirado o es inválida. Inicia sesión nuevamente.');
     return false;
@@ -89,6 +103,9 @@ async function fetchPortalTextsAdmin() {
 
   state.sections = Array.isArray(data.sections) ? data.sections : [];
   state.items = Array.isArray(data.items) ? data.items : [];
+  state.overrides = (data.overrides && typeof data.overrides === 'object') ? data.overrides : {};
+  state.cloudSync = data.cloudSync || null;
+  state.cloudAuth = cloudAuth;
   state.stats = data.stats || { total: state.items.length, modified: 0 };
   state.updatedAt = data.updatedAt || null;
   state.updatedBy = data.updatedBy || null;
@@ -133,6 +150,7 @@ async function mutatePortalTexts(url, method, body) {
 
   state.sections = Array.isArray(data.sections) ? data.sections : state.sections;
   state.items = Array.isArray(data.items) ? data.items : state.items;
+  state.overrides = (data.overrides && typeof data.overrides === 'object') ? data.overrides : state.overrides;
   state.stats = data.stats || state.stats;
   state.updatedAt = data.updatedAt || null;
   state.updatedBy = data.updatedBy || null;
@@ -464,8 +482,15 @@ async function performBatchSave(updates, successMessage) {
 
     updateHeaderStats();
     renderSectionsList();
-    showInlineBanner('success', successMessage);
-    depsRef.showToast(successMessage, 'success');
+
+    const cloudRes = await syncSavedModuleToCloud('portal', result.overrides || state.overrides, result.updatedAt, depsRef.getHeaders, depsRef.authLogout);
+    await refreshSyncToolbar();
+
+    const finalMsg = cloudRes?.synced
+      ? `${successMessage} Sincronizado en la nube compartida.`
+      : successMessage;
+    showInlineBanner('success', finalMsg);
+    depsRef.showToast(finalMsg, 'success');
   } catch (err) {
     showInlineBanner('error', err.message || 'No se pudieron guardar los cambios.');
     depsRef.showToast(err.message || 'Error al guardar textos del portal', 'error');
@@ -518,6 +543,8 @@ async function executeConfirmedReset() {
     closeResetConfirmModal();
     updateHeaderStats();
     renderSectionsList();
+    await syncSavedModuleToCloud('portal', result.overrides || state.overrides, result.updatedAt, depsRef.getHeaders, depsRef.authLogout);
+    await refreshSyncToolbar();
     const msg = 'Textos restaurados a su versión original correctamente.';
     showInlineBanner('success', msg);
     depsRef.showToast(msg, 'success');
@@ -540,6 +567,41 @@ function updateHeaderStats() {
   if (modEl) modEl.textContent = String(state.stats.modified || 0);
   if (updEl) updEl.textContent = state.updatedAt ? `${formatTs(state.updatedAt)}${state.updatedBy ? ` (${state.updatedBy})` : ''}` : 'Textos originales de fábrica';
   if (resetAllBtn) resetAllBtn.style.display = (state.stats.modified || 0) > 0 ? 'inline-flex' : 'none';
+}
+
+async function refreshSyncToolbar() {
+  const host = document.getElementById('ptSyncToolbarHost');
+  if (!host) return;
+  try {
+    state.cloudAuth = await getCloudSyncAuthState();
+  } catch (_) {}
+  host.innerHTML = renderSyncToolbarHtml('pt', state.cloudSync, state.cloudAuth);
+  wireSyncToolbarEvents({
+    prefix: 'pt',
+    getActiveDocId: () => 'portal',
+    getHeaders: depsRef.getHeaders,
+    authLogout: depsRef.authLogout,
+    showToast: depsRef.showToast,
+    onInlineAlert: showInlineBanner,
+    onReloadNeeded: async () => {
+      const ok = await fetchPortalTextsAdmin({ forceSync: true });
+      if (ok) {
+        populateSectionFilter();
+        updateHeaderStats();
+        renderSectionsList();
+        await refreshSyncToolbar();
+      }
+    },
+    onRefreshSyncBar: async () => {
+      const ok = await fetchPortalTextsAdmin({ forceSync: true });
+      if (ok) {
+        populateSectionFilter();
+        updateHeaderStats();
+        renderSectionsList();
+        await refreshSyncToolbar();
+      }
+    }
+  });
 }
 
 function renderShellView() {
@@ -595,6 +657,9 @@ function renderShellView() {
           </div>
         </div>
       </div>
+
+      <!-- Sincronización Producción <-> Preview y Respaldo JSON -->
+      <div id="ptSyncToolbarHost"></div>
 
       <!-- Banner inline de confirmación o error -->
       <div id="portalTextsAlertBanner" style="display:none; align-items:center; gap:0.65rem; padding:0.85rem 1.1rem; border-radius:12px; border:1px solid; font-size:0.88rem; font-weight:600; margin-bottom:1rem;"></div>
@@ -698,11 +763,12 @@ function renderShellView() {
   });
   document.getElementById('ptReloadBtn')?.addEventListener('click', async () => {
     try {
-      const ok = await fetchPortalTextsAdmin();
+      const ok = await fetchPortalTextsAdmin({ forceSync: true });
       if (ok) {
         populateSectionFilter();
         updateHeaderStats();
         renderSectionsList();
+        await refreshSyncToolbar();
         depsRef.showToast('Textos del portal recargados', 'success');
       }
     } catch (err) {
@@ -744,11 +810,12 @@ export async function initPortalTextsManager(deps = {}) {
   renderShellView();
 
   try {
-    const ok = await fetchPortalTextsAdmin();
+    const ok = await fetchPortalTextsAdmin({ forceSync: true });
     if (!ok) return;
     populateSectionFilter();
     updateHeaderStats();
     renderSectionsList();
+    await refreshSyncToolbar();
   } catch (err) {
     showInlineBanner('error', err.message || 'No fue posible cargar los textos del portal.');
     const listEl = document.getElementById('portalTextsSectionsList');

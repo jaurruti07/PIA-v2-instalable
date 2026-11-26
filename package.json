@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node server.js",
     "build": "echo 'Build complete'",
-    "lint": "node --check server.js && node --check db/sqlClient.js && node --check db/schemaInit.js && node --check db/storageConfig.js && node --check db/sqlRepository.js && node --check db/hybridStorage.js && node --check db/migrationService.js && node --check db/portalTextsCatalog.js && node --check db/moduleTextsCatalog.js && node --check js/pia-portal-texts.js && node --check js/pia-module-texts.js && node --check admin/database-manager.js && node --check admin/scripts/migrate_json_to_sql.js && node --check admin/scripts/init_pia_config.js && node --check admin/js/database-manager.js && node --check admin/js/technical-guide.js && node --check admin/js/portal-texts-manager.js && node --check admin/js/module-texts-manager.js && node --check admin/js/app.js && node --check test_security_suite.js",
+    "lint": "node --check server.js && node --check db/sqlClient.js && node --check db/schemaInit.js && node --check db/storageConfig.js && node --check db/sqlRepository.js && node --check db/hybridStorage.js && node --check db/migrationService.js && node --check db/portalTextsCatalog.js && node --check db/moduleTextsCatalog.js && node --check js/pia-portal-texts.js && node --check js/pia-module-texts.js && node --check admin/database-manager.js && node --check admin/scripts/migrate_json_to_sql.js && node --check admin/scripts/init_pia_config.js && node --check admin/js/database-manager.js && node --check admin/js/technical-guide.js && node --check admin/js/auth.js && node --check admin/js/firebase-firestore.js && node --check admin/js/texts-sync-ui.js && node --check admin/js/portal-texts-manager.js && node --check admin/js/module-texts-manager.js && node --check admin/js/app.js && node --check test_security_suite.js",
     "test": "node test_security_suite.js",
     "setup:init": "node admin/scripts/init_pia_config.js",
     "setup:check": "node admin/scripts/init_pia_config.js --check",
@@ -20,5 +20,9 @@
     "firebase": "^13.0.0",
     "jose": "^6.2.12",
     "mysql2": "^3.24.6"
+  },
+  "devDependencies": {
+    "@firebase/eslint-plugin-security-rules": "^0.0.2",
+    "eslint": "^10.15.0"
   }
 }

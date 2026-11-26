@@ -206,6 +206,13 @@
         "titulo": "Vehículos Fondo 4",
         "activo": true,
         "orden": 5
+      },
+      {
+        "id": 6,
+        "url": "/uploads/backgrounds/test_ui_bg_1795726130024_6d3ef6.png",
+        "titulo": "Fondo Prueba QA",
+        "activo": true,
+        "orden": 6
       }
     ]
   },
@@ -549,9 +556,22 @@
         "icono": "fas fa-times-circle",
         "activo": true,
         "orden": 3
+      },
+      {
+        "id": 4,
+        "clave": "custom_4",
+        "modoValor": "manual",
+        "autoKey": null,
+        "valor": "98",
+        "sufijo": "%",
+        "titulo": "Cumplimiento QA",
+        "descripcion": "Indicador de prueba agregado dinámicamente",
+        "icono": "fas fa-car",
+        "activo": true,
+        "orden": 4
       }
     ]
   },
-  "updatedAt": "2026-11-26T01:05:23.887Z",
+  "updatedAt": "2026-11-26T20:48:50.044Z",
   "updatedBy": "deteccionydenuncia@cnc.gob.gt"
 }

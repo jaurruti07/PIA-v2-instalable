@@ -58,6 +58,7 @@ const USERS_FILE = path.join(DATA_DIR, 'users_roles.json');
 const CANALES_SETTINGS_FILE = path.join(DATA_DIR, 'canales_settings.json');
 const MODULES_UI_CONFIG_FILE = path.join(DATA_DIR, 'modules_ui_config.json');
 const PORTAL_TEXTS_FILE = path.join(DATA_DIR, 'portal_texts.json');
+const PRESERVED_TEXTS_SNAPSHOT_FILE = path.join(DATA_DIR, 'preserved_texts_snapshot.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const UPLOADS_BG_DIR = path.join(UPLOADS_DIR, 'backgrounds');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -337,6 +338,7 @@ let firebaseConfig = {
   projectId: 'pia-portal-integridad',
   apiKey: '',
   authDomain: 'pia-portal-integridad.firebaseapp.com',
+  firestoreDatabaseId: '',
   appId: ''
 };
 
@@ -350,6 +352,7 @@ try {
 }
 
 const FIREBASE_PROJECT_ID = (process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || 'pia-portal-integridad').trim();
+const FIRESTORE_DATABASE_ID = (process.env.FIRESTORE_DATABASE_ID || firebaseConfig.firestoreDatabaseId || '').trim();
 
 // Claves públicas JWKS oficiales de Google para verificación criptográfica de tokens de Firebase Auth
 const FIREBASE_JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
@@ -792,6 +795,7 @@ app.get('/api/auth/firebase-config', (req, res) => {
     projectId: FIREBASE_PROJECT_ID,
     apiKey: firebaseConfig.apiKey || '',
     authDomain: firebaseConfig.authDomain || `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
+    firestoreDatabaseId: FIRESTORE_DATABASE_ID,
     appId: firebaseConfig.appId || '',
     storageBucket: firebaseConfig.storageBucket || `${FIREBASE_PROJECT_ID}.firebasestorage.app`,
     authorizedEmails: getAllowedOperatorEmails()
@@ -3454,18 +3458,277 @@ app.post('/api/admin/ui/:module/reset-defaults', requireAuth, requireOperator, c
 // 5.F ADMINISTRACIÓN DE TEXTOS ESTÁTICOS DEL PORTAL PRINCIPAL
 // ========================================================
 
+const ALL_TEXT_DOC_IDS = ['portal', ...TEXT_MODULES_ORDER];
+const CLOUD_TEXT_CACHE_TTL_MS = 15000;
+const cloudTextCache = new Map(); // docId -> { fetchedAt, data }
+
+function invalidateCloudTextCache(docId = null) {
+  if (docId) {
+    cloudTextCache.delete(docId);
+  } else {
+    cloudTextCache.clear();
+  }
+}
+
+function readPreservedTextsSnapshot() {
+  const raw = readJsonFile(PRESERVED_TEXTS_SNAPSHOT_FILE);
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { schemaVersion: 1, updatedAt: null, updatedBy: null, modules: {} };
+  }
+  const modules = (raw.modules && typeof raw.modules === 'object' && !Array.isArray(raw.modules))
+    ? raw.modules
+    : {};
+  return {
+    schemaVersion: 1,
+    updatedAt: raw.updatedAt || null,
+    updatedBy: raw.updatedBy || null,
+    modules
+  };
+}
+
+function persistPreservedTextsSnapshot(triggerUser = 'sistema') {
+  try {
+    const modules = {};
+    const portalRaw = readJsonFile(PORTAL_TEXTS_FILE);
+    const portalNorm = normalizePortalTextsDoc(portalRaw);
+    modules.portal = {
+      overrides: portalNorm.overrides,
+      updatedAt: portalNorm.updatedAt,
+      updatedBy: portalNorm.updatedBy
+    };
+
+    for (const modKey of TEXT_MODULES_ORDER) {
+      const def = getModuleTextsDefinition(modKey);
+      if (!def) continue;
+      const modRaw = readJsonFile(path.join(DATA_DIR, def.fileName));
+      const modNorm = normalizeModuleTextsDoc(def.key, modRaw);
+      modules[def.key] = {
+        overrides: modNorm.overrides,
+        updatedAt: modNorm.updatedAt,
+        updatedBy: modNorm.updatedBy
+      };
+    }
+
+    const snapshotPayload = {
+      schemaVersion: 1,
+      updatedAt: new Date().toISOString(),
+      updatedBy: triggerUser || 'sistema',
+      modules
+    };
+    const tempFile = path.join(DATA_DIR, `.tmp_preserved_texts_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`);
+    fs.writeFileSync(tempFile, JSON.stringify(snapshotPayload, null, 2), 'utf8');
+    fs.renameSync(tempFile, PRESERVED_TEXTS_SNAPSHOT_FILE);
+  } catch (err) {
+    console.error('Advertencia actualizando preserved_texts_snapshot.json:', err.message);
+  }
+}
+
+function parseFirestoreMapStringEntries(mapField) {
+  const fields = mapField?.mapValue?.fields;
+  if (!fields || typeof fields !== 'object') return {};
+  const result = {};
+  for (const [k, valObj] of Object.entries(fields)) {
+    if (valObj && typeof valObj.stringValue === 'string') {
+      result[k] = valObj.stringValue;
+    }
+  }
+  return result;
+}
+
+function parseFirestorePublishedTextsDoc(docJson, docId) {
+  if (!docJson || typeof docJson !== 'object' || !docJson.fields) return null;
+  const f = docJson.fields;
+  const rawOverrides = parseFirestoreMapStringEntries(f.overrides);
+  const norm = docId === 'portal'
+    ? normalizePortalTextsDoc({ overrides: rawOverrides })
+    : normalizeModuleTextsDoc(docId, { overrides: rawOverrides });
+
+  const isoCandidate = f.clientUpdatedAtIso?.stringValue
+    || f.updatedAt?.timestampValue
+    || docJson.updateTime
+    || null;
+
+  return {
+    exists: true,
+    docId,
+    overrides: norm.overrides,
+    modifiedCount: Object.keys(norm.overrides).length,
+    updatedAt: isoCandidate
+  };
+}
+
+async function fetchFirestorePublishedTextsDoc(docId, { force = false } = {}) {
+  if (!FIREBASE_PROJECT_ID || !FIRESTORE_DATABASE_ID || !ALL_TEXT_DOC_IDS.includes(docId)) {
+    return null;
+  }
+  const now = Date.now();
+  const cached = cloudTextCache.get(docId);
+  if (!force && cached && (now - cached.fetchedAt) < CLOUD_TEXT_CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  try {
+    const url = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(FIREBASE_PROJECT_ID)}/databases/${encodeURIComponent(FIRESTORE_DATABASE_ID)}/documents/published_texts/${encodeURIComponent(docId)}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal
+    }).finally(() => clearTimeout(timer));
+
+    if (res.status === 404) {
+      const notFoundData = { exists: false, docId, overrides: {}, modifiedCount: 0, updatedAt: null };
+      cloudTextCache.set(docId, { fetchedAt: now, data: notFoundData });
+      return notFoundData;
+    }
+
+    if (!res.ok) {
+      return cached ? cached.data : null;
+    }
+
+    const docJson = await res.json();
+    const parsed = parseFirestorePublishedTextsDoc(docJson, docId);
+    if (parsed) {
+      cloudTextCache.set(docId, { fetchedAt: now, data: parsed });
+      return parsed;
+    }
+    return cached ? cached.data : null;
+  } catch (_) {
+    return cached ? cached.data : null;
+  }
+}
+
+function parseIsoMs(iso) {
+  if (!iso || typeof iso !== 'string') return 0;
+  const ms = Date.parse(iso);
+  return Number.isFinite(ms) ? ms : 0;
+}
+
+function areOverrideMapsEqual(a = {}, b = {}) {
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  for (const k of keysA) {
+    if (a[k] !== b[k]) return false;
+  }
+  return true;
+}
+
+async function reconcileTextDocWithCloud(docId, localState, { force = false } = {}) {
+  const cloudDoc = await fetchFirestorePublishedTextsDoc(docId, { force });
+  if (!cloudDoc || !cloudDoc.exists) {
+    return {
+      doc: localState.doc,
+      etag: localState.etag,
+      cloudSync: {
+        available: Boolean(FIRESTORE_DATABASE_ID),
+        existsInCloud: false,
+        cloudUpdatedAt: null,
+        cloudModifiedCount: 0,
+        syncedFromCloud: false
+      }
+    };
+  }
+
+  const localMs = parseIsoMs(localState.doc.updatedAt);
+  const cloudMs = parseIsoMs(cloudDoc.updatedAt);
+  const differs = !areOverrideMapsEqual(localState.doc.overrides, cloudDoc.overrides);
+  const cloudHasOverrides = Object.keys(cloudDoc.overrides).length > 0;
+  const localIsEmpty = Object.keys(localState.doc.overrides).length === 0;
+  const shouldAdoptCloud = differs && (
+    cloudMs > (localMs + 1000) ||
+    (!localState.doc.updatedAt && cloudHasOverrides) ||
+    (localIsEmpty && localState.doc.updatedBy === 'sistema' && cloudHasOverrides)
+  );
+
+  if (shouldAdoptCloud) {
+    const filePath = docId === 'portal' ? PORTAL_TEXTS_FILE : getModuleTextsFilePath(docId);
+    const normalized = docId === 'portal'
+      ? normalizePortalTextsDoc({
+          overrides: cloudDoc.overrides,
+          updatedAt: cloudDoc.updatedAt || new Date().toISOString(),
+          updatedBy: 'cloud-sync'
+        })
+      : normalizeModuleTextsDoc(docId, {
+          overrides: cloudDoc.overrides,
+          updatedAt: cloudDoc.updatedAt || new Date().toISOString(),
+          updatedBy: 'cloud-sync'
+        });
+
+    const writeRes = atomicWriteJson(filePath, {
+      overrides: normalized.overrides,
+      updatedAt: normalized.updatedAt,
+      updatedBy: normalized.updatedBy
+    }, null, 'cloud-sync');
+    persistPreservedTextsSnapshot('cloud-sync');
+
+    return {
+      doc: normalized,
+      etag: writeRes.newHash,
+      cloudSync: {
+        available: true,
+        existsInCloud: true,
+        cloudUpdatedAt: cloudDoc.updatedAt,
+        cloudModifiedCount: cloudDoc.modifiedCount,
+        syncedFromCloud: true
+      }
+    };
+  }
+
+  return {
+    doc: localState.doc,
+    etag: localState.etag,
+    cloudSync: {
+      available: true,
+      existsInCloud: true,
+      cloudUpdatedAt: cloudDoc.updatedAt,
+      cloudModifiedCount: cloudDoc.modifiedCount,
+      syncedFromCloud: false
+    }
+  };
+}
+
 function readPortalTextsState() {
   if (!fs.existsSync(PORTAL_TEXTS_FILE)) {
-    const emptyDoc = { overrides: {}, updatedAt: null, updatedBy: null };
-    atomicWriteJson(PORTAL_TEXTS_FILE, emptyDoc, null, 'sistema');
+    const snap = readPreservedTextsSnapshot();
+    const savedPortal = snap.modules?.portal;
+    const initNorm = normalizePortalTextsDoc(
+      savedPortal && Object.keys(savedPortal.overrides || {}).length > 0
+        ? savedPortal
+        : { overrides: {}, updatedAt: null, updatedBy: null }
+    );
+    atomicWriteJson(PORTAL_TEXTS_FILE, {
+      overrides: initNorm.overrides,
+      updatedAt: initNorm.updatedAt,
+      updatedBy: initNorm.updatedBy
+    }, null, 'sistema');
   }
-  const raw = readJsonFile(PORTAL_TEXTS_FILE);
-  const doc = normalizePortalTextsDoc(raw);
+  let raw = readJsonFile(PORTAL_TEXTS_FILE);
+  let doc = normalizePortalTextsDoc(raw);
+
+  // Hidratación de respaldo si el archivo local quedó sin ediciones iniciales mientras existe instantánea preservada
+  if (Object.keys(doc.overrides).length === 0 && !doc.updatedAt) {
+    const snap = readPreservedTextsSnapshot();
+    const savedPortal = snap.modules?.portal;
+    if (savedPortal && Object.keys(savedPortal.overrides || {}).length > 0) {
+      const hydrated = normalizePortalTextsDoc(savedPortal);
+      if (Object.keys(hydrated.overrides).length > 0) {
+        atomicWriteJson(PORTAL_TEXTS_FILE, {
+          overrides: hydrated.overrides,
+          updatedAt: hydrated.updatedAt || new Date().toISOString(),
+          updatedBy: hydrated.updatedBy || 'snapshot-recovery'
+        }, null, 'sistema');
+        doc = hydrated;
+      }
+    }
+  }
+
   const etag = computeFileHash(PORTAL_TEXTS_FILE);
   return { doc, etag };
 }
 
-function buildAdminPortalTextsPayload(doc) {
+function buildAdminPortalTextsPayload(doc, cloudSync = null) {
   const sectionLabelMap = new Map(PORTAL_TEXT_SECTIONS.map(s => [s.id, s.label]));
   const items = PORTAL_TEXT_CATALOG.map(entry => {
     const currentValue = doc.texts[entry.key] ?? entry.defaultText;
@@ -3488,19 +3751,21 @@ function buildAdminPortalTextsPayload(doc) {
     sections: PORTAL_TEXT_SECTIONS,
     items,
     texts: doc.texts,
+    overrides: doc.overrides,
     stats: {
       total: items.length,
       modified: modifiedCount
     },
     updatedAt: doc.updatedAt,
-    updatedBy: doc.updatedBy
+    updatedBy: doc.updatedBy,
+    ...(cloudSync ? { cloudSync } : {})
   };
 }
 
-function writePortalTextsState(nextOverrides, userUpn, expectedHash = null) {
+function writePortalTextsState(nextOverrides, userUpn, expectedHash = null, explicitUpdatedAt = null) {
   const normalized = normalizePortalTextsDoc({
     overrides: nextOverrides,
-    updatedAt: new Date().toISOString(),
+    updatedAt: explicitUpdatedAt || new Date().toISOString(),
     updatedBy: userUpn || 'sistema'
   });
   const writeRes = atomicWriteJson(PORTAL_TEXTS_FILE, {
@@ -3508,6 +3773,8 @@ function writePortalTextsState(nextOverrides, userUpn, expectedHash = null) {
     updatedAt: normalized.updatedAt,
     updatedBy: normalized.updatedBy
   }, expectedHash, userUpn);
+  persistPreservedTextsSnapshot(userUpn || 'sistema');
+  invalidateCloudTextCache('portal');
   return {
     doc: normalized,
     newHash: writeRes.newHash,
@@ -3516,9 +3783,10 @@ function writePortalTextsState(nextOverrides, userUpn, expectedHash = null) {
 }
 
 // Consulta pública de textos estáticos vigentes del Portal Principal
-app.get('/api/portal/texts', (req, res) => {
+app.get('/api/portal/texts', async (req, res) => {
   try {
-    const { doc, etag } = readPortalTextsState();
+    const localState = readPortalTextsState();
+    const { doc, etag } = await reconcileTextDocWithCloud('portal', localState);
     if (etag) res.setHeader('ETag', `"${etag}"`);
     res.json({
       success: true,
@@ -3532,13 +3800,15 @@ app.get('/api/portal/texts', (req, res) => {
 });
 
 // Lectura administrativa completa de textos estáticos editables del Portal Principal
-app.get('/api/admin/portal/texts', requireAuth, requireOperator, requireModuleAccess('portal'), (req, res) => {
+app.get('/api/admin/portal/texts', requireAuth, requireOperator, requireModuleAccess('portal'), async (req, res) => {
   try {
-    const { doc, etag } = readPortalTextsState();
+    const localState = readPortalTextsState();
+    const forceCloud = req.query?.sync === '1';
+    const { doc, etag, cloudSync } = await reconcileTextDocWithCloud('portal', localState, { force: forceCloud });
     if (etag) res.setHeader('ETag', `"${etag}"`);
     res.json({
       success: true,
-      ...buildAdminPortalTextsPayload(doc)
+      ...buildAdminPortalTextsPayload(doc, cloudSync)
     });
   } catch (err) {
     res.status(500).json({ error: 'No fue posible obtener la configuración de textos del portal.' });
@@ -3712,16 +3982,44 @@ function readModuleTextsState(moduleKey) {
   if (!def) throw new Error(`Módulo de textos no soportado: ${moduleKey}`);
   const filePath = getModuleTextsFilePath(def.key);
   if (!fs.existsSync(filePath)) {
-    const emptyDoc = { overrides: {}, updatedAt: null, updatedBy: null };
-    atomicWriteJson(filePath, emptyDoc, null, 'sistema');
+    const snap = readPreservedTextsSnapshot();
+    const savedMod = snap.modules?.[def.key];
+    const initNorm = normalizeModuleTextsDoc(
+      def.key,
+      savedMod && Object.keys(savedMod.overrides || {}).length > 0
+        ? savedMod
+        : { overrides: {}, updatedAt: null, updatedBy: null }
+    );
+    atomicWriteJson(filePath, {
+      overrides: initNorm.overrides,
+      updatedAt: initNorm.updatedAt,
+      updatedBy: initNorm.updatedBy
+    }, null, 'sistema');
   }
   const raw = readJsonFile(filePath);
-  const doc = normalizeModuleTextsDoc(def.key, raw);
+  let doc = normalizeModuleTextsDoc(def.key, raw);
+
+  if (Object.keys(doc.overrides).length === 0 && !doc.updatedAt) {
+    const snap = readPreservedTextsSnapshot();
+    const savedMod = snap.modules?.[def.key];
+    if (savedMod && Object.keys(savedMod.overrides || {}).length > 0) {
+      const hydrated = normalizeModuleTextsDoc(def.key, savedMod);
+      if (Object.keys(hydrated.overrides).length > 0) {
+        atomicWriteJson(filePath, {
+          overrides: hydrated.overrides,
+          updatedAt: hydrated.updatedAt || new Date().toISOString(),
+          updatedBy: hydrated.updatedBy || 'snapshot-recovery'
+        }, null, 'sistema');
+        doc = hydrated;
+      }
+    }
+  }
+
   const etag = computeFileHash(filePath);
   return { def, doc, etag, filePath };
 }
 
-function buildAdminModuleTextsPayload(def, doc) {
+function buildAdminModuleTextsPayload(def, doc, cloudSync = null) {
   const sectionLabelMap = new Map(def.sections.map(s => [s.id, s.label]));
   const items = def.catalog.map(entry => {
     const currentValue = doc.texts[entry.key] ?? entry.defaultText;
@@ -3753,21 +4051,23 @@ function buildAdminModuleTextsPayload(def, doc) {
     sections: def.sections,
     items,
     texts: doc.texts,
+    overrides: doc.overrides,
     stats: {
       total: items.length,
       modified: modifiedCount
     },
     updatedAt: doc.updatedAt,
-    updatedBy: doc.updatedBy
+    updatedBy: doc.updatedBy,
+    ...(cloudSync ? { cloudSync } : {})
   };
 }
 
-function writeModuleTextsState(moduleKey, nextOverrides, userUpn, expectedHash = null) {
+function writeModuleTextsState(moduleKey, nextOverrides, userUpn, expectedHash = null, explicitUpdatedAt = null) {
   const def = getModuleTextsDefinition(moduleKey);
   const filePath = getModuleTextsFilePath(def.key);
   const normalized = normalizeModuleTextsDoc(def.key, {
     overrides: nextOverrides,
-    updatedAt: new Date().toISOString(),
+    updatedAt: explicitUpdatedAt || new Date().toISOString(),
     updatedBy: userUpn || 'sistema'
   });
   const writeRes = atomicWriteJson(filePath, {
@@ -3775,6 +4075,8 @@ function writeModuleTextsState(moduleKey, nextOverrides, userUpn, expectedHash =
     updatedAt: normalized.updatedAt,
     updatedBy: normalized.updatedBy
   }, expectedHash, userUpn);
+  persistPreservedTextsSnapshot(userUpn || 'sistema');
+  invalidateCloudTextCache(def.key);
   return {
     def,
     doc: normalized,
@@ -3797,18 +4099,19 @@ function checkTextModuleAccess(req, res, next) {
 }
 
 // Consulta pública de textos estáticos vigentes para cada módulo
-app.get('/api/module-texts/:module', (req, res) => {
+app.get('/api/module-texts/:module', async (req, res) => {
   const modKey = normalizeTextModuleKey(req.params.module);
   if (!modKey) {
     return res.status(404).json({ error: 'Módulo de textos no encontrado.' });
   }
   try {
-    const { def, doc, etag } = readModuleTextsState(modKey);
+    const localState = readModuleTextsState(modKey);
+    const { doc, etag } = await reconcileTextDocWithCloud(localState.def.key, localState);
     if (etag) res.setHeader('ETag', `"${etag}"`);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.json({
       success: true,
-      module: def.key,
+      module: localState.def.key,
       texts: doc.texts,
       modifiedKeys: Object.keys(doc.overrides),
       updatedAt: doc.updatedAt
@@ -3819,14 +4122,17 @@ app.get('/api/module-texts/:module', (req, res) => {
 });
 
 // Catálogo resumen de módulos con textos administrables accesibles al operador autenticado
-app.get('/api/admin/module-texts/catalog', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/module-texts/catalog', requireAuth, requireOperator, async (req, res) => {
   try {
     const userModules = Array.isArray(req.user?.modules) ? req.user.modules : [];
     const isAdmin = req.user?.role === 'admin';
+    const forceCloud = req.query?.sync === '1';
     const summaries = [];
     for (const key of TEXT_MODULES_ORDER) {
       if (!isAdmin && !userModules.includes(key)) continue;
-      const { def, doc } = readModuleTextsState(key);
+      const localState = readModuleTextsState(key);
+      const { doc } = await reconcileTextDocWithCloud(localState.def.key, localState, { force: forceCloud });
+      const def = localState.def;
       summaries.push({
         key: def.key,
         title: def.title,
@@ -3849,13 +4155,15 @@ app.get('/api/admin/module-texts/catalog', requireAuth, requireOperator, (req, r
 });
 
 // Lectura administrativa completa de textos estáticos editables de un módulo
-app.get('/api/admin/module-texts/:module', requireAuth, requireOperator, checkTextModuleAccess, (req, res) => {
+app.get('/api/admin/module-texts/:module', requireAuth, requireOperator, checkTextModuleAccess, async (req, res) => {
   try {
-    const { def, doc, etag } = readModuleTextsState(req.textModuleKey);
+    const localState = readModuleTextsState(req.textModuleKey);
+    const forceCloud = req.query?.sync === '1';
+    const { doc, etag, cloudSync } = await reconcileTextDocWithCloud(localState.def.key, localState, { force: forceCloud });
     if (etag) res.setHeader('ETag', `"${etag}"`);
     res.json({
       success: true,
-      ...buildAdminModuleTextsPayload(def, doc)
+      ...buildAdminModuleTextsPayload(localState.def, doc, cloudSync)
     });
   } catch (err) {
     res.status(500).json({ error: 'No fue posible obtener la configuración de textos del módulo.' });
@@ -4015,6 +4323,242 @@ app.post('/api/admin/module-texts/:module/reset', requireAuth, requireOperator, 
       return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
     }
     res.status(400).json({ error: err.message || 'No se pudieron restaurar los textos del módulo.' });
+  }
+});
+
+// ========================================================
+// 5.H RESPALDO CONSOLIDADO Y SINCRONIZACIÓN DE TEXTOS (PRODUCCIÓN <-> PREVIEW)
+// ========================================================
+
+function userHasTextModulePermission(user, modId) {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  const userModules = Array.isArray(user.modules) ? user.modules : [];
+  return userModules.includes(modId);
+}
+
+// Exportación segura de instantánea completa de textos personalizados (portal + 4 módulos)
+app.get('/api/admin/texts/export-bundle', requireAuth, requireOperator, async (req, res) => {
+  try {
+    const modules = {};
+    let totalModified = 0;
+
+    for (const id of ALL_TEXT_DOC_IDS) {
+      if (!userHasTextModulePermission(req.user, id)) continue;
+      if (id === 'portal') {
+        const localState = readPortalTextsState();
+        const { doc } = await reconcileTextDocWithCloud('portal', localState);
+        modules.portal = {
+          overrides: doc.overrides,
+          modifiedCount: Object.keys(doc.overrides).length,
+          updatedAt: doc.updatedAt,
+          updatedBy: doc.updatedBy
+        };
+        totalModified += Object.keys(doc.overrides).length;
+      } else {
+        const localState = readModuleTextsState(id);
+        const { doc } = await reconcileTextDocWithCloud(localState.def.key, localState);
+        modules[localState.def.key] = {
+          overrides: doc.overrides,
+          modifiedCount: Object.keys(doc.overrides).length,
+          updatedAt: doc.updatedAt,
+          updatedBy: doc.updatedBy
+        };
+        totalModified += Object.keys(doc.overrides).length;
+      }
+    }
+
+    res.json({
+      success: true,
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      exportedBy: req.user.upn || req.user.email,
+      totalModified,
+      modules
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible exportar el respaldo de textos.' });
+  }
+});
+
+// Importación validada de respaldo JSON de textos (merge o replace)
+app.post('/api/admin/texts/import-bundle', requireAuth, requireOperator, (req, res) => {
+  const rawModules = req.body?.modules;
+  const mode = req.body?.mode === 'replace' ? 'replace' : 'merge';
+
+  if (!rawModules || typeof rawModules !== 'object' || Array.isArray(rawModules)) {
+    return res.status(400).json({ error: 'Debe enviar un objeto "modules" con los textos a importar.' });
+  }
+
+  const incomingEntries = Object.entries(rawModules);
+  if (incomingEntries.length === 0) {
+    return res.status(400).json({ error: 'El respaldo no contiene módulos de textos para importar.' });
+  }
+
+  const validatedModules = {};
+  const errors = [];
+
+  for (const [rawKey, modPayload] of incomingEntries) {
+    const canonical = rawKey === 'portal' ? 'portal' : normalizeTextModuleKey(rawKey);
+    if (!canonical || !ALL_TEXT_DOC_IDS.includes(canonical)) {
+      errors.push(`Módulo de textos no reconocido en respaldo: "${rawKey}".`);
+      continue;
+    }
+    if (!userHasTextModulePermission(req.user, canonical)) {
+      return res.status(403).json({ error: `No posee permisos asignados para importar textos en el módulo "${canonical}".` });
+    }
+    if (!modPayload || typeof modPayload !== 'object' || Array.isArray(modPayload)) {
+      errors.push(`Estructura inválida para el módulo "${canonical}".`);
+      continue;
+    }
+
+    const rawOverrides = (modPayload.overrides && typeof modPayload.overrides === 'object' && !Array.isArray(modPayload.overrides))
+      ? modPayload.overrides
+      : modPayload;
+
+    if (!rawOverrides || typeof rawOverrides !== 'object' || Array.isArray(rawOverrides)) {
+      errors.push(`Se esperaba un mapa "overrides" válido para "${canonical}".`);
+      continue;
+    }
+
+    const cleanModOverrides = {};
+    for (const [textKey, textVal] of Object.entries(rawOverrides)) {
+      if (textKey === 'updatedAt' || textKey === 'updatedBy' || textKey === 'modifiedCount') continue;
+      const check = canonical === 'portal'
+        ? sanitizeAndValidatePortalText(textKey, textVal)
+        : sanitizeAndValidateModuleText(canonical, textKey, textVal);
+
+      if (!check.valid) {
+        errors.push(check.error);
+      } else if (check.value !== check.entry.defaultText) {
+        cleanModOverrides[check.entry.key] = check.value;
+      }
+    }
+
+    validatedModules[canonical] = cleanModOverrides;
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  try {
+    const userUpn = req.user.upn || req.user.email || 'sistema';
+    const appliedModules = [];
+    let totalKeysApplied = 0;
+
+    for (const [modId, incomingMap] of Object.entries(validatedModules)) {
+      if (modId === 'portal') {
+        const { doc } = readPortalTextsState();
+        const nextOverrides = mode === 'replace'
+          ? { ...incomingMap }
+          : { ...doc.overrides, ...incomingMap };
+        writePortalTextsState(nextOverrides, userUpn, null);
+        appliedModules.push({ module: 'portal', modifiedCount: Object.keys(nextOverrides).length });
+        totalKeysApplied += Object.keys(nextOverrides).length;
+      } else {
+        const { doc } = readModuleTextsState(modId);
+        const nextOverrides = mode === 'replace'
+          ? { ...incomingMap }
+          : { ...doc.overrides, ...incomingMap };
+        writeModuleTextsState(modId, nextOverrides, userUpn, null);
+        appliedModules.push({ module: modId, modifiedCount: Object.keys(nextOverrides).length });
+        totalKeysApplied += Object.keys(nextOverrides).length;
+      }
+    }
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'IMPORTACIÓN RESPALDO TEXTOS',
+      module: 'portal',
+      target: 'preserved_texts_snapshot.json',
+      recordId: mode,
+      details: `Respaldo de textos aplicado (${mode}) en ${appliedModules.map(a => `${a.module}:${a.modifiedCount}`).join(', ')}`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    res.json({
+      success: true,
+      mode,
+      appliedModules,
+      totalKeysApplied
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'No fue posible aplicar el respaldo de textos.' });
+  }
+});
+
+// Sincronización forzada desde Firestore (/published_texts/{docId}) hacia almacenamiento local
+app.post('/api/admin/texts/sync-from-cloud', requireAuth, requireOperator, async (req, res) => {
+  const requestedMod = typeof req.body?.module === 'string' ? req.body.module.trim() : 'all';
+  const mode = req.body?.mode === 'merge' ? 'merge' : 'replace';
+
+  let targetIds = ALL_TEXT_DOC_IDS;
+  if (requestedMod && requestedMod !== 'all') {
+    const canonical = requestedMod === 'portal' ? 'portal' : normalizeTextModuleKey(requestedMod);
+    if (!canonical || !ALL_TEXT_DOC_IDS.includes(canonical)) {
+      return res.status(400).json({ error: 'Módulo de sincronización no reconocido.' });
+    }
+    if (!userHasTextModulePermission(req.user, canonical)) {
+      return res.status(403).json({ error: `No posee permisos asignados para sincronizar "${canonical}".` });
+    }
+    targetIds = [canonical];
+  } else {
+    targetIds = ALL_TEXT_DOC_IDS.filter(id => userHasTextModulePermission(req.user, id));
+  }
+
+  try {
+    const userUpn = req.user.upn || req.user.email || 'cloud-sync';
+    const results = [];
+    let syncedCount = 0;
+
+    for (const id of targetIds) {
+      const cloudDoc = await fetchFirestorePublishedTextsDoc(id, { force: true });
+      if (!cloudDoc || !cloudDoc.exists) {
+        results.push({ module: id, status: 'empty_in_cloud', modifiedCount: 0 });
+        continue;
+      }
+
+      if (id === 'portal') {
+        const { doc } = readPortalTextsState();
+        const nextOverrides = mode === 'merge'
+          ? { ...doc.overrides, ...cloudDoc.overrides }
+          : { ...cloudDoc.overrides };
+        writePortalTextsState(nextOverrides, userUpn, null, cloudDoc.updatedAt || new Date().toISOString());
+        results.push({ module: 'portal', status: 'synced', modifiedCount: Object.keys(nextOverrides).length });
+        syncedCount++;
+      } else {
+        const { doc } = readModuleTextsState(id);
+        const nextOverrides = mode === 'merge'
+          ? { ...doc.overrides, ...cloudDoc.overrides }
+          : { ...cloudDoc.overrides };
+        writeModuleTextsState(id, nextOverrides, userUpn, null, cloudDoc.updatedAt || new Date().toISOString());
+        results.push({ module: id, status: 'synced', modifiedCount: Object.keys(nextOverrides).length });
+        syncedCount++;
+      }
+    }
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'SINCRONIZACIÓN NUBE TEXTOS',
+      module: 'portal',
+      target: 'firestore:published_texts',
+      recordId: requestedMod,
+      details: `Sincronización desde la nube ejecutada (${mode}) para ${targetIds.join(', ')} (${syncedCount} módulos encontrados en nube)`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    res.json({
+      success: true,
+      syncedCount,
+      results
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'No fue posible sincronizar desde la nube.' });
   }
 });
 

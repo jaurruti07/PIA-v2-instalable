@@ -209,7 +209,7 @@
       },
       {
         "id": 6,
-        "url": "/uploads/backgrounds/test_ui_bg_1795665979592_ab8e2e.png",
+        "url": "/uploads/backgrounds/test_ui_bg_1795726883512_61a7cd.png",
         "titulo": "Fondo Prueba QA",
         "activo": true,
         "orden": 6
@@ -556,22 +556,9 @@
         "icono": "fas fa-times-circle",
         "activo": true,
         "orden": 3
-      },
-      {
-        "id": 4,
-        "clave": "custom_4",
-        "modoValor": "manual",
-        "autoKey": null,
-        "valor": "98",
-        "sufijo": "%",
-        "titulo": "Cumplimiento QA",
-        "descripcion": "Indicador de prueba agregado dinámicamente",
-        "icono": "fas fa-car",
-        "activo": true,
-        "orden": 4
       }
     ]
   },
-  "updatedAt": "2026-11-26T04:06:19.612Z",
+  "updatedAt": "2026-11-26T21:01:23.521Z",
   "updatedBy": "deteccionydenuncia@cnc.gob.gt"
 }

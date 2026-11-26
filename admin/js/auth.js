@@ -5,6 +5,8 @@ import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebase
 import {
     getAuth,
     signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
     signOut,
     sendPasswordResetEmail,
     setPersistence,
@@ -95,6 +97,7 @@ const CANONICAL_FIREBASE_CONFIG = {
     projectId: 'pia-portal-integridad',
     apiKey: 'AIzaSyCWE4pPbpQKEgmR67F2b-x1yWYXee_34Sk',
     authDomain: 'pia-portal-integridad.firebaseapp.com',
+    firestoreDatabaseId: 'ai-studio-piaoficialwindow-a9a30d3f-2797-4ea9-aea2-0df0ec4f3ccc',
     appId: '1:785917550733:web:2835a06188ec46bea0c2c4',
     storageBucket: 'pia-portal-integridad.firebasestorage.app',
     authorizedEmails: ALLOWED_ADMIN_EMAILS
@@ -362,9 +365,47 @@ export async function logout(reason) {
     window.location.reload();
 }
 
+// Vincular cuenta Google institucional mediante signInWithPopup para sincronización segura en Firestore
+export async function signInWithGooglePopup() {
+    const auth = await initFirebaseAuth();
+    if (!auth) {
+        throw new Error('No fue posible inicializar Firebase Authentication.');
+    }
+
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    const cred = await signInWithPopup(auth, provider);
+    const user = cred?.user;
+    const email = (user?.email || '').trim().toLowerCase();
+
+    if (!user || !email) {
+        await signOut(auth).catch(() => {});
+        throw new Error('No se recibió un correo electrónico válido desde Google.');
+    }
+
+    if (!user.emailVerified) {
+        await signOut(auth).catch(() => {});
+        throw new Error('La cuenta de Google debe tener el correo verificado para sincronizar textos en la nube.');
+    }
+
+    if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
+        await signOut(auth).catch(() => {});
+        throw new Error(`La cuenta ${email} no pertenece a los operadores autorizados (${ALLOWED_ADMIN_EMAILS.join(', ')}).`);
+    }
+
+    return {
+        uid: user.uid,
+        email,
+        displayName: user.displayName || email,
+        emailVerified: true
+    };
+}
+
 // Exponer en el objeto window para interoperabilidad
 window.initFirebaseAuth = initFirebaseAuth;
 window.loginWithFirebase = loginWithFirebase;
+window.signInWithGooglePopup = signInWithGooglePopup;
 window.sendFirebasePasswordReset = sendFirebasePasswordReset;
 window.verifyToken = verifyToken;
 window.logout = logout;
