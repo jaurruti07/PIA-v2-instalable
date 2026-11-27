@@ -39,6 +39,93 @@
       },
       "required": ["docId", "overrides", "modifiedCount", "schemaVersion", "updatedAt"]
     },
+    "published_multilingual_doc": {
+      "title": "Catálogo Publicado de Guía Multilingüe",
+      "description": "Contenidos multilingües e internacionalización del portal y Canales por la Integridad (cero PII)",
+      "type": "object",
+      "properties": {
+        "docId": {
+          "type": "string",
+          "enum": ["portal", "canales", "i18n"],
+          "minLength": 4,
+          "maxLength": 12,
+          "pattern": "^(portal|canales|i18n)$",
+          "description": "Sección canónica del catálogo multilingüe"
+        },
+        "data": {
+          "type": "object",
+          "description": "Mapa estructurado de idiomas y textos de locución/interfaz"
+        },
+        "langCount": {
+          "type": "integer",
+          "description": "Cantidad de idiomas incluidos en la sección"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "description": "Versión del esquema del documento multilingüe"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Marca de tiempo de servidor (request.time)"
+        },
+        "clientUpdatedAtIso": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 40,
+          "description": "Marca temporal ISO de referencia"
+        }
+      },
+      "required": ["docId", "data", "langCount", "schemaVersion", "updatedAt"]
+    },
+    "published_data_doc": {
+      "title": "Conjunto de Datos Institucional Publicado",
+      "description": "Datos JSON públicos de módulos, KPIs, configuración UI y conocimiento del asistente (cero PII)",
+      "type": "object",
+      "properties": {
+        "docId": {
+          "type": "string",
+          "enum": [
+            "canales",
+            "directorio",
+            "tableros",
+            "riesgo",
+            "portal",
+            "ui_config",
+            "canales_settings",
+            "chatbot_knowledge"
+          ],
+          "minLength": 4,
+          "maxLength": 24,
+          "pattern": "^(canales|directorio|tableros|riesgo|portal|ui_config|canales_settings|chatbot_knowledge)$",
+          "description": "Identificador canónico del conjunto de datos JSON del portal"
+        },
+        "data": {
+          "type": "object",
+          "description": "Contenedor nativo con los registros o configuración estructurada (payload)"
+        },
+        "itemCount": {
+          "type": "integer",
+          "description": "Cantidad de registros o secciones principales contenidas"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "description": "Versión del esquema del documento de datos"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Marca de tiempo de servidor (request.time)"
+        },
+        "clientUpdatedAtIso": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 40,
+          "description": "Marca temporal ISO de referencia"
+        }
+      },
+      "required": ["docId", "data", "itemCount", "schemaVersion", "updatedAt"]
+    },
     "admin_text_snapshot": {
       "title": "Respaldo Privado de Instantáneas de Textos",
       "description": "Instantánea consolidada multi-módulo con atribución del operador autorizado",
@@ -142,6 +229,14 @@
     "/published_texts/{docId}": {
       "schema": "published_texts_doc",
       "description": "Configuración pública de textos estáticos editables por módulo (cero PII)"
+    },
+    "/published_multilingual/{docId}": {
+      "schema": "published_multilingual_doc",
+      "description": "Catálogos públicos de Guía Multilingüe e i18n (cero PII)"
+    },
+    "/published_data/{docId}": {
+      "schema": "published_data_doc",
+      "description": "Datos JSON públicos de módulos, KPIs y configuraciones visuales (cero PII)"
     },
     "/admin_text_snapshots/{snapshotId}": {
       "schema": "admin_text_snapshot",

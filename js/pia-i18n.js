@@ -932,10 +932,45 @@
     // Exponer la función global window.t
     window.t = t;
 
+    function mergeMultilingualPayload(payload) {
+        if (!payload || typeof payload !== 'object') return false;
+        let changed = false;
+        if (payload.i18n && typeof payload.i18n === 'object') {
+            for (const [langKey, dict] of Object.entries(payload.i18n)) {
+                if (!dict || typeof dict !== 'object') continue;
+                EXACT_DICTIONARY[langKey] = { ...(EXACT_DICTIONARY[langKey] || {}), ...dict };
+                changed = true;
+            }
+        }
+        if (payload.canales && typeof payload.canales === 'object') {
+            for (const [langKey, modObj] of Object.entries(payload.canales)) {
+                if (!modObj || typeof modObj !== 'object') continue;
+                MAYA_MODULE_DATA[langKey] = { ...(MAYA_MODULE_DATA[langKey] || {}), ...modObj };
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    async function refreshMultilingualFromApi() {
+        try {
+            const res = await fetch('/api/multilingual-guide', { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = await res.json().catch(() => null);
+            if (data && data.success && mergeMultilingualPayload(data)) {
+                updateDOM(currentLang);
+            }
+        } catch (_) {}
+    }
+
     // 10. INICIALIZACIÓN REACTIVA AL CARGAR EL DOM
     function onDOMLoaded() {
+        if (window.PIA_BAKED_MULTILINGUAL) {
+            mergeMultilingualPayload(window.PIA_BAKED_MULTILINGUAL);
+        }
         currentLang = detectLanguage();
         updateDOM(currentLang);
+        refreshMultilingualFromApi();
 
         // Interceptar clics en píldoras de lenguaje si existen (#mayaLangBar)
         const langBar = document.getElementById('mayaLangBar');

@@ -1,12 +1,12 @@
 {
-  "totalVisits": 37,
+  "totalVisits": 40,
   "createdAt": "2026-11-11T13:22:54.419Z",
-  "lastUpdated": "2026-11-26T18:11:51.506Z",
+  "lastUpdated": "2026-11-27T13:31:26.797Z",
   "pages": {
     "/": {
       "name": "Portal Principal / Inicio",
-      "visits": 23,
-      "lastVisit": "2026-11-26T18:10:15.447Z"
+      "visits": 25,
+      "lastVisit": "2026-11-27T13:31:26.797Z"
     },
     "/directorio": {
       "name": "Directorio Acceso al Ejecutivo",
@@ -15,8 +15,8 @@
     },
     "/canales-por-la-integridad": {
       "name": "Canales por la Integridad",
-      "visits": 3,
-      "lastVisit": "2026-11-26T18:11:51.496Z"
+      "visits": 4,
+      "lastVisit": "2026-11-27T13:26:25.099Z"
     },
     "/gobierno_en_numeros": {
       "name": "Tu Gobierno en Números",
@@ -30,6 +30,30 @@
     }
   },
   "recentVisits": [
+    {
+      "id": "2eb4ba94",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-27T13:31:26.797Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "d3eab85b",
+      "path": "/canales-por-la-integridad",
+      "pageName": "Canales por la Integridad",
+      "timestamp": "2026-11-27T13:26:25.099Z",
+      "maskedIp": "190.56.***.***",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15"
+    },
+    {
+      "id": "93d71a86",
+      "path": "/",
+      "pageName": "Portal Principal / Inicio",
+      "timestamp": "2026-11-27T13:11:09.109Z",
+      "maskedIp": "127.0.***.***",
+      "userAgent": "Go-http-client/1.1"
+    },
     {
       "id": "21be7981",
       "path": "/riesgo",

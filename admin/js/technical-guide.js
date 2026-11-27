@@ -1,7 +1,7 @@
 // technical-guide.js - Módulo de Guía Técnica para Desarrolladores y Administradores del PIA
 
-export function initTechnicalGuide() {
-    const contentArea = document.getElementById('contentArea');
+export function initTechnicalGuide({ containerId = 'contentArea', embedded = false } = {}) {
+    const contentArea = document.getElementById(containerId);
     if (!contentArea) return;
 
     contentArea.innerHTML = `
@@ -50,6 +50,7 @@ export function initTechnicalGuide() {
                     <button class="guide-tab-btn" data-category="ai"><i class="fas fa-robot"></i> Asistente Lupita (IA)</button>
                     <button class="guide-tab-btn" data-category="push"><i class="fas fa-bell"></i> Push & Service Worker</button>
                     <button class="guide-tab-btn" data-category="deploy"><i class="fas fa-server"></i> Despliegue & Backups</button>
+                    <button class="guide-tab-btn" data-category="multilingual"><i class="fas fa-language"></i> Guía Multilingüe & Persistencia Código</button>
                 </div>
             </div>
         </div>
@@ -521,6 +522,72 @@ app.post('/api/chatbot/ask', async (req, res) => {
                     </div>
                 </div>
             </section>
+
+            <!-- SECCIÓN 9: GUÍA MULTILINGÜE Y PERSISTENCIA EN CÓDIGO / PRODUCCIÓN ↔ PREVIEW -->
+            <section class="guide-section-card" data-category="multilingual" id="sec-multilingual" style="background: #fff; border-radius: var(--radius-lg, 20px); border: 1px solid var(--border); padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; border-bottom: 2px solid var(--surface); padding-bottom: 1rem;">
+                    <div style="width: 42px; height: 42px; background: rgba(0,194,224,0.14); color: var(--blue-bright); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800;">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-family: var(--font-head); font-size: 1.35rem; font-weight: 800; color: var(--navy); margin: 0;">9. Guía Multilingüe y Persistencia en Código (Producción ↔ Preview)</h2>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Arquitectura técnica a nivel de desarrollo para administración multilingüe, materialización en código estático y sincronización bidireccional</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+                    <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
+                        <h3 style="font-size: 0.98rem; font-weight: 700; color: var(--navy); margin: 0 0 0.5rem 0;"><i class="fas fa-book-open" style="color: var(--cyan);"></i> Catálogo Multilingüe Canónico</h3>
+                        <p style="font-size: 0.86rem; color: var(--text-main); margin: 0 0 0.5rem 0; line-height: 1.5;">
+                            Definido en <code>db/multilingualGuideCatalog.js</code> con sanitización estricta (rechazo de HTML/XSS y llaves protegidas) para tres catálogos independientes:
+                        </p>
+                        <ul style="font-size: 0.84rem; color: var(--text-muted); padding-left: 1.1rem; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <li><code>portal</code>: Inclusión Universal (6 idiomas × 8 plataformas, títulos y guiones de voz).</li>
+                            <li><code>canales</code>: Guía Maya en 8 idiomas (resumen auditivo, 4 pasos, 3 garantías y 5 términos de glosario).</li>
+                            <li><code>i18n</code>: Diccionario global consumido por <code>js/pia-i18n.js</code> en todo el portal.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
+                        <h3 style="font-size: 0.98rem; font-weight: 700; color: var(--navy); margin: 0 0 0.5rem 0;"><i class="fas fa-file-code" style="color: #16A34A;"></i> Materialización Atómica en Código</h3>
+                        <p style="font-size: 0.86rem; color: var(--text-main); margin: 0 0 0.5rem 0; line-height: 1.5;">
+                            El módulo <code>db/codeMaterializer.js</code> compila cada guardado en archivos estáticos reales en disco mediante escritura atómica (<code>.tmp</code> + <code>renameSync</code>) y verificación SHA-256:
+                        </p>
+                        <ul style="font-size: 0.84rem; color: var(--text-muted); padding-left: 1.1rem; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <li><code>js/pia-baked-texts.js</code> y <code>db/bakedTextOverrides.json</code> (textos estáticos de Portal y 4 módulos).</li>
+                            <li><code>js/pia-multilingual-data.js</code> (guía multilingüe e i18n precargados en ventana <code>PIA_BAKED_MULTILINGUAL</code> sin latencia ni parpadeo inicial).</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: var(--surface); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border);">
+                        <h3 style="font-size: 0.98rem; font-weight: 700; color: var(--navy); margin: 0 0 0.5rem 0;"><i class="fas fa-cloud-sync-alt" style="color: var(--blue-bright);"></i> Sincronización Producción ↔ Preview</h3>
+                        <p style="font-size: 0.86rem; color: var(--text-main); margin: 0 0 0.5rem 0; line-height: 1.5;">
+                            Para evitar que los cambios realizados en Producción queden aislados en contenedores temporales, el backend reconcilia automáticamente las colecciones Firestore hacia JSON y código en disco:
+                        </p>
+                        <ul style="font-size: 0.84rem; color: var(--text-muted); padding-left: 1.1rem; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                            <li><code>published_texts/{docId}</code> → <code>data/*_texts.json</code> + <code>js/pia-baked-texts.js</code>.</li>
+                            <li><code>published_multilingual/{docId}</code> → <code>data/multilingual_guide.json</code> + <code>js/pia-multilingual-data.js</code>.</li>
+                            <li><code>published_data/{docId}</code> → <code>data_acceso.json</code>, <code>data_directorio.json</code>, <code>data_tableros.json</code>, <code>datos.json</code>, <code>data_portal.json</code>, <code>modules_ui_config.json</code>, <code>canales_settings.json</code> y <code>chatbot_knowledge.json</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: #0F172A; color: #E2E8F0; border-radius: 14px; padding: 1.25rem; font-size: 0.85rem; overflow-x: auto;">
+                    <div style="font-weight: 700; color: #38BDF8; margin-bottom: 0.5rem;"><i class="fas fa-terminal"></i> Endpoints de API & Comando CLI de Desarrollo</div>
+                    <pre style="margin: 0; font-family: 'Fira Code', monospace; line-height: 1.6; white-space: pre-wrap;">GET  /api/multilingual-guide            → Guía multilingüe vigente (con auto-reconciliación Firestore)
+GET  /api/admin/multilingual-guide      → Lectura administrativa completa + ETag OCC (?sync=1 fuerza lectura en nube)
+PUT  /api/admin/multilingual-guide      → Valida { section, data }, guarda en JSON y materializa /js/pia-multilingual-data.js
+POST /api/admin/multilingual-guide/reset→ Restaura idioma o sección completa y regenera /js/pia-multilingual-data.js
+GET  /api/admin/sync/status             → Estado de sync_state.json, hashes SHA-256 de código y conteos por dataset
+GET  /api/admin/sync/dataset/:docId     → Snapshot canónico de un dataset para réplica inmediata en Firestore
+GET  /api/admin/sync/export-all         → Respaldo JSON unificado (textos + guía multilingüe + 8 datasets)
+POST /api/admin/sync/import-all         → Importación validada que escribe en los JSON y recompila archivos /js/*.js
+POST /api/admin/sync/pull-all-cloud     → Descarga todo Firestore hacia JSON locales y código estático
+POST /api/admin/sync/materialize        → Recompila /js/pia-baked-texts.js, /js/pia-multilingual-data.js y /db/bakedTextOverrides.json
+
+CLI: npm run sync:cloud                 → Ejecuta admin/scripts/sync_cloud_to_code.js en entorno local de desarrollo</pre>
+                </div>
+            </section>
         </div>
     `;
 
@@ -574,9 +641,9 @@ app.post('/api/chatbot/ask', async (req, res) => {
         document.head.appendChild(style);
     }
 
-    // LISTENER DE PESTAÑAS DE CATEGORÍA
-    const tabs = document.querySelectorAll('.guide-tab-btn');
-    const cards = document.querySelectorAll('.guide-section-card');
+    // LISTENER DE PESTAÑAS DE CATEGORÍA (acotados al contenedor para soportar vista embebida)
+    const tabs = contentArea.querySelectorAll('.guide-tab-btn');
+    const cards = contentArea.querySelectorAll('.guide-section-card');
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -594,8 +661,13 @@ app.post('/api/chatbot/ask', async (req, res) => {
         });
     });
 
+    if (embedded) {
+        const mlTab = contentArea.querySelector('.guide-tab-btn[data-category="multilingual"]');
+        if (mlTab) mlTab.click();
+    }
+
     // BUSCADOR EN TIEMPO REAL DENTRO DE LA GUÍA TÉCNICA
-    const searchInput = document.getElementById('guideSearchInput');
+    const searchInput = contentArea.querySelector('#guideSearchInput');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
@@ -603,7 +675,7 @@ app.post('/api/chatbot/ask', async (req, res) => {
             // Si hay búsqueda, seleccionar la pestaña "Todo"
             if (query.length > 0) {
                 tabs.forEach(t => t.classList.remove('active'));
-                const allTab = document.querySelector('.guide-tab-btn[data-category="all"]');
+                const allTab = contentArea.querySelector('.guide-tab-btn[data-category="all"]');
                 if (allTab) allTab.classList.add('active');
             }
 
@@ -619,7 +691,7 @@ app.post('/api/chatbot/ask', async (req, res) => {
     }
 
     // BOTÓN IMPRIMIR / PDF
-    const btnPrint = document.getElementById('btnPrintGuide');
+    const btnPrint = contentArea.querySelector('#btnPrintGuide');
     if (btnPrint) {
         btnPrint.addEventListener('click', () => {
             window.print();
@@ -632,11 +704,11 @@ app.post('/api/chatbot/ask', async (req, res) => {
             window.navigateTo('database', { tab: 'installguide' });
         }
     };
-    document.getElementById('btnGoToServerInstallGuide')?.addEventListener('click', jumpToServerInstall);
-    document.getElementById('btnJumpToInstallGuideCard')?.addEventListener('click', jumpToServerInstall);
+    contentArea.querySelector('#btnGoToServerInstallGuide')?.addEventListener('click', jumpToServerInstall);
+    contentArea.querySelector('#btnJumpToInstallGuideCard')?.addEventListener('click', jumpToServerInstall);
 
     // BOTÓN COPIAR FICHA TÉCNICA
-    const btnCopy = document.getElementById('btnCopySysInfo');
+    const btnCopy = contentArea.querySelector('#btnCopySysInfo');
     if (btnCopy) {
         btnCopy.addEventListener('click', () => {
             const summaryText = `

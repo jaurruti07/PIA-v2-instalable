@@ -1,5 +1,6 @@
 // /admin/js/module-ui-manager.js
 // Gestor modular de KPIs dinámicos e Imágenes de Fondo para cada módulo del Portal PIA
+import { syncModuleDataToCloud } from './texts-sync-ui.js';
 
 const MODULE_UI_ICON_GALLERY = [
   { cls: 'fas fa-building', label: 'Instituciones' },
@@ -144,6 +145,7 @@ async function mutateUiEndpoint(url, method, body = null) {
 
   const newEtag = res.headers.get('ETag');
   if (newEtag) uiState.etag = newEtag;
+  syncModuleDataToCloud('ui_config', getHeaders, uiState.deps?.authLogout).catch(() => {});
   return data;
 }
 

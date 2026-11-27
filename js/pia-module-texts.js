@@ -31,9 +31,19 @@
     }
   }
 
+  function applyBakedModuleTextsSync(modKey) {
+    try {
+      var bakedMods = window.PIA_BAKED_TEXTS && window.PIA_BAKED_TEXTS.modules;
+      if (bakedMods && bakedMods[modKey] && typeof bakedMods[modKey] === 'object') {
+        applyTextsMap(bakedMods[modKey]);
+      }
+    } catch (_) {}
+  }
+
   async function loadAndApplyModuleTexts(explicitKey) {
     var modKey = explicitKey || detectModuleKey();
     if (!modKey) return;
+    applyBakedModuleTextsSync(modKey);
     try {
       var url = '/api/module-texts/' + encodeURIComponent(modKey) + '?t=' + Date.now();
       var res = await fetch(url, { cache: 'no-store' });
@@ -42,7 +52,7 @@
       if (!data || data.success !== true || !data.texts) return;
       applyTextsMap(data.texts);
     } catch (_) {
-      // Mantiene los textos por defecto embebidos en el HTML si hay error de red
+      // Mantiene los textos por defecto o materializados en código si hay error de red
     }
   }
 

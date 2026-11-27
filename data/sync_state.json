@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "texts": {},
+  "multilingual": {
+    "portal": {
+      "lastLocalWriteAt": "2026-11-27T13:58:22.171Z"
+    },
+    "canales": {
+      "lastLocalWriteAt": "2026-11-27T13:58:22.171Z"
+    },
+    "i18n": {
+      "lastLocalWriteAt": "2026-11-27T13:58:22.171Z"
+    }
+  },
+  "datasets": {
+    "canales_settings": {
+      "lastLocalWriteAt": "2026-11-27T13:58:17.907Z"
+    },
+    "portal": {
+      "lastLocalWriteAt": "2026-11-27T13:58:18.165Z"
+    },
+    "ui_config": {
+      "lastLocalWriteAt": "2026-11-27T13:58:18.494Z"
+    }
+  }
+}

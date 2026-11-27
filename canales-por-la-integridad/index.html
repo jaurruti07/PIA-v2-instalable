@@ -4038,6 +4038,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script src="/js/pia-ui-runtime.js"></script>
+<script src="/js/pia-baked-texts.js"></script>
+<script src="/js/pia-multilingual-data.js"></script>
 <script src="/js/pia-module-texts.js" data-module="canales"></script>
 <script>
 /* ============================================================
@@ -5807,7 +5809,30 @@ let currentMayaLangKey = 'es';
 let mayaUtterance = null;
 let isSpeakingMaya = false;
 
+function mergeCanalesMultilingualData(canalesMap) {
+    if (!canalesMap || typeof canalesMap !== 'object') return false;
+    let updated = false;
+    for (const [lk, obj] of Object.entries(canalesMap)) {
+        if (!obj || typeof obj !== 'object') continue;
+        mayaLangData[lk] = { ...(mayaLangData[lk] || {}), ...obj };
+        updated = true;
+    }
+    return updated;
+}
+
+if (window.PIA_BAKED_MULTILINGUAL && window.PIA_BAKED_MULTILINGUAL.canales) {
+    mergeCanalesMultilingualData(window.PIA_BAKED_MULTILINGUAL.canales);
+}
+
 function initGuiaMultilingue() {
+    fetch('/api/multilingual-guide', { cache: 'no-store' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(payload => {
+            if (payload && payload.success && payload.canales && mergeCanalesMultilingualData(payload.canales)) {
+                renderMayaLangContent(currentMayaLangKey);
+            }
+        })
+        .catch(() => {});
     const langBar = document.getElementById('mayaLangBar');
     if (langBar) {
         langBar.addEventListener('click', (e) => {

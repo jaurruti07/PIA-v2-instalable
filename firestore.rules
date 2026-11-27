@@ -40,6 +40,29 @@ service cloud.firestore {
         docId in ['portal', 'directorio', 'tableros', 'canales', 'riesgo'];
     }
 
+    function isValidMultilingualDocId(docId) {
+      return docId is string &&
+        docId.size() >= 4 &&
+        docId.size() <= 12 &&
+        docId in ['portal', 'canales', 'i18n'];
+    }
+
+    function isValidDataDocId(docId) {
+      return docId is string &&
+        docId.size() >= 4 &&
+        docId.size() <= 24 &&
+        docId in [
+          'canales',
+          'directorio',
+          'tableros',
+          'riesgo',
+          'portal',
+          'ui_config',
+          'canales_settings',
+          'chatbot_knowledge'
+        ];
+    }
+
     // 3. Entity Validation Blueprints (Anti-Update-Gap)
     function isValidPublishedTextsDoc(data, docId) {
       return data.keys().hasAll(['docId', 'overrides', 'modifiedCount', 'schemaVersion', 'updatedAt']) &&
@@ -52,6 +75,45 @@ service cloud.firestore {
         data.modifiedCount >= 0 &&
         data.modifiedCount <= 200 &&
         data.modifiedCount == data.overrides.size() &&
+        data.schemaVersion is int &&
+        data.schemaVersion == 1 &&
+        data.updatedAt is timestamp &&
+        (!('clientUpdatedAtIso' in data) ||
+          (data.clientUpdatedAtIso is string &&
+           data.clientUpdatedAtIso.size() >= 10 &&
+           data.clientUpdatedAtIso.size() <= 40));
+    }
+
+    function isValidPublishedMultilingualDoc(data, docId) {
+      return data.keys().hasAll(['docId', 'data', 'langCount', 'schemaVersion', 'updatedAt']) &&
+        data.keys().hasOnly(['docId', 'data', 'langCount', 'schemaVersion', 'updatedAt', 'clientUpdatedAtIso']) &&
+        isValidMultilingualDocId(data.docId) &&
+        data.docId == docId &&
+        data.data is map &&
+        data.data.size() <= 16 &&
+        data.langCount is int &&
+        data.langCount >= 0 &&
+        data.langCount <= 16 &&
+        data.schemaVersion is int &&
+        data.schemaVersion == 1 &&
+        data.updatedAt is timestamp &&
+        (!('clientUpdatedAtIso' in data) ||
+          (data.clientUpdatedAtIso is string &&
+           data.clientUpdatedAtIso.size() >= 10 &&
+           data.clientUpdatedAtIso.size() <= 40));
+    }
+
+    function isValidPublishedDataDoc(data, docId) {
+      return data.keys().hasAll(['docId', 'data', 'itemCount', 'schemaVersion', 'updatedAt']) &&
+        data.keys().hasOnly(['docId', 'data', 'itemCount', 'schemaVersion', 'updatedAt', 'clientUpdatedAtIso']) &&
+        isValidDataDocId(data.docId) &&
+        data.docId == docId &&
+        data.data is map &&
+        data.data.size() >= 1 &&
+        data.data.size() <= 16 &&
+        data.itemCount is int &&
+        data.itemCount >= 0 &&
+        data.itemCount <= 5000 &&
         data.schemaVersion is int &&
         data.schemaVersion == 1 &&
         data.updatedAt is timestamp &&
@@ -125,7 +187,41 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // 5. Private Multi-Module Snapshot Storage (Strict Operator Isolation)
+    // 5. Published Multilingual Guide (Zero PII, Fixed IDs, Public get-only)
+    match /published_multilingual/{docId} {
+      allow get: if isValidMultilingualDocId(docId);
+      allow list: if false;
+      allow create: if isAuthorizedOperator() &&
+        isValidMultilingualDocId(docId) &&
+        isValidPublishedMultilingualDoc(incoming(), docId) &&
+        incoming().updatedAt == request.time;
+      allow update: if isAuthorizedOperator() &&
+        isValidMultilingualDocId(docId) &&
+        isValidPublishedMultilingualDoc(incoming(), docId) &&
+        incoming().docId == existing().docId &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['data', 'langCount', 'updatedAt', 'clientUpdatedAtIso', 'schemaVersion']);
+      allow delete: if false;
+    }
+
+    // 6. Published Module JSON Datasets (Zero PII, Fixed IDs, Public get-only)
+    match /published_data/{docId} {
+      allow get: if isValidDataDocId(docId);
+      allow list: if false;
+      allow create: if isAuthorizedOperator() &&
+        isValidDataDocId(docId) &&
+        isValidPublishedDataDoc(incoming(), docId) &&
+        incoming().updatedAt == request.time;
+      allow update: if isAuthorizedOperator() &&
+        isValidDataDocId(docId) &&
+        isValidPublishedDataDoc(incoming(), docId) &&
+        incoming().docId == existing().docId &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['data', 'itemCount', 'updatedAt', 'clientUpdatedAtIso', 'schemaVersion']);
+      allow delete: if false;
+    }
+
+    // 7. Private Multi-Module Snapshot Storage (Strict Operator Isolation)
     match /admin_text_snapshots/{snapshotId} {
       allow get: if isValidId(snapshotId) && isAuthorizedOperator();
       allow list: if false;
@@ -142,7 +238,7 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // 6. Immutable Admin Audit Logs (Strict Operator Isolation, Append-Only)
+    // 8. Immutable Admin Audit Logs (Strict Operator Isolation, Append-Only)
     match /admin_audit_logs/{logId} {
       allow get: if isValidId(logId) && isAuthorizedOperator();
       allow list: if false;

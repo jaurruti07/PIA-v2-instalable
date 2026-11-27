@@ -28,6 +28,8 @@ export const OperationType = {
 };
 
 export const TEXT_DOC_IDS = ['portal', 'directorio', 'tableros', 'canales', 'riesgo'];
+export const MULTILINGUAL_DOC_IDS = ['portal', 'canales', 'i18n'];
+export const DATA_DOC_IDS = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'ui_config', 'canales_settings', 'chatbot_knowledge'];
 
 let firestoreDbInstance = null;
 let firebaseAuthRef = null;
@@ -306,3 +308,171 @@ export async function pushPublishedTextsToCloud(docId, overrides, clientUpdatedA
     clientUpdatedAtIso: nowIso
   };
 }
+
+export function sanitizeForFirestore(val) {
+  if (val === undefined) return null;
+  if (val === null || typeof val === 'boolean' || typeof val === 'string') return val;
+  if (typeof val === 'number') return Number.isFinite(val) ? val : 0;
+  if (Array.isArray(val)) {
+    return val.map(item => {
+      if (Array.isArray(item)) {
+        // Firestore no permite arreglos anidados directos
+        return item.map(sub => sanitizeForFirestore(sub)).join(', ');
+      }
+      return sanitizeForFirestore(item);
+    });
+  }
+  if (typeof val === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(val)) {
+      if (!k || k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      if (v === undefined) continue;
+      out[String(k)] = sanitizeForFirestore(v);
+    }
+    return out;
+  }
+  return String(val);
+}
+
+export async function fetchPublishedMultilingualFromCloud(section) {
+  if (!MULTILINGUAL_DOC_IDS.includes(section)) {
+    throw new Error(`Sección multilingüe no válida: ${section}`);
+  }
+  const { db } = await ensureFirestore();
+  const docPath = `published_multilingual/${section}`;
+  try {
+    const snap = await getDocFromServer(doc(db, 'published_multilingual', section));
+    if (!snap.exists()) {
+      return { exists: false, docId: section, data: {}, langCount: 0, clientUpdatedAtIso: null };
+    }
+    const raw = snap.data() || {};
+    const iso = typeof raw.clientUpdatedAtIso === 'string'
+      ? raw.clientUpdatedAtIso
+      : (raw.updatedAt && typeof raw.updatedAt.toDate === 'function' ? raw.updatedAt.toDate().toISOString() : null);
+    return {
+      exists: true,
+      docId: section,
+      data: (raw.data && typeof raw.data === 'object') ? raw.data : {},
+      langCount: Number(raw.langCount || 0),
+      clientUpdatedAtIso: iso
+    };
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, docPath);
+  }
+}
+
+export async function pushMultilingualToCloud(section, sectionData, clientUpdatedAtIso = null) {
+  if (!MULTILINGUAL_DOC_IDS.includes(section)) {
+    throw new Error(`Sección multilingüe no válida: ${section}`);
+  }
+  const authState = await getCloudSyncAuthState();
+  if (!authState.isAuthorizedOperator) {
+    return { synced: false, reason: 'AUTH_REQUIRED', authState };
+  }
+
+  const { db } = await ensureFirestore();
+  const cleanData = sanitizeForFirestore(sectionData || {});
+  const langCount = Math.min(16, Object.keys(cleanData).length);
+  const nowIso = (typeof clientUpdatedAtIso === 'string' && clientUpdatedAtIso.length >= 10 && clientUpdatedAtIso.length <= 40)
+    ? clientUpdatedAtIso
+    : new Date().toISOString();
+
+  const payload = {
+    docId: section,
+    data: cleanData,
+    langCount,
+    schemaVersion: 1,
+    updatedAt: serverTimestamp(),
+    clientUpdatedAtIso: nowIso
+  };
+
+  const docPath = `published_multilingual/${section}`;
+  try {
+    await setDoc(doc(db, 'published_multilingual', section), payload);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, docPath);
+  }
+
+  return {
+    synced: true,
+    docId: section,
+    langCount,
+    clientUpdatedAtIso: nowIso
+  };
+}
+
+export async function fetchPublishedDataFromCloud(docId) {
+  if (!DATA_DOC_IDS.includes(docId)) {
+    throw new Error(`Documento de datos no válido: ${docId}`);
+  }
+  const { db } = await ensureFirestore();
+  const docPath = `published_data/${docId}`;
+  try {
+    const snap = await getDocFromServer(doc(db, 'published_data', docId));
+    if (!snap.exists()) {
+      return { exists: false, docId, data: null, itemCount: 0, clientUpdatedAtIso: null };
+    }
+    const raw = snap.data() || {};
+    const iso = typeof raw.clientUpdatedAtIso === 'string'
+      ? raw.clientUpdatedAtIso
+      : (raw.updatedAt && typeof raw.updatedAt.toDate === 'function' ? raw.updatedAt.toDate().toISOString() : null);
+    return {
+      exists: true,
+      docId,
+      data: raw.data || null,
+      itemCount: Number(raw.itemCount || 0),
+      clientUpdatedAtIso: iso
+    };
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, docPath);
+  }
+}
+
+export async function pushModuleDataToCloud(docId, wrappedData, itemCount = 0, clientUpdatedAtIso = null) {
+  if (!DATA_DOC_IDS.includes(docId)) {
+    throw new Error(`Documento de datos no válido: ${docId}`);
+  }
+  const authState = await getCloudSyncAuthState();
+  if (!authState.isAuthorizedOperator) {
+    return { synced: false, reason: 'AUTH_REQUIRED', authState };
+  }
+
+  const { db } = await ensureFirestore();
+  let mapData;
+  if (Array.isArray(wrappedData)) {
+    mapData = { items: sanitizeForFirestore(wrappedData) };
+  } else if (wrappedData && typeof wrappedData === 'object' && (wrappedData.items !== undefined || wrappedData.doc !== undefined)) {
+    mapData = sanitizeForFirestore(wrappedData);
+  } else {
+    mapData = { doc: sanitizeForFirestore(wrappedData || {}) };
+  }
+
+  const safeCount = Math.max(0, Math.min(5000, Number(itemCount) || 0));
+  const nowIso = (typeof clientUpdatedAtIso === 'string' && clientUpdatedAtIso.length >= 10 && clientUpdatedAtIso.length <= 40)
+    ? clientUpdatedAtIso
+    : new Date().toISOString();
+
+  const payload = {
+    docId,
+    data: mapData,
+    itemCount: safeCount,
+    schemaVersion: 1,
+    updatedAt: serverTimestamp(),
+    clientUpdatedAtIso: nowIso
+  };
+
+  const docPath = `published_data/${docId}`;
+  try {
+    await setDoc(doc(db, 'published_data', docId), payload);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, docPath);
+  }
+
+  return {
+    synced: true,
+    docId,
+    itemCount: safeCount,
+    clientUpdatedAtIso: nowIso
+  };
+}
+

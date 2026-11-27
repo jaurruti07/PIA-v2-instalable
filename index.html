@@ -1937,7 +1937,7 @@
                 <i class="fas fa-universal-access"></i> <span data-pia-text="inclusion.badge">Inclusión Universal y Guiado Auditivo</span>
             </div>
             <h2 class="section-title on-dark" data-pia-text="inclusion.title">Explicación del Portal en Idiomas Originarios e Inglés</h2>
-            <p class="section-sub" style="color:rgba(255,255,255,0.85); margin:0.5rem auto 0; max-width:800px;" data-pia-text="inclusion.subtitle">Consulte y escuche la síntesis del Portal de Integridad Activa en Español, Inglés e Idiomas Mayas originarios (K'iche', Q'eqchi', Kaqchikel y Mam).</p>
+            <p class="section-sub" style="color:rgba(255,255,255,0.85); margin:0.5rem auto 0; max-width:800px;" data-pia-text="inclusion.subtitle">Consulte y escuche la síntesis del Portal de Integridad Activa en español, inglés e idiomas mayas originarios (K'iche', Q'eqchi', Kaqchikel y Mam)</p>
         </div>
 
         <!-- Pestañas Selectoras de Idioma -->
@@ -1967,7 +1967,7 @@
             <div class="a11y-card-top">
                 <div>
                     <span class="a11y-badge-lang" id="a11yCardLangBadge"><i class="fas fa-check-circle"></i> Español (Oficial)</span>
-                    <h3 class="a11y-card-title" id="a11yCardTitle">Resumen del Portal de Integridad Activa (PIA)</h3>
+                    <h3 class="a11y-card-title" id="a11yCardTitle">Resumen general del Portal de Integridad Activa (PIA)</h3>
                 </div>
                 <button type="button" class="a11y-btn-play" id="btnPlayA11yAudio" onclick="playCurrentA11yLang()">
                     <i class="fas fa-volume-high"></i> Escuchar Explicación por Voz
@@ -1976,7 +1976,7 @@
 
             <div class="a11y-card-body">
                 <p id="a11yCardText" class="a11y-card-desc">
-                    El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial de la Comisión Nacional contra la Corrupción (CNC) que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia del Gobierno de Guatemala. A través del portal, los ciudadanos pueden acceder al Directorio Institucional, consultar Datos Abiertos sobre presupuestos y vehículos oficiales, analizar indicadores de Riesgo en la Mira y presentar denuncias confidenciales las 24 horas.
+                    El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial del Gobierno de la República de Guatemala que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia administrativa dentro del Organismo Ejecutivo. A través del portal, los ciudadanos pueden acceder al directorio institucional en materia de información pública y de canales de denuncia administrativa, consultar datos abiertos sobre presupuestos y proyectos CODEDE, analizar indicadores de Riesgo en la Mira y presentar denuncias administrativas las 24 horas.
                 </p>
 
                 <!-- Selección de Módulos para Lectura por Voz -->
@@ -1992,7 +1992,7 @@
                     </div>
                     <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="a11yModulePills">
                         <button type="button" class="a11y-module-btn active" data-mod="full" onclick="selectA11yModule('full')">
-                            <i class="fas fa-shield-alt"></i> Resumen General
+                            <i class="fas fa-shield-alt"></i> Resumen general
                         </button>
                         <button type="button" class="a11y-module-btn" data-mod="directorio" onclick="selectA11yModule('directorio')">
                             <i class="fas fa-folder-open"></i> Directorio Acceso Libre
@@ -2005,10 +2005,16 @@
                             <i class="fas fa-file-alt"></i> Transparencia CODEDE
                         </button>
                         <button type="button" class="a11y-module-btn" data-mod="canales_denuncias" onclick="selectA11yModule('canales_denuncias')">
-                            <i class="fas fa-bullhorn"></i> Canales de Denuncia
+                            <i class="fas fa-user-shield"></i> Vigilando la Integridad
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="canales_integridad" onclick="selectA11yModule('canales_integridad')">
+                            <i class="fas fa-bullhorn"></i> Canales por la Integridad
                         </button>
                         <button type="button" class="a11y-module-btn" data-mod="riesgo_mira" onclick="selectA11yModule('riesgo_mira')">
                             <i class="fas fa-binoculars"></i> Riesgo en la Mira
+                        </button>
+                        <button type="button" class="a11y-module-btn" data-mod="radiografia_corrupcion" onclick="selectA11yModule('radiografia_corrupcion')">
+                            <i class="fas fa-magnifying-glass-chart"></i> Radiografía de la Corrupción
                         </button>
                         <button type="button" class="a11y-module-btn" data-mod="acadeti" onclick="selectA11yModule('acadeti')">
                             <i class="fas fa-graduation-cap"></i> ACADETI
@@ -3813,8 +3819,8 @@ grid-template-columns:1fr;
             ttsLang: 'es-GT',
             modules: {
                 'full': {
-                    title: 'Resumen General del Portal de Integridad Activa (PIA)',
-                    text: 'El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial de la Comisión Nacional contra la Corrupción (CNC) que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia del Gobierno de Guatemala. A través del portal, los ciudadanos pueden acceder al Directorio Institucional, consultar Datos Abiertos sobre presupuestos y vehículos oficiales, analizar indicadores de Riesgo en la Mira y presentar denuncias confidenciales las 24 horas.'
+                    title: 'Resumen general del Portal de Integridad Activa (PIA)',
+                    text: 'El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial del Gobierno de la República de Guatemala que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia administrativa dentro del Organismo Ejecutivo. A través del portal, los ciudadanos pueden acceder al directorio institucional en materia de información pública y de canales de denuncia administrativa, consultar datos abiertos sobre presupuestos y proyectos CODEDE, analizar indicadores de Riesgo en la Mira y presentar denuncias administrativas las 24 horas.'
                 },
                 'directorio': {
                     title: 'Directorio Acceso Libre',
@@ -3833,12 +3839,20 @@ grid-template-columns:1fr;
                     text: 'Es una plataforma integrada por tableros de monitoreo que permiten visualizar, de manera ágil y comprensible, la ejecución presupuestaria y el avance físico-financiero de los proyectos financiados por los Consejos Departamentales de Desarrollo.'
                 },
                 'canales_denuncias': {
-                    title: 'Canales por la Integridad y Denuncia Segura',
-                    text: 'Canales por la Integridad es el centro seguro para la recepción de denuncias ciudadanas y alertas sobre actos de corrupción, faltas éticas o irregularidades administrativas. Garantiza protección total al denunciante, confidencialidad las 24 horas y seguimiento activo por la Comisión Nacional contra la Corrupción.'
+                    title: 'Vigilando la Integridad',
+                    text: 'Vigilando la Integridad es el centro seguro para la recepción de denuncias administrativas de la ciudadanía, y alertar sobre irregularidades en ministerios, secretarias, gobernaciones departamentales y otras instituciones que conforman el Organismo Ejecutivo. Garantiza protección al denunciante, uso las 24 horas del día y seguimiento activo por la Comisión Nacional contra la Corrupción.'
+                },
+                'canales_integridad': {
+                    title: 'Canales por la Integridad',
+                    text: 'Canales por la Integridad consiste en la reunión de los canales de denuncia administrativos habilitados por cada institución del Organismo Ejecutivo, para que la ciudadanía pueda denunciar faltas éticas o actos de corrupción. La diversidad de los canales habilitados permite apegarse a las necesidades del denunciante, ya sea mediante correo electrónico, teléfono, formularios en línea, entre otros.'
                 },
                 'riesgo_mira': {
-                    title: 'Riesgo en la Mira y Radiografía de la Corrupción',
-                    text: 'Riesgo en la Mira monitorea indicadores preventivos de transparencia y cumplimiento en contrataciones públicas del Estado. Permite identificar anomalías, sobrecostos o concentración de proveedores antes de que comprometan los fondos públicos.'
+                    title: 'Riesgo en la Mira',
+                    text: 'Riesgo en la Mira constituye una herramienta de transparencia activa que permite visualizar el nivel de avance y cumplimiento de la gestión de riesgos de corrupción efectuados por las Instancias de Asuntos de Probidad de cada institución del Organismo Ejecutivo. A través de este ejercicio, se han podido identificar una serie de patrones de corrupción que constituyen alertivos para las propias institución y otras que podrían vincularse en la temática evidenciada, tal es el caso de anomalías, sobrecostos o concentración de proveedores, entre otros.'
+                },
+                'radiografia_corrupcion': {
+                    title: 'Radiografía de la Corrupción',
+                    text: 'Radiografía de la Corrupción constituye una plataforma digital de visualización y monitoreo que centraliza información sobre las denuncias de actos de corrupción presentadas por las instituciones del Organismo Ejecutivo ante el Ministerio Público u órganos jurisdiccionales. De esa forma, se convierte la lucha contra la corrupción en un ejercicio cotidiano de visibilidad y responsabilidad pública, promovido por el Gobierno de la República de Guatemala.'
                 },
                 'acadeti': {
                     title: 'ACADETI',
@@ -3852,7 +3866,7 @@ grid-template-columns:1fr;
             modules: {
                 'full': {
                     title: 'Active Integrity Portal (PIA) Overview',
-                    text: 'The Active Integrity Portal (PIA) is the official digital platform of Guatemala\'s National Commission Against Corruption. It provides citizen access to institutional directories, open data on public budgets and government fleet management, corruption risk indicators, and 24/7 confidential reporting channels to promote transparency and accountability.'
+                    text: 'The Active Integrity Portal (PIA) is the official technological platform of the Government of the Republic of Guatemala that consolidates public information, accountability, and administrative reporting mechanisms within the Executive Branch. Through the portal, citizens can access the institutional directory for public information and administrative reporting channels, consult open data on budgets and CODEDE projects, analyze Risk Spotlight indicators, and submit administrative complaints 24 hours a day.'
                 },
                 'directorio': {
                     title: 'Open Access Directory',
@@ -3871,12 +3885,20 @@ grid-template-columns:1fr;
                     text: 'It is a platform made up of monitoring dashboards that make it easy and clear to view budget execution and the physical and financial progress of projects funded by the Departmental Development Councils.'
                 },
                 'canales_denuncias': {
-                    title: 'Integrity Channels & Safe Whistleblowing',
-                    text: 'Integrity Channels is a secure portal for submitting citizen complaints regarding corruption, ethical breaches, or administrative misconduct. It guarantees full whistleblower protection, 24/7 confidentiality, and direct oversight by the National Commission Against Corruption.'
+                    title: 'Vigilando la Integridad',
+                    text: 'Vigilando la Integridad is the secure center for receiving citizen administrative complaints and alerting on irregularities in ministries, secretariats, departmental governorships, and other institutions of the Executive Branch. It guarantees whistleblower protection, 24-hour access, and active follow-up by the National Commission Against Corruption.'
+                },
+                'canales_integridad': {
+                    title: 'Channels for Integrity',
+                    text: 'Channels for Integrity brings together the administrative reporting channels enabled by each institution of the Executive Branch so citizens can report ethical breaches or acts of corruption. The diversity of available channels adapts to the whistleblower\'s needs, whether via email, telephone, online forms, or other means.'
                 },
                 'riesgo_mira': {
-                    title: 'Risk Spotlight & Corruption Radiography',
-                    text: 'Risk Spotlight tracks preventive integrity and compliance metrics within government procurement systems, identifying irregularities, cost overruns, or supplier monopolies before public funds are compromised.'
+                    title: 'Risk Spotlight',
+                    text: 'Risk Spotlight is an active transparency tool that displays the progress and compliance level of corruption risk management carried out by the Probity Affairs Units of each Executive Branch institution. Through this exercise, corruption patterns have been identified as early warnings for institutions, including anomalies, cost overruns, and supplier concentration.'
+                },
+                'radiografia_corrupcion': {
+                    title: 'Corruption Radiography',
+                    text: 'Corruption Radiography is a digital visualization and monitoring platform that centralizes information on corruption complaints filed by Executive Branch institutions before the Public Prosecutor\'s Office or judicial bodies. In this way, the fight against corruption becomes an everyday exercise in public visibility and accountability promoted by the Government of the Republic of Guatemala.'
                 },
                 'acadeti': {
                     title: 'ACADETI',
@@ -3889,8 +3911,8 @@ grid-template-columns:1fr;
             ttsLang: 'es-GT',
             modules: {
                 'full': {
-                    title: "Utzilaj Chak pa le Portal PIA (K'iche')",
-                    text: "Ri Portal de Integridad Activa (PIA) rech ri Comisión Nacional contra la Corrupción xutz'aqatisaj ri utzilaj chak rech k'o q'alajisanik pa le qatinamit Guatemala. Chuxe' ri PIA, ri winaq kakwinik kakiriq uq'alajisaxik ri patanib'al rech ri q'atb'al tzij, kakitz'et ri chakub'al xaqje' kakik'am b'i tz'ujonik pa jikomal."
+                    title: "Resumen general rech ri Portal PIA (K'iche')",
+                    text: "Ri Portal de Integridad Activa (PIA) are ri chakub'al rech ri Q'atb'al Tzij rech Guatemala ri kumol ri saqil tzij, ri uq'alajisaxik ri chak ex ri b'ey rech tz'ujonik pa ri Organismo Ejecutivo. Chuxe' ri PIA, ri winaq kakwinik kakitz'et ri directorio institucional, ri tzij pa wi' ri pwaq ex CODEDE, ri Riesgo en la Mira ex kakik'am b'i tz'ujonik pa ronojel q'ij."
                 },
                 'directorio': {
                     title: "Directorio Acceso Libre (K'iche')",
@@ -3909,12 +3931,20 @@ grid-template-columns:1fr;
                     text: "Are jun chakub'al ruk' wachb'al rech tz'etonem ri kuk'ut pa saqilal ri ub'anik ri pwaq ex ri uq'axik ri chak tob'al b'anom kumal ri Consejos Departamentales de Desarrollo."
                 },
                 'canales_denuncias': {
-                    title: "B'e rech Tz'ujonik rech Jikomal (K'iche')",
-                    text: "Ri B'e rech Tz'ujonik rech Jikomal uya'om rutzilal rech tz'ujonik pa mukche' pa wi' ri elaq' o etzelal rech patanib'al. Kuya' jikomal ex mukch'ab'al chi re ri winaq xk'amow b'i tz'ujonik."
+                    title: "Vigilando la Integridad (K'iche')",
+                    text: "Vigilando la Integridad are ri k'olbal rech uk'ulik tz'ujonik rech ri winaq pa wi' ri etzelal pa ri ministerios, secretarías, gobernaciones departamentales ex nik'aj chik patanib'al rech ri Organismo Ejecutivo. Kuya' chajinem chi re ri tz'ujunel pa ronojel hora."
+                },
+                'canales_integridad': {
+                    title: "Canales por la Integridad (K'iche')",
+                    text: "Canales por la Integridad kumol ronojel ri b'ey rech tz'ujonik k'o pa kijujunal ri patanib'al rech ri Organismo Ejecutivo rech ri winaq kakik'am b'i tz'ujonik pa wi' ri elaq' o etzelal pa correo electrónico, teléfono o wuj pa kematz'ib'."
                 },
                 'riesgo_mira': {
-                    title: "Q'atb'al Elq'anem xaqje' Tz'etonem (K'iche')",
-                    text: "Ri Q'atb'al Elq'anem kutz'et ri retal sachoj xaqje' ri loq'oj pa ri patanib'al rech qatinamit rech kuq'atej ri elaq' pwaq chuxe' xq'axik."
+                    title: "Riesgo en la Mira (K'iche')",
+                    text: "Riesgo en la Mira are jun chakub'al rech saqilal ri kuk'ut ri ub'anik ex ri tz'aqatisanik rech uq'atexik ri elaq' b'anom kumal ri Instancias de Asuntos de Probidad pa ri Organismo Ejecutivo, rech kilitaj ri sachoj, sobrecostos o molom loq'oj."
+                },
+                'radiografia_corrupcion': {
+                    title: "Radiografía de la Corrupción (K'iche')",
+                    text: "Radiografía de la Corrupción are jun chakub'al pa kematz'ib' rech tz'etonem ri kumol ri tzij pa wi' ri tz'ujonik rech elaq' ya'om kumal ri patanib'al rech ri Organismo Ejecutivo chuwach ri Ministerio Público o q'atb'al tzij."
                 },
                 'acadeti': {
                     title: "ACADETI (K'iche')",
@@ -3927,8 +3957,8 @@ grid-template-columns:1fr;
             ttsLang: 'es-GT',
             modules: {
                 'full': {
-                    title: "Xyaalalil ut Xcha'alil li Portal PIA (Q'eqchi')",
-                    text: "Li Portal de Integridad Activa (PIA) a'an li xk'anjelil li Comisión Nacional contra la Corrupción re xch'olch'ob'il li yaal ut li yaalil k'anjel sa' li tenamit Guatemala. Sa' li PIA, chixjunil li tenamit truko'q xk'anjelob'al li tenamit, xk'anjelob'al li xch'och' ut tz'aqal k'anjel xbanunkil li yaalil atin sa' mukmuil."
+                    title: "Resumen general re li Portal PIA (Q'eqchi')",
+                    text: "Li Portal de Integridad Activa (PIA) a'an li xk'anjelil li Awab'ejil re Guatemala li naxch'utub' li saqil esil, li yaalil k'anjel ut li b'e re yehok maak sa' li Organismo Ejecutivo. Sa' li PIA, li tenamit truko'q xk'anjelob'al li esil, li tumin ut CODEDE, li Riesgo en la Mira ut xk'eeb'al yehok maak chi k'ojk'o rajlal."
                 },
                 'directorio': {
                     title: "Directorio Acceso Libre (Q'eqchi')",
@@ -3947,12 +3977,20 @@ grid-template-columns:1fr;
                     text: "A'an jun k'anjelob'aal rik'in xk'utb'alil li tz'ilok li naxk'e chi ilok chi saqil chan ru yoo chi xik li tumin ut li k'anjel tenq'anb'il xb'aaneb' li Consejos Departamentales de Desarrollo."
                 },
                 'canales_denuncias': {
-                    title: "Be re Yehok Maak sa' Yaal (Q'eqchi')",
-                    text: "Li Be re Yehok Maak a'an li mukmuil rochochil re xk'ulb'al li yehok maak pa wi' li elq' ut li xmaa'usil k'anjel, re xk'ebal xyaalalil ut xcolbal li tenamit."
+                    title: "Vigilando la Integridad (Q'eqchi')",
+                    text: "Vigilando la Integridad a'an li mukmuil na'ajej re xk'ulb'al li yehok maak xb'aan li tenamit sa'eb' li ministerios, secretarías, gobernaciones departamentales ut jalaneb' chik rochochil li Organismo Ejecutivo chi k'ojk'o 24 hora."
+                },
+                'canales_integridad': {
+                    title: "Canales por la Integridad (Q'eqchi')",
+                    text: "Canales por la Integridad naxch'utub' chixjunileb' li b'e re yehok maak k'eeb'ileb' xb'aan li junjunq chi rochochil li Organismo Ejecutivo re naq li tenamit naru tixye li elq' malaj li maa'usilal sa' correo, teléfono malaj hu sa' ulul ch'iich'."
                 },
                 'riesgo_mira': {
-                    title: "Xk'amb'al li C'a'ux pa Yaal (Q'eqchi')",
-                    text: "Li Xk'amb'al li C'a'ux kixk'e xch'ina'usil retalil xkolbal li tumin re tenamit sa' li loq'ok k'anjel re xramb'al li elq' sa' k'anjel."
+                    title: "Riesgo en la Mira (Q'eqchi')",
+                    text: "Riesgo en la Mira a'an jun k'anjelob'aal re saqil k'anjel li naxk'ut chan ru yookeb' chi xramb'al li elq' eb' li Instancias de Asuntos de Probidad sa' li Organismo Ejecutivo re rilb'al li xmaa'usil li loq'ok ut li tumin."
+                },
+                'radiografia_corrupcion': {
+                    title: "Radiografía de la Corrupción (Q'eqchi')",
+                    text: "Radiografía de la Corrupción a'an jun k'anjelob'aal sa' ulul ch'iich' re rilb'al li esil chiwix li yehok maak k'eeb'il xb'aaneb' li rochochil li Organismo Ejecutivo chiru li Ministerio Público malaj eb' li raqleb'aal aatin."
                 },
                 'acadeti': {
                     title: "ACADETI (Q'eqchi')",
@@ -3965,8 +4003,8 @@ grid-template-columns:1fr;
             ttsLang: 'es-GT',
             modules: {
                 'full': {
-                    title: "Rutzil Samaj pa ri Portal PIA (Kaqchikel)",
-                    text: "Ri Portal de Integridad Activa (PIA) richin ri Comisión Nacional contra la Corrupción nuyo'oj rutzil samaj richin ruximik ri jikomal pa ri qatinamit Guatemala. Pa ri PIA, ri winaqi' tikel nkitzet ri samaj richin ri q'atb'al tzij, ri pwaq xq'asax ut nkiya' rutzijol samaj rech jikomal pa rutzilal."
+                    title: "Resumen general richin ri Portal PIA (Kaqchikel)",
+                    text: "Ri Portal de Integridad Activa (PIA) are ri samajib'äl richin ri Q'atb'al Tzij richin Guatemala ri numol ri saqil tzij, ri jikomal samaj chuqa' ri b'ey richin ya'oj tzij pa ri Organismo Ejecutivo. Pa ri PIA, ri winaqi' tikil nkitz'et ri directorio, ri pwaq chuqa' CODEDE, ri Riesgo en la Mira chuqa' nkiya' ya'oj tzij ronojel q'ij."
                 },
                 'directorio': {
                     title: "Directorio Acceso Libre (Kaqchikel)",
@@ -3985,12 +4023,20 @@ grid-template-columns:1fr;
                     text: "Are jun samaj ruk' wachb'al richin tz'etoj ri nuk'ut pa saqilal ri pwaq ex ri ub'anik ri samaj to'on richin ri Consejos Departamentales de Desarrollo."
                 },
                 'canales_denuncias': {
-                    title: "Ruk'olbal Ya'oj Tzij pa Mukche' (Kaqchikel)",
-                    text: "Ruk'olbal Ya'oj Tzij nuko'j ri ya'oj tzij pa mukche' richin q'atenik elaq' xaqje' etzelal, nuya' jikomal ex rutzilal chi re ri winaq."
+                    title: "Vigilando la Integridad (Kaqchikel)",
+                    text: "Vigilando la Integridad are ri k'olbal richin uk'ulik ya'oj tzij richin ri winaqi' pa wi' ri etzelal pa ministerios, secretarías, gobernaciones departamentales chuqa' ch'aqa' chik samaj pa ri Organismo Ejecutivo pa 24 hora."
+                },
+                'canales_integridad': {
+                    title: "Canales por la Integridad (Kaqchikel)",
+                    text: "Canales por la Integridad numol ronojel ri b'ey richin ya'oj tzij ya'on kumal ri rochoch samaj pa ri Organismo Ejecutivo richin ri winaqi' tikil nkiya' rutzijol ri elaq' o etzelal pa correo, teléfono o wuj pa kematz'ib'."
                 },
                 'riesgo_mira': {
-                    title: "Tz'etoj Ruyonal Elaq' (Kaqchikel)",
-                    text: "Ri Tz'etoj Ruyonal Elaq' nuk'am ri retal samaj pa loq'oj richin nuq'atej ri elaq' pwaq richin ri qatinamit Guatemala."
+                    title: "Riesgo en la Mira (Kaqchikel)",
+                    text: "Riesgo en la Mira are jun samajib'äl richin saqilal ri nuk'ut ri ub'anik chuqa' rutz'aqatixik ri q'atenik elaq' b'anon kumal ri Instancias de Asuntos de Probidad pa ri Organismo Ejecutivo richin rutz'etik sachoj o sobrecostos."
+                },
+                'radiografia_corrupcion': {
+                    title: "Radiografía de la Corrupción (Kaqchikel)",
+                    text: "Radiografía de la Corrupción are jun samajib'äl pa kematz'ib' richin rutz'etik rutzijol ri ya'oj tzij pa wi' ri elaq' ya'on kumal ri rochoch samaj pa ri Organismo Ejecutivo chuwach ri Ministerio Público o q'atb'al tzij."
                 },
                 'acadeti': {
                     title: "ACADETI (Kaqchikel)",
@@ -4003,8 +4049,8 @@ grid-template-columns:1fr;
             ttsLang: 'es-GT',
             modules: {
                 'full': {
-                    title: "Tzalajeb'il tu'n T-tx'olil Portal PIA (Mam)",
-                    text: "Ju Portal de Integridad Activa (PIA) te ju Comisión Nacional contra la Corrupción nxq'uynen tnam tu'n t-tx'olil tzalajeb'il ex kolb'il te tnam Guatemala. Ju tnam jaku t-sje'n tijil t-tx'olil ajlab'il, t-jak'il ch'iyyb'il ex t-kolil tnam tu'n tzalajeb'il ex yaal."
+                    title: "Resumen general te Portal PIA (Mam)",
+                    text: "Aju Portal de Integridad Activa (PIA) te Q'atb'al Tzij te Guatemala nch'utb'ente saqil tqanil, aq'untl b'a'n ex be te q'i'n tzij toj Organismo Ejecutivo. Toj PIA, jaku tka'y xjal directorio, tqanil ti'j pwaq ex CODEDE, Riesgo en la Mira ex jaku t-xi q'i'n tzij toj 24 hora."
                 },
                 'directorio': {
                     title: "Directorio Acceso Libre (Mam)",
@@ -4023,12 +4069,20 @@ grid-template-columns:1fr;
                     text: "Aju lu' jun aq'untl tuk'il ka'yb'il ntzaj tq'o'n tu'n t-xi ka'yit chi b'a'nxix tza'n n-ajb'en pwaq ex tza'n nxi b'et aq'untl kyu'n Consejos Departamentales de Desarrollo."
                 },
                 'canales_denuncias': {
-                    title: "Be te Q'i'n Tzij sa' Kolb'il (Mam)",
-                    text: "Ju Be te Q'i'n Tzij nq'on tzalajeb'il tu'n t-k'ulil q'i'n tzij sa' mukche' tib'aj elq' ex il, nxq'uynen kolb'il te tnam."
+                    title: "Vigilando la Integridad (Mam)",
+                    text: "Vigilando la Integridad jun kolb'il ja te k'ulb'il q'i'n tzij kyu'n xjal tib'aj il toj ministerios, secretarías, gobernaciones departamentales ex txqantl aq'untl toj Organismo Ejecutivo toj 24 hora."
+                },
+                'canales_integridad': {
+                    title: "Canales por la Integridad (Mam)",
+                    text: "Canales por la Integridad nch'utb'ente kykyaqil be te q'i'n tzij q'o'n kyu'n junjun k'loj aq'untl toj Organismo Ejecutivo tu'n kyq'in xjal tzij tib'aj elq' toj correo, teléfono mo u'j toj kematz'ib'."
                 },
                 'riesgo_mira': {
-                    title: "T-tz'etb'il Elq' sa' Kolb'il (Mam)",
-                    text: "Ju T-tz'etb'il Elq' nxq'uynen t-tx'olil laq'ob'il pwaq tu'n t-kolil pwaq te tnam ch'atx t-elq'ij."
+                    title: "Riesgo en la Mira (Mam)",
+                    text: "Riesgo en la Mira jun aq'untl te saqil ntzaj tyek'un tza'n nxi b'et kolb'il ti'j elq' kyu'n Instancias de Asuntos de Probidad toj Organismo Ejecutivo tu'n t-xi ka'yit sobrecostos mo il toj laq'ob'il."
+                },
+                'radiografia_corrupcion': {
+                    title: "Radiografía de la Corrupción (Mam)",
+                    text: "Radiografía de la Corrupción jun aq'untl toj kematz'ib' ntzaj tyek'un tqanil kyi'j q'i'n tzij tib'aj elq' q'o'n kyu'n aq'untl toj Organismo Ejecutivo twitz Ministerio Público mo q'atb'al tzij."
                 },
                 'acadeti': {
                     title: "ACADETI (Mam)",
@@ -4037,6 +4091,49 @@ grid-template-columns:1fr;
             }
         }
     };
+
+    function applyPortalMultilingualData(portalMap) {
+        if (!portalMap || typeof portalMap !== 'object') return false;
+        let updated = false;
+        for (const [langKey, langObj] of Object.entries(portalMap)) {
+            if (!langObj || typeof langObj !== 'object' || !piaAudioDatabase[langKey]) continue;
+            if (typeof langObj.langName === 'string' && langObj.langName.trim()) {
+                piaAudioDatabase[langKey].langName = langObj.langName.trim();
+            }
+            if (typeof langObj.ttsLang === 'string' && langObj.ttsLang.trim()) {
+                piaAudioDatabase[langKey].ttsLang = langObj.ttsLang.trim();
+            }
+            if (langObj.modules && typeof langObj.modules === 'object') {
+                for (const [mk, mv] of Object.entries(langObj.modules)) {
+                    if (!mv || typeof mv !== 'object' || !piaAudioDatabase[langKey].modules[mk]) continue;
+                    if (typeof mv.title === 'string') piaAudioDatabase[langKey].modules[mk].title = mv.title;
+                    if (typeof mv.text === 'string') piaAudioDatabase[langKey].modules[mk].text = mv.text;
+                    updated = true;
+                }
+            }
+        }
+        return updated;
+    }
+
+    if (window.PIA_BAKED_MULTILINGUAL && window.PIA_BAKED_MULTILINGUAL.portal) {
+        applyPortalMultilingualData(window.PIA_BAKED_MULTILINGUAL.portal);
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.PIA_BAKED_MULTILINGUAL && window.PIA_BAKED_MULTILINGUAL.portal) {
+            if (applyPortalMultilingualData(window.PIA_BAKED_MULTILINGUAL.portal)) {
+                updateA11yCardUI();
+            }
+        }
+    });
+
+    fetch('/api/multilingual-guide', { cache: 'no-store' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(payload => {
+            if (payload && payload.success && payload.portal && applyPortalMultilingualData(payload.portal)) {
+                updateA11yCardUI();
+            }
+        })
+        .catch(() => {});
 
     function selectA11yLang(key) {
         if (!piaAudioDatabase[key]) return;
@@ -4466,6 +4563,8 @@ grid-template-columns:1fr;
 
     cargarDatos();
 </script>
+<script src="/js/pia-baked-texts.js"></script>
+<script src="/js/pia-multilingual-data.js"></script>
 <script src="/js/pia-portal-texts.js"></script>
 <script src="/js/pia-ui-runtime.js"></script>
 <script>

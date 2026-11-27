@@ -18,7 +18,17 @@
     }
   }
 
+  function applyBakedTextsSync() {
+    try {
+      const baked = window.PIA_BAKED_TEXTS && window.PIA_BAKED_TEXTS.portal;
+      if (baked && typeof baked === 'object') {
+        applyTextsMap(baked);
+      }
+    } catch (_) {}
+  }
+
   async function loadAndApplyPortalTexts() {
+    applyBakedTextsSync();
     try {
       const res = await fetch('/api/portal/texts', { cache: 'no-store' });
       if (!res.ok) return;
@@ -26,7 +36,7 @@
       if (!data || data.success !== true || !data.texts) return;
       applyTextsMap(data.texts);
     } catch (_) {
-      // Mantiene los textos por defecto embebidos en el HTML si hay error de red
+      // Mantiene los textos por defecto o materializados en código si hay error de red
     }
   }
 

@@ -8,6 +8,19 @@ import { loginWithFirebase, sendFirebasePasswordReset, verifyToken, logout as au
 import { mountModuleUiTabs } from './module-ui-manager.js';
 import { initPortalTextsManager } from './portal-texts-manager.js';
 import { initModuleTextsManager } from './module-texts-manager.js';
+import { initMultilingualGuideManager } from './multilingual-guide-manager.js';
+import { syncModuleDataToCloud } from './texts-sync-ui.js';
+
+if (typeof window !== 'undefined') {
+    window.piaSyncModuleDataToCloud = (docId) => {
+        try {
+            if (typeof getHeaders === 'function') {
+                return syncModuleDataToCloud(docId, getHeaders, authLogout).catch(() => {});
+            }
+        } catch (_) {}
+        return Promise.resolve();
+    };
+}
 
 // Session Inactivity Timer Configuration (30 minutos)
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
@@ -355,6 +368,14 @@ function hasAccessToModule(moduleName) {
         return ['directorio', 'tableros', 'canales', 'riesgo'].some(m => hasAccessToModule(m));
     }
 
+    if (moduleName === 'multilingual-guide') {
+        if (currentUser.role === 'admin') return true;
+        if (Array.isArray(currentUser.modules) && currentUser.modules.length > 0) {
+            return ['multilingual-guide', 'guide', 'portal', 'canales'].some(m => currentUser.modules.includes(m));
+        }
+        return true;
+    }
+
     // Verificar si el módulo está en la lista asignada por el administrador
     if (Array.isArray(currentUser.modules) && currentUser.modules.length > 0) {
         return currentUser.modules.includes(moduleName);
@@ -383,6 +404,10 @@ function updateSidebarPermissions() {
         } else if (mod === 'module-texts') {
             const textMods = ['directorio', 'tableros', 'canales', 'riesgo'];
             const hasPerm = isAdmin || userModules.length === 0 || textMods.some(m => userModules.includes(m));
+            parent.style.display = hasPerm ? 'block' : 'none';
+        } else if (mod === 'multilingual-guide') {
+            const mgMods = ['multilingual-guide', 'guide', 'portal', 'canales'];
+            const hasPerm = isAdmin || userModules.length === 0 || mgMods.some(m => userModules.includes(m));
             parent.style.display = hasPerm ? 'block' : 'none';
         } else {
             const hasPerm = isAdmin || userModules.length === 0 || userModules.includes(mod);
@@ -516,6 +541,11 @@ window.navigateTo = async function(module, options = {}) {
         return;
     }
 
+    if (module === 'multilingual-guide') {
+        await initMultilingualGuideManager({ getHeaders, showToast, authLogout });
+        return;
+    }
+
     // Dynamic CRUD Module (canales, directorio, tableros, riesgo, vehiculos)
     renderCrudView(module);
     await fetchAndRenderTable(module);
@@ -585,6 +615,7 @@ function renderDashboardView() {
                 <button onclick="navigateTo('riesgo')" style="padding: 0.6rem 1rem; background: #F97316; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-bullseye"></i> Riesgos</button>
                 ${hasAccessToModule('portal') ? `<button onclick="navigateTo('portal-texts')" style="padding: 0.6rem 1rem; background: #0f4c75; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-file-signature"></i> Textos del Portal</button>` : ''}
                 ${hasAccessToModule('module-texts') ? `<button onclick="navigateTo('module-texts')" style="padding: 0.6rem 1rem; background: #145374; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-file-alt"></i> Textos de Páginas</button>` : ''}
+                ${hasAccessToModule('multilingual-guide') ? `<button onclick="navigateTo('multilingual-guide')" style="padding: 0.6rem 1rem; background: #0E7490; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-language"></i> Guía Multilingüe y Técnica</button>` : ''}
                 <button onclick="navigateTo('visits')" style="padding: 0.6rem 1rem; background: #2B82C9; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-chart-line"></i> Contador de Visitas</button>
                 <button onclick="navigateTo('chatbot')" style="padding: 0.6rem 1rem; background: #8B5CF6; color: #fff; font-weight: 700; border-radius: 8px;"><i class="fas fa-robot"></i> Asistente Lupita</button>
                 <button onclick="navigateTo('security')" style="padding: 0.6rem 1rem; background: #05111F; color: #00C2E0; border: 1px solid rgba(0,194,224,0.3); font-weight: 700; border-radius: 8px;"><i class="fas fa-user-shield"></i> Identidades y Seguridad</button>
@@ -1755,6 +1786,7 @@ async function initCanalesVisibilityControls() {
             if (!res.ok) throw new Error(data.error || 'No se pudo actualizar la configuración.');
             currentCfg = data.config;
             updateCanalesVisibilitySwitchUI(currentCfg);
+            window.piaSyncModuleDataToCloud?.('canales_settings');
             showToast('Visibilidad pública de Canales actualizada correctamente', 'success');
         } catch (err) {
             updateCanalesVisibilitySwitchUI(currentCfg);
@@ -3778,6 +3810,7 @@ async function savePortalMetricForm(e) {
         closePortalMetricModal();
         updatePortalMetricsSummary();
         renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+        window.piaSyncModuleDataToCloud?.('portal');
         showToast(isEdit ? 'Métrica actualizada correctamente en el portal' : 'Nueva métrica agregada al portal', 'success');
     } catch (err) {
         showToast(err.message || 'Error al guardar la métrica', 'error');
@@ -3808,6 +3841,7 @@ window.togglePortalMetricActive = async function(id) {
         portalMetricsCache = Array.isArray(data.metricas) ? data.metricas : portalMetricsCache;
         updatePortalMetricsSummary();
         renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+        window.piaSyncModuleDataToCloud?.('portal');
         showToast('Visibilidad de la métrica actualizada', 'success');
     } catch (err) {
         showToast(err.message || 'Error al cambiar visibilidad', 'error');
@@ -3837,6 +3871,7 @@ window.movePortalMetric = async function(id, delta) {
         portalMetricsCache = Array.isArray(data.metricas) ? data.metricas : reordered;
         updatePortalMetricsSummary();
         renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+        window.piaSyncModuleDataToCloud?.('portal');
         showToast('Orden de métricas actualizado', 'success');
     } catch (err) {
         showToast(err.message || 'Error al reordenar', 'error');
@@ -3889,6 +3924,7 @@ async function confirmDeletePortalMetric() {
         closePortalMetricDeleteModal();
         updatePortalMetricsSummary();
         renderPortalMetricsTable(document.getElementById('portalMetricsSearch')?.value || '');
+        window.piaSyncModuleDataToCloud?.('portal');
         showToast('Métrica eliminada correctamente', 'success');
     } catch (err) {
         showToast(err.message || 'Error al eliminar la métrica', 'error');

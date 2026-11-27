@@ -335,7 +335,7 @@ export const PORTAL_TEXT_CATALOG = [
     section: 'inclusion',
     label: 'Descripción del módulo Inclusión Universal',
     description: 'Subtítulo explicativo debajo del título de Inclusión Universal.',
-    defaultText: "Consulte y escuche la síntesis del Portal de Integridad Activa en Español, Inglés e Idiomas Mayas originarios (K'iche', Q'eqchi', Kaqchikel y Mam).",
+    defaultText: "Consulte y escuche la síntesis del Portal de Integridad Activa en español, inglés e idiomas mayas originarios (K'iche', Q'eqchi', Kaqchikel y Mam)",
     maxLength: 320,
     multiline: true
   },

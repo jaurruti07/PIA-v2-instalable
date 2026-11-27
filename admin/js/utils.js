@@ -48,7 +48,7 @@ const PIA_DEFAULT_USERS = [
         "email": "deteccionydenuncia@cnc.gob.gt",
         "displayName": "Dirección de Apoyo en la Gestión de Irregularidades - DAGI",
         "role": "admin",
-        "modules": ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
+        "modules": ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "multilingual-guide", "guide"],
         "status": "active",
         "operatorIndex": 1,
         "lastPasswordChange": "2026-03-30T10:00:00.000Z",
@@ -59,7 +59,7 @@ const PIA_DEFAULT_USERS = [
         "email": "apoyogi@cnc.gob.gt",
         "displayName": "Apoyo a la Gestión de Irregularidades (CNC)",
         "role": "admin",
-        "modules": ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
+        "modules": ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "multilingual-guide", "guide"],
         "status": "active",
         "operatorIndex": 2,
         "lastPasswordChange": "2026-03-30T10:00:00.000Z",
@@ -345,6 +345,9 @@ window.PiaDataEngine = {
             if (newEtag) this.moduleETags[module] = newEtag;
             const saved = await res.json();
             localStorage.removeItem('pia_offline_records_' + module);
+            if (['canales', 'directorio', 'tableros', 'riesgo', 'portal'].includes(module)) {
+                window.piaSyncModuleDataToCloud?.(module);
+            }
             return saved;
         }
 
@@ -436,6 +439,9 @@ window.PiaDataEngine = {
             const newEtag = res.headers.get('ETag');
             if (newEtag) this.moduleETags[module] = newEtag;
             localStorage.removeItem('pia_offline_records_' + module);
+            if (['canales', 'directorio', 'tableros', 'riesgo', 'portal'].includes(module)) {
+                window.piaSyncModuleDataToCloud?.(module);
+            }
             return true;
         }
 
@@ -637,7 +643,7 @@ window.PiaDataEngine = {
             email: cleanEmail,
             displayName: (userData.displayName || '').trim(),
             role: userData.role || 'admin',
-            modules: userData.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+            modules: userData.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'multilingual-guide', 'guide'],
             status: 'active',
             operatorIndex: currentUsers.length + 1,
             lastPasswordChange: now,

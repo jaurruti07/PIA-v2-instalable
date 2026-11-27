@@ -9,6 +9,7 @@ import {
 import {
   validateJsonSyntax, validateJsonSchema, validateDbEngineConfig
 } from './schema-validator.js';
+import { syncModuleDataToCloud } from './texts-sync-ui.js';
 
 const AVAILABLE_PAGES = [
   'canales-por-la-integridad',
@@ -2231,6 +2232,17 @@ async function saveJsonEditor() {
     const newEtag = res.headers.get('ETag');
     if (newEtag) currentJsonEtag = newEtag;
     localStorage.removeItem('pia_custom_json_' + currentJsonPath);
+    const jsonCloudMap = {
+      '/data_portal.json': 'portal',
+      '/canales-por-la-integridad/data_directorio.json': 'canales',
+      '/directorio/data_acceso.json': 'directorio',
+      '/gobierno_en_numeros/data_tableros.json': 'tableros',
+      '/riesgo/datos.json': 'riesgo'
+    };
+    const mappedDocId = jsonCloudMap[currentJsonPath];
+    if (mappedDocId) {
+      syncModuleDataToCloud(mappedDocId, getAuthHeaders).catch(() => {});
+    }
     await fetchStorageStatus();
     showToast('Fichero JSON validado y guardado correctamente en el servidor', 'success');
 

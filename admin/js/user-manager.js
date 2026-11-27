@@ -16,6 +16,7 @@ const AVAILABLE_MODULES = [
   { id: 'users', label: 'Gestión de Usuarios y Permisos', icon: 'fa-users-cog' },
   { id: 'audit', label: 'Bitácora de Auditoría Inmutable', icon: 'fa-history' },
   { id: 'database', label: 'Gestión de almacenamiento y base de datos', icon: 'fa-database' },
+  { id: 'multilingual-guide', label: 'Guía Multilingüe y Técnica', icon: 'fa-language' },
   { id: 'guide', label: 'Guía Técnica del Sistema', icon: 'fa-book-open' }
 ];
 

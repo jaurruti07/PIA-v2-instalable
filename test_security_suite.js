@@ -1334,6 +1334,233 @@ async function runTests() {
     recordTest('17. Preservación consolidada de textos y sincronización nube', false, err.message);
   }
 
+  // Test 18: Administración de Guía Multilingüe, RBAC, XSS, OCC (409) y Materialización en Código
+  try {
+    // 18.1 Consulta pública GET /api/multilingual-guide
+    const rPubMg = await fetch(`${BASE_URL}/api/multilingual-guide`);
+    const pubMgData = await rPubMg.json().catch(() => ({}));
+    recordTest(
+      '18.1 GET /api/multilingual-guide retorna portal, canales e i18n completos',
+      rPubMg.status === 200 &&
+      pubMgData.success === true &&
+      Boolean(pubMgData.portal?.es?.modules?.directorio?.text) &&
+      Boolean(pubMgData.canales?.kiche?.speechText) &&
+      Boolean(pubMgData.i18n?.en?.['Inicio'])
+    );
+
+    // 18.2 Bloqueo 401 sin autenticación y 403 RBAC para operador sin permiso multilingüe
+    const rMgNoAuth = await fetch(`${BASE_URL}/api/admin/multilingual-guide`);
+    const rLoginAdm18 = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: mgAdminToken } = await rLoginAdm18.json();
+
+    const rbacMgEmail = 'operador_mg_rbac@cnc.gob.gt';
+    await fetch(`${BASE_URL}/api/admin/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${mgAdminToken}` },
+      body: JSON.stringify({
+        email: rbacMgEmail,
+        displayName: 'Operador Solo Directorio',
+        role: 'data_operator',
+        modules: ['directorio'],
+        password: 'TestMgRbac2026!'
+      })
+    });
+    const rLoginMgRestr = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: rbacMgEmail, password: 'TestMgRbac2026!' })
+    });
+    const { token: mgRestrToken } = await rLoginMgRestr.json();
+    const rMgForbidden = await fetch(`${BASE_URL}/api/admin/multilingual-guide`, {
+      headers: { 'Authorization': `Bearer ${mgRestrToken}` }
+    });
+    await fetch(`${BASE_URL}/api/admin/users/${encodeURIComponent(rbacMgEmail)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${mgAdminToken}` }
+    });
+
+    recordTest(
+      '18.2 Bloqueo 401 sin sesión y 403 RBAC para operador sin acceso a Guía Multilingüe',
+      rMgNoAuth.status === 401 && rMgForbidden.status === 403
+    );
+
+    // 18.3 Validación estricta (XSS, idioma desconocido, clave i18n desconocida -> 400)
+    const rBadMgXss = await fetch(`${BASE_URL}/api/admin/multilingual-guide`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${mgAdminToken}` },
+      body: JSON.stringify({
+        section: 'portal',
+        data: { es: { modules: { directorio: { title: 'Test', text: '<script>alert(1)</script>' } } } }
+      })
+    });
+    const rBadMgLang = await fetch(`${BASE_URL}/api/admin/multilingual-guide`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${mgAdminToken}` },
+      body: JSON.stringify({
+        section: 'portal',
+        data: { klingon: { langName: 'Klingon' } }
+      })
+    });
+    const rBadMgI18nKey = await fetch(`${BASE_URL}/api/admin/multilingual-guide`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${mgAdminToken}` },
+      body: JSON.stringify({
+        section: 'i18n',
+        data: { en: { 'CLAVE_INEXISTENTE_TEST_XYZ': 'Test' } }
+      })
+    });
+    recordTest(
+      '18.3 Validación estricta 400 contra XSS, idioma inválido y clave i18n desconocida',
+      rBadMgXss.status === 400 && rBadMgLang.status === 400 && rBadMgI18nKey.status === 400
+    );
+
+    // 18.4 Control OCC ETag (409), guardado real en JSON + /js/pia-multilingual-data.js y restauración limpia
+    const rGetMgAdm = await fetch(`${BASE_URL}/api/admin/multilingual-guide`, {
+      headers: { 'Authorization': `Bearer ${mgAdminToken}` }
+    });
+    const mgEtag = rGetMgAdm.headers.get('etag') || rGetMgAdm.headers.get('ETag');
+    const mgAdminSnap = await rGetMgAdm.json();
+    const originalDirEs = JSON.parse(JSON.stringify(mgAdminSnap.data.portal.es.modules.directorio));
+
+    const rMgConflict = await fetch(`${BASE_URL}/api/admin/multilingual-guide`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${mgAdminToken}`,
+        'If-Match': `"${'f'.repeat(64)}"`
+      },
+      body: JSON.stringify({
+        section: 'portal',
+        data: { es: { modules: { directorio: { text: 'No debe guardarse por conflicto' } } } }
+      })
+    });
+
+    const markerMgText = 'Texto de prueba temporal Guia Multilingue __MG_TEST_18__';
+    const rMgSave = await fetch(`${BASE_URL}/api/admin/multilingual-guide`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${mgAdminToken}`,
+        ...(mgEtag ? { 'If-Match': mgEtag } : {})
+      },
+      body: JSON.stringify({
+        section: 'portal',
+        data: { es: { modules: { directorio: { text: markerMgText } } } }
+      })
+    });
+    const mgSaveData = await rMgSave.json().catch(() => ({}));
+    const newMgEtag = rMgSave.headers.get('etag') || rMgSave.headers.get('ETag');
+
+    const rBakedMgJs = await fetch(`${BASE_URL}/js/pia-multilingual-data.js`);
+    const bakedMgJsText = await rBakedMgJs.text();
+
+    // Restaurar snapshot exacto original
+    const rMgRestore = await fetch(`${BASE_URL}/api/admin/multilingual-guide`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${mgAdminToken}`,
+        ...(newMgEtag ? { 'If-Match': newMgEtag } : {})
+      },
+      body: JSON.stringify({
+        section: 'portal',
+        data: { es: { modules: { directorio: originalDirEs } } }
+      })
+    });
+
+    recordTest(
+      '18.4 Control OCC 409, guardado en API + materialización en /js/pia-multilingual-data.js y restauración',
+      rMgConflict.status === 409 &&
+      rMgSave.status === 200 &&
+      mgSaveData.success === true &&
+      rBakedMgJs.status === 200 &&
+      bakedMgJsText.includes(markerMgText) &&
+      rMgRestore.status === 200
+    );
+  } catch (err) {
+    recordTest('18. Administración de Guía Multilingüe y materialización', false, err.message);
+  }
+
+  // Test 19: Estado global de sincronización, respaldo completo (.json) y materialización en código
+  try {
+    const rSyncNoAuth = await fetch(`${BASE_URL}/api/admin/sync/status`);
+    const rLoginAdm19 = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'deteccionydenuncia@cnc.gob.gt', password: '12345' })
+    });
+    const { token: syncToken19 } = await rLoginAdm19.json();
+
+    const rStatus = await fetch(`${BASE_URL}/api/admin/sync/status`, {
+      headers: { 'Authorization': `Bearer ${syncToken19}` }
+    });
+    const statusData = await rStatus.json().catch(() => ({}));
+
+    const rMaterialize = await fetch(`${BASE_URL}/api/admin/sync/materialize`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncToken19}` }
+    });
+    const matData = await rMaterialize.json().catch(() => ({}));
+
+    const rExportAll = await fetch(`${BASE_URL}/api/admin/sync/export-all`, {
+      headers: { 'Authorization': `Bearer ${syncToken19}` }
+    });
+    const exportAllData = await rExportAll.json().catch(() => ({}));
+
+    const rBakedTextsJs = await fetch(`${BASE_URL}/js/pia-baked-texts.js`);
+    const bakedTextsJsBody = await rBakedTextsJs.text();
+
+    const rImportBad = await fetch(`${BASE_URL}/api/admin/sync/import-all`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncToken19}` },
+      body: JSON.stringify({
+        mode: 'merge',
+        texts: { portal: { overrides: { 'hero.subtitle': '<img src=x onerror=alert(1)>' } } }
+      })
+    });
+
+    const rImportValid = await fetch(`${BASE_URL}/api/admin/sync/import-all`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${syncToken19}` },
+      body: JSON.stringify({
+        mode: 'merge',
+        texts: exportAllData.texts || {},
+        multilingual: {
+          portal: exportAllData.multilingual?.portal,
+          canales: exportAllData.multilingual?.canales,
+          i18n: exportAllData.multilingual?.i18n
+        }
+      })
+    });
+    const importValidData = await rImportValid.json().catch(() => ({}));
+
+    recordTest(
+      '19. Sincronización unificada (/api/admin/sync/status, export-all, import-all, materialize + js/pia-baked-texts.js)',
+      rSyncNoAuth.status === 401 &&
+      rStatus.status === 200 &&
+      statusData.success === true &&
+      Array.isArray(statusData.bakedFiles) &&
+      statusData.bakedFiles.length === 3 &&
+      statusData.bakedFiles.every(f => f.exists === true) &&
+      rMaterialize.status === 200 &&
+      matData.success === true &&
+      rExportAll.status === 200 &&
+      exportAllData.success === true &&
+      Boolean(exportAllData.datasets?.canales) &&
+      rBakedTextsJs.status === 200 &&
+      bakedTextsJsBody.includes('window.PIA_BAKED_TEXTS') &&
+      rImportBad.status === 400 &&
+      rImportValid.status === 200 &&
+      importValidData.success === true
+    );
+  } catch (err) {
+    recordTest('19. Sincronización unificada y materialización en código', false, err.message);
+  }
+
   console.log('\n=============================================================');
   console.log(` RESUMEN DE PRUEBAS: ${results.passed} SUPERADAS / ${results.failed} FALLIDAS`);
   console.log('=============================================================\n');

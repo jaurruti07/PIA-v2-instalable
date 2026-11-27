@@ -1,6 +1,7 @@
 /* ============================================================
    ADMIN CHATBOT MANAGER - JS MODULE
    ============================================================ */
+import { syncModuleDataToCloud } from './texts-sync-ui.js';
 
 export async function initChatbotManager() {
     const contentArea = document.getElementById('contentArea');
@@ -614,6 +615,7 @@ function openAddKbModal(prefillQuery = '', editItem = null) {
             if (await handleUnauthorizedResponse(saveRes)) return;
 
             if (saveRes.ok) {
+                syncModuleDataToCloud('chatbot_knowledge', getAuthHeaders).catch(() => {});
                 showToast(isEdit ? 'Artículo actualizado en la Base de Conocimiento' : 'Artículo guardado en la Base de Conocimiento', 'success');
                 document.getElementById('kbModal').remove();
                 await loadKnowledgeTab();
@@ -638,6 +640,7 @@ async function deleteKbItem(id) {
         });
         if (await handleUnauthorizedResponse(res)) return;
         if (res.ok) {
+            syncModuleDataToCloud('chatbot_knowledge', getAuthHeaders).catch(() => {});
             showToast('Artículo eliminado de la base de conocimiento', 'info');
             await loadKnowledgeTab();
         } else {

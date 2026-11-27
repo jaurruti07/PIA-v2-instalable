@@ -26,6 +26,21 @@ import {
   sanitizeAndValidateModuleText,
   normalizeModuleTextsDoc
 } from './db/moduleTextsCatalog.js';
+import {
+  MULTILINGUAL_SECTIONS,
+  PORTAL_LANG_ORDER,
+  CANALES_LANG_ORDER,
+  normalizeMultilingualDoc,
+  validateMultilingualSectionPayload,
+  mergeSectionIntoCurrent,
+  buildAdminMultilingualPayload
+} from './db/multilingualGuideCatalog.js';
+import {
+  materializeBakedTextFiles,
+  materializeMultilingualCodeFile,
+  readBakedTextOverridesFile,
+  getBakedFilesStatus
+} from './db/codeMaterializer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,6 +74,8 @@ const CANALES_SETTINGS_FILE = path.join(DATA_DIR, 'canales_settings.json');
 const MODULES_UI_CONFIG_FILE = path.join(DATA_DIR, 'modules_ui_config.json');
 const PORTAL_TEXTS_FILE = path.join(DATA_DIR, 'portal_texts.json');
 const PRESERVED_TEXTS_SNAPSHOT_FILE = path.join(DATA_DIR, 'preserved_texts_snapshot.json');
+const MULTILINGUAL_GUIDE_FILE = path.join(DATA_DIR, 'multilingual_guide.json');
+const SYNC_STATE_FILE = path.join(DATA_DIR, 'sync_state.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const UPLOADS_BG_DIR = path.join(UPLOADS_DIR, 'backgrounds');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -462,7 +479,7 @@ const DEFAULT_AUTHORIZED_USERS = [
     role: "admin",
     // Contraseña inicial 12345 encriptada con PBKDF2/SHA-512 y sal criptográfica
     passwordHash: "f929ebd07fd2c63da7eb3004213bd3d2:9d5f0b3dc9c5e3160bcd726cfd0104c4b310ba6369d64914435c4de8c1ad5d6fb3723aa263cdcaf84f57ef6160b3634442819a3e43f657c0eeb088fbd317ef59",
-    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
+    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide", "multilingual-guide"],
     status: "active",
     operatorIndex: 1,
     lastPasswordChange: "2026-03-30T10:00:00.000Z",
@@ -475,7 +492,7 @@ const DEFAULT_AUTHORIZED_USERS = [
     role: "admin",
     // Contraseña inicial 12345 encriptada con PBKDF2/SHA-512 y sal criptográfica
     passwordHash: "29af97fbdcade6df44a7d6fb84022548:b3e638225077f1c21b848b5bc32b9cf95d4b7f083dd3eb246d389a042475d86dd8002e0bb7fa0e47234b7a8164304e5a784af86ba8575357e361c93a5a33137e",
-    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide"],
+    modules: ["canales", "directorio", "tableros", "riesgo", "portal", "visits", "chatbot", "users", "audit", "database", "guide", "multilingual-guide"],
     status: "active",
     operatorIndex: 2,
     lastPasswordChange: "2026-03-30T10:00:00.000Z",
@@ -633,7 +650,7 @@ async function requireAuth(req, res, next) {
       displayName: dbUser?.displayName || localSession.displayName,
       operatorIndex: dbUser?.operatorIndex || localSession.operatorIndex || 1,
       role: dbUser?.role || 'admin',
-      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide']
+      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide', 'multilingual-guide']
     };
     return next();
   }
@@ -722,7 +739,7 @@ async function requireAuth(req, res, next) {
       displayName: dbUser?.displayName || matchedOperator.displayName || verified.name,
       operatorIndex: matchedOperator.operatorIndex,
       role: dbUser?.role || 'admin',
-      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide']
+      modules: dbUser?.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide', 'multilingual-guide']
     };
 
     next();
@@ -766,6 +783,22 @@ function requireModuleAccess(moduleKey) {
     }
     next();
   };
+}
+
+function requireMultilingualGuideAccess(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Acceso no autorizado.' });
+  }
+  const modules = Array.isArray(req.user.modules) ? req.user.modules : [];
+  const allowed = req.user.role === 'admin'
+    || modules.includes('multilingual-guide')
+    || modules.includes('guide')
+    || modules.includes('portal')
+    || modules.includes('canales');
+  if (!allowed) {
+    return res.status(403).json({ error: 'No posee permisos asignados para administrar la Guía Multilingüe y Técnica.' });
+  }
+  next();
 }
 
 // Cabeceras de seguridad HTTP
@@ -879,7 +912,7 @@ app.post('/api/auth/login', (req, res) => {
       upn: user.email,
       displayName: user.displayName,
       role: user.role || 'admin',
-      modules: user.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'],
+      modules: user.modules || ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide', 'multilingual-guide'],
       operatorIndex: user.operatorIndex
     }
   });
@@ -984,7 +1017,7 @@ app.post('/api/admin/users', requireAuth, requireOperator, (req, res) => {
   const validRoles = ['admin', 'data_operator'];
   const assignedRole = validRoles.includes(role) ? role : 'admin';
 
-  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
+  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide', 'multilingual-guide'];
   const requestedModules = Array.isArray(modules) ? modules : permissions;
   const assignedModules = Array.isArray(requestedModules) && requestedModules.length > 0
     ? requestedModules.filter(m => validModules.includes(m))
@@ -1110,7 +1143,7 @@ app.put('/api/admin/users/:email/permissions', requireAuth, requireOperator, (re
     return res.status(400).json({ error: 'El listado de módulos debe ser un arreglo de cadenas.' });
   }
 
-  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide'];
+  const validModules = ['canales', 'directorio', 'tableros', 'riesgo', 'portal', 'visits', 'chatbot', 'users', 'audit', 'database', 'guide', 'multilingual-guide'];
   const sanitizedModules = modules.filter(m => validModules.includes(m));
 
   const users = getUsersRoles();
@@ -1373,7 +1406,7 @@ const hybridStorage = createHybridStorage({
   saveJsonModuleRecords: saveModuleRecords
 });
 
-const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin', 'ui', 'portal'];
+const RESERVED_MODULES = ['auth', 'dashboard', 'raw-json', 'files', 'audit', 'users', 'security-policies', 'chatbot', 'admin', 'ui', 'portal', 'multilingual-guide', 'sync'];
 
 app.get('/api/modules', (req, res) => {
   res.json(['canales', 'directorio', 'tableros', 'riesgo', 'portal']);
@@ -1746,7 +1779,8 @@ function getCanalesSettings() {
 }
 
 // Configuración pública de banderas visuales (sin exponer metadatos internos)
-app.get('/api/canales/config', (req, res) => {
+app.get('/api/canales/config', async (req, res) => {
+  await reconcileDatasetWithCloud('canales_settings').catch(() => {});
   const settings = getCanalesSettings();
   res.json({
     showProtocolos: settings.showProtocolos,
@@ -1755,7 +1789,8 @@ app.get('/api/canales/config', (req, res) => {
 });
 
 // Lectura administrativa de configuración de Canales
-app.get('/api/admin/canales/config', requireAuth, requireOperator, requireModuleAccess('canales'), (req, res) => {
+app.get('/api/admin/canales/config', requireAuth, requireOperator, requireModuleAccess('canales'), async (req, res) => {
+  await reconcileDatasetWithCloud('canales_settings', { force: req.query?.sync === '1' }).catch(() => {});
   res.json({
     success: true,
     config: getCanalesSettings()
@@ -1788,6 +1823,8 @@ app.put('/api/admin/canales/config', requireAuth, requireOperator, requireModule
 
   try {
     atomicWriteJson(CANALES_SETTINGS_FILE, nextConfig, null, nextConfig.updatedBy);
+    markLocalSyncWrite('datasets', 'canales_settings', nextConfig.updatedAt);
+    invalidateCloudDataCache('canales_settings');
     logAudit({
       user: req.user.upn,
       userOid: req.user.oid,
@@ -1989,11 +2026,13 @@ async function readPortalState() {
   };
 }
 
-async function writePortalState(nextPortalDoc, userUpn, expectedHash = null) {
+async function writePortalState(nextPortalDoc, userUpn, expectedHash = null, { fromCloud = false } = {}) {
   const normalized = normalizePortalDocument(nextPortalDoc);
   const source = hybridStorage.getModuleSource('portal');
   if (source === 'sql') {
     const result = await hybridStorage.updateRecord('portal', 1, normalized, userUpn, expectedHash);
+    if (!fromCloud) markLocalSyncWrite('datasets', 'portal');
+    invalidateCloudDataCache('portal');
     return {
       source: 'sql',
       newHash: result?.newHash || null,
@@ -2003,6 +2042,8 @@ async function writePortalState(nextPortalDoc, userUpn, expectedHash = null) {
   }
   const filePath = WHITELIST_JSON_MAP['portal'];
   const writeRes = atomicWriteJson(filePath, normalized, expectedHash, userUpn);
+  if (!fromCloud) markLocalSyncWrite('datasets', 'portal');
+  invalidateCloudDataCache('portal');
   return {
     source: 'json',
     newHash: writeRes.newHash,
@@ -2014,6 +2055,7 @@ async function writePortalState(nextPortalDoc, userUpn, expectedHash = null) {
 // Endpoint público de métricas dinámicas del portal principal
 app.get('/api/portal/metricas', async (req, res) => {
   try {
+    await reconcileDatasetWithCloud('portal').catch(() => {});
     const { portal, etag } = await readPortalState();
     if (etag) res.setHeader('ETag', `"${etag}"`);
     const activeMetrics = portal.metricas.filter(m => m.activo !== false);
@@ -2034,6 +2076,7 @@ app.get('/api/portal/metricas', async (req, res) => {
 // Lectura administrativa completa de métricas del portal
 app.get('/api/admin/portal/metricas', requireAuth, requireOperator, requireModuleAccess('portal'), async (req, res) => {
   try {
+    await reconcileDatasetWithCloud('portal', { force: req.query?.sync === '1' }).catch(() => {});
     const { source, etag, portal } = await readPortalState();
     if (etag) res.setHeader('ETag', `"${etag}"`);
     res.setHeader('X-PIA-Storage-Source', source);
@@ -2597,13 +2640,16 @@ function readModulesUiConfig() {
   return { config, etag };
 }
 
-function writeModulesUiConfig(nextConfig, userUpn, expectedHash = null) {
+function writeModulesUiConfig(nextConfig, userUpn, expectedHash = null, { fromCloud = false } = {}) {
+  const nowIso = new Date().toISOString();
   const normalized = normalizeModulesUiConfig({
     ...nextConfig,
-    updatedAt: new Date().toISOString(),
+    updatedAt: nextConfig?.updatedAt && fromCloud ? nextConfig.updatedAt : nowIso,
     updatedBy: userUpn || 'sistema'
   });
   const writeRes = atomicWriteJson(MODULES_UI_CONFIG_FILE, normalized, expectedHash, userUpn);
+  if (!fromCloud) markLocalSyncWrite('datasets', 'ui_config', normalized.updatedAt);
+  invalidateCloudDataCache('ui_config');
   return {
     config: normalized,
     newHash: writeRes.newHash,
@@ -2697,6 +2743,9 @@ app.get('/api/ui/:module', async (req, res) => {
     return res.status(404).json({ error: 'Módulo no encontrado.' });
   }
   try {
+    await reconcileDatasetWithCloud('ui_config').catch(() => {});
+    if (modKey === 'portal') await reconcileDatasetWithCloud('portal').catch(() => {});
+    if (modKey === 'canales') await reconcileDatasetWithCloud('canales_settings').catch(() => {});
     const { config, etag } = readModulesUiConfig();
     if (etag) res.setHeader('ETag', `"${etag}"`);
 
@@ -2851,6 +2900,9 @@ app.delete('/api/admin/ui/backgrounds/upload/:filename', requireAuth, requireOpe
 app.get('/api/admin/ui/:module', requireAuth, requireOperator, checkUiModuleAccess, async (req, res) => {
   const modKey = req.uiModuleKey;
   try {
+    const forceCloud = req.query?.sync === '1';
+    await reconcileDatasetWithCloud('ui_config', { force: forceCloud }).catch(() => {});
+    if (modKey === 'portal') await reconcileDatasetWithCloud('portal', { force: forceCloud }).catch(() => {});
     const { config, etag } = readModulesUiConfig();
     if (etag) res.setHeader('ETag', `"${etag}"`);
     let kpis = [];
@@ -3692,7 +3744,10 @@ async function reconcileTextDocWithCloud(docId, localState, { force = false } = 
 function readPortalTextsState() {
   if (!fs.existsSync(PORTAL_TEXTS_FILE)) {
     const snap = readPreservedTextsSnapshot();
-    const savedPortal = snap.modules?.portal;
+    const baked = readBakedTextOverridesFile(__dirname);
+    const savedPortal = (snap.modules?.portal && Object.keys(snap.modules.portal.overrides || {}).length > 0)
+      ? snap.modules.portal
+      : baked?.modules?.portal;
     const initNorm = normalizePortalTextsDoc(
       savedPortal && Object.keys(savedPortal.overrides || {}).length > 0
         ? savedPortal
@@ -3707,10 +3762,13 @@ function readPortalTextsState() {
   let raw = readJsonFile(PORTAL_TEXTS_FILE);
   let doc = normalizePortalTextsDoc(raw);
 
-  // Hidratación de respaldo si el archivo local quedó sin ediciones iniciales mientras existe instantánea preservada
+  // Hidratación de respaldo si el archivo local quedó sin ediciones iniciales mientras existe instantánea preservada o código materializado
   if (Object.keys(doc.overrides).length === 0 && !doc.updatedAt) {
     const snap = readPreservedTextsSnapshot();
-    const savedPortal = snap.modules?.portal;
+    const baked = readBakedTextOverridesFile(__dirname);
+    const savedPortal = (snap.modules?.portal && Object.keys(snap.modules.portal.overrides || {}).length > 0)
+      ? snap.modules.portal
+      : baked?.modules?.portal;
     if (savedPortal && Object.keys(savedPortal.overrides || {}).length > 0) {
       const hydrated = normalizePortalTextsDoc(savedPortal);
       if (Object.keys(hydrated.overrides).length > 0) {
@@ -3762,6 +3820,24 @@ function buildAdminPortalTextsPayload(doc, cloudSync = null) {
   };
 }
 
+function materializeAllTextsToCode() {
+  try {
+    const portalRaw = readJsonFile(PORTAL_TEXTS_FILE);
+    const portalDoc = normalizePortalTextsDoc(portalRaw);
+    const moduleDocs = {};
+    for (const modKey of TEXT_MODULES_ORDER) {
+      const def = getModuleTextsDefinition(modKey);
+      if (!def) continue;
+      const modRaw = readJsonFile(path.join(DATA_DIR, def.fileName));
+      moduleDocs[def.key] = normalizeModuleTextsDoc(def.key, modRaw);
+    }
+    return materializeBakedTextFiles(__dirname, { portalDoc, moduleDocs });
+  } catch (err) {
+    console.error('Advertencia materializando archivos de textos en código:', err.message);
+    return null;
+  }
+}
+
 function writePortalTextsState(nextOverrides, userUpn, expectedHash = null, explicitUpdatedAt = null) {
   const normalized = normalizePortalTextsDoc({
     overrides: nextOverrides,
@@ -3774,6 +3850,7 @@ function writePortalTextsState(nextOverrides, userUpn, expectedHash = null, expl
     updatedBy: normalized.updatedBy
   }, expectedHash, userUpn);
   persistPreservedTextsSnapshot(userUpn || 'sistema');
+  materializeAllTextsToCode();
   invalidateCloudTextCache('portal');
   return {
     doc: normalized,
@@ -3983,7 +4060,10 @@ function readModuleTextsState(moduleKey) {
   const filePath = getModuleTextsFilePath(def.key);
   if (!fs.existsSync(filePath)) {
     const snap = readPreservedTextsSnapshot();
-    const savedMod = snap.modules?.[def.key];
+    const baked = readBakedTextOverridesFile(__dirname);
+    const savedMod = (snap.modules?.[def.key] && Object.keys(snap.modules[def.key].overrides || {}).length > 0)
+      ? snap.modules[def.key]
+      : baked?.modules?.[def.key];
     const initNorm = normalizeModuleTextsDoc(
       def.key,
       savedMod && Object.keys(savedMod.overrides || {}).length > 0
@@ -4001,7 +4081,10 @@ function readModuleTextsState(moduleKey) {
 
   if (Object.keys(doc.overrides).length === 0 && !doc.updatedAt) {
     const snap = readPreservedTextsSnapshot();
-    const savedMod = snap.modules?.[def.key];
+    const baked = readBakedTextOverridesFile(__dirname);
+    const savedMod = (snap.modules?.[def.key] && Object.keys(snap.modules[def.key].overrides || {}).length > 0)
+      ? snap.modules[def.key]
+      : baked?.modules?.[def.key];
     if (savedMod && Object.keys(savedMod.overrides || {}).length > 0) {
       const hydrated = normalizeModuleTextsDoc(def.key, savedMod);
       if (Object.keys(hydrated.overrides).length > 0) {
@@ -4076,6 +4159,7 @@ function writeModuleTextsState(moduleKey, nextOverrides, userUpn, expectedHash =
     updatedBy: normalized.updatedBy
   }, expectedHash, userUpn);
   persistPreservedTextsSnapshot(userUpn || 'sistema');
+  materializeAllTextsToCode();
   invalidateCloudTextCache(def.key);
   return {
     def,
@@ -4562,11 +4646,955 @@ app.post('/api/admin/texts/sync-from-cloud', requireAuth, requireOperator, async
   }
 });
 
+// ========================================================
+// 5.I GUÍA MULTILINGÜE, PERSISTENCIA EN CÓDIGO Y SINCRONIZACIÓN DE DATOS (PRODUCCIÓN <-> PREVIEW)
+// ========================================================
+
+const DATA_DOC_IDS = [
+  'canales',
+  'directorio',
+  'tableros',
+  'riesgo',
+  'portal',
+  'ui_config',
+  'canales_settings',
+  'chatbot_knowledge'
+];
+
+const CLOUD_GENERIC_CACHE_TTL_MS = 15000;
+const cloudMultilingualCache = new Map();
+const cloudDataCache = new Map();
+
+function invalidateCloudMultilingualCache(docId = null) {
+  if (docId) cloudMultilingualCache.delete(docId);
+  else cloudMultilingualCache.clear();
+}
+
+function invalidateCloudDataCache(docId = null) {
+  if (docId) cloudDataCache.delete(docId);
+  else cloudDataCache.clear();
+}
+
+function readSyncState() {
+  const raw = readJsonFile(SYNC_STATE_FILE);
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { schemaVersion: 1, texts: {}, multilingual: {}, datasets: {} };
+  }
+  return {
+    schemaVersion: 1,
+    texts: (raw.texts && typeof raw.texts === 'object') ? raw.texts : {},
+    multilingual: (raw.multilingual && typeof raw.multilingual === 'object') ? raw.multilingual : {},
+    datasets: (raw.datasets && typeof raw.datasets === 'object') ? raw.datasets : {}
+  };
+}
+
+function writeSyncState(nextState) {
+  try {
+    const tmp = path.join(DATA_DIR, `.tmp_sync_state_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`);
+    fs.writeFileSync(tmp, JSON.stringify(nextState, null, 2), 'utf8');
+    fs.renameSync(tmp, SYNC_STATE_FILE);
+  } catch (err) {
+    console.error('Advertencia escribiendo sync_state.json:', err.message);
+  }
+}
+
+function markLocalSyncWrite(category, docId, iso = null) {
+  const st = readSyncState();
+  if (!st[category] || typeof st[category] !== 'object') st[category] = {};
+  const prev = st[category][docId] || {};
+  st[category][docId] = {
+    ...prev,
+    lastLocalWriteAt: iso || new Date().toISOString()
+  };
+  writeSyncState(st);
+}
+
+function markCloudSyncApplied(category, docId, cloudIso = null) {
+  const st = readSyncState();
+  if (!st[category] || typeof st[category] !== 'object') st[category] = {};
+  const prev = st[category][docId] || {};
+  st[category][docId] = {
+    ...prev,
+    lastCloudSyncAt: cloudIso || new Date().toISOString()
+  };
+  writeSyncState(st);
+}
+
+function decodeFirestoreValue(val) {
+  if (!val || typeof val !== 'object') return null;
+  if (Object.prototype.hasOwnProperty.call(val, 'nullValue')) return null;
+  if (Object.prototype.hasOwnProperty.call(val, 'booleanValue')) return Boolean(val.booleanValue);
+  if (Object.prototype.hasOwnProperty.call(val, 'integerValue')) return Number(val.integerValue);
+  if (Object.prototype.hasOwnProperty.call(val, 'doubleValue')) return Number(val.doubleValue);
+  if (Object.prototype.hasOwnProperty.call(val, 'stringValue')) return String(val.stringValue);
+  if (Object.prototype.hasOwnProperty.call(val, 'timestampValue')) return String(val.timestampValue);
+  if (val.arrayValue && typeof val.arrayValue === 'object') {
+    const arr = Array.isArray(val.arrayValue.values) ? val.arrayValue.values : [];
+    return arr.map(decodeFirestoreValue);
+  }
+  if (val.mapValue && typeof val.mapValue === 'object') {
+    const fields = val.mapValue.fields || {};
+    const out = {};
+    for (const [k, v] of Object.entries(fields)) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      out[k] = decodeFirestoreValue(v);
+    }
+    return out;
+  }
+  return null;
+}
+
+async function fetchFirestoreDocument(collectionName, docId, cacheMap, { force = false } = {}) {
+  if (!FIREBASE_PROJECT_ID || !FIRESTORE_DATABASE_ID) return null;
+  const now = Date.now();
+  const cached = cacheMap.get(docId);
+  if (!force && cached && (now - cached.fetchedAt) < CLOUD_GENERIC_CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  try {
+    const url = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(FIREBASE_PROJECT_ID)}/databases/${encodeURIComponent(FIRESTORE_DATABASE_ID)}/documents/${encodeURIComponent(collectionName)}/${encodeURIComponent(docId)}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal
+    }).finally(() => clearTimeout(timer));
+
+    if (res.status === 404) {
+      const notFound = { exists: false, docId, fields: null, updatedAt: null };
+      cacheMap.set(docId, { fetchedAt: now, data: notFound });
+      return notFound;
+    }
+    if (!res.ok) return cached ? cached.data : null;
+
+    const rawJson = await res.json();
+    if (!rawJson || !rawJson.fields) return cached ? cached.data : null;
+
+    const decodedFields = {};
+    for (const [k, v] of Object.entries(rawJson.fields)) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      decodedFields[k] = decodeFirestoreValue(v);
+    }
+
+    const updatedAt = decodedFields.clientUpdatedAtIso
+      || decodedFields.updatedAt
+      || rawJson.updateTime
+      || null;
+
+    const parsed = {
+      exists: true,
+      docId,
+      fields: decodedFields,
+      updatedAt
+    };
+    cacheMap.set(docId, { fetchedAt: now, data: parsed });
+    return parsed;
+  } catch (_) {
+    return cached ? cached.data : null;
+  }
+}
+
+function readMultilingualGuideState() {
+  if (!fs.existsSync(MULTILINGUAL_GUIDE_FILE)) {
+    const initDoc = normalizeMultilingualDoc({});
+    atomicWriteJson(MULTILINGUAL_GUIDE_FILE, initDoc, null, 'sistema');
+  }
+  const raw = readJsonFile(MULTILINGUAL_GUIDE_FILE);
+  const doc = normalizeMultilingualDoc(raw);
+  const etag = computeFileHash(MULTILINGUAL_GUIDE_FILE);
+  return { doc, etag };
+}
+
+function writeMultilingualGuideState(nextDoc, userUpn = 'sistema', expectedHash = null, { updatedSection = null, explicitUpdatedAt = null, fromCloud = false } = {}) {
+  const nowIso = explicitUpdatedAt || new Date().toISOString();
+  const prevMeta = (nextDoc && nextDoc.sectionUpdatedAt && typeof nextDoc.sectionUpdatedAt === 'object')
+    ? { ...nextDoc.sectionUpdatedAt }
+    : {};
+  if (updatedSection && MULTILINGUAL_SECTIONS.includes(updatedSection)) {
+    prevMeta[updatedSection] = nowIso;
+  }
+  const normalized = normalizeMultilingualDoc({
+    ...nextDoc,
+    updatedAt: nowIso,
+    updatedBy: userUpn || 'sistema',
+    sectionUpdatedAt: prevMeta
+  });
+  const writeRes = atomicWriteJson(MULTILINGUAL_GUIDE_FILE, normalized, expectedHash, userUpn);
+  const matResult = materializeMultilingualCodeFile(__dirname, normalized);
+  if (updatedSection) {
+    if (!fromCloud) markLocalSyncWrite('multilingual', updatedSection, nowIso);
+    invalidateCloudMultilingualCache(updatedSection);
+  } else {
+    for (const sec of MULTILINGUAL_SECTIONS) {
+      if (!fromCloud) markLocalSyncWrite('multilingual', sec, nowIso);
+    }
+    invalidateCloudMultilingualCache();
+  }
+  return {
+    doc: normalized,
+    newHash: writeRes.newHash,
+    backupCreated: writeRes.backupCreated,
+    materializedFile: matResult?.file || null
+  };
+}
+
+async function reconcileMultilingualWithCloud({ section = null, force = false } = {}) {
+  const localState = readMultilingualGuideState();
+  if (!FIRESTORE_DATABASE_ID) {
+    return {
+      doc: localState.doc,
+      etag: localState.etag,
+      cloudSync: { available: false, syncedSections: [] }
+    };
+  }
+
+  const targetSections = section && MULTILINGUAL_SECTIONS.includes(section)
+    ? [section]
+    : MULTILINGUAL_SECTIONS;
+
+  let currentDoc = localState.doc;
+  let currentEtag = localState.etag;
+  const syncState = readSyncState();
+  const syncedSections = [];
+  const cloudSectionsMeta = {};
+
+  for (const sec of targetSections) {
+    const cloudDoc = await fetchFirestoreDocument('published_multilingual', sec, cloudMultilingualCache, { force });
+    cloudSectionsMeta[sec] = {
+      existsInCloud: Boolean(cloudDoc && cloudDoc.exists),
+      cloudUpdatedAt: cloudDoc?.updatedAt || null
+    };
+    if (!cloudDoc || !cloudDoc.exists || !cloudDoc.fields?.data || typeof cloudDoc.fields.data !== 'object') {
+      continue;
+    }
+
+    const cloudMs = parseIsoMs(cloudDoc.updatedAt);
+    const localSecIso = currentDoc.sectionUpdatedAt?.[sec] || currentDoc.updatedAt;
+    const localWriteIso = syncState.multilingual?.[sec]?.lastLocalWriteAt;
+    const localCloudIso = syncState.multilingual?.[sec]?.lastCloudSyncAt;
+    const baselineMs = Math.max(parseIsoMs(localSecIso), parseIsoMs(localWriteIso), parseIsoMs(localCloudIso));
+
+    const differs = JSON.stringify(currentDoc[sec]) !== JSON.stringify(cloudDoc.fields.data);
+    const shouldAdopt = differs && (
+      (force && cloudMs >= baselineMs) ||
+      cloudMs > (baselineMs + 1000) ||
+      (!baselineMs && !localSecIso)
+    );
+
+    if (shouldAdopt) {
+      const mergedSection = mergeSectionIntoCurrent(sec, currentDoc[sec], cloudDoc.fields.data);
+      const nextDoc = {
+        ...currentDoc,
+        [sec]: mergedSection
+      };
+      const writeRes = writeMultilingualGuideState(nextDoc, 'cloud-sync', null, {
+        updatedSection: sec,
+        explicitUpdatedAt: cloudDoc.updatedAt || new Date().toISOString(),
+        fromCloud: true
+      });
+      markCloudSyncApplied('multilingual', sec, cloudDoc.updatedAt || new Date().toISOString());
+      currentDoc = writeRes.doc;
+      currentEtag = writeRes.newHash;
+      syncedSections.push(sec);
+    }
+  }
+
+  return {
+    doc: currentDoc,
+    etag: currentEtag,
+    cloudSync: {
+      available: true,
+      syncedSections,
+      sections: cloudSectionsMeta
+    }
+  };
+}
+
+function normalizeDatasetDocId(raw) {
+  const clean = String(raw || '').trim();
+  if (DATA_DOC_IDS.includes(clean)) return clean;
+  const alias = normalizeModuleKey(clean);
+  if (DATA_DOC_IDS.includes(alias)) return alias;
+  return null;
+}
+
+function readDatasetForCloud(docId) {
+  const id = normalizeDatasetDocId(docId);
+  if (!id) throw new Error(`Dataset no reconocido: ${docId}`);
+
+  if (id === 'canales' || id === 'directorio' || id === 'tableros') {
+    const items = getModuleRecords(id);
+    return { docId: id, kind: 'array', data: { items }, itemCount: items.length };
+  }
+  if (id === 'riesgo') {
+    const full = readJsonFile(WHITELIST_JSON_MAP['riesgo']) || { years: { '2025': { instituciones: [] } } };
+    const instCount = Array.isArray(full?.years?.['2025']?.instituciones) ? full.years['2025'].instituciones.length : 0;
+    return { docId: 'riesgo', kind: 'object', data: { doc: full }, itemCount: instCount };
+  }
+  if (id === 'portal') {
+    const raw = readJsonFile(WHITELIST_JSON_MAP['portal']) || {};
+    const doc = normalizePortalDocument(raw);
+    return { docId: 'portal', kind: 'object', data: { doc }, itemCount: doc.metricas.length };
+  }
+  if (id === 'ui_config') {
+    const { config } = readModulesUiConfig();
+    const kpiTotal = Object.values(config.kpis || {}).reduce((acc, arr) => acc + (Array.isArray(arr) ? arr.length : 0), 0);
+    return { docId: 'ui_config', kind: 'object', data: { doc: config }, itemCount: kpiTotal };
+  }
+  if (id === 'canales_settings') {
+    const cfg = getCanalesSettings();
+    return { docId: 'canales_settings', kind: 'object', data: { doc: cfg }, itemCount: 2 };
+  }
+  // chatbot_knowledge
+  const kb = getChatbotKnowledge();
+  return { docId: 'chatbot_knowledge', kind: 'array', data: { items: kb }, itemCount: kb.length };
+}
+
+function applyDatasetPayloadToDisk(docId, rawWrapper, userUpn = 'cloud-sync', { fromCloud = false } = {}) {
+  const id = normalizeDatasetDocId(docId);
+  if (!id) throw new Error(`Dataset no soportado: ${docId}`);
+  const nowIso = new Date().toISOString();
+
+  if (id === 'canales' || id === 'directorio' || id === 'tableros') {
+    const items = Array.isArray(rawWrapper)
+      ? rawWrapper
+      : (Array.isArray(rawWrapper?.items) ? rawWrapper.items : null);
+    if (!items) throw new Error(`Se esperaba un arreglo de registros para "${id}".`);
+    const writeRes = saveModuleRecords(id, items, userUpn, null);
+    if (!fromCloud) markLocalSyncWrite('datasets', id, nowIso);
+    invalidateCloudDataCache(id);
+    return { docId: id, itemCount: items.length, newHash: writeRes.newHash };
+  }
+
+  if (id === 'riesgo') {
+    const obj = (rawWrapper && rawWrapper.doc && typeof rawWrapper.doc === 'object') ? rawWrapper.doc : rawWrapper;
+    if (Array.isArray(obj)) {
+      const writeRes = saveModuleRecords('riesgo', obj, userUpn, null);
+      if (!fromCloud) markLocalSyncWrite('datasets', 'riesgo', nowIso);
+      invalidateCloudDataCache('riesgo');
+      return { docId: 'riesgo', itemCount: obj.length, newHash: writeRes.newHash };
+    }
+    if (!obj || typeof obj !== 'object' || !obj.years) {
+      throw new Error('Estructura inválida para el dataset de Riesgo en la Mira (se requiere objeto "years").');
+    }
+    const writeRes = atomicWriteJson(WHITELIST_JSON_MAP['riesgo'], obj, null, userUpn);
+    if (!fromCloud) markLocalSyncWrite('datasets', 'riesgo', nowIso);
+    invalidateCloudDataCache('riesgo');
+    const count = Array.isArray(obj.years?.['2025']?.instituciones) ? obj.years['2025'].instituciones.length : 0;
+    return { docId: 'riesgo', itemCount: count, newHash: writeRes.newHash };
+  }
+
+  if (id === 'portal') {
+    const obj = (rawWrapper && rawWrapper.doc && typeof rawWrapper.doc === 'object') ? rawWrapper.doc : rawWrapper;
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+      throw new Error('Estructura inválida para el dataset de métricas del Portal.');
+    }
+    const normalized = normalizePortalDocument(obj);
+    const writeRes = atomicWriteJson(WHITELIST_JSON_MAP['portal'], normalized, null, userUpn);
+    if (!fromCloud) markLocalSyncWrite('datasets', 'portal', nowIso);
+    invalidateCloudDataCache('portal');
+    return { docId: 'portal', itemCount: normalized.metricas.length, newHash: writeRes.newHash };
+  }
+
+  if (id === 'ui_config') {
+    const obj = (rawWrapper && rawWrapper.doc && typeof rawWrapper.doc === 'object') ? rawWrapper.doc : rawWrapper;
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+      throw new Error('Estructura inválida para la configuración visual (ui_config).');
+    }
+    const writeRes = writeModulesUiConfig(obj, userUpn, null, { fromCloud });
+    const kpiCount = Object.values(writeRes.config.kpis || {}).reduce((acc, arr) => acc + (Array.isArray(arr) ? arr.length : 0), 0);
+    return { docId: 'ui_config', itemCount: kpiCount, newHash: writeRes.newHash };
+  }
+
+  if (id === 'canales_settings') {
+    const obj = (rawWrapper && rawWrapper.doc && typeof rawWrapper.doc === 'object') ? rawWrapper.doc : rawWrapper;
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+      throw new Error('Estructura inválida para configuración de Canales.');
+    }
+    const nextCfg = {
+      showProtocolos: Boolean(obj.showProtocolos),
+      showDashboardCnc: Boolean(obj.showDashboardCnc),
+      updatedAt: obj.updatedAt || nowIso,
+      updatedBy: userUpn
+    };
+    const writeRes = atomicWriteJson(CANALES_SETTINGS_FILE, nextCfg, null, userUpn);
+    if (!fromCloud) markLocalSyncWrite('datasets', 'canales_settings', nextCfg.updatedAt);
+    invalidateCloudDataCache('canales_settings');
+    return { docId: 'canales_settings', itemCount: 2, newHash: writeRes.newHash };
+  }
+
+  // chatbot_knowledge
+  const kbItems = Array.isArray(rawWrapper)
+    ? rawWrapper
+    : (Array.isArray(rawWrapper?.items) ? rawWrapper.items : null);
+  if (!kbItems) throw new Error('Se esperaba un arreglo de entradas para chatbot_knowledge.');
+  const sanitizedKb = kbItems
+    .filter(item => item && typeof item === 'object' && item.title && item.content)
+    .map((item, idx) => ({
+      id: String(item.id || `kb_${Date.now()}_${idx}`),
+      title: String(item.title).trim().slice(0, 200),
+      category: String(item.category || 'General').trim().slice(0, 80),
+      content: String(item.content).trim().slice(0, 3000),
+      keywords: Array.isArray(item.keywords) ? item.keywords.map(k => String(k).trim()).filter(Boolean) : [],
+      link: String(item.link || '/').trim().slice(0, 300)
+    }));
+  const writeRes = atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, sanitizedKb, null, userUpn);
+  if (!fromCloud) markLocalSyncWrite('datasets', 'chatbot_knowledge', nowIso);
+  invalidateCloudDataCache('chatbot_knowledge');
+  return { docId: 'chatbot_knowledge', itemCount: sanitizedKb.length, newHash: writeRes.newHash };
+}
+
+async function reconcileDatasetWithCloud(docId, { force = false } = {}) {
+  const id = normalizeDatasetDocId(docId);
+  if (!id || !FIRESTORE_DATABASE_ID) return { synced: false, docId: id };
+
+  const cloudDoc = await fetchFirestoreDocument('published_data', id, cloudDataCache, { force });
+  if (!cloudDoc || !cloudDoc.exists || !cloudDoc.fields?.data) {
+    return { synced: false, existsInCloud: false, docId: id };
+  }
+
+  const syncState = readSyncState();
+  const entry = syncState.datasets?.[id] || {};
+  const cloudMs = parseIsoMs(cloudDoc.updatedAt);
+  const localBaselineMs = Math.max(parseIsoMs(entry.lastLocalWriteAt), parseIsoMs(entry.lastCloudSyncAt));
+
+  if (force ? (cloudMs >= localBaselineMs || !entry.lastLocalWriteAt) : (cloudMs > localBaselineMs + 1000)) {
+    try {
+      const currentPayload = readDatasetForCloud(id);
+      if (JSON.stringify(currentPayload.data) !== JSON.stringify(cloudDoc.fields.data)) {
+        applyDatasetPayloadToDisk(id, cloudDoc.fields.data, 'cloud-sync', { fromCloud: true });
+        markCloudSyncApplied('datasets', id, cloudDoc.updatedAt || new Date().toISOString());
+        return { synced: true, existsInCloud: true, docId: id, cloudUpdatedAt: cloudDoc.updatedAt };
+      }
+      markCloudSyncApplied('datasets', id, cloudDoc.updatedAt || new Date().toISOString());
+    } catch (err) {
+      console.error(`Advertencia reconciliando dataset ${id} desde nube:`, err.message);
+    }
+  }
+
+  return { synced: false, existsInCloud: true, docId: id, cloudUpdatedAt: cloudDoc.updatedAt };
+}
+
+function userHasDatasetPermission(user, docId) {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  const mods = Array.isArray(user.modules) ? user.modules : [];
+  if (docId === 'ui_config') {
+    return ['portal', 'canales', 'directorio', 'tableros', 'riesgo'].some(m => mods.includes(m));
+  }
+  if (docId === 'canales_settings') return mods.includes('canales');
+  if (docId === 'chatbot_knowledge') return mods.includes('chatbot');
+  return mods.includes(docId);
+}
+
+// Consulta pública de la Guía Multilingüe vigente (Portal Inclusión Universal, Canales Guía Maya e i18n)
+app.get('/api/multilingual-guide', async (req, res) => {
+  try {
+    const { doc, etag } = await reconcileMultilingualWithCloud();
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.json({
+      success: true,
+      portal: doc.portal,
+      canales: doc.canales,
+      i18n: doc.i18n,
+      updatedAt: doc.updatedAt,
+      sectionUpdatedAt: doc.sectionUpdatedAt
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible obtener la guía multilingüe.' });
+  }
+});
+
+// Lectura administrativa completa de la Guía Multilingüe
+app.get('/api/admin/multilingual-guide', requireAuth, requireOperator, requireMultilingualGuideAccess, async (req, res) => {
+  try {
+    const forceCloud = req.query?.sync === '1';
+    const { doc, etag, cloudSync } = await reconcileMultilingualWithCloud({ force: forceCloud });
+    if (etag) res.setHeader('ETag', `"${etag}"`);
+    res.json({
+      success: true,
+      ...buildAdminMultilingualPayload(doc, cloudSync)
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'No fue posible cargar la guía multilingüe para administración.' });
+  }
+});
+
+// Guardado controlado de una sección de la Guía Multilingüe + materialización automática en /js/pia-multilingual-data.js
+app.put('/api/admin/multilingual-guide', requireAuth, requireOperator, requireMultilingualGuideAccess, (req, res) => {
+  const { section, data } = req.body || {};
+  const check = validateMultilingualSectionPayload(section, data);
+  if (!check.valid) {
+    return res.status(400).json({ error: check.error });
+  }
+
+  try {
+    const { doc } = readMultilingualGuideState();
+    const mergedSection = mergeSectionIntoCurrent(section, doc[section], data);
+    const nextDoc = {
+      ...doc,
+      [section]: mergedSection
+    };
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const userUpn = req.user.upn || req.user.email || 'sistema';
+    const writeRes = writeMultilingualGuideState(nextDoc, userUpn, ifMatch || null, { updatedSection: section });
+
+    const touchedLangs = Object.keys(data).join(', ');
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'ACTUALIZACIÓN',
+      module: 'multilingual-guide',
+      target: `multilingual_guide.json (${section}) -> js/pia-multilingual-data.js`,
+      recordId: section,
+      details: `Guía Multilingüe (${section}) actualizada y materializada en código (${touchedLangs})`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      section,
+      materializedFile: writeRes.materializedFile,
+      ...buildAdminMultilingualPayload(writeRes.doc)
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo guardar la guía multilingüe.' });
+  }
+});
+
+// Restauración por idioma o sección completa de la Guía Multilingüe + materialización en código
+app.post('/api/admin/multilingual-guide/reset', requireAuth, requireOperator, requireMultilingualGuideAccess, (req, res) => {
+  const section = String(req.body?.section || '').trim();
+  const lang = typeof req.body?.lang === 'string' ? req.body.lang.trim() : '';
+
+  if (!MULTILINGUAL_SECTIONS.includes(section)) {
+    return res.status(400).json({ error: 'La sección debe ser "portal", "canales" o "i18n".' });
+  }
+  const allowedLangs = section === 'portal' ? PORTAL_LANG_ORDER : CANALES_LANG_ORDER;
+  if (lang && !allowedLangs.includes(lang)) {
+    return res.status(400).json({ error: `Idioma "${lang}" no válido para la sección "${section}".` });
+  }
+
+  try {
+    const { doc } = readMultilingualGuideState();
+    const defaultSource = section === 'portal'
+      ? DEFAULT_PORTAL_MULTILINGUAL
+      : (section === 'canales' ? DEFAULT_CANALES_MULTILINGUAL : DEFAULT_I18N_DICTIONARY);
+
+    let nextSection;
+    if (lang) {
+      nextSection = {
+        ...doc[section],
+        [lang]: JSON.parse(JSON.stringify(defaultSource[lang]))
+      };
+    } else {
+      nextSection = JSON.parse(JSON.stringify(defaultSource));
+    }
+
+    const ifMatch = cleanEtag(req.headers['if-match']);
+    const userUpn = req.user.upn || req.user.email || 'sistema';
+    const writeRes = writeMultilingualGuideState({
+      ...doc,
+      [section]: nextSection
+    }, userUpn, ifMatch || null, { updatedSection: section });
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'RESTAURACIÓN',
+      module: 'multilingual-guide',
+      target: `multilingual_guide.json (${section})`,
+      recordId: lang ? `${section}:${lang}` : section,
+      details: `Guía Multilingüe (${section}${lang ? ` · ${lang}` : ''}) restaurada a valores originales y materializada en código`,
+      backupCreated: writeRes.backupCreated,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    if (writeRes.newHash) res.setHeader('ETag', `"${writeRes.newHash}"`);
+    res.json({
+      success: true,
+      section,
+      lang: lang || null,
+      materializedFile: writeRes.materializedFile,
+      ...buildAdminMultilingualPayload(writeRes.doc)
+    });
+  } catch (err) {
+    if (err.code === 'CONCURRENCY_CONFLICT') {
+      return res.status(409).json({ error: err.message, code: 'CONCURRENCY_CONFLICT' });
+    }
+    res.status(400).json({ error: err.message || 'No se pudo restaurar la guía multilingüe.' });
+  }
+});
+
+// Estado global de sincronización y archivos materializados en código
+app.get('/api/admin/sync/status', requireAuth, requireOperator, (req, res) => {
+  try {
+    const syncState = readSyncState();
+    const bakedFiles = getBakedFilesStatus(__dirname);
+    const { doc: portalTexts } = readPortalTextsState();
+    const { doc: mgDoc } = readMultilingualGuideState();
+    const mgPayload = buildAdminMultilingualPayload(mgDoc);
+
+    const textsSummary = {
+      portal: Object.keys(portalTexts.overrides).length
+    };
+    for (const modKey of TEXT_MODULES_ORDER) {
+      const { doc } = readModuleTextsState(modKey);
+      textsSummary[modKey] = Object.keys(doc.overrides).length;
+    }
+
+    const datasetsSummary = {};
+    for (const docId of DATA_DOC_IDS) {
+      try {
+        const ds = readDatasetForCloud(docId);
+        datasetsSummary[docId] = {
+          itemCount: ds.itemCount,
+          lastLocalWriteAt: syncState.datasets?.[docId]?.lastLocalWriteAt || null,
+          lastCloudSyncAt: syncState.datasets?.[docId]?.lastCloudSyncAt || null
+        };
+      } catch (_) {
+        datasetsSummary[docId] = { itemCount: 0, lastLocalWriteAt: null, lastCloudSyncAt: null };
+      }
+    }
+
+    res.json({
+      success: true,
+      cloudConfigured: Boolean(FIREBASE_PROJECT_ID && FIRESTORE_DATABASE_ID),
+      firebaseProjectId: FIREBASE_PROJECT_ID,
+      firestoreDatabaseId: FIRESTORE_DATABASE_ID,
+      bakedFiles,
+      textsSummary,
+      multilingualStats: mgPayload.stats,
+      datasetsSummary,
+      syncState
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'No fue posible consultar el estado de sincronización.' });
+  }
+});
+
+// Lectura canónica de un dataset individual para sincronización inmediata hacia Firestore
+app.get('/api/admin/sync/dataset/:docId', requireAuth, requireOperator, (req, res) => {
+  const docId = normalizeDatasetDocId(req.params.docId);
+  if (!docId) {
+    return res.status(404).json({ error: 'Dataset no reconocido.' });
+  }
+  if (!userHasDatasetPermission(req.user, docId)) {
+    return res.status(403).json({ error: `No posee permisos asignados para acceder al dataset "${docId}".` });
+  }
+  try {
+    const payload = readDatasetForCloud(docId);
+    res.json({
+      success: true,
+      ...payload
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Error leyendo dataset.' });
+  }
+});
+
+// Exportación unificada de todo el portal: Textos Estáticos + Guía Multilingüe + Todos los JSON/Datasets
+app.get('/api/admin/sync/export-all', requireAuth, requireOperator, async (req, res) => {
+  try {
+    const texts = {};
+    for (const id of ALL_TEXT_DOC_IDS) {
+      if (!userHasTextModulePermission(req.user, id)) continue;
+      if (id === 'portal') {
+        const { doc } = readPortalTextsState();
+        texts.portal = { overrides: doc.overrides, updatedAt: doc.updatedAt, updatedBy: doc.updatedBy };
+      } else {
+        const { doc } = readModuleTextsState(id);
+        texts[id] = { overrides: doc.overrides, updatedAt: doc.updatedAt, updatedBy: doc.updatedBy };
+      }
+    }
+
+    const { doc: mgDoc } = readMultilingualGuideState();
+    const datasets = {};
+    for (const docId of DATA_DOC_IDS) {
+      if (!userHasDatasetPermission(req.user, docId)) continue;
+      const ds = readDatasetForCloud(docId);
+      datasets[docId] = {
+        kind: ds.kind,
+        itemCount: ds.itemCount,
+        data: ds.data
+      };
+    }
+
+    res.json({
+      success: true,
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      exportedBy: req.user.upn || req.user.email,
+      texts,
+      multilingual: {
+        portal: mgDoc.portal,
+        canales: mgDoc.canales,
+        i18n: mgDoc.i18n,
+        updatedAt: mgDoc.updatedAt,
+        updatedBy: mgDoc.updatedBy
+      },
+      datasets
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'No fue posible generar el respaldo unificado.' });
+  }
+});
+
+// Importación unificada validada (textos + guía multilingüe + datasets JSON) con materialización en código
+app.post('/api/admin/sync/import-all', requireAuth, requireOperator, (req, res) => {
+  const body = req.body || {};
+  const mode = body.mode === 'replace' ? 'replace' : 'merge';
+  const hasTexts = Boolean(body.texts && typeof body.texts === 'object' && !Array.isArray(body.texts));
+  const hasMultilingual = Boolean(body.multilingual && typeof body.multilingual === 'object' && !Array.isArray(body.multilingual));
+  const hasDatasets = Boolean(body.datasets && typeof body.datasets === 'object' && !Array.isArray(body.datasets));
+
+  if (!hasTexts && !hasMultilingual && !hasDatasets) {
+    return res.status(400).json({ error: 'El respaldo debe incluir al menos una sección ("texts", "multilingual" o "datasets").' });
+  }
+
+  const userUpn = req.user.upn || req.user.email || 'sistema';
+  const errors = [];
+
+  // 1. Prevalidar textos
+  const validatedTexts = {};
+  if (hasTexts) {
+    for (const [rawKey, modPayload] of Object.entries(body.texts)) {
+      const canonical = rawKey === 'portal' ? 'portal' : normalizeTextModuleKey(rawKey);
+      if (!canonical || !ALL_TEXT_DOC_IDS.includes(canonical)) {
+        errors.push(`Módulo de textos no reconocido: "${rawKey}".`);
+        continue;
+      }
+      if (!userHasTextModulePermission(req.user, canonical)) {
+        return res.status(403).json({ error: `No posee permisos para importar textos en "${canonical}".` });
+      }
+      const rawOverrides = (modPayload?.overrides && typeof modPayload.overrides === 'object') ? modPayload.overrides : modPayload;
+      if (!rawOverrides || typeof rawOverrides !== 'object' || Array.isArray(rawOverrides)) {
+        errors.push(`Mapa de textos inválido para "${canonical}".`);
+        continue;
+      }
+      const cleanMap = {};
+      for (const [k, v] of Object.entries(rawOverrides)) {
+        if (k === 'updatedAt' || k === 'updatedBy' || k === 'modifiedCount') continue;
+        const chk = canonical === 'portal'
+          ? sanitizeAndValidatePortalText(k, v)
+          : sanitizeAndValidateModuleText(canonical, k, v);
+        if (!chk.valid) errors.push(chk.error);
+        else if (chk.value !== chk.entry.defaultText) cleanMap[chk.entry.key] = chk.value;
+      }
+      validatedTexts[canonical] = cleanMap;
+    }
+  }
+
+  // 2. Prevalidar guía multilingüe
+  const validatedMultilingual = {};
+  if (hasMultilingual) {
+    for (const sec of MULTILINGUAL_SECTIONS) {
+      if (body.multilingual[sec] === undefined) continue;
+      const canImportMg = req.user.role === 'admin'
+        || userHasTextModulePermission(req.user, 'multilingual-guide')
+        || userHasTextModulePermission(req.user, 'guide')
+        || userHasTextModulePermission(req.user, 'portal')
+        || userHasTextModulePermission(req.user, 'canales');
+      if (!canImportMg) {
+        return res.status(403).json({ error: 'No posee permisos para importar la Guía Multilingüe.' });
+      }
+      const chk = validateMultilingualSectionPayload(sec, body.multilingual[sec]);
+      if (!chk.valid) errors.push(chk.error);
+      else validatedMultilingual[sec] = body.multilingual[sec];
+    }
+  }
+
+  // 3. Prevalidar datasets JSON
+  const validatedDatasets = {};
+  if (hasDatasets) {
+    for (const [rawDocId, dsVal] of Object.entries(body.datasets)) {
+      const docId = normalizeDatasetDocId(rawDocId);
+      if (!docId) {
+        errors.push(`Dataset no reconocido en respaldo: "${rawDocId}".`);
+        continue;
+      }
+      if (!userHasDatasetPermission(req.user, docId)) {
+        return res.status(403).json({ error: `No posee permisos para importar el dataset "${docId}".` });
+      }
+      const rawData = (dsVal && typeof dsVal === 'object' && dsVal.data !== undefined) ? dsVal.data : dsVal;
+      if (!rawData || typeof rawData !== 'object') {
+        errors.push(`Estructura inválida para el dataset "${docId}".`);
+        continue;
+      }
+      validatedDatasets[docId] = rawData;
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join(' ') });
+  }
+
+  try {
+    const applied = { texts: [], multilingual: [], datasets: [] };
+
+    for (const [modId, incoming] of Object.entries(validatedTexts)) {
+      if (modId === 'portal') {
+        const { doc } = readPortalTextsState();
+        const nextOv = mode === 'replace' ? { ...incoming } : { ...doc.overrides, ...incoming };
+        writePortalTextsState(nextOv, userUpn, null);
+        applied.texts.push({ module: 'portal', modifiedCount: Object.keys(nextOv).length });
+      } else {
+        const { doc } = readModuleTextsState(modId);
+        const nextOv = mode === 'replace' ? { ...incoming } : { ...doc.overrides, ...incoming };
+        writeModuleTextsState(modId, nextOv, userUpn, null);
+        applied.texts.push({ module: modId, modifiedCount: Object.keys(nextOv).length });
+      }
+    }
+
+    const mgSecs = Object.keys(validatedMultilingual);
+    if (mgSecs.length > 0) {
+      let { doc: currentMg } = readMultilingualGuideState();
+      for (const sec of mgSecs) {
+        currentMg = {
+          ...currentMg,
+          [sec]: mergeSectionIntoCurrent(sec, currentMg[sec], validatedMultilingual[sec])
+        };
+        applied.multilingual.push(sec);
+      }
+      writeMultilingualGuideState(currentMg, userUpn, null);
+    }
+
+    for (const [docId, rawData] of Object.entries(validatedDatasets)) {
+      const dsRes = applyDatasetPayloadToDisk(docId, rawData, userUpn, { fromCloud: false });
+      applied.datasets.push(dsRes);
+    }
+
+    materializeAllTextsToCode();
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'IMPORTACIÓN UNIFICADA',
+      module: 'multilingual-guide',
+      target: 'export-import-all',
+      recordId: mode,
+      details: `Respaldo unificado aplicado (${mode}): textos(${applied.texts.length}), multilingüe(${applied.multilingual.length}), datasets(${applied.datasets.length})`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    res.json({
+      success: true,
+      mode,
+      applied,
+      bakedFiles: getBakedFilesStatus(__dirname)
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'No fue posible aplicar el respaldo unificado.' });
+  }
+});
+
+// Trae todo lo publicado en Firestore (published_texts, published_multilingual, published_data) hacia JSON y código en disco
+app.post('/api/admin/sync/pull-all-cloud', requireAuth, requireOperator, async (req, res) => {
+  try {
+    const userUpn = req.user.upn || req.user.email || 'cloud-sync';
+    const summary = { texts: [], multilingual: [], datasets: [] };
+
+    for (const id of ALL_TEXT_DOC_IDS) {
+      if (!userHasTextModulePermission(req.user, id)) continue;
+      const cloudDoc = await fetchFirestorePublishedTextsDoc(id, { force: true });
+      if (!cloudDoc || !cloudDoc.exists) {
+        summary.texts.push({ docId: id, status: 'empty_in_cloud' });
+        continue;
+      }
+      if (id === 'portal') {
+        writePortalTextsState(cloudDoc.overrides, userUpn, null, cloudDoc.updatedAt || new Date().toISOString());
+      } else {
+        writeModuleTextsState(id, cloudDoc.overrides, userUpn, null, cloudDoc.updatedAt || new Date().toISOString());
+      }
+      summary.texts.push({ docId: id, status: 'synced', modifiedCount: Object.keys(cloudDoc.overrides).length });
+    }
+
+    const mgRes = await reconcileMultilingualWithCloud({ force: true });
+    summary.multilingual = mgRes.cloudSync?.syncedSections || [];
+
+    for (const docId of DATA_DOC_IDS) {
+      if (!userHasDatasetPermission(req.user, docId)) continue;
+      const dsRes = await reconcileDatasetWithCloud(docId, { force: true });
+      summary.datasets.push({
+        docId,
+        status: dsRes.synced ? 'synced' : (dsRes.existsInCloud ? 'up_to_date' : 'empty_in_cloud')
+      });
+    }
+
+    materializeAllTextsToCode();
+    const { doc: latestMg } = readMultilingualGuideState();
+    materializeMultilingualCodeFile(__dirname, latestMg);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'SINCRONIZACIÓN GLOBAL NUBE',
+      module: 'multilingual-guide',
+      target: 'firestore -> json + js',
+      recordId: 'pull_all',
+      details: `Sincronización completa desde nube hacia archivos JSON y código materializado`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    res.json({
+      success: true,
+      summary,
+      bakedFiles: getBakedFilesStatus(__dirname)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'No fue posible sincronizar todo desde la nube.' });
+  }
+});
+
+// Materialización explícita en archivos de código (/js/pia-baked-texts.js, /js/pia-multilingual-data.js, /db/bakedTextOverrides.json)
+app.post('/api/admin/sync/materialize', requireAuth, requireOperator, (req, res) => {
+  try {
+    const textsRes = materializeAllTextsToCode();
+    const { doc: mgDoc } = readMultilingualGuideState();
+    const mgRes = materializeMultilingualCodeFile(__dirname, mgDoc);
+
+    logAudit({
+      user: req.user.upn,
+      userOid: req.user.oid,
+      userRole: req.user.role === 'admin' ? 'admin' : `data_operator_${req.user.operatorIndex}`,
+      action: 'MATERIALIZACIÓN EN CÓDIGO',
+      module: 'multilingual-guide',
+      target: 'js/*.js + db/bakedTextOverrides.json',
+      recordId: 'materialize',
+      details: `Archivos estáticos de código regenerados en disco desde los JSON vigentes`,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1'
+    });
+
+    res.json({
+      success: true,
+      textsResult: textsRes,
+      multilingualResult: mgRes,
+      bakedFiles: getBakedFilesStatus(__dirname)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'No fue posible materializar los archivos de código.' });
+  }
+});
+
 // Lectura de módulos (Público y Operadores) con ETag y soporte híbrido JSON / SQL
 app.get('/api/:module', async (req, res, next) => {
   const { module } = req.params;
   if (RESERVED_MODULES.includes(module)) return next();
   try {
+    const datasetId = normalizeDatasetDocId(module);
+    if (datasetId) await reconcileDatasetWithCloud(datasetId).catch(() => {});
     const { source, records, etag } = await hybridStorage.readModule(module);
     if (etag) res.setHeader('ETag', `"${etag}"`);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -4608,6 +5636,11 @@ app.post('/api/:module', requireAuth, requireOperator, async (req, res, next) =>
 
     const result = await hybridStorage.createRecord(module, req.body, req.user.upn, expectedHash);
     const createdId = result.record?.id;
+    const datasetId = normalizeDatasetDocId(module);
+    if (datasetId) {
+      markLocalSyncWrite('datasets', datasetId);
+      invalidateCloudDataCache(datasetId);
+    }
 
     logAudit({
       user: req.user.upn,
@@ -4645,6 +5678,11 @@ app.put('/api/:module/:id', requireAuth, requireOperator, async (req, res, next)
 
     const result = await hybridStorage.updateRecord(module, id, req.body, req.user.upn, expectedHash);
     if (!result) return res.status(404).json({ error: 'Registro no encontrado' });
+    const datasetId = normalizeDatasetDocId(module);
+    if (datasetId) {
+      markLocalSyncWrite('datasets', datasetId);
+      invalidateCloudDataCache(datasetId);
+    }
 
     logAudit({
       user: req.user.upn,
@@ -4681,6 +5719,11 @@ app.delete('/api/:module/:id', requireAuth, requireOperator, async (req, res, ne
 
     const result = await hybridStorage.deleteRecord(module, id, req.user.upn, expectedHash);
     if (!result) return res.status(404).json({ error: 'Registro no encontrado' });
+    const datasetId = normalizeDatasetDocId(module);
+    if (datasetId) {
+      markLocalSyncWrite('datasets', datasetId);
+      invalidateCloudDataCache(datasetId);
+    }
 
     logAudit({
       user: req.user.upn,
@@ -4852,6 +5895,8 @@ function handleCreateChatbotKnowledge(req, res) {
 
   knowledge.unshift(newItem);
   atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, knowledge, null, req.user.upn || req.user.email);
+  markLocalSyncWrite('datasets', 'chatbot_knowledge');
+  invalidateCloudDataCache('chatbot_knowledge');
 
   logAudit({
     user: req.user.upn || req.user.email,
@@ -4889,6 +5934,8 @@ function handleUpdateChatbotKnowledge(req, res) {
 
   knowledge[idx] = updated;
   atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, knowledge, null, req.user.upn || req.user.email);
+  markLocalSyncWrite('datasets', 'chatbot_knowledge');
+  invalidateCloudDataCache('chatbot_knowledge');
 
   logAudit({
     user: req.user.upn || req.user.email,
@@ -4912,6 +5959,8 @@ function handleDeleteChatbotKnowledge(req, res) {
 
   knowledge = knowledge.filter(k => String(k.id) !== String(id));
   atomicWriteJson(CHATBOT_KNOWLEDGE_FILE, knowledge, null, req.user.upn || req.user.email);
+  markLocalSyncWrite('datasets', 'chatbot_knowledge');
+  invalidateCloudDataCache('chatbot_knowledge');
 
   logAudit({
     user: req.user.upn || req.user.email,
@@ -4977,7 +6026,8 @@ app.get('/api/chatbot/config', (req, res) => {
   });
 });
 
-app.get('/api/chatbot/knowledge', (req, res) => {
+app.get('/api/chatbot/knowledge', async (req, res) => {
+  await reconcileDatasetWithCloud('chatbot_knowledge').catch(() => {});
   res.json(getChatbotKnowledge());
 });
 
@@ -5114,7 +6164,8 @@ app.get('/api/admin/chatbot/stats', requireAuth, requireOperator, (req, res) => 
   });
 });
 
-app.get('/api/admin/chatbot/knowledge', requireAuth, requireOperator, (req, res) => {
+app.get('/api/admin/chatbot/knowledge', requireAuth, requireOperator, async (req, res) => {
+  await reconcileDatasetWithCloud('chatbot_knowledge', { force: req.query?.sync === '1' }).catch(() => {});
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.json(getChatbotKnowledge());
 });
@@ -5250,6 +6301,14 @@ app.post('/api/raw-json', requireAuth, requireOperator, requireDatabaseAccess, (
   try {
     const ifMatch = cleanEtag(req.headers['if-match']);
     const result = atomicWriteJson(targetFile, data, ifMatch || null, req.user.email);
+    const matchedDocEntry = Object.entries(PUBLIC_JSON_ROUTE_MODULE_MAP).find(([, mod]) => WHITELIST_JSON_MAP[mod] === targetFile);
+    if (matchedDocEntry) {
+      const dsId = normalizeDatasetDocId(matchedDocEntry[1]);
+      if (dsId) {
+        markLocalSyncWrite('datasets', dsId);
+        invalidateCloudDataCache(dsId);
+      }
+    }
     logAudit({
       user: req.user.email,
       userOid: req.user.uid,
@@ -5290,6 +6349,8 @@ app.get(Object.keys(PUBLIC_JSON_ROUTE_MODULE_MAP), async (req, res, next) => {
   const moduleKey = PUBLIC_JSON_ROUTE_MODULE_MAP[req.path];
   if (!moduleKey) return next();
   try {
+    const datasetId = normalizeDatasetDocId(moduleKey);
+    if (datasetId) await reconcileDatasetWithCloud(datasetId).catch(() => {});
     const sqlDoc = await hybridStorage.getPublicDocumentIfSql(moduleKey);
     if (sqlDoc === null) return next();
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');

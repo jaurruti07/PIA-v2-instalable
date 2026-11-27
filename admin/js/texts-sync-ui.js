@@ -4,9 +4,13 @@
 
 import {
   TEXT_DOC_IDS,
+  MULTILINGUAL_DOC_IDS,
+  DATA_DOC_IDS,
   getCloudSyncAuthState,
   connectGoogleForCloudSync,
-  pushPublishedTextsToCloud
+  pushPublishedTextsToCloud,
+  pushMultilingualToCloud,
+  pushModuleDataToCloud
 } from "./firebase-firestore.js";
 
 function escHtml(str) {
@@ -303,3 +307,131 @@ export function wireSyncToolbarEvents({
     }
   });
 }
+
+export async function syncMultilingualSectionToCloud(section, sectionData, updatedAt) {
+  try {
+    const authState = await getCloudSyncAuthState();
+    if (!authState.isAuthorizedOperator) {
+      return { synced: false, reason: 'AUTH_REQUIRED', authState };
+    }
+    return await pushMultilingualToCloud(section, sectionData, updatedAt || new Date().toISOString());
+  } catch (err) {
+    return { synced: false, reason: 'CLOUD_ERROR', error: err?.message || 'Error al publicar guía multilingüe en la nube' };
+  }
+}
+
+export async function pushEntireMultilingualToCloud(getHeaders, authLogout) {
+  const authState = await getCloudSyncAuthState();
+  if (!authState.isAuthorizedOperator) {
+    throw new Error('Primero vincula tu cuenta Google (@cnc.gob.gt) para escribir en la nube.');
+  }
+  const res = await fetch('/api/admin/multilingual-guide', {
+    headers: getHeaders(),
+    cache: 'no-store'
+  });
+  if (res.status === 401 && typeof authLogout === 'function') {
+    await authLogout('Tu sesión ha expirado. Inicia sesión nuevamente.');
+    return null;
+  }
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok || !payload.data) {
+    throw new Error(payload.error || 'No se pudo leer la guía multilingüe local.');
+  }
+  let pushed = 0;
+  for (const sec of MULTILINGUAL_DOC_IDS) {
+    if (!payload.data[sec]) continue;
+    await pushMultilingualToCloud(sec, payload.data[sec], payload.sectionUpdatedAt?.[sec] || payload.updatedAt || new Date().toISOString());
+    pushed++;
+  }
+  return { pushed };
+}
+
+export async function syncModuleDataToCloud(docId, getHeaders, authLogout) {
+  try {
+    if (!DATA_DOC_IDS.includes(docId)) {
+      return { synced: false, reason: 'UNSUPPORTED_DOC' };
+    }
+    const authState = await getCloudSyncAuthState();
+    if (!authState.isAuthorizedOperator) {
+      return { synced: false, reason: 'AUTH_REQUIRED', authState };
+    }
+    const res = await fetch(`/api/admin/sync/dataset/${encodeURIComponent(docId)}`, {
+      headers: typeof getHeaders === 'function' ? getHeaders() : { 'Content-Type': 'application/json' },
+      cache: 'no-store'
+    });
+    if (res.status === 401 && typeof authLogout === 'function') {
+      await authLogout('Tu sesión ha expirado. Inicia sesión nuevamente.');
+      return { synced: false, reason: 'EXPIRED' };
+    }
+    const payload = await res.json().catch(() => ({}));
+    if (!res.ok || !payload.data) {
+      return { synced: false, reason: 'FETCH_ERROR', error: payload.error || 'Error leyendo dataset.' };
+    }
+    return await pushModuleDataToCloud(docId, payload.data, payload.itemCount || 0, new Date().toISOString());
+  } catch (err) {
+    return { synced: false, reason: 'CLOUD_ERROR', error: err?.message || 'Error al sincronizar dataset con la nube' };
+  }
+}
+
+export async function pushAllDataAndTextsToCloud(getHeaders, authLogout) {
+  const authState = await getCloudSyncAuthState();
+  if (!authState.isAuthorizedOperator) {
+    throw new Error('Primero vincula tu cuenta Google (@cnc.gob.gt) para publicar en la nube.');
+  }
+  const res = await fetch('/api/admin/sync/export-all', {
+    headers: getHeaders(),
+    cache: 'no-store'
+  });
+  if (res.status === 401 && typeof authLogout === 'function') {
+    await authLogout('Tu sesión ha expirado. Inicia sesión nuevamente.');
+    return null;
+  }
+  const bundle = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(bundle.error || 'No se pudo obtener el respaldo completo del servidor.');
+  }
+
+  let textsCount = 0;
+  for (const id of TEXT_DOC_IDS) {
+    const entry = bundle.texts?.[id];
+    if (!entry) continue;
+    await pushPublishedTextsToCloud(id, entry.overrides || {}, entry.updatedAt || new Date().toISOString(), id === 'riesgo' ? bundle.texts : null);
+    textsCount++;
+  }
+
+  let mgCount = 0;
+  for (const sec of MULTILINGUAL_DOC_IDS) {
+    const secData = bundle.multilingual?.[sec];
+    if (!secData) continue;
+    await pushMultilingualToCloud(sec, secData, bundle.multilingual?.updatedAt || new Date().toISOString());
+    mgCount++;
+  }
+
+  let dsCount = 0;
+  for (const docId of DATA_DOC_IDS) {
+    const dsEntry = bundle.datasets?.[docId];
+    if (!dsEntry || !dsEntry.data) continue;
+    await pushModuleDataToCloud(docId, dsEntry.data, dsEntry.itemCount || 0, bundle.exportedAt || new Date().toISOString());
+    dsCount++;
+  }
+
+  return { textsCount, mgCount, dsCount };
+}
+
+export async function materializeCodeOnServer(getHeaders, authLogout) {
+  const res = await fetch('/api/admin/sync/materialize', {
+    method: 'POST',
+    headers: getHeaders(),
+    cache: 'no-store'
+  });
+  if (res.status === 401 && typeof authLogout === 'function') {
+    await authLogout('Tu sesión ha expirado. Inicia sesión nuevamente.');
+    return null;
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || 'No fue posible materializar los archivos de código.');
+  }
+  return data;
+}
+

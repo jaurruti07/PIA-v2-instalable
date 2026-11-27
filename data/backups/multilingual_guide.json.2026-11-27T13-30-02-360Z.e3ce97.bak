@@ -1,0 +1,1268 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-27T13:30:02.265Z",
+  "updatedBy": "deteccionydenuncia@cnc.gob.gt",
+  "sectionUpdatedAt": {
+    "portal": "2026-11-27T13:30:02.265Z",
+    "canales": "2026-11-27T13:30:02.235Z",
+    "i18n": "2026-11-27T13:30:02.235Z"
+  },
+  "portal": {
+    "es": {
+      "langName": "Español (Oficial)",
+      "ttsLang": "es-GT",
+      "modules": {
+        "full": {
+          "title": "Resumen General del Portal de Integridad Activa (PIA)",
+          "text": "El Portal de Integridad Activa (PIA) es la plataforma tecnológica oficial de la Comisión Nacional contra la Corrupción (CNC) que consolida la información pública, la rendición de cuentas y los mecanismos de denuncia del Gobierno de Guatemala. A través del portal, los ciudadanos pueden acceder al Directorio Institucional, consultar Datos Abiertos sobre presupuestos y vehículos oficiales, analizar indicadores de Riesgo en la Mira y presentar denuncias confidenciales las 24 horas."
+        },
+        "directorio": {
+          "title": "Directorio Acceso Libre",
+          "text": "Esta plataforma permite contar con un directorio que recopila información importante y clave de las dependencias encargadas de información pública en los órganos del Organismo Ejecutivo. El directorio busca mejorar la transparencia, fortalecer la gestión pública y facilitar el acceso a la información pública."
+        },
+        "vehiculos": {
+          "title": "Transparencia Vehicular Oficial",
+          "text": "El módulo de Transparencia Vehicular ofrece la fiscalización ciudadana de la flota de vehículos oficiales del Gobierno de Guatemala. Los ciudadanos pueden verificar números de placa, tipo de vehículo, dependencia asignada y estado de uso, facilitando la detección y denuncia confidencial de cualquier uso indebido de los bienes del Estado."
+        },
+        "gobierno_numeros": {
+          "title": "Tu Gobierno en Números",
+          "text": "Constituye una herramienta de prevención que busca favorecer la rendición de cuentas, centraliza y publica, de manera proactiva, información importante sobre la gestión de recursos en las instituciones que conforman el Organismo Ejecutivo. El portal permite visualizar datos institucionales de forma clara, comprensible y accesible, facilitando el monitoreo ciudadano y fortaleciendo la cultura de integridad en la administración pública."
+        },
+        "transparencia_codede": {
+          "title": "Transparencia CODEDE",
+          "text": "Es una plataforma integrada por tableros de monitoreo que permiten visualizar, de manera ágil y comprensible, la ejecución presupuestaria y el avance físico-financiero de los proyectos financiados por los Consejos Departamentales de Desarrollo."
+        },
+        "canales_denuncias": {
+          "title": "Canales por la Integridad y Denuncia Segura",
+          "text": "Canales por la Integridad es el centro seguro para la recepción de denuncias ciudadanas y alertas sobre actos de corrupción, faltas éticas o irregularidades administrativas. Garantiza protección total al denunciante, confidencialidad las 24 horas y seguimiento activo por la Comisión Nacional contra la Corrupción."
+        },
+        "riesgo_mira": {
+          "title": "Riesgo en la Mira y Radiografía de la Corrupción",
+          "text": "Riesgo en la Mira monitorea indicadores preventivos de transparencia y cumplimiento en contrataciones públicas del Estado. Permite identificar anomalías, sobrecostos o concentración de proveedores antes de que comprometan los fondos públicos."
+        },
+        "acadeti": {
+          "title": "ACADETI",
+          "text": "ACADETI es una plataforma 100% virtual de formación especializada en ética, integridad y prevención de la corrupción, diseñada para desarrollar procesos de enseñanza-aprendizaje a través de contenidos estructurados, recursos de multimedia, actividades interactivas y espacios de intercambio digital."
+        }
+      }
+    },
+    "en": {
+      "langName": "English (Inglés)",
+      "ttsLang": "en-US",
+      "modules": {
+        "full": {
+          "title": "Active Integrity Portal (PIA) Overview",
+          "text": "The Active Integrity Portal (PIA) is the official digital platform of Guatemala's National Commission Against Corruption. It provides citizen access to institutional directories, open data on public budgets and government fleet management, corruption risk indicators, and 24/7 confidential reporting channels to promote transparency and accountability."
+        },
+        "directorio": {
+          "title": "Open Access Directory",
+          "text": "This platform provides a directory that compiles key information on the public information offices across the agencies of the Executive Branch. The directory aims to improve transparency, strengthen public management, and facilitate access to public information."
+        },
+        "vehiculos": {
+          "title": "Official Vehicle Fleet Transparency",
+          "text": "The Vehicle Transparency module enables public oversight of the official state vehicle fleet in Guatemala. Citizens can verify license plates, vehicle models, assigned government departments, and usage status to prevent and report improper asset use."
+        },
+        "gobierno_numeros": {
+          "title": "Government in Numbers",
+          "text": "It is a preventive tool designed to promote accountability by proactively centralizing and publishing key information on resource management across the institutions of the Executive Branch. The portal presents institutional data clearly and accessibly, facilitating citizen oversight and strengthening a culture of integrity in public administration."
+        },
+        "transparencia_codede": {
+          "title": "CODEDE Transparency",
+          "text": "It is a platform made up of monitoring dashboards that make it easy and clear to view budget execution and the physical and financial progress of projects funded by the Departmental Development Councils."
+        },
+        "canales_denuncias": {
+          "title": "Integrity Channels & Safe Whistleblowing",
+          "text": "Integrity Channels is a secure portal for submitting citizen complaints regarding corruption, ethical breaches, or administrative misconduct. It guarantees full whistleblower protection, 24/7 confidentiality, and direct oversight by the National Commission Against Corruption."
+        },
+        "riesgo_mira": {
+          "title": "Risk Spotlight & Corruption Radiography",
+          "text": "Risk Spotlight tracks preventive integrity and compliance metrics within government procurement systems, identifying irregularities, cost overruns, or supplier monopolies before public funds are compromised."
+        },
+        "acadeti": {
+          "title": "ACADETI",
+          "text": "ACADETI is a 100% virtual training platform specializing in ethics, integrity, and corruption prevention, designed to support teaching and learning processes through structured content, multimedia resources, interactive activities, and digital exchange spaces."
+        }
+      }
+    },
+    "kiche": {
+      "langName": "K'iche' (Idioma Maya)",
+      "ttsLang": "es-GT",
+      "modules": {
+        "full": {
+          "title": "Utzilaj Chak pa le Portal PIA (K'iche')",
+          "text": "Ri Portal de Integridad Activa (PIA) rech ri Comisión Nacional contra la Corrupción xutz'aqatisaj ri utzilaj chak rech k'o q'alajisanik pa le qatinamit Guatemala. Chuxe' ri PIA, ri winaq kakwinik kakiriq uq'alajisaxik ri patanib'al rech ri q'atb'al tzij, kakitz'et ri chakub'al xaqje' kakik'am b'i tz'ujonik pa jikomal."
+        },
+        "directorio": {
+          "title": "Directorio Acceso Libre (K'iche')",
+          "text": "We chakub'al ri' kuya' jun k'olbal tzij ri kumol ri nimak'amalb'e ex ri patanib'al rech q'alajisanik tzij pa ri Organismo Ejecutivo, rech utz uk'amik ri saqilal, uchuq'ab'ixik ri chak ex k'o b'ey chi ke ri winaq."
+        },
+        "vehiculos": {
+          "title": "Q'alajisanik rech Ch'ich' rech Q'atb'al Tzij (K'iche')",
+          "text": "Ri chakub'al rech Q'alajisanik rech Ch'ich' kuya' q'alajisanik pa wi' ri ch'ich' rech ri q'atb'al tzij pa Guatemala. Ri winaq kakwinik kakitz'et ri retal ch'ich' ex kakib'an tz'ujonik we k'o uq'asaxik chak pa kijas."
+        },
+        "gobierno_numeros": {
+          "title": "Tu Gobierno en Números (K'iche')",
+          "text": "Are jun chakub'al rech q'atenik rech kuya' rutzil ub'anik ri q'alajisanik, kumol ex kuk'ut ri tzij pa wi' ri pwaq ex tob'al pa ri patanib'al rech ri Organismo Ejecutivo, rech ri winaq kakitz'et pa saqilal."
+        },
+        "transparencia_codede": {
+          "title": "Transparencia CODEDE (K'iche')",
+          "text": "Are jun chakub'al ruk' wachb'al rech tz'etonem ri kuk'ut pa saqilal ri ub'anik ri pwaq ex ri uq'axik ri chak tob'al b'anom kumal ri Consejos Departamentales de Desarrollo."
+        },
+        "canales_denuncias": {
+          "title": "B'e rech Tz'ujonik rech Jikomal (K'iche')",
+          "text": "Ri B'e rech Tz'ujonik rech Jikomal uya'om rutzilal rech tz'ujonik pa mukche' pa wi' ri elaq' o etzelal rech patanib'al. Kuya' jikomal ex mukch'ab'al chi re ri winaq xk'amow b'i tz'ujonik."
+        },
+        "riesgo_mira": {
+          "title": "Q'atb'al Elq'anem xaqje' Tz'etonem (K'iche')",
+          "text": "Ri Q'atb'al Elq'anem kutz'et ri retal sachoj xaqje' ri loq'oj pa ri patanib'al rech qatinamit rech kuq'atej ri elaq' pwaq chuxe' xq'axik."
+        },
+        "acadeti": {
+          "title": "ACADETI (K'iche')",
+          "text": "ACADETI are jun tijob'al pa kematz'ib' rech eta'manik pa wi' ri utzilaj b'ey, jikomal ex q'atenik elaq', ruk' utzilaj tzij, wachb'al ex chakub'al rech tijonik pa kematz'ib'."
+        }
+      }
+    },
+    "qeqchi": {
+      "langName": "Q'eqchi' (Idioma Maya)",
+      "ttsLang": "es-GT",
+      "modules": {
+        "full": {
+          "title": "Xyaalalil ut Xcha'alil li Portal PIA (Q'eqchi')",
+          "text": "Li Portal de Integridad Activa (PIA) a'an li xk'anjelil li Comisión Nacional contra la Corrupción re xch'olch'ob'il li yaal ut li yaalil k'anjel sa' li tenamit Guatemala. Sa' li PIA, chixjunil li tenamit truko'q xk'anjelob'al li tenamit, xk'anjelob'al li xch'och' ut tz'aqal k'anjel xbanunkil li yaalil atin sa' mukmuil."
+        },
+        "directorio": {
+          "title": "Directorio Acceso Libre (Q'eqchi')",
+          "text": "A'in li k'anjelob'aal naxk'ut chixjunil li xyaalalil eb' li rochochil k'anjel li neke'xk'e xch'olch'ob'il li esil sa' li Organismo Ejecutivo, re xchaab'ilob'resinkil li saqil k'anjel ut xtenq'ankil li tenamit."
+        },
+        "vehiculos": {
+          "title": "Xyaalalil li B'eleba'aal re Tenamit (Q'eqchi')",
+          "text": "Li Xyaalalil li B'eleba'aal kixk'utub' chixjunil li b'eleba'aal xk'anjelil li tenamit Guatemala. Li tenamit tuko'q xk'e xyaalalil li placas ut xk'anjelil re xramb'al li maak."
+        },
+        "gobierno_numeros": {
+          "title": "Tu Gobierno en Números (Q'eqchi')",
+          "text": "A'an jun k'anjelob'aal re xkolb'al li yaalil k'anjel li naxch'utub' ut naxk'ut chi saqil chan ru na'oksiman li tumin ut li k'anjel sa'eb' li rochochil li Organismo Ejecutivo."
+        },
+        "transparencia_codede": {
+          "title": "Transparencia CODEDE (Q'eqchi')",
+          "text": "A'an jun k'anjelob'aal rik'in xk'utb'alil li tz'ilok li naxk'e chi ilok chi saqil chan ru yoo chi xik li tumin ut li k'anjel tenq'anb'il xb'aaneb' li Consejos Departamentales de Desarrollo."
+        },
+        "canales_denuncias": {
+          "title": "Be re Yehok Maak sa' Yaal (Q'eqchi')",
+          "text": "Li Be re Yehok Maak a'an li mukmuil rochochil re xk'ulb'al li yehok maak pa wi' li elq' ut li xmaa'usil k'anjel, re xk'ebal xyaalalil ut xcolbal li tenamit."
+        },
+        "riesgo_mira": {
+          "title": "Xk'amb'al li C'a'ux pa Yaal (Q'eqchi')",
+          "text": "Li Xk'amb'al li C'a'ux kixk'e xch'ina'usil retalil xkolbal li tumin re tenamit sa' li loq'ok k'anjel re xramb'al li elq' sa' k'anjel."
+        },
+        "acadeti": {
+          "title": "ACADETI (Q'eqchi')",
+          "text": "ACADETI a'an jun tz'oleb'aal sa' li ulul ch'iich' re tz'olok sa' li chaab'il na'leb', yaalil k'anjel ut xramb'al li elq', rik'in tz'aqal esil, jalam u ut k'anjel sa' komonil."
+        }
+      }
+    },
+    "kaqchikel": {
+      "langName": "Kaqchikel (Idioma Maya)",
+      "ttsLang": "es-GT",
+      "modules": {
+        "full": {
+          "title": "Rutzil Samaj pa ri Portal PIA (Kaqchikel)",
+          "text": "Ri Portal de Integridad Activa (PIA) richin ri Comisión Nacional contra la Corrupción nuyo'oj rutzil samaj richin ruximik ri jikomal pa ri qatinamit Guatemala. Pa ri PIA, ri winaqi' tikel nkitzet ri samaj richin ri q'atb'al tzij, ri pwaq xq'asax ut nkiya' rutzijol samaj rech jikomal pa rutzilal."
+        },
+        "directorio": {
+          "title": "Directorio Acceso Libre (Kaqchikel)",
+          "text": "Re samaj re' nuya' jun k'olbal tzij ri numol rutzijol ri taqem samaj pa ri Organismo Ejecutivo richin ruto'ik ri saqilal, rutzil samaj ex ruya'ik b'ey chi ke ri winaqi' pa rutzijol tinamit."
+        },
+        "vehiculos": {
+          "title": "Ch'ich' richin Q'atb me Tzij pa Jikomal (Kaqchikel)",
+          "text": "Ri ch'ich' richin Q'atb'al Tzij nuya' rutzijol ri ch'ich' richin ri q'atb'al tzij. Ri winaqi' tikil nkitz'et ri retal ch'ich' richin nkiq'atej ri elaq' samaj."
+        },
+        "gobierno_numeros": {
+          "title": "Tu Gobierno en Números (Kaqchikel)",
+          "text": "Are jun samaj richin q'atenik elaq' ri numol ex nuk'ut pa saqilal ri pwaq ex ri samaj pa ri Organismo Ejecutivo, richin ri winaqi' tikil nkitz'et pa jikomal."
+        },
+        "transparencia_codede": {
+          "title": "Transparencia CODEDE (Kaqchikel)",
+          "text": "Are jun samaj ruk' wachb'al richin tz'etoj ri nuk'ut pa saqilal ri pwaq ex ri ub'anik ri samaj to'on richin ri Consejos Departamentales de Desarrollo."
+        },
+        "canales_denuncias": {
+          "title": "Ruk'olbal Ya'oj Tzij pa Mukche' (Kaqchikel)",
+          "text": "Ruk'olbal Ya'oj Tzij nuko'j ri ya'oj tzij pa mukche' richin q'atenik elaq' xaqje' etzelal, nuya' jikomal ex rutzilal chi re ri winaq."
+        },
+        "riesgo_mira": {
+          "title": "Tz'etoj Ruyonal Elaq' (Kaqchikel)",
+          "text": "Ri Tz'etoj Ruyonal Elaq' nuk'am ri retal samaj pa loq'oj richin nuq'atej ri elaq' pwaq richin ri qatinamit Guatemala."
+        },
+        "acadeti": {
+          "title": "ACADETI (Kaqchikel)",
+          "text": "ACADETI are jun tijob'al pa kematz'ib' richin tijonik pa wi' ri utzilaj b'ey, jikomal ex q'atenik elaq', ruk' tz'aqat tzij, wachb'al ex samaj pa komon."
+        }
+      }
+    },
+    "mam": {
+      "langName": "Mam (Idioma Maya)",
+      "ttsLang": "es-GT",
+      "modules": {
+        "full": {
+          "title": "Tzalajeb'il tu'n T-tx'olil Portal PIA (Mam)",
+          "text": "Ju Portal de Integridad Activa (PIA) te ju Comisión Nacional contra la Corrupción nxq'uynen tnam tu'n t-tx'olil tzalajeb'il ex kolb'il te tnam Guatemala. Ju tnam jaku t-sje'n tijil t-tx'olil ajlab'il, t-jak'il ch'iyyb'il ex t-kolil tnam tu'n tzalajeb'il ex yaal."
+        },
+        "directorio": {
+          "title": "Directorio Acceso Libre (Mam)",
+          "text": "Aju aq'untl lu' ntzaj tq'o'n jun u'j te tqanil kyi'j k'loj aq'untl nchi q'onte tqanil te tnam toj Organismo Ejecutivo, tu'ntzun tten xnaq'tzb'il ex saqil toj aq'untl."
+        },
+        "vehiculos": {
+          "title": "T-kolil B'eleba'al te Kavil (Mam)",
+          "text": "Ju T-kolil B'eleba'al nxq'uynen t-tx'olil b'eleba'al te Kavil te Guatemala, tu'n t-sje'n tnam ju placa ex tu'n t-kolil ja' t-sje'n elq'."
+        },
+        "gobierno_numeros": {
+          "title": "Tu Gobierno en Números (Mam)",
+          "text": "Aju lu' jun aq'untl te xq'uqil tu'n tten saqil ti'j pwaq ex aq'untl toj Organismo Ejecutivo, tu'ntzun t-xi kyka'yin xjal chi b'a'nxix."
+        },
+        "transparencia_codede": {
+          "title": "Transparencia CODEDE (Mam)",
+          "text": "Aju lu' jun aq'untl tuk'il ka'yb'il ntzaj tq'o'n tu'n t-xi ka'yit chi b'a'nxix tza'n n-ajb'en pwaq ex tza'n nxi b'et aq'untl kyu'n Consejos Departamentales de Desarrollo."
+        },
+        "canales_denuncias": {
+          "title": "Be te Q'i'n Tzij sa' Kolb'il (Mam)",
+          "text": "Ju Be te Q'i'n Tzij nq'on tzalajeb'il tu'n t-k'ulil q'i'n tzij sa' mukche' tib'aj elq' ex il, nxq'uynen kolb'il te tnam."
+        },
+        "riesgo_mira": {
+          "title": "T-tz'etb'il Elq' sa' Kolb'il (Mam)",
+          "text": "Ju T-tz'etb'il Elq' nxq'uynen t-tx'olil laq'ob'il pwaq tu'n t-kolil pwaq te tnam ch'atx t-elq'ij."
+        },
+        "acadeti": {
+          "title": "ACADETI (Mam)",
+          "text": "ACADETI jun ja te xnaq'tzb'il toj kematz'ib' ti'j b'a'n b'e, jikomal ex kolb'il ti'j elq', tuk'il tqanil, tilb'ilal ex aq'untl toj komon."
+        }
+      }
+    }
+  },
+  "canales": {
+    "es": {
+      "langKey": "es",
+      "name": "Español",
+      "badge": "Nacional",
+      "title": "Escuchar resumen informativo en Español",
+      "subtitle": "Locución oficial sintetizada sobre cómo presentar denuncias sobre irregularidades.",
+      "speechText": "Bienvenido a la Guía Multilingüe de Denuncia Segura de la Comisión Nacional contra la Corrupción. Para presentar una denuncia administrativa sobre cualquier falta de ética o corrupción en el Organismo Ejecutivo, siga cuatro pasos fundamentales: Primero, identifique el hecho o irregularidad. Segundo, elija su canal de preferencia como la línea 1514 o la plataforma Vigilando. Tercero, describa los detalles y adjunte evidencias si dispone de ellas. Cuarto, guarde su número correlativo de seguimiento. Su denuncia es 100% confidencial y protegida.",
+      "stepsHeading": "Procedimiento de Denuncia Segura en 4 Pasos",
+      "steps": [
+        {
+          "num": 1,
+          "title": "Identificación del Hecho",
+          "native": "Paso 1: Identificación",
+          "desc": "Identifica la posible irregularidad, acto de corrupción o falta ética cometida en la institución del Ejecutivo."
+        },
+        {
+          "num": 2,
+          "title": "Selección de Canal",
+          "native": "Paso 2: Selección de Canal",
+          "desc": "Elige el mecanismo que prefieras: Línea telefónica 1514, correo de probidad, formulario web o atención presencial."
+        },
+        {
+          "num": 3,
+          "title": "Descripción y Evidencias",
+          "native": "Paso 3: Detalle y Pruebas",
+          "desc": "Proporciona información clara del suceso y adjunta documentos o fotos de soporte si cuentas con ellos."
+        },
+        {
+          "num": 4,
+          "title": "Correlativo Confidencial",
+          "native": "Paso 4: Seguimiento",
+          "desc": "Conserva tu código de seguimiento único para verificar el estado de gestión de forma confidencial y anónima."
+        }
+      ],
+      "guaranteesTitle": "Garantías de Confidencialidad y Protección CNC",
+      "guarantees": [
+        {
+          "icon": "fa-user-secret",
+          "title": "100% Confidencial y Anónimo",
+          "desc": "No estás obligado a ingresar datos personales si temes por tu seguridad."
+        },
+        {
+          "icon": "fa-shield-alt",
+          "title": "Protección contra Represalias",
+          "desc": "Garantías éticas y legales para la protección del denunciante público y ciudadano."
+        },
+        {
+          "icon": "fa-clock",
+          "title": "Disponibilidad 24/7 en Línea",
+          "desc": "Recepcionamiento continuo mediante la plataforma oficial Vigilando la Integridad."
+        }
+      ],
+      "glossaryTitle": "Glosario de Términos en Lenguas Mayas",
+      "glossary": [
+        {
+          "termEs": "Corrupción",
+          "maya": "Corrupción",
+          "speech": "Corrupción: Uso indebido del poder público para beneficio privado."
+        },
+        {
+          "termEs": "Probidad",
+          "maya": "Probidad e Integridad",
+          "speech": "Probidad: Actuar con honestidad, transparencia y rectitud en el servicio público."
+        },
+        {
+          "termEs": "Denuncia",
+          "maya": "Denuncia Confidencial",
+          "speech": "Denuncia: Reporte formal sobre actos o irregularidades en el Estado."
+        },
+        {
+          "termEs": "Servidor Público",
+          "maya": "Servidor Público",
+          "speech": "Servidor público: Persona que trabaja e imparte servicios en las dependencias del Estado."
+        },
+        {
+          "termEs": "Transparencia",
+          "maya": "Transparencia",
+          "speech": "Transparencia: Acceso público y abierto a la información del gobierno."
+        }
+      ]
+    },
+    "en": {
+      "langKey": "en",
+      "name": "English",
+      "badge": "International / English",
+      "title": "Listen to the information summary in English",
+      "subtitle": "Official synthesized voice guide on how to safely submit corruption and irregularity reports.",
+      "speechText": "Welcome to the Multilingual Safe Reporting Guide of the National Commission against Corruption. To submit an administrative complaint regarding any corruption or lack of ethics in the Executive Branch, follow four key steps: First, identify the incident or irregularity. Second, choose your preferred channel such as line 1514 or the Vigilando platform. Third, describe the details and attach evidence if available. Fourth, keep your unique tracking code. Your report is 100% confidential and protected.",
+      "stepsHeading": "Safe Reporting Procedure in 4 Steps",
+      "steps": [
+        {
+          "num": 1,
+          "title": "Incident Identification",
+          "native": "Step 1: Identification",
+          "desc": "Identify any potential irregularity, act of corruption, or breach of ethics within executive institutions."
+        },
+        {
+          "num": 2,
+          "title": "Channel Selection",
+          "native": "Step 2: Channel Selection",
+          "desc": "Select your preferred mechanism: Hotline 1514, probity email, online form, or in-person desk."
+        },
+        {
+          "num": 3,
+          "title": "Details & Evidence",
+          "native": "Step 3: Details & Proof",
+          "desc": "Provide clear information about the event and attach supporting documents or photos if available."
+        },
+        {
+          "num": 4,
+          "title": "Confidential Tracking Code",
+          "native": "Step 4: Follow-up",
+          "desc": "Save your unique tracking code to safely and anonymously check the status of your report."
+        }
+      ],
+      "guaranteesTitle": "Confidentiality & Whistleblower Protection Guarantees (CNC)",
+      "guarantees": [
+        {
+          "icon": "fa-user-secret",
+          "title": "100% Confidential & Anonymous",
+          "desc": "You are not required to provide personal information if you fear for your safety."
+        },
+        {
+          "icon": "fa-shield-alt",
+          "title": "Whistleblower Protection",
+          "desc": "Ethical and legal guarantees to protect public servants and citizens who report."
+        },
+        {
+          "icon": "fa-clock",
+          "title": "24/7 Online Availability",
+          "desc": "Continuous reception of reports through the official Vigilando la Integridad platform."
+        }
+      ],
+      "glossaryTitle": "Integrity Glossary & English / Mayan Terminology",
+      "glossary": [
+        {
+          "termEs": "Corruption",
+          "maya": "Corruption",
+          "speech": "Corruption: Abuse of entrusted public power for private gain."
+        },
+        {
+          "termEs": "Probity",
+          "maya": "Probity & Integrity",
+          "speech": "Probity: Adherence to highest principles, honesty, and transparency in public service."
+        },
+        {
+          "termEs": "Report",
+          "maya": "Confidential Complaint",
+          "speech": "Complaint: Formal report regarding illegal acts or irregularities in government."
+        },
+        {
+          "termEs": "Public Servant",
+          "maya": "Public Servant",
+          "speech": "Public servant: Person employed in government agencies providing public services."
+        },
+        {
+          "termEs": "Transparency",
+          "maya": "Transparency",
+          "speech": "Transparency: Open and public access to government information and decision-making."
+        }
+      ]
+    },
+    "kiche": {
+      "langKey": "kiche",
+      "name": "K’iche’",
+      "badge": "Quiché / Totonicapán / Quetzaltenango",
+      "title": "Utatab'exik ri tz'ijob'al pa K’iche’",
+      "subtitle": "Síntesis hablada en idioma K’iche’ sobre cómo usar los canales de denuncia de forma segura.",
+      "speechText": "Utzilaj peik pa ri chak patan re la CNC. Ri q’alajisanik chi rij ri itzel b’anob’al xukuje’ k’axk’olil k’aslemal: Nab’ey, chaweta’maj ri mac o k’axk’olil. Ruka’n, cha’o ri b’e ruk’ ri ojer ch’a’wibal 1514 o pa internet Vigilando. Rox, tz’ibaj ri chak u b’antajik xukuje’ ya’o ri wujil. Rukaj, k'olowa ri retal ujujal rech pa chi’ ri q’alajisanik. Konojel ri q'alajisanik e ebal xukuje' chajim k'aslemal.",
+      "stepsHeading": "B'eyb'al rech Q'alajisanik Jikomal pa 4 Taqim",
+      "steps": [
+        {
+          "num": 1,
+          "title": "Eta’manik re ri Mac",
+          "native": "Nab’ey retal: Eta’manik",
+          "desc": "Chaweta’maj xukuje’ chatz’ib’aj ri itzel b’anob’al o k’axk’olil xutir pa ri ja re k’amal b’e."
+        },
+        {
+          "num": 2,
+          "title": "Cha’oj re ri B’e",
+          "native": "Ruka’n retal: Cha’oj b’e",
+          "desc": "Cha’o ri b’e utz chawe: Ch’a’wibal 1514, wuj pa correo, o pa ri q’alajisabal Vigilando."
+        },
+        {
+          "num": 3,
+          "title": "Ujujal xukuje’ Wujil",
+          "native": "Rox retal: Wujil q’alajisabal",
+          "desc": "Tz’ib’aj ronojel ri xbanik xukuje’ ya’o ri wujil o wachbal chi rij ri mac."
+        },
+        {
+          "num": 4,
+          "title": "K’olowik Retal Ujujal",
+          "native": "Rukaj retal: Retal chajinik",
+          "desc": "K’olowa ri rajilajuj retal rech katkunik katz’onoj chi rij ri q’alajisanik pa ebal."
+        }
+      ],
+      "guaranteesTitle": "Jikomal Ebal xukuje' Chajinik rech CNC",
+      "guarantees": [
+        {
+          "icon": "fa-user-secret",
+          "title": "Ebal xukuje’ Maj Bi’aj",
+          "desc": "Man k’atzin ta kaya’ ri abi’ we xiw kak’utuj ri chajinik."
+        },
+        {
+          "icon": "fa-shield-alt",
+          "title": "Chajinik re ri Ajq’alajisal",
+          "desc": "Garantías rech chajinik k’aslemal xukuje’ chak patan."
+        },
+        {
+          "icon": "fa-clock",
+          "title": "Chak Ronojel Q’ij (24/7)",
+          "desc": "Tzijim ri k’atel pa internet Vigilando la Integridad."
+        }
+      ],
+      "glossaryTitle": "Choltzij pa Mayab' Tzijob'al K'iche'",
+      "glossary": [
+        {
+          "termEs": "Corrupción",
+          "maya": "K’axk’olil k’aslemal",
+          "speech": "K’axk’olil k’aslemal: Ri uq’ab’alisaxik ri chak pa itzelal."
+        },
+        {
+          "termEs": "Probidad",
+          "maya": "Tiikil k’aslemal",
+          "speech": "Tiikil k’aslemal: B’anob’al pa saqilal xukuje’ tiikilil."
+        },
+        {
+          "termEs": "Denuncia",
+          "maya": "Q’alajisanik",
+          "speech": "Q’alajisanik: Ya’ik b’ixik chi rij ri mac o itzel b’anob’al."
+        },
+        {
+          "termEs": "Servidor Público",
+          "maya": "Ajchak re amaq’",
+          "speech": "Ajchak re amaq’: Jun winaq kachakun pa ri ja re k’amal b’e."
+        },
+        {
+          "termEs": "Transparencia",
+          "maya": "Saqilal",
+          "speech": "Saqilal: Tz’etbal re ronojel ri chak rech ri k’amal b’e."
+        }
+      ]
+    },
+    "qeqchi": {
+      "langKey": "qeqchi",
+      "name": "Q’eqchi’",
+      "badge": "Alta Verapaz / Baja Verapaz / Petén / Izabal",
+      "title": "Xyeeb’al sa’ Aatinob’aal Q’eqchi’",
+      "subtitle": "Síntesis informativa sintetizada en Q’eqchi’ sobre el procedimiento de denuncia segura.",
+      "speechText": "Chaawil sa’ xyanqeb’ li xk’anjelal li xboqb’al xq’ilal li moko tiik ta xkuutuil sa’ li tenamit. Re xyeeb’al li xq’ilal: Xb’een, tawil li xmaak o li moko tiik ta b’anbil. Xka’pakal, taxik sa’ li tenamityeb’al malaj sa’ li aatinob’aal 1514 malaj Vigilando. Xrox, tatz’iib’aq resil chi us xend chaq’ab’iiqeb’ li hu. Xkaahil, taxakab’ li xruuchil xbaatxeb’al re tatenq’aq. Chixjunil li xyeeb’al muqmu ut tenq’anbil.",
+      "stepsHeading": "B'e re Yehok Maak sa' Muqmu sa' Kaahib' Xxik",
+      "steps": [
+        {
+          "num": 1,
+          "title": "Xtawab’al li Maak",
+          "native": "Xb’een: Xtawab’al maak",
+          "desc": "Tawil ut tatenq’a xk’utb’al li moko tiik ta xkuutuil b’anbil sa’ li rochoch k’anjel."
+        },
+        {
+          "num": 2,
+          "title": "Xsaq’ob’al li B’e",
+          "native": "Xka’pakal: Xsaq’ob’al b’e",
+          "desc": "Tasik’ li aatinob’aal 1514, correo de probidad, malaj sa’ li k’atam Vigilando."
+        },
+        {
+          "num": 3,
+          "title": "Xyeechi’ing ut Hu",
+          "native": "Xrox: Xyeechi’ing hu",
+          "desc": "Tatz’iib’aq resil ut tawakliqeb’ li xhuulil o xfotoyil li xmaak b’anbil."
+        },
+        {
+          "num": 4,
+          "title": "Xmuqik li Rajlabil",
+          "native": "Xkaahil: Rajlabil muqmu",
+          "desc": "Tak’atqaliq li xrajlabil xbaatxeb’al re xraqb’al xkuutuil sa’ muqmuil."
+        }
+      ],
+      "guaranteesTitle": "Tenq'al Muqmu ut Kolb'al re CNC",
+      "guarantees": [
+        {
+          "icon": "fa-user-secret",
+          "title": "Muqmu ut Tz’aqal Tenq’anbil",
+          "desc": "Inc’a na’ajtaman aa k’ab’a’ re xyeeb’al li xmaak."
+        },
+        {
+          "icon": "fa-shield-alt",
+          "title": "Xkolb’al li Ajyeel Maak",
+          "desc": "Tenq’al chaq’rab’il re inc’a’ tatz’eq’te’q sa’ k’anjel."
+        },
+        {
+          "icon": "fa-clock",
+          "title": "K’anjelal Rajlal K’utan (24/7)",
+          "desc": "Li k’atam Vigilando wank sa’ k’unjil rajlal k’utan."
+        }
+      ],
+      "glossaryTitle": "Aatinob'aal sa' Mayab' Aatin Q'eqchi'",
+      "glossary": [
+        {
+          "termEs": "Corrupción",
+          "maya": "Moko tiik ta xkuutuil",
+          "speech": "Moko tiik ta xkuutuil: Xk’anjelajisinkil li awab’ejiik sa’ moko tiik ta."
+        },
+        {
+          "termEs": "Probidad",
+          "maya": "Tiikilal sa’ k’anjel",
+          "speech": "Tiikilal: K’anjelak sa’ tiikilal ut sa’ saqenil."
+        },
+        {
+          "termEs": "Denuncia",
+          "maya": "Xyeeb’al xq’ilal",
+          "speech": "Xyeeb’al xq’ilal: Xboqb’al ut xyeeb’al li maak b’anbil."
+        },
+        {
+          "termEs": "Servidor Público",
+          "maya": "Aj k’anjel chiru tenamit",
+          "speech": "Aj k’anjel chiru tenamit: Li poyanam na k’anjelak sa’ awab’ejil."
+        },
+        {
+          "termEs": "Transparencia",
+          "maya": "Saqenil sa’ k’anjel",
+          "speech": "Saqenil: Xk’utb’al chixjunil sa’ saqilal chiru tenamit."
+        }
+      ]
+    },
+    "kaqchikel": {
+      "langKey": "kaqchikel",
+      "name": "Kaqchikel",
+      "badge": "Chimaltenango / Sacatepéquez / Sololá",
+      "title": "Ruwachinik Tz’ij pa Kaqchikel",
+      "subtitle": "Síntesis oficial en Kaqchikel sobre la guía de denuncia e integridad institucional.",
+      "speechText": "Ütz ipeteb’al pa ri ruwäch tz’ijob’äl re ri CNC. Re ujikorisaxik ri itzel b’anob’al o k’ayewal pa ri samaj re amaq’: Nab’ey, tawila’ ri mac. Ruka’n, tacha’ ri ab’ey achi’el ri ojer ch’a’wib’äl 1514 o ri ruxe’el Vigilando. Rox, tatz’ib’aj ronojel xukuje’ taya’ ri wujil. Rukaj, tak’olo’ ri rajilabal retal rech nakanuj ri rujikorisaxik. Ronojel ri tz’ij e ewän xukuje’ chajin.",
+      "stepsHeading": "Rub'eyal Jikorisaxik pa Ewäl pa Kaji' Taqim",
+      "steps": [
+        {
+          "num": 1,
+          "title": "Rujikorisaxik Mac",
+          "native": "Nab’ey retal: Rujikorisaxik",
+          "desc": "Tawila’ xukuje’ tatz’et ri itzel b’anob’al b’anom pa ri samaj re amaq’."
+        },
+        {
+          "num": 2,
+          "title": "Rucha’ik B’ey",
+          "native": "Ruka’n retal: Rucha’ik b’ey",
+          "desc": "Tacha’ ri ch’a’wib’äl 1514, correo de probidad, o ri ruxe’el Vigilando."
+        },
+        {
+          "num": 3,
+          "title": "Rutz’ib’axik xukuje’ Wuj",
+          "native": "Rox retal: Wujil tz’eta’b’äl",
+          "desc": "Tatz’ib’aj achike xbanatej xukuje’ taya’ ri wuj o rachb’al."
+        },
+        {
+          "num": 4,
+          "title": "Ruk’oloxik Retal",
+          "native": "Rukaj retal: Retal ewäl",
+          "desc": "Tak’olo’ ri rajilabal retal rech nak’utuj ri rujikorisaxik pa ewäl."
+        }
+      ],
+      "guaranteesTitle": "Jikomal Ewäl chuqa' Ruchajixik CNC",
+      "guarantees": [
+        {
+          "icon": "fa-user-secret",
+          "title": "100% Ewäl xukuje’ Maj Bi’aj",
+          "desc": "Man k’atzin ta naya’ abi’ we nak’utuj ri chajinik."
+        },
+        {
+          "icon": "fa-shield-alt",
+          "title": "Ruchajixik Samajel",
+          "desc": "Tob’al re chajinik pa samaj xukuje’ pa k’aslemal."
+        },
+        {
+          "icon": "fa-clock",
+          "title": "Samaj Ronojel Q’ij (24/7)",
+          "desc": "Ruxe’el Vigilando k’o pa internet ronojel ramaj."
+        }
+      ],
+      "glossaryTitle": "Soltzij pa Maya' Ch'ab'äl Kaqchikel",
+      "glossary": [
+        {
+          "termEs": "Corrupción",
+          "maya": "Itzel b’anob’al",
+          "speech": "Itzel b’anob’al: Ruko’laxik ri uq’ab’al pa itzelil."
+        },
+        {
+          "termEs": "Probidad",
+          "maya": "Choojilal",
+          "speech": "Choojilal: Samajel pa choojilal xukuje’ pa saqilal."
+        },
+        {
+          "termEs": "Denuncia",
+          "maya": "Rujikorisaxik mac",
+          "speech": "Rujikorisaxik mac: Rutz’ib’axik xukuje’ ya’ik b’ixik re mac."
+        },
+        {
+          "termEs": "Servidor Público",
+          "maya": "Samajel re amaq’",
+          "speech": "Samajel re amaq’: Vinak kachakun pa rupeti’bal amaq’."
+        },
+        {
+          "termEs": "Transparencia",
+          "maya": "Saqilal pa samaj",
+          "speech": "Saqilal pa samaj: Rutz’etbal ronojel samaj chiru tenamit."
+        }
+      ]
+    },
+    "mam": {
+      "langKey": "mam",
+      "name": "Mam",
+      "badge": "Huehuetenango / San Marcos / Quetzaltenango",
+      "title": "Yol te Xpakyab’il pa Yol Mam",
+      "subtitle": "Síntesis accesible en idioma Mam sobre el proceso de denuncia y garantías de protección.",
+      "speechText": "B’an tzulena pa ri yol te xpakyab’il te CNC. Re t-xi t-q’ama’n jun myaw ba’n b’inchb’en pa ak’un te tnam: T-xe, t-ik’atz’ena ri myaw ba’n b’inchb’en. T-kab’in, t-sk’o’ya ri t-be achi’el ri yolb’il 1514 ma pa internet Vigilando. T-rox, t-tz’ib’ana ronojel xq’uqb’en utza’n t-q’ama’na wuj. T-kyajin, t-k’olob’a ri rajlab’al t-retal. Ronojel xpakyab’il te ewaj utz kolin.",
+      "stepsHeading": "T-b'eyil Xpakyab'il pa Ewajil sa' Kyaje' Taqam",
+      "steps": [
+        {
+          "num": 1,
+          "title": "T-ik’atz’en Myaw Ba’n",
+          "native": "T-xe retal: Ik’atz’en",
+          "desc": "T-ilintza utz t-tz’ib’anta ri myaw ba’n b’inchb’en b’inchajn pa ja te ak’unal."
+        },
+        {
+          "num": 2,
+          "title": "T-sk’o’ya B’ey",
+          "native": "T-kab’in retal: Sk’o’b’ej",
+          "desc": "T-sk’o’ya ri yolb’il 1514, correo de probidad, ma ri ruxe’el Vigilando."
+        },
+        {
+          "num": 3,
+          "title": "T-tz’ib’anjil utz Wuj",
+          "native": "T-rox retal: Wuj xq’uqb’en",
+          "desc": "T-tz’ib’anta tzu’n t-oba utz t-k’itz’a wuj ma foty te ch’ixb’il."
+        },
+        {
+          "num": 4,
+          "title": "T-k’olob’en Rajlab’al",
+          "native": "T-kyajin retal: Rajlab’al ewaj",
+          "desc": "T-k’olob’a ri rajlab’al t-retal te xq’uqlil pa ewajil."
+        }
+      ],
+      "guaranteesTitle": "Kolb'il Ewajil ex Kolil CNC",
+      "guarantees": [
+        {
+          "icon": "fa-user-secret",
+          "title": "Ewajil utz Nti’ Bi’aj",
+          "desc": "Nti’ t-ilo t-ja’ya bi’aj ka t-q’ama’ya."
+        },
+        {
+          "icon": "fa-shield-alt",
+          "title": "T-kolil Ajxpakyal",
+          "desc": "Kolil xq’uqb’en te t-ak’un utz te t-k’aslemal."
+        },
+        {
+          "icon": "fa-clock",
+          "title": "Ak’unal Q’ij Q’ij (24/7)",
+          "desc": "Ruxe’el Vigilando ate’ pa internet tkyaqil q’ij."
+        }
+      ],
+      "glossaryTitle": "Tx'oltzij pa Yol Maya Mam",
+      "glossary": [
+        {
+          "termEs": "Corrupción",
+          "maya": "Myaw ba’n b’inchb’en",
+          "speech": "Myaw ba’n b’inchb’en: T-ak’unil te tnam pa itzelil."
+        },
+        {
+          "termEs": "Probidad",
+          "maya": "Ba’n ch’ixb’il",
+          "speech": "Ba’n ch’ixb’il: Ak’unal pa choojil utz pa saqil."
+        },
+        {
+          "termEs": "Denuncia",
+          "maya": "Xpakyab’il",
+          "speech": "Xpakyab’il: T-xi q’ama’n myaw ba’n b’inchb’en."
+        },
+        {
+          "termEs": "Servidor Público",
+          "maya": "Aq’unal te tnam",
+          "speech": "Aq’unal te tnam: Xjal n-ak’unan pa ja te k’amal b’e."
+        },
+        {
+          "termEs": "Transparencia",
+          "maya": "Saqtz’il pa ak’un",
+          "speech": "Saqtz’il: T-ilintzaj tkyaqil ak’un chiru tnam."
+        }
+      ]
+    },
+    "tzutujil": {
+      "langKey": "tzutujil",
+      "name": "Tz'utujil",
+      "badge": "Sololá / Suchitepéquez",
+      "title": "Utatab'exik ri tz'ijob'al pa Tz'utujil",
+      "subtitle": "Síntesis hablada en Tz'utujil sobre canales de denuncia e integridad pública.",
+      "speechText": "Utzilaj peik pa ri chak patan re ri CNC. Re ujikorisaxik ri itzel b'anob'al pa ri qatinamit: Nab'ey, chaweta'maj ri mac. Ruka'n, cha'o ri b'e achi'el ri 1514 o Vigilando. Rox, tz'ibaj ronojel xukuje' ya'o ri wujil. Rukaj, k'olowa ri retal ujujal. Konojel ri q'alajisanik e ebal xukuje' chajin.",
+      "stepsHeading": "B'eyal Q'alajisanik Jikomal pa Kaji' Taqim",
+      "steps": [
+        {
+          "num": 1,
+          "title": "Eta’manik re ri Mac",
+          "native": "Nab’ey: Eta’manik",
+          "desc": "Chaweta’maj ri itzel b’anob’al o mac xutir pa ri rochoch k’amal b’ey."
+        },
+        {
+          "num": 2,
+          "title": "Cha’oj re ri B’e",
+          "native": "Ruka’n: Cha’oj b’e",
+          "desc": "Cha’o ri b’e utz: Ch’a’wibal 1514, correo de probidad, o ri plataforma Vigilando."
+        },
+        {
+          "num": 3,
+          "title": "Wujil xukuje’ Pruebas",
+          "native": "Rox: Wujil q’alajisabal",
+          "desc": "Tz’ib’aj ronojel ri xbanik xukuje’ ya’o ri wujil o wachbal chi rij ri mac."
+        },
+        {
+          "num": 4,
+          "title": "Retal Chajinik",
+          "native": "Rukaj: Retal ewäl",
+          "desc": "K’olowa ri rajilajuj retal rech katkunik katz’onoj pa ewäl."
+        }
+      ],
+      "guaranteesTitle": "Jikomal Ewäl chuqa' Ruchajixik CNC",
+      "guarantees": [
+        {
+          "icon": "fa-user-secret",
+          "title": "100% Ewäl xukuje’ Maj Bi’aj",
+          "desc": "Man k’atzin ta kaya’ ri abi’ we xiw kak’utuj ri chajinik."
+        },
+        {
+          "icon": "fa-shield-alt",
+          "title": "Ruchajixik Ajq’alajisal",
+          "desc": "Garantías rech chajinik k’aslemal xukuje’ chak patan."
+        },
+        {
+          "icon": "fa-clock",
+          "title": "Chak Ronojel Q’ij (24/7)",
+          "desc": "Tzijim ri k’atel pa internet Vigilando la Integridad."
+        }
+      ],
+      "glossaryTitle": "Soltzij pa Tz'utujil Tzijob'al",
+      "glossary": [
+        {
+          "termEs": "Corrupción",
+          "maya": "Itzel b’anob’al",
+          "speech": "Itzel b’anob’al: Ri uq’ab’alisaxik ri chak pa itzelal."
+        },
+        {
+          "termEs": "Probidad",
+          "maya": "Choojilal",
+          "speech": "Choojilal: B’anob’al pa saqilal xukuje’ choojilal."
+        },
+        {
+          "termEs": "Denuncia",
+          "maya": "Q’alajisanik",
+          "speech": "Q’alajisanik: Ya’ik b’ixik chi rij ri mac o itzel b’anob’al."
+        },
+        {
+          "termEs": "Servidor Público",
+          "maya": "Samajel re amaq’",
+          "speech": "Samajel re amaq’: Jun winaq kachakun pa ri rochoch k’amal b’ey."
+        },
+        {
+          "termEs": "Transparencia",
+          "maya": "Saqilal",
+          "speech": "Saqilal: Tz’etbal re ronojel ri chak rech ri k’amal b’ey."
+        }
+      ]
+    },
+    "poqomchi": {
+      "langKey": "poqomchi",
+      "name": "Poqomchi'",
+      "badge": "Alta Verapaz / Baja Verapaz",
+      "title": "Xyeeb'al sa' Aatinob'aal Poqomchi'",
+      "subtitle": "Síntesis en idioma Poqomchi' sobre el procedimiento de denuncia y protección ciudadana.",
+      "speechText": "Chaawil sa' xyanqeb' li xk'anjelal li xboqb'al xq'ilal li moko tiik ta pan qatinamit. Re xyeeb'al li xq'ilal: Xb'een, tawil li xmaak. Xka'pakal, taxik sa' li aatinob'aal 1514 malaj Vigilando. Xrox, tatz'iib'aq resil ut ch'aqab'iiqeb' li hu. Xkaahil, taxakab' li xrajlabil. Chixjunil muqmu ut kolb'il.",
+      "stepsHeading": "B'e re Q'orb'al Maak sa' Muqmu pan Kajeeb' Xxik",
+      "steps": [
+        {
+          "num": 1,
+          "title": "Xtawab’al li Maak",
+          "native": "Xb’een: Xtawab’al",
+          "desc": "Tawil ut tatenq’a xk’utb’al li moko tiik ta xkuutuil pan rochoch k’amalb’e."
+        },
+        {
+          "num": 2,
+          "title": "Xsaq’ob’al li B’e",
+          "native": "Xka’pakal: Xsaq’ob’al",
+          "desc": "Tasik’ li aatinob’aal 1514, correo de probidad, malaj sa’ li k’atam Vigilando."
+        },
+        {
+          "num": 3,
+          "title": "Xyeechi’ing ut Hu",
+          "native": "Xrox: Xyeechi’ing",
+          "desc": "Tatz’iib’aq resil ut tawakliqeb’ li xhuulil o xfotoyil li xmaak."
+        },
+        {
+          "num": 4,
+          "title": "Xmuqik li Rajlabil",
+          "native": "Xkaahil: Rajlabil muqmu",
+          "desc": "Tak’atqaliq li xrajlabil xbaatxeb’al re xraqb’al sa’ muqmuil."
+        }
+      ],
+      "guaranteesTitle": "Muqmuil ut Kolb'al re CNC",
+      "guarantees": [
+        {
+          "icon": "fa-user-secret",
+          "title": "Muqmu ut Tz’aqal Kolb’il",
+          "desc": "Inc’a na’ajtaman aa k’ab’a’ re xyeeb’al li xmaak."
+        },
+        {
+          "icon": "fa-shield-alt",
+          "title": "Xkolb’al li Ajyeel Maak",
+          "desc": "Tenq’al chaq’rab’il re inc’a’ tatz’eq’te’q pan k’anjel."
+        },
+        {
+          "icon": "fa-clock",
+          "title": "K’anjelal Rajlal K’utan (24/7)",
+          "desc": "Li k’atam Vigilando wank sa’ k’unjil rajlal k’utan."
+        }
+      ],
+      "glossaryTitle": "Ahtinob'al pan Poqomchi' Tzij",
+      "glossary": [
+        {
+          "termEs": "Corrupción",
+          "maya": "Moko tiik ta xkuutuil",
+          "speech": "Moko tiik ta: Xk’anjelajisinkil li awab’ejiik sa’ moko tiik ta."
+        },
+        {
+          "termEs": "Probidad",
+          "maya": "Tiikilal pan k’anjel",
+          "speech": "Tiikilal: K’anjelak sa’ tiikilal ut sa’ saqenil."
+        },
+        {
+          "termEs": "Denuncia",
+          "maya": "Q’orb’al maak",
+          "speech": "Q’orb’al maak: Xboqb’al ut xyeeb’al li maak b’anbil."
+        },
+        {
+          "termEs": "Servidor Público",
+          "maya": "Aj k’anjel re tinamit",
+          "speech": "Aj k’anjel: Li poyanam na k’anjelak sa’ awab’ejil."
+        },
+        {
+          "termEs": "Transparencia",
+          "maya": "Saqilal",
+          "speech": "Saqilal: Xk’utb’al chixjunil pan saqilal chiru tenamit."
+        }
+      ]
+    }
+  },
+  "i18n": {
+    "es": {
+      "Inicio": "Inicio",
+      "Consulta": "Consulta",
+      "Explora": "Explora",
+      "Aprende": "Aprende",
+      "Reporta": "Reporta",
+      "Directorio institucional": "Directorio institucional",
+      "Transparencia Vehicular": "Transparencia Vehicular",
+      "Transparencia CODEDE": "Transparencia CODEDE",
+      "Tu Gobierno en números": "Tu Gobierno en números",
+      "Radiografía de la Corrupción": "Radiografía de la Corrupción",
+      "Riesgo en la Mira": "Riesgo en la Mira",
+      "ACADETI": "ACADETI",
+      "Canales por la Integridad": "Canales por la Integridad",
+      "Vigilando": "Vigilando",
+      "Consultar canales": "Consultar canales",
+      "Guía de Denuncia Segura": "Guía de Denuncia Segura",
+      "¿Qué es Canales por la Integridad?": "¿Qué es Canales por la Integridad?",
+      "Canales de denuncia": "Canales de denuncia",
+      "Listado de Canales de denuncia del Organismo Ejecutivo": "Listado de Canales de denuncia del Organismo Ejecutivo",
+      "Tarjetas": "Tarjetas",
+      "Lista": "Lista",
+      "Filtros de Búsqueda": "Filtros de Búsqueda",
+      "Tipo institución": "Tipo institución",
+      "Nombre": "Nombre",
+      "Búsqueda libre": "Búsqueda libre",
+      "Favoritos": "Favoritos",
+      "Restablecer filtros": "Restablecer filtros",
+      "Instituciones": "Instituciones",
+      "Con Protocolo de Actuación": "Con Protocolo de Actuación",
+      "Protocolo de actuación - Emitido": "Protocolo de actuación - Emitido",
+      "Protocolo de actuación - En proceso": "Protocolo de actuación - En proceso",
+      "Exportar PDF": "Exportar PDF",
+      "Exportar Excel": "Exportar Excel",
+      "Detalles": "Detalles",
+      "Procedimiento de Denuncia Segura en 4 Pasos": "Procedimiento de Denuncia Segura en 4 Pasos",
+      "Garantías de Confidencialidad y Protección CNC": "Garantías de Confidencialidad y Protección CNC",
+      "Glosario de Términos en Lenguas Mayas": "Glosario de Términos en Lenguas Mayas",
+      "Dashboard de Cumplimiento del Protocolo CNC": "Dashboard de Cumplimiento del Protocolo CNC",
+      "Mostrar Dashboard de Cumplimiento CNC": "Mostrar Dashboard de Cumplimiento CNC",
+      "Ocultar Dashboard de Cumplimiento CNC": "Ocultar Dashboard de Cumplimiento CNC",
+      "Corrupción": "Corrupción",
+      "Probidad": "Probidad",
+      "Denuncia": "Denuncia",
+      "Servidor Público": "Servidor Público",
+      "Transparencia": "Transparencia"
+    },
+    "en": {
+      "Inicio": "Home",
+      "Consulta": "Directory & Query",
+      "Explora": "Explore",
+      "Aprende": "Learn",
+      "Reporta": "Report",
+      "Directorio institucional": "Institutional Directory",
+      "Transparencia Vehicular": "Vehicle Transparency",
+      "Transparencia CODEDE": "CODEDE Transparency",
+      "Tu Gobierno en números": "Government in Numbers",
+      "Radiografía de la Corrupción": "Corruption Radiography",
+      "Riesgo en la Mira": "Risk Spotlight",
+      "ACADETI": "ACADETI Academy",
+      "Canales por la Integridad": "Channels for Integrity",
+      "Vigilando": "Vigilando Platform",
+      "Consultar canales": "Search Channels",
+      "Guía de Denuncia Segura": "Safe Reporting Guide",
+      "¿Qué es Canales por la Integridad?": "What is Channels for Integrity?",
+      "Canales de denuncia": "Reporting Channels",
+      "Listado de Canales de denuncia del Organismo Ejecutivo": "List of Reporting Channels of the Executive Branch",
+      "Tarjetas": "Cards",
+      "Lista": "List",
+      "Filtros de Búsqueda": "Search Filters",
+      "Tipo institución": "Institution Type",
+      "Nombre": "Name",
+      "Búsqueda libre": "Keyword Search",
+      "Favoritos": "Favorites",
+      "Restablecer filtros": "Reset Filters",
+      "Instituciones": "Institutions",
+      "Con Protocolo de Actuación": "With Action Protocol",
+      "Protocolo de actuación - Emitido": "Action Protocol - Issued",
+      "Protocolo de actuación - En proceso": "Action Protocol - In Progress",
+      "Exportar PDF": "Export PDF",
+      "Exportar Excel": "Export Excel",
+      "Detalles": "Details",
+      "Procedimiento de Denuncia Segura en 4 Pasos": "Safe Reporting Procedure in 4 Steps",
+      "Garantías de Confidencialidad y Protección CNC": "Confidentiality & Protection Guarantees (CNC)",
+      "Glosario de Términos en Lenguas Mayas": "Glossary of Terms in Mayan Languages",
+      "Dashboard de Cumplimiento del Protocolo CNC": "CNC Protocol Compliance Dashboard",
+      "Mostrar Dashboard de Cumplimiento CNC": "Show CNC Compliance Dashboard",
+      "Ocultar Dashboard de Cumplimiento CNC": "Hide CNC Compliance Dashboard",
+      "Corrupción": "Corruption",
+      "Probidad": "Probity",
+      "Denuncia": "Complaint / Report",
+      "Servidor Público": "Public Servant",
+      "Transparencia": "Transparency"
+    },
+    "kiche": {
+      "Inicio": "Nab'ey Uwach",
+      "Consulta": "Tz'ononik",
+      "Explora": "Tz'etonik",
+      "Aprende": "Eta'manik",
+      "Reporta": "Q'alajisanik",
+      "Directorio institucional": "K'olbal K'amal B'e",
+      "Transparencia Vehicular": "Saqilal rech Ch'ich'",
+      "Transparencia CODEDE": "Saqilal CODEDE",
+      "Tu Gobierno en números": "Qatinamit pa Ajlab'al",
+      "Radiografía de la Corrupción": "Q'alajisanik Itzelal",
+      "Riesgo en la Mira": "Q'atb'al Elq'anem",
+      "ACADETI": "Tijob'al ACADETI",
+      "Canales por la Integridad": "B'e rech Jikomal",
+      "Vigilando": "Vigilando la Integridad",
+      "Consultar canales": "Chatzukuj B'ey",
+      "Guía de Denuncia Segura": "Uwachb'al Q'alajisanik Jikomal",
+      "¿Qué es Canales por la Integridad?": "¿Jas ri B'e rech Jikomal?",
+      "Canales de denuncia": "B'e rech Q'alajisanik",
+      "Listado de Canales de denuncia del Organismo Ejecutivo": "Cholb'al B'e rech Q'alajisanik rech ri K'amal B'e",
+      "Tarjetas": "Wujil",
+      "Lista": "Cholaj",
+      "Filtros de Búsqueda": "Chayub'al Tzukunem",
+      "Tipo institución": "Uwach Patanib'al",
+      "Nombre": "Bi'aj",
+      "Búsqueda libre": "Tzukunem",
+      "Favoritos": "Cha'om",
+      "Restablecer filtros": "K'isb'al Chayub'al",
+      "Instituciones": "Patanib'al Amaq'",
+      "Con Protocolo de Actuación": "Ruk' B'eyb'al Chak",
+      "Protocolo de actuación - Emitido": "B'eyb'al Chak - Tz'aqat Ya'om",
+      "Protocolo de actuación - En proceso": "B'eyb'al Chak - Tajin Ub'anik",
+      "Exportar PDF": "Wujil PDF",
+      "Exportar Excel": "Wujil Excel",
+      "Detalles": "Rilixik",
+      "Procedimiento de Denuncia Segura en 4 Pasos": "B'eyb'al rech Q'alajisanik Jikomal pa 4 Taqim",
+      "Garantías de Confidencialidad y Protección CNC": "Jikomal Ebal xukuje' Chajinik rech CNC",
+      "Glosario de Términos en Lenguas Mayas": "Choltzij pa Mayab' Tzijob'al",
+      "Dashboard de Cumplimiento del Protocolo CNC": "Wachbalil Pajtij rech B'eyb'al CNC",
+      "Mostrar Dashboard de Cumplimiento CNC": "K'utu' Wachbalil Pajtij CNC",
+      "Ocultar Dashboard de Cumplimiento CNC": "Ewa' Wachbalil Pajtij CNC",
+      "Corrupción": "K’axk’olil k’aslemal",
+      "Probidad": "Tiikil k’aslemal",
+      "Denuncia": "Q’alajisanik",
+      "Servidor Público": "Ajchak re amaq’",
+      "Transparencia": "Saqilal"
+    },
+    "qeqchi": {
+      "Inicio": "Xb'eenil",
+      "Consulta": "Tz'ilok",
+      "Explora": "Sik'ok",
+      "Aprende": "Tz'olek",
+      "Reporta": "Yehok Maak",
+      "Directorio institucional": "Rochochil K'anjel",
+      "Transparencia Vehicular": "Saqenil li B'eleba'aal",
+      "Transparencia CODEDE": "Saqenil CODEDE",
+      "Tu Gobierno en números": "Li Tenamit sa' Ajl",
+      "Radiografía de la Corrupción": "Xcha'alil li Moko Tiik Ta",
+      "Riesgo en la Mira": "Xk'amb'al li C'a'ux",
+      "ACADETI": "Tz'oleb'aal ACADETI",
+      "Canales por la Integridad": "B'e re Tiikilal",
+      "Vigilando": "Vigilando la Integridad",
+      "Consultar canales": "Sik'eb' li B'e",
+      "Guía de Denuncia Segura": "K'utb'esihom re Yehok Maak sa' Muqmu",
+      "¿Qué es Canales por la Integridad?": "¿K'aru li B'e re Tiikilal?",
+      "Canales de denuncia": "B'e re Yehok Maak",
+      "Listado de Canales de denuncia del Organismo Ejecutivo": "Xtuslal li B'e re Yehok Maak re li Awab'ejil",
+      "Tarjetas": "Hu",
+      "Lista": "Tuslal",
+      "Filtros de Búsqueda": "Chayleb'al Sik'ok",
+      "Tipo institución": "Xpaayil Rochochil K'anjel",
+      "Nombre": "K'ab'a'ej",
+      "Búsqueda libre": "Sik'ok",
+      "Favoritos": "Sik'b'ileb'",
+      "Restablecer filtros": "K'ojob'ankil Chayleb'al",
+      "Instituciones": "Rochochil K'anjel",
+      "Con Protocolo de Actuación": "Ruk' B'ey K'anjel",
+      "Protocolo de actuación - Emitido": "B'ey K'anjel - K'eeb'il Chaq",
+      "Protocolo de actuación - En proceso": "B'ey K'anjel - Yook K'anjelak",
+      "Exportar PDF": "Xk'eb'al sa' PDF",
+      "Exportar Excel": "Xk'eb'al sa' Excel",
+      "Detalles": "Rileb'al",
+      "Procedimiento de Denuncia Segura en 4 Pasos": "B'e re Yehok Maak sa' Muqmu sa' Kaahib' Xxik",
+      "Garantías de Confidencialidad y Protección CNC": "Tenq'al Muqmu ut Kolb'al re CNC",
+      "Glosario de Términos en Lenguas Mayas": "Aatinob'aal sa' Mayab' Aatin",
+      "Dashboard de Cumplimiento del Protocolo CNC": "Xcha'alil Xk'anjelil li B'ey CNC",
+      "Mostrar Dashboard de Cumplimiento CNC": "K'utb'esinkil Xcha'alil CNC",
+      "Ocultar Dashboard de Cumplimiento CNC": "Muqb'al Xcha'alil CNC",
+      "Corrupción": "Moko tiik ta xkuutuil",
+      "Probidad": "Tiikilal sa’ k’anjel",
+      "Denuncia": "Xyeeb’al xq’ilal",
+      "Servidor Público": "Aj k’anjel chiru tenamit",
+      "Transparencia": "Saqenil sa’ k’anjel"
+    },
+    "kaqchikel": {
+      "Inicio": "Rutikirb'al",
+      "Consulta": "Tz'ononik",
+      "Explora": "Kanoj",
+      "Aprende": "Etamab'al",
+      "Reporta": "Rujikorisaxik",
+      "Directorio institucional": "Ruk'olbal Samaj",
+      "Transparencia Vehicular": "Saqilal rech Ch'ich'",
+      "Transparencia CODEDE": "Saqilal CODEDE",
+      "Tu Gobierno en números": "Qatinamit pa Ajlab'al",
+      "Radiografía de la Corrupción": "Rutz'etbal Itzelal",
+      "Riesgo en la Mira": "Tz'etoj Ruyonal Elaq'",
+      "ACADETI": "Tijob'al ACADETI",
+      "Canales por la Integridad": "B'ey richin Jikomal",
+      "Vigilando": "Vigilando la Integridad",
+      "Consultar canales": "Consultar canales",
+      "Guía de Denuncia Segura": "Ruwachb'al Jikorisaxik pa Ewäl",
+      "¿Qué es Canales por la Integridad?": "¿Achike ri B'ey richin Jikomal?",
+      "Canales de denuncia": "B'ey richin Jikorisaxik",
+      "Listado de Canales de denuncia del Organismo Ejecutivo": "Rucholajem B'ey richin Jikorisaxik pa Poponem Amaq'",
+      "Tarjetas": "Wuj",
+      "Lista": "Cholajem",
+      "Filtros de Búsqueda": "Chayub'al Samaj",
+      "Tipo institución": "Ruvech Samajel",
+      "Nombre": "B'i'aj",
+      "Búsqueda libre": "Kanoj Samaj",
+      "Favoritos": "Cha'on",
+      "Restablecer filtros": "Ruk'exik Chayub'al",
+      "Instituciones": "Rochoch Samaj",
+      "Con Protocolo de Actuación": "Rik'in B'eyb'al Samaj",
+      "Protocolo de actuación - Emitido": "B'eyb'al Samaj - Ya'on",
+      "Protocolo de actuación - En proceso": "B'eyb'al Samaj - Tajin B'anik",
+      "Exportar PDF": "Relesaxik PDF",
+      "Exportar Excel": "Relesaxik Excel",
+      "Detalles": "Rutz'etexik",
+      "Procedimiento de Denuncia Segura en 4 Pasos": "Rub'eyal Jikorisaxik pa Ewäl pa Kaji' Taqim",
+      "Garantías de Confidencialidad y Protección CNC": "Jikomal Ewäl chuqa' Ruchajixik CNC",
+      "Glosario de Términos en Lenguas Mayas": "Soltzij pa Maya' Ch'ab'äl",
+      "Dashboard de Cumplimiento del Protocolo CNC": "Ruk'utb'al Tz'aqat Samaj CNC",
+      "Mostrar Dashboard de Cumplimiento CNC": "K'utu' Ruk'utb'al CNC",
+      "Ocultar Dashboard de Cumplimiento CNC": "Ewaj Ruk'utb'al CNC",
+      "Corrupción": "Itzel b’anob’al",
+      "Probidad": "Choojilal",
+      "Denuncia": "Rujikorisaxik mac",
+      "Servidor Público": "Samajel re amaq’",
+      "Transparencia": "Saqilal pa samaj"
+    },
+    "mam": {
+      "Inicio": "T-xe",
+      "Consulta": "Q'ol Tzij",
+      "Explora": "Kano'n",
+      "Aprende": "Xnaq'tzb'il",
+      "Reporta": "Xpakyab'il",
+      "Directorio institucional": "T-tx'olil Ja te Ak'unal",
+      "Transparencia Vehicular": "Saqtz'il B'eleba'al",
+      "Transparencia CODEDE": "Saqtz'il CODEDE",
+      "Tu Gobierno en números": "Ju Tnam sa' Ajlab'il",
+      "Radiografía de la Corrupción": "T-tz'etb'il Myaw Ba'n",
+      "Riesgo en la Mira": "T-tz'etb'il Elq'",
+      "ACADETI": "Ja te Xnaq'tzb'il ACADETI",
+      "Canales por la Integridad": "Be te Jikomal",
+      "Vigilando": "Vigilando la Integridad",
+      "Consultar canales": "Kano'n Be",
+      "Guía de Denuncia Segura": "Uwach Xpakyab'il pa Ewajil",
+      "¿Qué es Canales por la Integridad?": "¿Ti'tzan ju Be te Jikomal?",
+      "Canales de denuncia": "Be te Xpakyab'il",
+      "Listado de Canales de denuncia del Organismo Ejecutivo": "T-tx'olil Be te Xpakyab'il te Kavil Kavil",
+      "Tarjetas": "Wuj",
+      "Lista": "Tx'olil",
+      "Filtros de Búsqueda": "Chayb'il Kanub'il",
+      "Tipo institución": "T-xilen Ak'unal",
+      "Nombre": "Bi'aj",
+      "Búsqueda libre": "Kanb'il",
+      "Favoritos": "Sk'o'n",
+      "Restablecer filtros": "Najsb'il Chayb'il",
+      "Instituciones": "Ja te Kavil",
+      "Con Protocolo de Actuación": "Tuk'il Be te Ak'un",
+      "Protocolo de actuación - Emitido": "Be te Ak'un - T-xik Q'on",
+      "Protocolo de actuación - En proceso": "Be te Ak'un - N-b'ant",
+      "Exportar PDF": "Xb'ant sa' PDF",
+      "Exportar Excel": "Xb'ant sa' Excel",
+      "Detalles": "T-tz'etb'il",
+      "Procedimiento de Denuncia Segura en 4 Pasos": "T-b'eyil Xpakyab'il pa Ewajil sa' Kyaje' Taqam",
+      "Garantías de Confidencialidad y Protección CNC": "Kolb'il Ewajil ex Kolil CNC",
+      "Glosario de Términos en Lenguas Mayas": "Tx'oltzij pa Yol Maya",
+      "Dashboard de Cumplimiento del Protocolo CNC": "Wachb'alil T-k'ulb'en Be CNC",
+      "Mostrar Dashboard de Cumplimiento CNC": "K'utb'en Wachb'alil CNC",
+      "Ocultar Dashboard de Cumplimiento CNC": "Ewaj Wachb'alil CNC",
+      "Corrupción": "Myaw ba’n b’inchb’en",
+      "Probidad": "Ba’n ch’ixb’il",
+      "Denuncia": "Xpakyab’il",
+      "Servidor Público": "Aq’unal te tnam",
+      "Transparencia": "Saqtz’il pa ak’un"
+    },
+    "tzutujil": {
+      "Inicio": "Rutikirb'al",
+      "Consulta": "Tz'ononik",
+      "Explora": "Kanoj",
+      "Aprende": "Etamab'al",
+      "Reporta": "Q'alajisanik",
+      "Directorio institucional": "Rochoch K'amal B'ey",
+      "Transparencia Vehicular": "Saqilal Ch'ich'",
+      "Transparencia CODEDE": "Saqilal CODEDE",
+      "Tu Gobierno en números": "Qatinamit pa Ajlab'al",
+      "Radiografía de la Corrupción": "Rilbal Elaq'",
+      "Riesgo en la Mira": "Chajinik Elaq'",
+      "ACADETI": "Tijob'al ACADETI",
+      "Canales por la Integridad": "B'ey rech Jikomal",
+      "Vigilando": "Vigilando la Integridad",
+      "Consultar canales": "Chakanuj B'ey",
+      "Guía de Denuncia Segura": "B'eyb'al Q'alajisanik pa Ewäl",
+      "¿Qué es Canales por la Integridad?": "¿Achike ri B'ey rech Jikomal?",
+      "Canales de denuncia": "B'ey rech Q'alajisanik",
+      "Listado de Canales de denuncia del Organismo Ejecutivo": "Cholaj B'ey rech Q'alajisanik rech ri K'amal B'ey",
+      "Tarjetas": "Wujil",
+      "Lista": "Cholaj",
+      "Filtros de Búsqueda": "Chayub'al Tzukunem",
+      "Tipo institución": "Uwach Rochochil",
+      "Nombre": "B'i'aj",
+      "Búsqueda libre": "Tzukunem",
+      "Favoritos": "Cha'om",
+      "Restablecer filtros": "K'exb'al Chayub'al",
+      "Instituciones": "Rochochil Amaq'",
+      "Con Protocolo de Actuación": "Rik'in B'eyb'al Chak",
+      "Protocolo de actuación - Emitido": "B'eyb'al Chak - Ya'on",
+      "Protocolo de actuación - En proceso": "B'eyb'al Chak - Tajin Ub'anik",
+      "Exportar PDF": "Wujil PDF",
+      "Exportar Excel": "Wujil Excel",
+      "Detalles": "Rilixik",
+      "Procedimiento de Denuncia Segura en 4 Pasos": "B'eyal Q'alajisanik Jikomal pa Kaji' Taqim",
+      "Garantías de Confidencialidad y Protección CNC": "Jikomal Ewäl chuqa' Ruchajixik CNC",
+      "Glosario de Términos en Lenguas Mayas": "Soltzij pa Tz'utujil Tzijob'al",
+      "Dashboard de Cumplimiento del Protocolo CNC": "Wachbalil Tz'aqat Samaj CNC",
+      "Mostrar Dashboard de Cumplimiento CNC": "K'utu' Wachbalil CNC",
+      "Ocultar Dashboard de Cumplimiento CNC": "Ewaj Wachbalil CNC",
+      "Corrupción": "Itzel b’anob’al",
+      "Probidad": "Choojilal",
+      "Denuncia": "Q'alajisanik",
+      "Servidor Público": "Samajel re amaq’",
+      "Transparencia": "Saqilal"
+    },
+    "poqomchi": {
+      "Inicio": "Xtikrjiik",
+      "Consulta": "Pahiik",
+      "Explora": "Sik'iik",
+      "Aprende": "Na'lb'iik",
+      "Reporta": "Q'orb'al Maak",
+      "Directorio institucional": "Rochochil K'amalb'e",
+      "Transparencia Vehicular": "Saqilal Ch'ihch'",
+      "Transparencia CODEDE": "Saqilal CODEDE",
+      "Tu Gobierno en números": "Qatinamit pan Ajl",
+      "Radiografía de la Corrupción": "Rilb'al Maak",
+      "Riesgo en la Mira": "Cha'jnil Elaq'",
+      "ACADETI": "Tijob'al ACADETI",
+      "Canales por la Integridad": "B'e re Jikomal",
+      "Vigilando": "Vigilando la Integridad",
+      "Consultar canales": "Sik'eb' li B'e",
+      "Guía de Denuncia Segura": "K'uhtesb'al Q'orb'al Maak sa' Muqmu",
+      "¿Qué es Canales por la Integridad?": "¿Chaj b'i' li B'e re Jikomal?",
+      "Canales de denuncia": "B'e re Q'orb'al Maak",
+      "Listado de Canales de denuncia del Organismo Ejecutivo": "Tuslal B'e re Q'orb'al Maak re li Awab'ejil",
+      "Tarjetas": "Hu",
+      "Lista": "Tuslal",
+      "Filtros de Búsqueda": "Chayleb'al",
+      "Tipo institución": "Xpaayil Rochochil",
+      "Nombre": "B'ihnaal",
+      "Búsqueda libre": "Sik'iik",
+      "Favoritos": "Sik'b'ileb'",
+      "Restablecer filtros": "K'ojob'ankil Chayleb'al",
+      "Instituciones": "Rochochil K'amalb'e",
+      "Con Protocolo de Actuación": "Ruk' B'ey K'anjel",
+      "Protocolo de actuación - Emitido": "B'ey K'anjel - K'eeb'il",
+      "Protocolo de actuación - En proceso": "B'ey K'anjel - Yook B'anariik",
+      "Exportar PDF": "Xk'eb'al pan PDF",
+      "Exportar Excel": "Xk'eb'al pan Excel",
+      "Detalles": "Rilb'al",
+      "Procedimiento de Denuncia Segura en 4 Pasos": "B'e re Q'orb'al Maak sa' Muqmu pan Kajeeb' Xxik",
+      "Garantías de Confidencialidad y Protección CNC": "Muqmuil ut Kolb'al re CNC",
+      "Glosario de Términos en Lenguas Mayas": "Ahtinob'al pan Poqomchi' Tzij",
+      "Dashboard de Cumplimiento del Protocolo CNC": "Xcha'alil K'anjelil CNC",
+      "Mostrar Dashboard de Cumplimiento CNC": "K'uhtunk Xcha'alil CNC",
+      "Ocultar Dashboard de Cumplimiento CNC": "Muqb'al Xcha'alil CNC",
+      "Corrupción": "Moko tiik ta xkuutuil",
+      "Probidad": "Tiikilal pan k'anjel",
+      "Denuncia": "Q'orb'al maak",
+      "Servidor Público": "Aj k'anjel re tinamit",
+      "Transparencia": "Saqilal"
+    }
+  }
+}
